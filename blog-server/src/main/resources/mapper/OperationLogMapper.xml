@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iksling.blog.mapper.OperationLogMapper">
+
+    <resultMap id="BaseResultMap" type="com.iksling.blog.entity.OperationLog">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="optUri" column="opt_uri" jdbcType="VARCHAR"/>
+            <result property="optType" column="opt_type" jdbcType="VARCHAR"/>
+            <result property="optModule" column="opt_module" jdbcType="VARCHAR"/>
+            <result property="optMethod" column="opt_method" jdbcType="VARCHAR"/>
+            <result property="optDesc" column="opt_desc" jdbcType="VARCHAR"/>
+            <result property="requestParam" column="request_param" jdbcType="VARCHAR"/>
+            <result property="requestMethod" column="request_method" jdbcType="VARCHAR"/>
+            <result property="responseData" column="response_data" jdbcType="VARCHAR"/>
+            <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
+            <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,opt_uri,
+        opt_type,opt_module,opt_method,
+        opt_desc,request_param,request_method,
+        response_data,ip_address,ip_source,
+        create_time
+    </sql>
+</mapper>

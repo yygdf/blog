@@ -33,7 +33,7 @@
         select distinct
             m.id, m.user_id, m.path,
             m.name, m.component, m.icon,
-            m.parent_id, m.is_disabled
+            m.parent_id, m.is_disabled, m.order
         from
             tb_user_role ur
         left join

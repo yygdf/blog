@@ -19,13 +19,27 @@
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
+    <resultMap id="ResourceRoleMap" type="com.iksling.blog.pojo.ResourceRole">
+        <id column="id" property="id"/>
+        <result property="resourceUri" column="resource_uri"/>
+        <result property="requestMethod" column="request_method" />
+        <result property="isDisabled" column="is_disabled"/>
+        <result property="isAnonymous" column="is_anonymous"/>
+        <collection property="roleList" ofType="java.lang.String">
+            <constructor>
+                <arg column="role_name"/>
+            </constructor>
+        </collection>
+    </resultMap>
+
     <sql id="Base_Column_List">
         id,user_id,parent_id,
         resource_uri,resource_name,request_method,
         is_disabled,is_anonymous,create_user,
         create_time,update_user,update_time
     </sql>
-    <select id="listResourceRoles" resultType="com.iksling.blog.pojo.ResourceRole">
+
+    <select id="listResourceRoles" resultMap="ResourceRoleMap">
         select
             re.id, re.resource_uri, re.request_method,
             re.is_disabled, re.is_anonymous, r.role_name

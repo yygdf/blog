@@ -9,6 +9,7 @@ import java.util.List;
  * @Entity com.iksling.blog.entity.Menu
  */
 public interface MenuMapper extends BaseMapper<Menu> {
+
     List<Menu> listMenusByUserId(Integer userId);
 }
 

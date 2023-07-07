@@ -53,11 +53,11 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         Set<Integer> commentLikeSet = (Set<Integer>) redisTemplate.boundHashOps(COMMENT_USER_LIKE).get(user.getId());
         LoginUserDTO loginUserDTO = LoginUserDTO.builder()
                 .userId(user.getId())
-                .nickname(user.getNickname())
-                .avatar(user.getAvatar())
                 .intro(user.getIntro())
                 .email(user.getEmail())
+                .avatar(user.getAvatar())
                 .website(user.getWebsite())
+                .nickname(user.getNickname())
                 .articleLikeSet(articleLikeSet)
                 .commentLikeSet(commentLikeSet)
                 .build();
@@ -69,10 +69,10 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
     public void updateUserAuth(LoginUser loginUser) {
         userAuthMapper.updateById(UserAuth.builder()
                 .id(loginUser.getId())
-                .loginDevice(loginUser.getLoginDevice())
                 .loginTime(loginUser.getLoginTime())
-                .ipAddress(loginUser.getIpAddress())
+                .loginDevice(loginUser.getLoginDevice())
                 .ipSource(loginUser.getIpSource())
+                .ipAddress(loginUser.getIpAddress())
                 .build());
     }
 
@@ -81,14 +81,13 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         UserAgent userAgent = UserAgent.parseUserAgentString(request.getHeader("User-Agent"));
         loginLogMapper.insert(LoginLog.builder()
                 .userId(loginUser.getUserId())
-                .username(loginUser.getUsername())
                 .loginType(loginUser.getLoginType())
                 .loginTime(loginUser.getLoginTime())
                 .loginDevice(loginUser.getLoginDevice())
-                .browser(userAgent.getBrowser().getName())
-                .operationSystem(userAgent.getOperatingSystem().getName())
-                .ipAddress(loginUser.getIpAddress())
+                .loginBrowser(userAgent.getBrowser().getName())
+                .loginSystem(userAgent.getOperatingSystem().getName())
                 .ipSource(loginUser.getIpSource())
+                .ipAddress(loginUser.getIpAddress())
                 .build());
     }
 }

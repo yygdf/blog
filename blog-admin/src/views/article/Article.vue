@@ -51,7 +51,11 @@
           </el-select>
         </el-form-item>
         <el-form-item label="文章标签">
-          <el-select v-model="article.tagIdList" multiple placeholder="请选择标签">
+          <el-select
+            v-model="article.tagIdList"
+            multiple
+            placeholder="请选择标签"
+          >
             <el-option
               v-for="item in tagList"
               :key="item.id"
@@ -106,14 +110,13 @@ export default {
     const arr = path.split("/");
     const articleId = arr[2];
     if (articleId) {
-      this.axios.get("/api/admin/articles/" + articleId).then(({ data }) => {
+      this.axios.get("/api/back/articles/" + articleId).then(({ data }) => {
         this.article = data.data;
       });
     }
     this.listArticleOptions();
   },
   destroyed() {
-    //文章自动保存功能
     this.autoSaveArticle();
   },
   data: function() {
@@ -136,7 +139,7 @@ export default {
   },
   methods: {
     listArticleOptions() {
-      this.axios.get("/api/admin/articles/options").then(({ data }) => {
+      this.axios.get("/api/back/articles/options").then(({ data }) => {
         this.categoryList = data.data.categoryDTOList;
         this.tagList = data.data.tagDTOList;
       });
@@ -158,36 +161,34 @@ export default {
           return false;
         }
         this.article.isDraft = 1;
-        this.axios
-          .post("/api/admin/articles", this.article)
-          .then(({ data }) => {
-            if (data.flag) {
-              this.article.id = data.data;
-              var formData = new FormData();
-              formData.append("file", file);
-              formData.append("subDir", this.article.id);
-              this.axios
-                .post("/api/admin/articles/images", formData)
-                .then(({ data }) => {
-                  if (pos == null) {
-                    this.article.articleCover = data.data;
-                  } else {
-                    this.$refs.md.$img2Url(pos, data.data);
-                  }
-                });
-            } else {
-              this.$notify.error({
-                title: "失败",
-                message: "图片上传失败"
+        this.axios.post("/api/back/articles", this.article).then(({ data }) => {
+          if (data.flag) {
+            this.article.id = data.data;
+            var formData = new FormData();
+            formData.append("file", file);
+            formData.append("subDir", this.article.id);
+            this.axios
+              .post("/api/back/articles/images", formData)
+              .then(({ data }) => {
+                if (pos == null) {
+                  this.article.articleCover = data.data;
+                } else {
+                  this.$refs.md.$img2Url(pos, data.data);
+                }
               });
-            }
-        })
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: "图片上传失败"
+            });
+          }
+        });
       } else {
         var formData = new FormData();
         formData.append("file", file);
         formData.append("subDir", this.article.id);
         this.axios
-          .post("/api/admin/articles/images", formData)
+          .post("/api/back/articles/images", formData)
           .then(({ data }) => {
             if (pos == null) {
               this.article.articleCover = data.data;
@@ -207,7 +208,7 @@ export default {
         return false;
       }
       this.article.isDraft = 1;
-      this.axios.post("/api/admin/articles", this.article).then(({ data }) => {
+      this.axios.post("/api/back/articles", this.article).then(({ data }) => {
         if (data.flag) {
           this.article.id = data.data;
           this.$notify.success({
@@ -239,12 +240,8 @@ export default {
         this.$message.error("文章标签不能为空");
         return false;
       }
-      if (this.article.articleCover.trim() == "") {
-        this.$message.error("文章封面不能为空");
-        return false;
-      }
       this.article.isDraft = 0;
-      this.axios.post("/api/admin/articles", this.article).then(({ data }) => {
+      this.axios.post("/api/back/articles", this.article).then(({ data }) => {
         if (data.flag) {
           this.article.id = data.data;
           this.$notify.success({
@@ -259,7 +256,6 @@ export default {
         }
         this.addOrEdit = false;
       });
-      //关闭自动保存功能
       this.autoSave = false;
     },
     autoSaveArticle() {
@@ -269,22 +265,20 @@ export default {
         this.article.articleContent.trim() != ""
       ) {
         this.article.isDraft = 1;
-        this.axios
-          .post("/api/admin/articles", this.article)
-          .then(({ data }) => {
-            this.article.id = data.data;
-            if (data.flag) {
-              this.$notify.success({
-                title: "成功",
-                message: "自动保存成功"
-              });
-            } else {
-              this.$notify.error({
-                title: "失败",
-                message: "自动保存失败"
-              });
-            }
-          });
+        this.axios.post("/api/back/articles", this.article).then(({ data }) => {
+          this.article.id = data.data;
+          if (data.flag) {
+            this.$notify.success({
+              title: "成功",
+              message: "自动保存成功"
+            });
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: "自动保存失败"
+            });
+          }
+        });
       }
     }
   }

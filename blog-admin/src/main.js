@@ -47,10 +47,10 @@ NProgress.configure({
 
 router.beforeEach((to, from, next) => {
   NProgress.start();
-  if (to.path == "/login") {
+  if (to.path === "/login") {
     next();
   } else if (!store.state.userId) {
-    next({ path: "/login", query: {url: to.path} });
+    next({ path: "/login", query: { url: to.path } });
   } else {
     next();
   }
@@ -62,6 +62,21 @@ router.afterEach(() => {
 
 axios.interceptors.response.use(
   function(response) {
+    switch (response.data.code) {
+      case 40002:
+      case 40003:
+      case 40004:
+      case 40005:
+      case 50001:
+      case 50002:
+      case 50003:
+        Vue.prototype.$message({
+          type: "error",
+          message: response.data.message
+        });
+        router.push({ path: "/login" });
+        break;
+    }
     return response;
   },
   function(error) {

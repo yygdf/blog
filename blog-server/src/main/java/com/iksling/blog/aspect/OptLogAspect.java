@@ -51,14 +51,15 @@ public class OptLogAspect {
                 .userId(UserUtil.getLoginUser().getUserId())
                 .optUri(Objects.requireNonNull(request).getRequestURI())
                 .optType(optLog.optType())
+                .optDesc(apiOperation.value())
                 .optModule(api.tags()[0])
                 .optMethod(joinPoint.getTarget().getClass().getName() + "." + method.getName())
-                .optDesc(apiOperation.value())
                 .requestParam(JSON.toJSONString(joinPoint.getArgs()))
                 .requestMethod(request.getMethod())
                 .responseData(JSON.toJSONString(keys))
-                .ipAddress(ipAddress)
                 .ipSource(ipSource)
+                .ipAddress(ipAddress)
+                .createUser(UserUtil.getLoginUser().getUserId())
                 .createTime(new Date())
                 .build());
     }

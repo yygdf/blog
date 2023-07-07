@@ -22,9 +22,4 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedOriginPatterns("*")
                 .allowedMethods("*");
     }
-
-//    @Bean
-//    public RequestInterceptor requestInterceptor() {
-//        return new RequestInterceptor();
-//    }
 }

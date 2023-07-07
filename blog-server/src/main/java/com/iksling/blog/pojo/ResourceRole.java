@@ -24,12 +24,12 @@ public class ResourceRole {
     /**
      * 0未禁用，1已禁用
      */
-    private Integer isDisabled;
+    private Boolean isDisabled;
 
     /**
-     * 0不能匿名，1可以匿名
+     * 0未匿名，1已匿名
      */
-    private Integer isAnonymous;
+    private Boolean isAnonymous;
 
     /**
      * 允许访问的角色

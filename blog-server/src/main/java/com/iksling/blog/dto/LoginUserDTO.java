@@ -1,31 +1,17 @@
 package com.iksling.blog.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class LoginUserDTO {
     /**
      * 用户id
      */
     private Integer userId;
-
-    /**
-     * 用户昵称
-     */
-    private String nickname;
-
-    /**
-     * 用户头像
-     */
-    private String avatar;
 
     /**
      * 用户介绍
@@ -38,9 +24,19 @@ public class LoginUserDTO {
     private String email;
 
     /**
+     * 用户头像
+     */
+    private String avatar;
+
+    /**
      * 用户网站
      */
     private String website;
+
+    /**
+     * 用户昵称
+     */
+    private String nickname;
 
     /**
      * 点赞文章集合

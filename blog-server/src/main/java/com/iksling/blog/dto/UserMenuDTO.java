@@ -2,8 +2,6 @@ package com.iksling.blog.dto;
 
 import lombok.Data;
 
-import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -24,6 +22,11 @@ public class UserMenuDTO {
     private String path;
 
     /**
+     * 菜单图标
+     */
+    private String icon;
+
+    /**
      * 菜单名称
      */
     private String name;
@@ -34,14 +37,9 @@ public class UserMenuDTO {
     private String component;
 
     /**
-     * 菜单图标
-     */
-    private String icon;
-
-    /**
      * 0未禁用，1已禁用
      */
-    private Integer isDisabled;
+    private Boolean isDisabled;
 
     /**
      * 子菜单列表

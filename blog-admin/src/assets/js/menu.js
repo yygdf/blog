@@ -8,12 +8,14 @@ export function generaMenu() {
     if (data.flag) {
       var userMenuList = data.data;
       userMenuList.forEach(item => {
-        if(!item.children) {
-          item.children = [{
-            "name":item.name,
-            "path":"",
-            "component":item.component
-          }];
+        if (!item.children) {
+          item.children = [
+            {
+              name: item.name,
+              path: "",
+              component: item.component
+            }
+          ];
           item.name = "";
         }
         item.component = Layout;

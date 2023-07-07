@@ -1,7 +1,5 @@
 package com.iksling.blog.controller;
 
-import com.iksling.blog.annotation.OptLog;
-import com.iksling.blog.constant.OptLogConst;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MenuService;
 import io.swagger.annotations.Api;

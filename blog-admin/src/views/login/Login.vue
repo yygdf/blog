@@ -4,30 +4,30 @@
       <div class="login-title">欢迎登录</div>
       <!-- 登录表单 -->
       <el-form
-              status-icon
-              :model="loginForm"
-              :rules="rules"
-              ref="ruleForm"
-              class="login-form"
+        status-icon
+        :model="loginForm"
+        :rules="rules"
+        ref="ruleForm"
+        class="login-form"
       >
         <!-- 用户名输入框 -->
         <el-form-item prop="username">
           <el-input
-                  v-model="loginForm.username"
-                  prefix-icon="el-icon-user-solid"
-                  placeholder="用户名"
-                  @keyup.enter.native="validLogin"
-                  autofocus
+            v-model="loginForm.username"
+            prefix-icon="el-icon-user-solid"
+            placeholder="用户名"
+            @keyup.enter.native="validLogin"
+            autofocus
           />
         </el-form-item>
         <!-- 密码输入框 -->
         <el-form-item prop="password">
           <el-input
-                  v-model="loginForm.password"
-                  prefix-icon="el-icon-lock"
-                  show-password
-                  placeholder="密码"
-                  @keyup.enter.native="validLogin"
+            v-model="loginForm.password"
+            prefix-icon="el-icon-lock"
+            show-password
+            placeholder="密码"
+            @keyup.enter.native="validLogin"
           />
         </el-form-item>
       </el-form>
@@ -38,114 +38,116 @@
 </template>
 
 <script>
-  import { generaMenu } from "../../assets/js/menu";
-  import md5 from "js-md5";
-  export default {
-    data: function() {
-      return {
-        loginForm: {
-          username: "",
-          password: ""
-        },
-        rules: {
-          username: [
-            {
-              required: true,
-              whitespace: true,
-              message: "用户名不能为空",
-              trigger: "blur"
-            }
-          ],
-          password: [
-            {
-              required: true,
-              whitespace: true,
-              message: "密码不能为空",
-              trigger: "blur"
-            },
-            {
-              min: 6,
-              message: "密码至少6位",
-              trigger: "blur"
-            }
-          ]
-        }
-      };
-    },
-    methods: {
-      validLogin() {
-        this.$refs.ruleForm.validate(valid => {
-          if (valid) {
-            const that = this;
-            if (that.config.TENCENT_CAPTCHA) {
-              // eslint-disable-next-line no-undef
-              var captcha = new TencentCaptcha(
-                      this.config.TENCENT_CAPTCHA,
-                      function(res) {
-                        if (res.ret === 0) {
-                          that.login(that);
-                        }
-                      }
-              );
-              captcha.show();
-            } else {
-              that.login(that);
-            }
-          } else {
-            return false;
-          }
-        });
+import { generaMenu } from "../../assets/js/menu";
+import md5 from "js-md5";
+export default {
+  data: function() {
+    return {
+      loginForm: {
+        username: "",
+        password: ""
       },
-      login(that) {
-        let param = new URLSearchParams();
-        param.append("username", that.loginForm.username);
-        param.append("password", md5(that.loginForm.password));
-        that.axios.post("/api/login", param).then(({ data }) => {
-          if (data.flag) {
-            that.$store.commit("login", data.data);
-            generaMenu();
-            that.$message.success("登录成功");
-            that.$router.push({path: that.$route.query.url ? that.$route.query.url : "/"});
-          } else {
-            that.$message.error(data.message);
+      rules: {
+        username: [
+          {
+            required: true,
+            whitespace: true,
+            message: "用户名不能为空",
+            trigger: "blur"
           }
-        });
+        ],
+        password: [
+          {
+            required: true,
+            whitespace: true,
+            message: "密码不能为空",
+            trigger: "blur"
+          },
+          {
+            min: 6,
+            message: "密码至少6位",
+            trigger: "blur"
+          }
+        ]
       }
+    };
+  },
+  methods: {
+    validLogin() {
+      this.$refs.ruleForm.validate(valid => {
+        if (valid) {
+          const that = this;
+          if (that.config.TENCENT_CAPTCHA) {
+            // eslint-disable-next-line no-undef
+            var captcha = new TencentCaptcha(
+              this.config.TENCENT_CAPTCHA,
+              function(res) {
+                if (res.ret === 0) {
+                  that.login(that);
+                }
+              }
+            );
+            captcha.show();
+          } else {
+            that.login(that);
+          }
+        } else {
+          return false;
+        }
+      });
+    },
+    login(that) {
+      let param = new URLSearchParams();
+      param.append("username", that.loginForm.username);
+      param.append("password", md5(that.loginForm.password));
+      that.axios.post("/api/login", param).then(({ data }) => {
+        if (data.flag) {
+          that.$store.commit("login", data.data);
+          generaMenu();
+          that.$message.success("登录成功");
+          that.$router.push({
+            path: that.$route.query.url ? that.$route.query.url : "/"
+          });
+        } else {
+          that.$message.error(data.message);
+        }
+      });
     }
-  };
+  }
+};
 </script>
 
 <style scoped>
-  .login-container {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    background: url(../../assets/img/login.jpg) center center / cover no-repeat;
-  }
-  .login-card {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: -185px;
-    margin-left: -235px;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 50px 60px 100px;
-    width: 350px;
-    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
-    border-radius: 20px;
-  }
-  .login-title {
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: bold;
-    font-size: 1rem;
-  }
-  .login-form {
-    margin-top: 1.2rem;
-  }
-  .login-card button {
-    margin-top: 1rem;
-    width: 100%;
-  }
+.login-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: url(../../assets/img/login.jpg) center center / cover no-repeat;
+}
+.login-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -185px;
+  margin-left: -235px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 50px 60px 100px;
+  width: 350px;
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+}
+.login-title {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: bold;
+  font-size: 1rem;
+}
+.login-form {
+  margin-top: 1.2rem;
+}
+.login-card button {
+  margin-top: 1rem;
+  width: 100%;
+}
 </style>

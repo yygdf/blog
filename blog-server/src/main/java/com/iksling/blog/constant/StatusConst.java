@@ -46,4 +46,15 @@ public class StatusConst {
      * 账户被锁定
      */
     public static final int ACCOUNT_LOCKED = 50002;
+
+    /**
+     * 账户被禁用
+     */
+    public static final int ACCOUNT_DISABLED = 50003;
+
+
+    /**
+     * 文件状态异常
+     */
+    public static final int FILE_STATUS = 60001;
 }

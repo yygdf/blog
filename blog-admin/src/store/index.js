@@ -44,7 +44,7 @@ export default new Vuex.Store({
       state.userMenuList = userMenuList;
     },
     logout(state) {
-      state.userId = 0;
+      state.userId = null;
       state.avatar = "";
       state.nickname = "";
       state.intro = "";

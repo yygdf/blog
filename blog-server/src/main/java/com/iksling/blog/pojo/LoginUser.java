@@ -29,7 +29,7 @@ public class LoginUser implements UserDetails {
     private Integer userId;
 
     /**
-     * 用户名称
+     * 用户名
      */
     private String username;
 
@@ -37,6 +37,11 @@ public class LoginUser implements UserDetails {
      * 用户密码
      */
     private String password;
+
+    /**
+     * 登录时间
+     */
+    private Date loginTime;
 
     /**
      * 登录类型
@@ -49,29 +54,24 @@ public class LoginUser implements UserDetails {
     private String loginDevice;
 
     /**
-     * 登录时间
-     */
-    private Date loginTime;
-
-    /**
-     * IP地址
-     */
-    private String ipAddress;
-
-    /**
-     * IP来源
-     */
-    private String ipSource;
-
-    /**
      * 0未锁定，1已锁定
      */
-    private Integer isLocked;
+    private Boolean isLocked;
 
     /**
      * 0未禁用，1已禁用
      */
-    private Integer isDisabled;
+    private Boolean isDisabled;
+
+    /**
+     * ip来源
+     */
+    private String ipSource;
+
+    /**
+     * ip地址
+     */
+    private String ipAddress;
 
     /**
      * 用户角色
@@ -90,7 +90,7 @@ public class LoginUser implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.isLocked == 0;
+        return !this.isLocked;
     }
 
     @Override
@@ -100,6 +100,6 @@ public class LoginUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return this.isDisabled == 0;
+        return !this.isDisabled;
     }
 }

@@ -1,8 +1,8 @@
 package com.iksling.blog.mapper;
 
-import com.iksling.blog.pojo.ResourceRole;
 import com.iksling.blog.entity.Resource;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.iksling.blog.pojo.ResourceRole;
 
 import java.util.List;
 

@@ -19,17 +19,17 @@ public class ResourceRole {
     /**
      * 请求方式
      */
-    private String requestMethod;
+    private String resourceRequestMethod;
 
     /**
      * 0未禁用，1已禁用
      */
-    private Boolean isDisabled;
+    private Boolean disabledFlag;
 
     /**
      * 0未匿名，1已匿名
      */
-    private Boolean isAnonymous;
+    private Boolean anonymousFlag;
 
     /**
      * 允许访问的角色

@@ -11,7 +11,7 @@
  Target Server Version : 50731
  File Encoding         : 65001
 
- Date: 06/07/2023 18:18:44
+ Date: 08/07/2023 11:39:54
 */
 
 SET NAMES utf8mb4;
@@ -24,16 +24,16 @@ DROP TABLE IF EXISTS `tb_article`;
 CREATE TABLE `tb_article`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '文章id',
   `user_id` int(11) NOT NULL COMMENT '作者id',
-  `category_id` int(11) NOT NULL COMMENT '分类id',
+  `category_id` int(11) NOT NULL DEFAULT -1 COMMENT '分类id',
   `article_title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文章标题',
   `article_cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '文章封面',
   `article_content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文章内容',
-  `is_top` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未置顶，1已置顶',
-  `is_draft` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0不是草稿，1是草稿',
-  `is_public` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0未公开，1已公开',
-  `is_hidden` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
-  `is_commentable` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0不可评论，1可评论',
+  `top_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未置顶，1已置顶',
+  `draft_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0不是草稿，1是草稿',
+  `public_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0未公开，1已公开',
+  `hidden_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
+  `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
+  `commentable_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0不可评论，1可评论',
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址',
   `create_user` int(11) NOT NULL COMMENT '创建人',
@@ -72,8 +72,8 @@ CREATE TABLE `tb_base_config`  (
   `config_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '配置描述',
   `config_value` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '配置值',
   `config_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '配置名',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
-  `is_deletable` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0不可删除，1可删除',
+  `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
+  `deletable_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0不可删除，1可删除',
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
@@ -109,18 +109,21 @@ CREATE TABLE `tb_category`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '分类id',
   `user_id` int(11) NOT NULL COMMENT '用户id',
   `category_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '分类名',
-  `is_public` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0未公开，1已公开',
-  `is_hidden` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
+  `public_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0未公开，1已公开',
+  `hidden_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_category
 -- ----------------------------
+INSERT INTO `tb_category` VALUES (1, 2, '测试分类1', 1, 0, 2, '2023-07-08 09:39:02', NULL, NULL);
+INSERT INTO `tb_category` VALUES (2, 2, '测试分类2', 1, 0, 2, '2023-07-08 09:39:18', NULL, NULL);
+INSERT INTO `tb_category` VALUES (3, 2, '测试分类3', 1, 0, 2, '2023-07-08 09:39:30', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_chat_record
@@ -133,7 +136,7 @@ CREATE TABLE `tb_chat_record`  (
   `nickname` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户昵称',
   `chat_type` tinyint(1) NOT NULL COMMENT '聊天类型',
   `chat_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '聊天内容',
-  `is_recalled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未撤回，1已撤回',
+  `recalled_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未撤回，1已撤回',
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址',
   `create_user` int(11) NOT NULL COMMENT '创建人',
@@ -156,7 +159,7 @@ CREATE TABLE `tb_comment`  (
   `article_id` int(11) NOT NULL COMMENT '文章id',
   `parent_id` int(11) NOT NULL DEFAULT -1 COMMENT '父评论id',
   `comment_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '评论内容',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
+  `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址',
   `create_user` int(11) NOT NULL COMMENT '创建人',
@@ -169,10 +172,10 @@ CREATE TABLE `tb_comment`  (
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for tb_day_traffic
+-- Table structure for tb_day_view
 -- ----------------------------
-DROP TABLE IF EXISTS `tb_day_traffic`;
-CREATE TABLE `tb_day_traffic`  (
+DROP TABLE IF EXISTS `tb_day_view`;
+CREATE TABLE `tb_day_view`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '访问记录id',
   `view_date` date NOT NULL COMMENT '日期',
   `view_count` int(11) NOT NULL COMMENT '访问量',
@@ -180,7 +183,7 @@ CREATE TABLE `tb_day_traffic`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of tb_day_traffic
+-- Records of tb_day_view
 -- ----------------------------
 
 -- ----------------------------
@@ -212,7 +215,7 @@ DROP TABLE IF EXISTS `tb_login_log`;
 CREATE TABLE `tb_login_log`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '日志id',
   `user_id` int(11) NOT NULL COMMENT '用户id',
-  `login_type` tinyint(1) NOT NULL COMMENT '登录类型',
+  `login_type` int(11) NOT NULL COMMENT '登录类型',
   `login_time` datetime(0) NOT NULL COMMENT '登录时间',
   `login_device` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '登录设备',
   `login_system` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '操作系统类型',
@@ -234,13 +237,13 @@ CREATE TABLE `tb_menu`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '菜单id',
   `user_id` int(11) NOT NULL COMMENT '用户id',
   `parent_id` int(11) NOT NULL DEFAULT 0 COMMENT '父菜单id',
-  `path` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '菜单路径',
   `icon` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '菜单图标',
+  `rank` tinyint(1) NOT NULL DEFAULT 0 COMMENT '排序指标',
+  `path` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '菜单路径',
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '菜单名称',
-  `order` tinyint(1) NOT NULL DEFAULT 0 COMMENT '排序指标',
   `component` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '菜单组件',
-  `is_hidden` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
-  `is_disabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用，1已禁用',
+  `hidden_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
+  `disabled_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用，1已禁用',
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
@@ -251,35 +254,35 @@ CREATE TABLE `tb_menu`  (
 -- ----------------------------
 -- Records of tb_menu
 -- ----------------------------
-INSERT INTO `tb_menu` VALUES (1, 2, 0, '/', 'el-icon-odometer', '首页', 1, '/home/Home.vue', 0, 0, 0, '2023-04-26 23:04:13', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (2, 2, 0, '/article-menu', 'el-icon-document', '文章管理', 2, 'Layout', 0, 0, 0, '2023-05-12 13:30:18', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (3, 2, 0, '/message-menu', 'el-icon-message', '消息管理', 3, 'Layout', 0, 0, 0, '2023-05-12 13:31:28', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (4, 2, 0, '/link-menu', 'el-icon-link', '链接管理', 4, 'Layout', 0, 0, 0, '2023-05-12 13:33:40', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (5, 2, 0, '/statistic-menu', 'el-icon-s-data', '数据统计', 5, 'Layout', 0, 0, 0, '2023-05-12 13:37:45', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (6, 2, 0, '/system-menu', 'el-icon-setting', '系统管理', 6, 'Layout', 0, 0, 0, '2023-05-12 13:40:50', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (7, 2, 0, '/user-menu', 'el-icon-user', '用户管理', 7, 'Layout', 0, 0, 0, '2023-05-12 13:43:01', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (8, 2, 0, '/log-menu', 'el-icon-notebook-1', '日志管理', 8, 'Layout', 0, 0, 0, '2023-05-12 13:50:43', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (9, 2, 0, '/personal-menu', 'el-icon-s-home', '个人中心', 9, 'Layout', 0, 0, 0, '2023-05-12 13:52:12', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (201, 2, 2, '/article', 'el-icon-document-add', '添加文章', 21, '/article/Article.vue', 0, 0, 0, '2023-05-12 13:57:27', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (202, 2, 2, '/articles', 'el-icon-document-copy', '文章列表', 22, '/article/Articles.vue', 0, 0, 0, '2023-05-12 14:01:25', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (203, 2, 2, '/category', 'el-icon-files', '分类管理', 23, '/article/Category.vue', 0, 0, 0, '2023-05-12 14:09:01', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (204, 2, 2, '/tag', 'el-icon-collection-tag', '标签管理', 24, '/article/Tag.vue', 0, 0, 0, '2023-05-12 14:10:41', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (301, 2, 3, '/comment', 'el-icon-chat-dot-square', '评论管理', 31, '/message/Comment.vue', 0, 0, 0, '2023-05-12 14:16:31', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (302, 2, 3, '/message', 'el-icon-chat-dot-round', '留言管理', 32, '/message/Message.vue', 0, 0, 0, '2023-05-12 14:17:18', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (401, 2, 4, '/friend', 'el-icon-connection', '友链管理', 41, '/link/Friend.vue', 0, 0, 0, '2023-05-12 17:37:47', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (501, 2, 5, '/article-statistic', 'el-icon-tickets', '文章统计', 51, '/statistic/Article.vue', 0, 0, 0, '2023-05-12 14:22:50', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (502, 2, 5, '/message-statistic', 'el-icon-chat-line-square', '留言统计', 52, '/statistic/Message.vue', 0, 0, 0, '2023-05-12 14:25:34', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (503, 2, 5, '/user-statistic', 'el-icon-s-check', '用户统计', 53, '/statistic/User.vue', 0, 0, 0, '2023-05-12 14:27:43', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (601, 2, 6, '/base', 'el-icon-coin', '基础配置', 61, '/system/Base.vue', 0, 0, 0, '2023-05-12 14:32:36', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (602, 2, 6, '/menu', 'el-icon-menu', '菜单管理', 62, '/system/Menu.vue', 0, 0, 0, '2023-05-12 14:44:36', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (603, 2, 6, '/resource', 'el-icon-s-grid', '资源管理', 63, '/system/Resource.vue', 0, 0, 0, '2023-05-12 15:33:35', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (604, 2, 6, '/role', 'el-icon-s-custom', '角色管理', 64, '/system/Role.vue', 0, 0, 0, '2023-05-12 15:37:11', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (701, 2, 7, '/online-user', 'el-icon-coordinate', '在线用户', 71, '/user/Online.vue', 0, 0, 0, '2023-05-12 14:38:37', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (702, 2, 7, '/users', 'el-icon-user-solid', '用户列表', 72, '/user/Users.vue', 0, 0, 0, '2023-05-12 14:41:42', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (801, 2, 8, '/login', 'el-icon-map-location', '登录日志', 81, '/log/Login.vue', 0, 0, 0, '2023-05-12 15:44:03', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (802, 2, 8, '/operation', 'el-icon-receiving', '操作日志', 82, '/log/Operation.vue', 0, 0, 0, '2023-05-12 15:49:53', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (901, 2, 9, '/about', 'el-icon-place', '关于我', 91, '/personal/About.vue', 0, 0, 0, '2023-05-12 16:00:46', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (902, 2, 9, '/personal', 'el-icon-postcard', '个人配置', 92, '/personal/Personal.vue', 0, 0, 0, '2023-05-12 14:36:02', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (1, 2, -1, 'el-icon-odometer', 1, '/', '首页', '/home/Home.vue', 0, 0, 0, '2023-04-26 23:04:13', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (2, 2, -1, 'el-icon-document', 2, '/article-menu', '文章管理', 'Layout', 0, 0, 0, '2023-05-12 13:30:18', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (3, 2, -1, 'el-icon-message', 3, '/message-menu', '消息管理', 'Layout', 0, 0, 0, '2023-05-12 13:31:28', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (4, 2, -1, 'el-icon-link', 4, '/link-menu', '链接管理', 'Layout', 0, 0, 0, '2023-05-12 13:33:40', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (5, 2, -1, 'el-icon-s-data', 5, '/statistic-menu', '数据统计', 'Layout', 0, 0, 0, '2023-05-12 13:37:45', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (6, 2, -1, 'el-icon-setting', 6, '/system-menu', '系统管理', 'Layout', 0, 0, 0, '2023-05-12 13:40:50', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (7, 2, -1, 'el-icon-user', 7, '/user-menu', '用户管理', 'Layout', 0, 0, 0, '2023-05-12 13:43:01', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (8, 2, -1, 'el-icon-notebook-1', 8, '/log-menu', '日志管理', 'Layout', 0, 0, 0, '2023-05-12 13:50:43', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (9, 2, -1, 'el-icon-s-home', 9, '/personal-menu', '个人中心', 'Layout', 0, 0, 0, '2023-05-12 13:52:12', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (201, 2, 2, 'el-icon-document-add', 21, '/article', '添加文章', '/article/Article.vue', 0, 0, 0, '2023-05-12 13:57:27', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (202, 2, 2, 'el-icon-document-copy', 22, '/articles', '文章列表', '/article/Articles.vue', 0, 0, 0, '2023-05-12 14:01:25', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (203, 2, 2, 'el-icon-files', 23, '/category', '分类管理', '/article/Category.vue', 0, 0, 0, '2023-05-12 14:09:01', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (204, 2, 2, 'el-icon-collection-tag', 24, '/tag', '标签管理', '/article/Tag.vue', 0, 0, 0, '2023-05-12 14:10:41', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (301, 2, 3, 'el-icon-chat-dot-square', 31, '/comment', '评论管理', '/message/Comment.vue', 0, 0, 0, '2023-05-12 14:16:31', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (302, 2, 3, 'el-icon-chat-dot-round', 32, '/message', '留言管理', '/message/Message.vue', 0, 0, 0, '2023-05-12 14:17:18', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (401, 2, 4, 'el-icon-connection', 41, '/friend', '友链管理', '/link/Friend.vue', 0, 0, 0, '2023-05-12 17:37:47', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (501, 2, 5, 'el-icon-tickets', 51, '/article-statistic', '文章统计', '/statistic/Article.vue', 0, 0, 0, '2023-05-12 14:22:50', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (502, 2, 5, 'el-icon-chat-line-square', 52, '/message-statistic', '留言统计', '/statistic/Message.vue', 0, 0, 0, '2023-05-12 14:25:34', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (503, 2, 5, 'el-icon-s-check', 53, '/user-statistic', '用户统计', '/statistic/User.vue', 0, 0, 0, '2023-05-12 14:27:43', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (601, 2, 6, 'el-icon-coin', 61, '/base', '基础配置', '/system/Base.vue', 0, 0, 0, '2023-05-12 14:32:36', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (602, 2, 6, 'el-icon-menu', 62, '/menu', '菜单管理', '/system/Menu.vue', 0, 0, 0, '2023-05-12 14:44:36', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (603, 2, 6, 'el-icon-s-grid', 63, '/resource', '资源管理', '/system/Resource.vue', 0, 0, 0, '2023-05-12 15:33:35', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (604, 2, 6, 'el-icon-s-custom', 64, '/role', '角色管理', '/system/Role.vue', 0, 0, 0, '2023-05-12 15:37:11', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (701, 2, 7, 'el-icon-coordinate', 71, '/online-user', '在线用户', '/user/Online.vue', 0, 0, 0, '2023-05-12 14:38:37', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (702, 2, 7, 'el-icon-user-solid', 72, '/users', '用户列表', '/user/Users.vue', 0, 0, 0, '2023-05-12 14:41:42', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (801, 2, 8, 'el-icon-map-location', 81, '/login', '登录日志', '/log/Login.vue', 0, 0, 0, '2023-05-12 15:44:03', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (802, 2, 8, 'el-icon-receiving', 82, '/operation', '操作日志', '/log/Operation.vue', 0, 0, 0, '2023-05-12 15:49:53', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (901, 2, 9, 'el-icon-place', 91, '/about', '关于我', '/personal/About.vue', 0, 0, 0, '2023-05-12 16:00:46', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (902, 2, 9, 'el-icon-postcard', 92, '/personal', '个人配置', '/personal/Personal.vue', 0, 0, 0, '2023-05-12 14:36:02', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_message
@@ -289,9 +292,9 @@ CREATE TABLE `tb_message`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '留言id',
   `user_id` int(11) NOT NULL COMMENT '用户id',
   `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户头像',
-  `speed` tinyint(1) NOT NULL COMMENT '留言速度',
-  `content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '留言内容',
   `nickname` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户昵称',
+  `message_speed` tinyint(1) NOT NULL COMMENT '留言速度',
+  `message_content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '留言内容',
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址',
   `create_user` int(11) NOT NULL COMMENT '创建人',
@@ -311,23 +314,29 @@ CREATE TABLE `tb_multi_dir`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '目录id',
   `user_id` int(11) NOT NULL COMMENT '用户id',
   `dir_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '目录链接',
+  `dir_size` int(11) NOT NULL COMMENT '目录大小',
+  `dir_unit` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '大小单位',
+  `dir_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '目录路径',
   `dir_desc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '目录描述',
   `dir_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '目录名称',
-  `dir_cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '目录封面',
-  `is_public` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未公开，1已公开',
-  `is_hidden` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
-  `is_deletable` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0可删除，1不可删除',
+  `dir_cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '目录封面',
+  `public_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0未公开，1已公开',
+  `hidden_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
+  `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
+  `deletable_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0不可删除，1可删除',
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_multi_dir
 -- ----------------------------
+INSERT INTO `tb_multi_dir` VALUES (1, 2, '123', 1, 'MB', 'voice/chat/', '聊天室音频目录', 'chat', '', 1, 0, 0, 0, 2, '2023-07-08 10:49:43', NULL, NULL);
+INSERT INTO `tb_multi_dir` VALUES (2, 2, '123', 1, 'MB', 'img/avatar/', '用户头像目录', 'avatar', '', 1, 0, 0, 0, 2, '2023-07-08 10:54:54', NULL, NULL);
+INSERT INTO `tb_multi_dir` VALUES (3, 2, '123', 5, 'MB', 'img/article/', '文章图片目录', 'article', '', 1, 0, 0, 0, 2, '2023-07-08 10:55:24', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_multi_file
@@ -337,12 +346,12 @@ CREATE TABLE `tb_multi_file`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '文件id',
   `user_id` int(11) NOT NULL COMMENT '用户id',
   `multi_dir_id` int(11) NOT NULL COMMENT '父目录id',
-  `sub_dir` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '子目录',
   `file_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件地址',
   `file_desc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '文件描述',
   `file_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '文件名称',
-  `is_hidden` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
+  `file_sub_dir` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '子目录',
+  `hidden_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
+  `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址',
   `create_user` int(11) NOT NULL COMMENT '创建人',
@@ -368,9 +377,9 @@ CREATE TABLE `tb_operation_log`  (
   `opt_desc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '操作描述',
   `opt_module` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '操作模块',
   `opt_method` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '操作方法',
-  `request_param` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '请求参数',
-  `request_method` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '请求方式',
-  `response_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '响应数据',
+  `opt_request_param` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '请求参数',
+  `opt_request_method` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '请求方式',
+  `opt_response_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '响应数据',
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址',
   `create_user` int(11) NOT NULL COMMENT '创建人',
@@ -393,8 +402,8 @@ CREATE TABLE `tb_qq_auth`  (
   `access_token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '访问QQ的token',
   `login_time` datetime(0) NOT NULL COMMENT '登录时间',
   `login_device` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '登录设备',
-  `is_locked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未锁定，1已锁定',
-  `is_disabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用，1已禁用',
+  `locked_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未锁定，1已锁定',
+  `disabled_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用，1已禁用',
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址',
   `create_user` int(11) NOT NULL COMMENT '创建人',
@@ -418,9 +427,9 @@ CREATE TABLE `tb_resource`  (
   `parent_id` int(11) NOT NULL DEFAULT 0 COMMENT '父资源id',
   `resource_uri` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '资源路径',
   `resource_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '资源名称',
-  `request_method` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '请求方式',
-  `is_disabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用，1已禁用',
-  `is_anonymous` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未匿名，1已匿名',
+  `resource_request_method` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '请求方式',
+  `disabled_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用，1已禁用',
+  `anonymous_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未匿名，1已匿名',
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
@@ -431,12 +440,17 @@ CREATE TABLE `tb_resource`  (
 -- ----------------------------
 -- Records of tb_resource
 -- ----------------------------
-INSERT INTO `tb_resource` VALUES (1, 2, 0, '', '菜单模块', '', 0, 0, 0, '2023-04-25 23:27:55', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (2, 2, 0, '', '首页模块', '', 0, 0, 0, '2023-05-11 10:42:09', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (9, 2, 0, '', '其他模块', '', 0, 0, 0, '2023-07-02 11:16:14', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (101, 2, 1, '/back/user/menus', '查看用户菜单', 'GET', 0, 0, 0, '2023-04-26 21:33:02', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (201, 2, 2, '/back', '查看后台首页信息', 'GET', 0, 0, 0, '2023-04-26 21:34:33', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (901, 2, 9, '/swagger-ui.html', 'SwaggerUI', 'GET', 0, 1, 0, '2023-07-02 11:17:04', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (1, 2, -1, '', '菜单模块', '', 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (2, 2, -1, '', '首页模块', '', 0, 0, 2, '2023-05-11 10:42:09', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (3, 2, -1, '', '文章模块', '', 0, 0, 2, '2023-07-08 09:08:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (9, 2, -1, '', '其他模块', '', 0, 0, 2, '2023-07-02 11:16:14', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (101, 2, 1, '/back/user/menus', '查看用户菜单', 'GET', 0, 0, 2, '2023-04-26 21:33:02', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (201, 2, 2, '/back', '查看后台首页信息', 'GET', 0, 0, 2, '2023-04-26 21:34:33', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (301, 2, 3, '/back/articles/*', '根据文章id查找文章', 'GET', 0, 0, 2, '2023-07-08 09:10:16', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (302, 2, 3, '/back/articles/options', '查看文章选项', 'GET', 0, 0, 2, '2023-07-08 09:10:53', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (303, 2, 3, '/back/articles', '添加或修改文章', 'POST', 0, 0, 2, '2023-07-08 09:11:36', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (304, 2, 3, '/back/articles/images', '上传文章图片', 'POST', 0, 0, 2, '2023-07-08 09:12:09', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (901, 2, 9, '/swagger-ui.html', 'SwaggerUI', 'GET', 0, 1, 2, '2023-07-02 11:17:04', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_role
@@ -447,7 +461,7 @@ CREATE TABLE `tb_role`  (
   `user_id` int(11) NOT NULL COMMENT '用户id',
   `role_desc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '角色描述',
   `role_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '角色名称',
-  `is_disabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用，1已禁用',
+  `disabled_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用，1已禁用',
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
@@ -479,35 +493,35 @@ CREATE TABLE `tb_role_menu`  (
 -- ----------------------------
 -- Records of tb_role_menu
 -- ----------------------------
-INSERT INTO `tb_role_menu` VALUES (1, 2, 1);
-INSERT INTO `tb_role_menu` VALUES (2, 2, 2);
-INSERT INTO `tb_role_menu` VALUES (3, 2, 3);
-INSERT INTO `tb_role_menu` VALUES (4, 2, 4);
-INSERT INTO `tb_role_menu` VALUES (5, 2, 5);
-INSERT INTO `tb_role_menu` VALUES (6, 2, 6);
-INSERT INTO `tb_role_menu` VALUES (7, 2, 7);
-INSERT INTO `tb_role_menu` VALUES (8, 2, 8);
-INSERT INTO `tb_role_menu` VALUES (9, 2, 9);
-INSERT INTO `tb_role_menu` VALUES (10, 2, 201);
-INSERT INTO `tb_role_menu` VALUES (11, 2, 202);
-INSERT INTO `tb_role_menu` VALUES (12, 2, 203);
-INSERT INTO `tb_role_menu` VALUES (13, 2, 204);
-INSERT INTO `tb_role_menu` VALUES (14, 2, 301);
-INSERT INTO `tb_role_menu` VALUES (15, 2, 302);
-INSERT INTO `tb_role_menu` VALUES (16, 2, 401);
-INSERT INTO `tb_role_menu` VALUES (17, 2, 501);
-INSERT INTO `tb_role_menu` VALUES (18, 2, 502);
-INSERT INTO `tb_role_menu` VALUES (19, 2, 503);
-INSERT INTO `tb_role_menu` VALUES (20, 2, 601);
-INSERT INTO `tb_role_menu` VALUES (21, 2, 602);
-INSERT INTO `tb_role_menu` VALUES (22, 2, 603);
-INSERT INTO `tb_role_menu` VALUES (23, 2, 604);
-INSERT INTO `tb_role_menu` VALUES (24, 2, 701);
-INSERT INTO `tb_role_menu` VALUES (25, 2, 702);
-INSERT INTO `tb_role_menu` VALUES (26, 2, 801);
-INSERT INTO `tb_role_menu` VALUES (27, 2, 802);
-INSERT INTO `tb_role_menu` VALUES (28, 2, 901);
-INSERT INTO `tb_role_menu` VALUES (29, 2, 902);
+INSERT INTO `tb_role_menu` VALUES (1, 1, 1);
+INSERT INTO `tb_role_menu` VALUES (2, 1, 2);
+INSERT INTO `tb_role_menu` VALUES (3, 1, 3);
+INSERT INTO `tb_role_menu` VALUES (4, 1, 4);
+INSERT INTO `tb_role_menu` VALUES (5, 1, 5);
+INSERT INTO `tb_role_menu` VALUES (6, 1, 6);
+INSERT INTO `tb_role_menu` VALUES (7, 1, 7);
+INSERT INTO `tb_role_menu` VALUES (8, 1, 8);
+INSERT INTO `tb_role_menu` VALUES (9, 1, 9);
+INSERT INTO `tb_role_menu` VALUES (10, 1, 201);
+INSERT INTO `tb_role_menu` VALUES (11, 1, 202);
+INSERT INTO `tb_role_menu` VALUES (12, 1, 203);
+INSERT INTO `tb_role_menu` VALUES (13, 1, 204);
+INSERT INTO `tb_role_menu` VALUES (14, 1, 301);
+INSERT INTO `tb_role_menu` VALUES (15, 1, 302);
+INSERT INTO `tb_role_menu` VALUES (16, 1, 401);
+INSERT INTO `tb_role_menu` VALUES (17, 1, 501);
+INSERT INTO `tb_role_menu` VALUES (18, 1, 502);
+INSERT INTO `tb_role_menu` VALUES (19, 1, 503);
+INSERT INTO `tb_role_menu` VALUES (20, 1, 601);
+INSERT INTO `tb_role_menu` VALUES (21, 1, 602);
+INSERT INTO `tb_role_menu` VALUES (22, 1, 603);
+INSERT INTO `tb_role_menu` VALUES (23, 1, 604);
+INSERT INTO `tb_role_menu` VALUES (24, 1, 701);
+INSERT INTO `tb_role_menu` VALUES (25, 1, 702);
+INSERT INTO `tb_role_menu` VALUES (26, 1, 801);
+INSERT INTO `tb_role_menu` VALUES (27, 1, 802);
+INSERT INTO `tb_role_menu` VALUES (28, 1, 901);
+INSERT INTO `tb_role_menu` VALUES (29, 1, 902);
 
 -- ----------------------------
 -- Table structure for tb_role_resource
@@ -553,11 +567,14 @@ CREATE TABLE `tb_tag`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_tag
 -- ----------------------------
+INSERT INTO `tb_tag` VALUES (1, 2, '测试标签1', 2, '2023-07-08 09:39:56', NULL, NULL);
+INSERT INTO `tb_tag` VALUES (2, 2, '测试标签2', 2, '2023-07-08 09:40:11', NULL, NULL);
+INSERT INTO `tb_tag` VALUES (3, 2, '测试标签3', 2, '2023-07-08 09:40:21', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_user
@@ -601,8 +618,8 @@ CREATE TABLE `tb_user_auth`  (
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户密码',
   `login_time` datetime(0) NOT NULL COMMENT '登录时间',
   `login_device` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '登录设备',
-  `is_locked` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未锁定，1已锁定',
-  `is_disabled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用，1已禁用',
+  `locked_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未锁定，1已锁定',
+  `disabled_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用，1已禁用',
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址',
   `create_user` int(11) NOT NULL COMMENT '创建人',
@@ -610,14 +627,14 @@ CREATE TABLE `tb_user_auth`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 100000002 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_user_auth
 -- ----------------------------
 INSERT INTO `tb_user_auth` VALUES (0, 0, 'ling@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (1, 1, 'ks@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
-INSERT INTO `tb_user_auth` VALUES (2, 2, 'root@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
+INSERT INTO `tb_user_auth` VALUES (2, 2, 'root@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-08 11:22:18', 'Computer', 0, 0, '', '127.0.0.1', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (3, 3, 'admin@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (4, 4, 'editor@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (5, 5, 'author@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
@@ -635,8 +652,8 @@ CREATE TABLE `tb_user_config`  (
   `config_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '配置描述',
   `config_value` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '配置值',
   `config_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '配置名',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
-  `is_deletable` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0不可删除，1可删除',
+  `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
+  `deletable_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0不可删除，1可删除',
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',

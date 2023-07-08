@@ -17,14 +17,14 @@ public class UserMenuDTO {
     private Integer userId;
 
     /**
-     * 菜单路径
-     */
-    private String path;
-
-    /**
      * 菜单图标
      */
     private String icon;
+
+    /**
+     * 菜单路径
+     */
+    private String path;
 
     /**
      * 菜单名称
@@ -39,7 +39,7 @@ public class UserMenuDTO {
     /**
      * 0未禁用，1已禁用
      */
-    private Boolean isDisabled;
+    private Boolean disabledFlag;
 
     /**
      * 子菜单列表

@@ -35,7 +35,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (StringUtils.isBlank(username))
             throw new UsernameNotFoundException("用户名为空!");
         UserAuth userAuth = userAuthMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
-            .select(UserAuth::getId, UserAuth::getUserId, UserAuth::getUsername, UserAuth::getPassword, UserAuth::getIsLocked, UserAuth::getIsDisabled)
+            .select(UserAuth::getId, UserAuth::getUserId, UserAuth::getUsername, UserAuth::getPassword, UserAuth::getLockedFlag, UserAuth::getDisabledFlag)
             .eq(UserAuth::getUsername, username));
         if (Objects.isNull(userAuth))
             throw new UsernameNotFoundException("用户名不存在!");
@@ -53,8 +53,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .loginTime(new Date())
                 .ipAddress(ipAddress)
                 .ipSource(ipSource)
-                .isLocked(userAuth.getIsLocked())
-                .isDisabled(userAuth.getIsDisabled())
+                .lockedFlag(userAuth.getLockedFlag())
+                .disabledFlag(userAuth.getDisabledFlag())
                 .roleList(roleList)
                 .build();
     }

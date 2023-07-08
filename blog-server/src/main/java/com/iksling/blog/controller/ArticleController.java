@@ -5,7 +5,7 @@ import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.vo.ArticleBackVO;
-import com.iksling.blog.vo.MultiFileBackVO;
+import com.iksling.blog.vo.MultiFileArticleBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -50,8 +50,8 @@ public class ArticleController {
     @ApiOperation(value = "上传文章图片")
     @ApiImplicitParam(name = "file", value = "文章图片", required = true, dataType = "MultipartFile")
     @PostMapping("/back/articles/images")
-    public Result saveArticleImages(MultiFileBackVO multiFileBackVO) {
-        multiFileService.saveArticleImgInfo(multiFileBackVO);
-        return Result.success().message("上传成功").data(multiFileBackVO.getFileUrl());
+    public Result saveArticleImages(MultiFileArticleBackVO multiFileArticleBackVO) {
+        String url = multiFileService.saveArticleImgInfo(multiFileArticleBackVO);
+        return Result.success().message("上传成功").data(url);
     }
 }

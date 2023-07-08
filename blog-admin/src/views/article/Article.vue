@@ -13,7 +13,7 @@
         size="medium"
         class="save-btn"
         @click="saveArticleDraft"
-        v-if="article.isDraft != 0"
+        v-if="article.draftFlag"
       >
         保存草稿
       </el-button>
@@ -71,8 +71,8 @@
             :http-request="uploadCover"
             :limit="1"
           >
-            <i class="el-icon-upload" v-if="article.articleCover == ''" />
-            <div class="el-upload__text" v-if="article.articleCover == ''">
+            <i class="el-icon-upload" v-if="article.articleCover === ''" />
+            <div class="el-upload__text" v-if="article.articleCover === ''">
               将文件拖到此处，或<em>点击上传</em>
             </div>
             <img
@@ -83,13 +83,43 @@
             />
           </el-upload>
         </el-form-item>
+      </el-form>
+
+      <el-form label-width="80px" size="medium" :model="article" inline="true">
         <el-form-item label="置顶">
           <el-switch
-            v-model="article.isTop"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
-            :active-value="1"
-            :inactive-value="0"
+                  v-model="article.topFlag"
+                  active-color="#13ce66"
+                  inactive-color="#F4F4F5"
+                  :active-value="1"
+                  :inactive-value="0"
+          />
+        </el-form-item>
+        <el-form-item label="公开">
+          <el-switch
+                  v-model="article.publicFlag"
+                  active-color="#13ce66"
+                  inactive-color="#F4F4F5"
+                  :active-value="1"
+                  :inactive-value="0"
+          />
+        </el-form-item>
+        <el-form-item label="隐藏">
+          <el-switch
+                  v-model="article.hiddenFlag"
+                  active-color="#13ce66"
+                  inactive-color="#F4F4F5"
+                  :active-value="1"
+                  :inactive-value="0"
+          />
+        </el-form-item>
+        <el-form-item label="可评论">
+          <el-switch
+                  v-model="article.commentableFlag"
+                  active-color="#13ce66"
+                  inactive-color="#F4F4F5"
+                  :active-value="1"
+                  :inactive-value="0"
           />
         </el-form-item>
       </el-form>
@@ -127,13 +157,16 @@ export default {
       tagList: [],
       article: {
         id: null,
-        articleTitle: this.$moment(new Date()).format("YYYY-MM-DD"),
-        articleContent: "",
-        articleCover: "",
         categoryId: null,
-        tagIdList: [],
-        isTop: 0,
-        isDraft: 1
+        articleTitle: this.$moment(new Date()).format("YYYY-MM-DD"),
+        articleCover: "",
+        articleContent: "",
+        topFlag: false,
+        draftFlag: true,
+        publicFlag: true,
+        hiddenFlag: false,
+        commentableFlag: true,
+        tagIdList: []
       }
     };
   },
@@ -152,11 +185,11 @@ export default {
     },
     uploadImg(pos, file) {
       if (this.article.id == null) {
-        if (this.article.articleTitle.trim() == "") {
+        if (this.article.articleTitle.trim() === "") {
           this.$message.error("文章标题不能为空");
           return false;
         }
-        if (this.article.articleContent.trim() == "") {
+        if (this.article.articleContent.trim() === "") {
           this.$message.error("文章内容不能为空");
           return false;
         }
@@ -166,7 +199,7 @@ export default {
             this.article.id = data.data;
             var formData = new FormData();
             formData.append("file", file);
-            formData.append("subDir", this.article.id);
+            formData.append("fileSubDir", this.article.id);
             this.axios
               .post("/api/back/articles/images", formData)
               .then(({ data }) => {
@@ -186,7 +219,7 @@ export default {
       } else {
         var formData = new FormData();
         formData.append("file", file);
-        formData.append("subDir", this.article.id);
+        formData.append("fileSubDir", this.article.id);
         this.axios
           .post("/api/back/articles/images", formData)
           .then(({ data }) => {
@@ -199,11 +232,11 @@ export default {
       }
     },
     saveArticleDraft() {
-      if (this.article.articleTitle.trim() == "") {
+      if (this.article.articleTitle.trim() === "") {
         this.$message.error("文章标题不能为空");
         return false;
       }
-      if (this.article.articleContent.trim() == "") {
+      if (this.article.articleContent.trim() === "") {
         this.$message.error("文章内容不能为空");
         return false;
       }
@@ -224,20 +257,16 @@ export default {
       });
     },
     saveOrUpdateArticle() {
-      if (this.article.articleTitle.trim() == "") {
+      if (this.article.articleTitle.trim() === "") {
         this.$message.error("文章标题不能为空");
         return false;
       }
-      if (this.article.articleContent.trim() == "") {
+      if (this.article.articleContent.trim() === "") {
         this.$message.error("文章内容不能为空");
         return false;
       }
       if (!this.article.categoryId) {
         this.$message.error("文章分类不能为空");
-        return false;
-      }
-      if (this.article.tagIdList.length == 0) {
-        this.$message.error("文章标签不能为空");
         return false;
       }
       this.article.isDraft = 0;
@@ -261,8 +290,8 @@ export default {
     autoSaveArticle() {
       if (
         this.autoSave &&
-        this.article.articleTitle.trim() != "" &&
-        this.article.articleContent.trim() != ""
+        this.article.articleTitle.trim() !== "" &&
+        this.article.articleContent.trim() !== ""
       ) {
         this.article.isDraft = 1;
         this.axios.post("/api/back/articles", this.article).then(({ data }) => {

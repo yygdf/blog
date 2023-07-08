@@ -14,7 +14,7 @@ export default {
   },
   methods: {
     getData() {
-      this.axios.get("/api/back/" + this.userId).then();
+      this.axios.get("/api/back").then();
     }
   },
   computed: {

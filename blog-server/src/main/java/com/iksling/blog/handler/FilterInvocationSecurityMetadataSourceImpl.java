@@ -46,10 +46,10 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
         String uri = fi.getRequest().getRequestURI();
         AntPathMatcher antPathMatcher = new AntPathMatcher();
         for (ResourceRole resourceRole : resourceRoleList) {
-            if (antPathMatcher.match(resourceRole.getResourceUri(), uri) && resourceRole.getRequestMethod().equals(method)) {
-                if (resourceRole.getIsDisabled())
+            if (antPathMatcher.match(resourceRole.getResourceUri(), uri) && resourceRole.getResourceRequestMethod().equals(method)) {
+                if (resourceRole.getDisabledFlag())
                     throw new AccessDeniedException("该请求已被禁用!");
-                if (resourceRole.getIsAnonymous())
+                if (resourceRole.getAnonymousFlag())
                     return null;
                 List<String> roleList = resourceRole.getRoleList();
                 return SecurityConfig.createList(roleList.toArray(new String[]{}));

@@ -28,6 +28,7 @@ Vue.component("v-chart", ECharts);
 Vue.use(VueAxios, axios);
 Vue.use(ElementUI);
 Vue.config.productionTip = false;
+Vue.prototype.$moment = moment;
 
 Vue.filter("date", function(value, formatStr = "yyyy-MM-DD") {
   return moment(value).format(formatStr);

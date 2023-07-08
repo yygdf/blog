@@ -1,5 +1,6 @@
 package com.iksling.blog.advice;
 
+import com.iksling.blog.constant.CommonConst;
 import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.pojo.Result;
@@ -33,5 +34,11 @@ public class ExceptionAdvice {
     @ExceptionHandler(value = FileStatusException.class)
     public Result exceptionAdvice(FileStatusException e) {
         return Result.failure().code(FILE_STATUS).message(e.getMessage());
+    }
+
+    /********** 未知异常 **********/
+    @ExceptionHandler(value = Exception.class)
+    public Result exceptionAdvice(Exception e) {
+        return Result.failure().code(FAILURE).message("发生未知异常,请联系管理员[" + CommonConst.CONTACT + "]");
     }
 }

@@ -16,6 +16,7 @@
             <result property="publicFlag" column="public_flag" jdbcType="BOOLEAN"/>
             <result property="hiddenFlag" column="hidden_flag" jdbcType="BOOLEAN"/>
             <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
+            <result property="garbageFlag" column="garbage_flag" jdbcType="BOOLEAN"/>
             <result property="commentableFlag" column="commentable_flag" jdbcType="BOOLEAN"/>
             <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>
             <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
@@ -25,12 +26,89 @@
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
+    <resultMap id="articlesBackResultMap" type="com.iksling.blog.dto.ArticlesBackDTO">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="article_title" property="articleTitle"/>
+        <result column="top_flag" property="topFlag"/>
+        <result column="draft_flag" property="draftFlag"/>
+        <result column="public_flag" property="publicFlag"/>
+        <result column="hidden_flag" property="hiddenFlag"/>
+        <result column="garbage_flag" property="garbageFlag"/>
+        <result column="commentable_flag" property="commentableFlag"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="category_name" property="categoryName"/>
+        <collection property="tagDTOList" ofType="com.iksling.blog.dto.TagDTO">
+            <id column="tag_id" property="id"/>
+            <result column="tag_name" property="tagName"/>
+        </collection>
+    </resultMap>
+
     <sql id="Base_Column_List">
         id,user_id,category_id,
         article_title,article_cover,article_content,
         top_flag,draft_flag,public_flag,
-        hidden_flag,deleted_flag,commentable_flag,
-        ip_source,ip_address,create_user,
-        create_time,update_user,update_time
+        hidden_flag,deleted_flag,garbage_flag,
+        commentable_flag,ip_source,ip_address,
+        create_user,create_time,update_user,
+        update_time
     </sql>
+
+    <select id="selectCountByCondition" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            tb_article
+        <where>
+            delete_flag = 0
+            AND garbage_flag = #{condition.garbageFlag}
+            <if test="condition.draftFlag != null">
+                AND draft_flag = #{condition.draftFlag}
+            </if>
+            <if test="condition.keywords != null">
+                AND article_title like concat('%', #{condition.keywords}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="listArticlesBackDTO" resultMap="articlesBackResultMap">
+        SELECT
+            a.id,a.user_id,a.article_title,
+            a.top_flag,a.draft_flag,a.public_flag,
+            a.hidden_flag,a.garbage_flag,a.commentable_flag,
+            a.create_time,a.update_time,c.category_name,
+            t.id tag_id,t.tag_name
+        FROM
+            (
+            SELECT
+                id,user_id,article_title,
+                top_flag,draft_flag,public_flag,
+                hidden_flag,garbage_flag,commentable_flag,
+                create_time,update_time
+            FROM
+                tb_article
+            <where>
+                delete_flag = 0
+                AND garbage_flag = #{condition.garbageFlag}
+                <if test="condition.draftFlag != null">
+                    AND draft_flag = #{condition.draftFlag}
+                </if>
+                <if test="condition.keywords != null">
+                    AND article_title like concat('%', #{condition.keywords}, '%')
+                </if>
+            </where>
+            ORDER BY
+                top_flag DESC,
+                id DESC
+            LIMIT
+                #{condition.current}, #{condition.size}
+            ) a
+            LEFT JOIN tb_category c ON a.category_id = c.id
+            LEFT JOIN tb_article_tag ata ON a.id = ata.article_id
+            LEFT JOIN tb_tag t ON ata.tag_id = t.id
+        ORDER BY
+            is_top DESC,
+            a.id DESC
+    </select>
 </mapper>

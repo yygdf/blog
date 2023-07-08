@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HomeController {
     @ApiOperation(value = "查看后台首页信息")
     @GetMapping("/back")
-    public Result getHomeBack() {
+    public Result getBack() {
         return Result.success().message("查询成功");
     }
 }

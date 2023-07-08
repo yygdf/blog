@@ -50,7 +50,7 @@ public class MultiFile implements Serializable {
     private String fileName;
 
     /**
-     * 子目录
+     * 文件子目录
      */
     private String fileSubDir;
 

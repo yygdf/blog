@@ -12,12 +12,22 @@ public class RedisConst {
     public static final String COMMENT_USER_LIKE = "comment_user_like";
 
     /**
-     * 用户非法操作
-     */
-    public static final String USER_ILLEGAL_OPERATION = "user_illegal_operation";
-
-    /**
      * 博客访问量
      */
     public static final String BLOG_VIEW_COUNT = "blog_view_count";
+
+    /**
+     * 文章浏览量
+     */
+    public static final String ARTICLE_VIEW_COUNT = "article_view_count";
+
+    /**
+     * 文章点赞量
+     */
+    public static final String ARTICLE_LIKE_COUNT = "article_like_count";
+
+    /**
+     * 用户非法操作
+     */
+    public static final String USER_ILLEGAL_OPERATION = "user_illegal_operation";
 }

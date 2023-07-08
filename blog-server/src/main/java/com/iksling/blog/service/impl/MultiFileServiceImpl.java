@@ -27,7 +27,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     private MultiFileMapper multiFileMapper;
 
     @Override
-    public String saveArticleImgInfo(MultiFileArticleBackVO multiFileArticleBackVO) {
+    public String saveMultiFileArticleBackVO(MultiFileArticleBackVO multiFileArticleBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         if (multiFileArticleBackVO.getFile().isEmpty())
             throw new FileStatusException("文件不存在!");

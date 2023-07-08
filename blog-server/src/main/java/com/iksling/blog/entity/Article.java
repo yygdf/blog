@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,6 +16,7 @@ import java.util.Date;
  */
 @TableName(value ="tb_article")
 @Data
+@Builder
 public class Article implements Serializable {
     /**
      * 文章id
@@ -71,6 +73,11 @@ public class Article implements Serializable {
      * 0未删除，1已删除
      */
     private Boolean deletedFlag;
+
+    /**
+     * 0不是垃圾，1是垃圾
+     */
+    private Boolean garbageFlag;
 
     /**
      * 0不可评论，1可评论

@@ -1,7 +1,6 @@
 <template>
   <el-card class="main-card">
     <div class="title">{{ this.$route.name }}</div>
-    <!-- 文章标题 -->
     <div class="article-title-container">
       <el-input
         v-model="article.articleTitle"
@@ -26,19 +25,16 @@
         发布文章
       </el-button>
     </div>
-    <!-- 文章内容 -->
     <mavon-editor
       ref="md"
       v-model="article.articleContent"
       @imgAdd="uploadArticleImg"
       style="height:calc(100vh - 260px)"
     />
-    <!-- 添加文章对话框 -->
     <el-dialog :visible.sync="addOrEdit" width="40%" top="10vh">
       <div class="dialog-title-container" slot="title">
         上传文章
       </div>
-      <!-- 文章数据 -->
       <el-form label-width="80px" size="medium" :model="article">
         <el-form-item label="文章分类">
           <el-select v-model="article.categoryId" placeholder="请选择分类">
@@ -140,7 +136,7 @@ export default {
     const arr = path.split("/");
     const articleId = arr[2];
     if (articleId) {
-      this.axios.get("/api/back/articles/" + articleId).then(({ data }) => {
+      this.axios.get("/api/back/article/" + articleId).then(({ data }) => {
         this.article = data.data;
       });
     }
@@ -172,7 +168,7 @@ export default {
   },
   methods: {
     listArticleOptions() {
-      this.axios.get("/api/back/articles/options").then(({ data }) => {
+      this.axios.get("/api/back/article/options").then(({ data }) => {
         this.categoryList = data.data.categoryDTOList;
         this.tagList = data.data.tagDTOList;
       });
@@ -193,15 +189,15 @@ export default {
           this.$message.error("文章内容不能为空");
           return false;
         }
-        this.article.isDraft = 1;
-        this.axios.post("/api/back/articles", this.article).then(({ data }) => {
+        this.article.draftFlag = true;
+        this.axios.post("/api/back/article", this.article).then(({ data }) => {
           if (data.flag) {
             this.article.id = data.data;
             var formData = new FormData();
             formData.append("file", file);
             formData.append("fileSubDir", this.article.id);
             this.axios
-              .post("/api/back/articles/images", formData)
+              .post("/api/back/article/image", formData)
               .then(({ data }) => {
                 if (pos == null) {
                   this.article.articleCover = data.data;
@@ -221,7 +217,7 @@ export default {
         formData.append("file", file);
         formData.append("fileSubDir", this.article.id);
         this.axios
-          .post("/api/back/articles/images", formData)
+          .post("/api/back/article/image", formData)
           .then(({ data }) => {
             if (pos == null) {
               this.article.articleCover = data.data;
@@ -240,8 +236,8 @@ export default {
         this.$message.error("文章内容不能为空");
         return false;
       }
-      this.article.isDraft = 1;
-      this.axios.post("/api/back/articles", this.article).then(({ data }) => {
+      this.article.draftFlag = true;
+      this.axios.post("/api/back/article", this.article).then(({ data }) => {
         if (data.flag) {
           this.article.id = data.data;
           this.$notify.success({
@@ -269,8 +265,8 @@ export default {
         this.$message.error("文章分类不能为空");
         return false;
       }
-      this.article.isDraft = 0;
-      this.axios.post("/api/back/articles", this.article).then(({ data }) => {
+      this.article.draftFlag = false;
+      this.axios.post("/api/back/article", this.article).then(({ data }) => {
         if (data.flag) {
           this.article.id = data.data;
           this.$notify.success({
@@ -293,8 +289,8 @@ export default {
         this.article.articleTitle.trim() !== "" &&
         this.article.articleContent.trim() !== ""
       ) {
-        this.article.isDraft = 1;
-        this.axios.post("/api/back/articles", this.article).then(({ data }) => {
+        this.article.draftFlag = true;
+        this.axios.post("/api/back/article", this.article).then(({ data }) => {
           this.article.id = data.data;
           if (data.flag) {
             this.$notify.success({

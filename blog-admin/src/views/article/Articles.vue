@@ -1,15 +1,14 @@
 <template>
   <el-card class="main-card">
     <div class="title">{{ this.$route.name }}</div>
-    <!-- 表格操作 -->
     <div class="operation-container">
       <el-button
-        v-if="isDelete == 0"
+        v-if="!garbageFlag"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="articleIdList.length == 0"
-        @click="updateIsDelete = true"
+        :disabled="articleIdList.length === 0"
+        @click="updateGarbageFlag = true"
       >
         批量删除
       </el-button>
@@ -18,12 +17,11 @@
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="articleIdList.length == 0"
+        :disabled="articleIdList.length === 0"
         @click="remove = true"
       >
         批量删除
       </el-button>
-      <!-- 条件筛选 -->
       <div style="margin-left:auto">
         <el-select
           v-model="condition"
@@ -57,24 +55,20 @@
         </el-button>
       </div>
     </div>
-    <!-- 表格展示 -->
     <el-table
       border
       :data="articleList"
       @selection-change="selectionChange"
       v-loading="loading"
     >
-      <!-- 表格列 -->
       <el-table-column type="selection" width="55" />
       <el-table-column prop="articleTitle" label="标题" align="center" />
-      <!-- 文章分类 -->
       <el-table-column
         prop="categoryName"
         label="分类"
         width="120"
         align="center"
       />
-      <!-- 文章标签 -->
       <el-table-column
         prop="tagDTOList"
         label="标签"
@@ -91,21 +85,19 @@
           </el-tag>
         </template>
       </el-table-column>
-      <!-- 文章浏览量 -->
       <el-table-column
-        prop="viewsCount"
+        prop="viewCount"
         label="浏览量"
         width="80"
         align="center"
       >
         <template slot-scope="scope">
-          <span v-if="scope.row.viewsCount">
-            {{ scope.row.viewsCount }}
+          <span v-if="scope.row.viewCount">
+            {{ scope.row.viewCount }}
           </span>
           <span v-else>0</span>
         </template>
       </el-table-column>
-      <!-- 文章点赞量 -->
       <el-table-column
         prop="likeCount"
         label="点赞量"
@@ -119,7 +111,6 @@
           <span v-else>0</span>
         </template>
       </el-table-column>
-      <!-- 文章发表时间 -->
       <el-table-column
         prop="createTime"
         label="发表时间"
@@ -131,7 +122,6 @@
           {{ scope.row.createTime | date }}
         </template>
       </el-table-column>
-      <!-- 文章修改时间 -->
       <el-table-column
         prop="updateTime"
         label="更新时间"
@@ -143,28 +133,80 @@
           {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
-      <!-- 文章置顶 -->
-      <el-table-column prop="isTop" label="置顶" width="100" align="center">
+      <el-table-column prop="topFlag" label="置顶" width="100" align="center">
         <template slot-scope="scope">
           <el-switch
-            v-model="scope.row.isTop"
+            v-model="scope.row.topFlag"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            :disabled="scope.row.isDelete == 1 || scope.row.isDraft == 1"
+            :disabled="scope.row.garbageFlag || scope.row.draftFlag"
             :active-value="1"
             :inactive-value="0"
             @change="changeTop(scope.row)"
           />
         </template>
       </el-table-column>
-      <!-- 列操作 -->
+      <el-table-column
+        prop="publicFlag"
+        label="公开"
+        width="100"
+        align="center"
+      >
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.publicFlag"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            :disabled="scope.row.garbageFlag || scope.row.draftFlag"
+            :active-value="1"
+            :inactive-value="0"
+            @change="changePublic(scope.row)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="hiddenFlag"
+        label="隐藏"
+        width="100"
+        align="center"
+      >
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.hiddenFlag"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            :disabled="scope.row.garbageFlag || scope.row.draftFlag"
+            :active-value="1"
+            :inactive-value="0"
+            @change="changeHidden(scope.row)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="commentableFlag"
+        label="可评论"
+        width="100"
+        align="center"
+      >
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.commentableFlag"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            :disabled="scope.row.garbageFlag || scope.row.draftFlag"
+            :active-value="1"
+            :inactive-value="0"
+            @change="changeCommentable(scope.row)"
+          />
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
           <el-button
             type="primary"
             size="mini"
             @click="editArticle(scope.row.id)"
-            v-if="scope.row.isDelete == 0"
+            v-if="!scope.row.garbageFlag"
           >
             编辑
           </el-button>
@@ -172,7 +214,7 @@
             title="确定删除吗？"
             style="margin-left:10px"
             @confirm="updateArticleStatus(scope.row.id)"
-            v-if="scope.row.isDelete == 0"
+            v-if="!scope.row.garbageFlag"
           >
             <el-button size="mini" type="danger" slot="reference">
               删除
@@ -180,7 +222,7 @@
           </el-popconfirm>
           <el-popconfirm
             title="确定恢复吗？"
-            v-if="scope.row.isDelete == 1"
+            v-if="scope.row.garbageFlag"
             @confirm="updateArticleStatus(scope.row.id)"
           >
             <el-button size="mini" type="success" slot="reference">
@@ -189,7 +231,7 @@
           </el-popconfirm>
           <el-popconfirm
             style="margin-left:10px"
-            v-if="scope.row.isDelete == 1"
+            v-if="scope.row.garbageFlag"
             title="确定彻底删除吗？"
             @confirm="deleteArticles(scope.row.id)"
           >
@@ -200,7 +242,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <!-- 分页 -->
     <el-pagination
       class="pagination-container"
       background
@@ -212,20 +253,18 @@
       :page-sizes="[10, 20]"
       layout="total, sizes, prev, pager, next, jumper"
     />
-    <!-- 批量逻辑删除对话框 -->
-    <el-dialog :visible.sync="updateIsDelete" width="30%">
+    <el-dialog :visible.sync="updateGarbageFlag" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
-        <el-button @click="updateIsDelete = false">取 消</el-button>
+        <el-button @click="updateGarbageFlag = false">取 消</el-button>
         <el-button type="primary" @click="updateArticleStatus(null)">
           确 定
         </el-button>
       </div>
     </el-dialog>
-    <!-- 批量彻底删除对话框 -->
     <el-dialog :visible.sync="remove" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
@@ -249,28 +288,28 @@ export default {
   data: function() {
     return {
       loading: true,
-      updateIsDelete: false,
+      updateGarbageFlag: false,
       remove: false,
       options: [
         {
-          value: '{"isDelete":0,"isDraft":0}',
+          value: '{"garbageFlag":false,"draftFlag":false}',
           label: "已发布"
         },
         {
-          value: '{"isDelete":1,"isDraft":null}',
+          value: '{"garbageFlag":true,"draftFlag":null}',
           label: "回收站"
         },
         {
-          value: '{"isDelete":0,"isDraft":1}',
+          value: '{"garbageFlag":false,"draftFlag":true}',
           label: "草稿箱"
         }
       ],
-      condition: '{"isDelete":0,"isDraft":0}',
+      condition: '{"garbageFlag":false,"draftFlag":false}',
       articleList: [],
       articleIdList: [],
       keywords: null,
-      isDelete: 0,
-      isDraft: 0,
+      garbageFlag: false,
+      draftFlag: false,
       current: 1,
       size: 10,
       count: 0
@@ -284,7 +323,7 @@ export default {
       });
     },
     editArticle(id) {
-      this.$router.push({ path: "/articles/" + id });
+      this.$router.push({ path: "/article/" + id });
     },
     updateArticleStatus(id) {
       let param = new URLSearchParams();
@@ -293,8 +332,8 @@ export default {
       } else {
         param.append("idList", this.articleIdList);
       }
-      param.append("isDelete", this.isDelete == 0 ? 1 : 0);
-      this.axios.put("/api/admin/articles", param).then(({ data }) => {
+      param.append("garbageFlag", !this.garbageFlag);
+      this.axios.put("/api/back/articles", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -307,7 +346,7 @@ export default {
             message: data.message
           });
         }
-        this.updateIsDelete = false;
+        this.updateGarbageFlag = false;
       });
     },
     deleteArticles(id) {
@@ -317,7 +356,7 @@ export default {
       } else {
         param = { data: [id] };
       }
-      this.axios.delete("/api/admin/articles", param).then(({ data }) => {
+      this.axios.delete("/api/back/articles", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -343,23 +382,38 @@ export default {
     },
     changeTop(article) {
       let param = new URLSearchParams();
-      param.append("isTop", article.isTop);
-      this.axios.put("/api/admin/articles/top/" + article.id, param);
+      param.append("topFlag", article.topFlag);
+      this.axios.put("/api/back/article/top/" + article.id, param);
+    },
+    changePublic(article) {
+      let param = new URLSearchParams();
+      param.append("publicFlag", article.publicFlag);
+      this.axios.put("/api/back/article/public/" + article.id, param);
+    },
+    changeHidden(article) {
+      let param = new URLSearchParams();
+      param.append("hiddenFlag", article.hiddenFlag);
+      this.axios.put("/api/back/article/hidden/" + article.id, param);
+    },
+    changeCommentable(article) {
+      let param = new URLSearchParams();
+      param.append("commentableFlag", article.commentableFlag);
+      this.axios.put("/api/back/article/commentable/" + article.id, param);
     },
     listArticles() {
       this.axios
-        .get("/api/admin/articles", {
+        .get("/api/back/articles", {
           params: {
-            current: this.current,
             size: this.size,
+            current: this.current,
             keywords: this.keywords,
-            isDelete: this.isDelete,
-            isDraft: this.isDraft
+            draftFlag: this.draftFlag,
+            garbageFlag: this.garbageFlag
           }
         })
         .then(({ data }) => {
-          this.articleList = data.data.recordList;
           this.count = data.data.count;
+          this.articleList = data.data.tList;
           this.loading = false;
         });
     }
@@ -367,8 +421,8 @@ export default {
   watch: {
     condition() {
       const condition = JSON.parse(this.condition);
-      this.isDelete = condition.isDelete;
-      this.isDraft = condition.isDraft;
+      this.garbageFlag = condition.garbageFlag;
+      this.draftFlag = condition.draftFlag;
       this.listArticles();
     }
   }

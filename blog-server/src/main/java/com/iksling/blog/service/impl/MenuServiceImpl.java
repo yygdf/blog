@@ -25,7 +25,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     private MenuMapper menuMapper;
 
     @Override
-    public List<UserMenuDTO> listUserMenus() {
+    public List<UserMenuDTO> listUserMenuDTO() {
         Integer userId = UserUtil.getLoginUser().getUserId();
         List<Menu> menuList = menuMapper.listMenusByUserId(userId);
         List<Menu> parentMenuList = getParentMenuList(menuList);

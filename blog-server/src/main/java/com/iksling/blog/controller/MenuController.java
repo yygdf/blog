@@ -16,7 +16,7 @@ public class MenuController {
 
     @ApiOperation(value = "查看用户菜单")
     @GetMapping("/back/user/menus")
-    public Result listUserMenus() {
-        return Result.success().message("查询成功").data(menuService.listUserMenus());
+    public Result listBackUserMenus() {
+        return Result.success().message("查询成功").data(menuService.listUserMenuDTO());
     }
 }

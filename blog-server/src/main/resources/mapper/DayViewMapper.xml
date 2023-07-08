@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iksling.blog.mapper.DayViewMapper">
+
+    <resultMap id="BaseResultMap" type="com.iksling.blog.entity.DayView">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="viewDate" column="view_date" jdbcType="DATE"/>
+            <result property="viewCount" column="view_count" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,view_date,view_count
+    </sql>
+</mapper>

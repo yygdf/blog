@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iksling.blog.mapper.ResourceMapper">
+
+    <resultMap id="BaseResultMap" type="com.iksling.blog.entity.Resource">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
+            <result property="resourceUri" column="resource_uri" jdbcType="VARCHAR"/>
+            <result property="resourceName" column="resource_name" jdbcType="VARCHAR"/>
+            <result property="resourceRequestMethod" column="resource_request_method" jdbcType="VARCHAR"/>
+            <result property="disabledFlag" column="disabled_flag" jdbcType="BOOLEAN"/>
+            <result property="anonymousFlag" column="anonymous_flag" jdbcType="BOOLEAN"/>
+            <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap id="ResourceRoleMap" type="com.iksling.blog.pojo.ResourceRole">
+        <id column="id" property="id"/>
+        <result property="resourceUri" column="resource_uri"/>
+        <result property="resourceRequestMethod" column="resource_request_method" />
+        <result property="disabledFlag" column="disabled_flag"/>
+        <result property="anonymousFlag" column="anonymous_flag"/>
+        <collection property="roleList" ofType="java.lang.String">
+            <constructor>
+                <arg column="role_name"/>
+            </constructor>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,parent_id,
+        resource_uri,resource_name,resource_request_method,
+        disabled_flag,anonymous_flag,create_user,
+        create_time,update_user,update_time
+    </sql>
+
+    <select id="listResourceRoles" resultMap="ResourceRoleMap">
+        SELECT
+            re.id,re.resource_uri,re.resource_request_method,
+            re.disabled_flag,re.anonymous_flag,r.role_name
+        FROM
+            tb_resource re
+            LEFT JOIN tb_role_resource rre ON re.id = rre.resource_id
+            LEFT JOIN tb_role r ON rre.role_id = r.id
+        WHERE
+            re.parent_id != -1
+    </select>
+</mapper>

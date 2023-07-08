@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iksling.blog.mapper.FriendLinkMapper">
+
+    <resultMap id="BaseResultMap" type="com.iksling.blog.entity.FriendLink">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="linkUrl" column="link_url" jdbcType="VARCHAR"/>
+            <result property="linkDesc" column="link_desc" jdbcType="VARCHAR"/>
+            <result property="linkLogo" column="link_logo" jdbcType="VARCHAR"/>
+            <result property="linkName" column="link_name" jdbcType="VARCHAR"/>
+            <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,link_url,
+        link_desc,link_logo,link_name,
+        create_user,create_time,update_user,
+        update_time
+    </sql>
+</mapper>

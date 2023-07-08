@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iksling.blog.mapper.ArticleMapper">
+
+    <resultMap id="BaseResultMap" type="com.iksling.blog.entity.Article">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="categoryId" column="category_id" jdbcType="INTEGER"/>
+            <result property="articleTitle" column="article_title" jdbcType="VARCHAR"/>
+            <result property="articleCover" column="article_cover" jdbcType="VARCHAR"/>
+            <result property="articleContent" column="article_content" jdbcType="VARCHAR"/>
+            <result property="topFlag" column="top_flag" jdbcType="BOOLEAN"/>
+            <result property="draftFlag" column="draft_flag" jdbcType="BOOLEAN"/>
+            <result property="publicFlag" column="public_flag" jdbcType="BOOLEAN"/>
+            <result property="hiddenFlag" column="hidden_flag" jdbcType="BOOLEAN"/>
+            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
+            <result property="commentableFlag" column="commentable_flag" jdbcType="BOOLEAN"/>
+            <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>
+            <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
+            <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,category_id,
+        article_title,article_cover,article_content,
+        top_flag,draft_flag,public_flag,
+        hidden_flag,deleted_flag,commentable_flag,
+        ip_source,ip_address,create_user,
+        create_time,update_user,update_time
+    </sql>
+</mapper>

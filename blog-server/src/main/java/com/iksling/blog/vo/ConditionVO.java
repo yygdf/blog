@@ -2,14 +2,18 @@ package com.iksling.blog.vo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
 @Builder
 @ApiModel(description = "查询条件VO")
+@NoArgsConstructor
+@AllArgsConstructor
 public class ConditionVO {
     /**
      * 每页数量

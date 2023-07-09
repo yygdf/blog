@@ -14,7 +14,9 @@
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="component" column="component" jdbcType="VARCHAR"/>
             <result property="hiddenFlag" column="hidden_flag" jdbcType="BOOLEAN"/>
+            <result property="hideFlag" column="hide_flag" jdbcType="BOOLEAN"/>
             <result property="disabledFlag" column="disabled_flag" jdbcType="BOOLEAN"/>
+            <result property="deletableFlag" column="deletable_flag" jdbcType="BOOLEAN"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
@@ -24,16 +26,18 @@
     <sql id="Base_Column_List">
         id,user_id,parent_id,
         icon,rank,path,
-        name,component,hidden_flag,
-        disabled_flag,create_user,create_time,
-        update_user,update_time
+        name,component,hide_flag,
+        hidden_flag,disabled_flag,deletable_flag,
+        create_user,create_time,update_user,
+        update_time
     </sql>
 
     <select id="listMenusByUserId" resultType="com.iksling.blog.entity.Menu">
         SELECT DISTINCT
-            m.id,m.user_id,m.path,
-            m.name,m.component,m.icon,
-            m.parent_id,m.disabled_flag,m.rank
+            m.id,m.user_id,m.parent_id,
+            m.icon,m.path,m.name,
+            m.component,m.hide_flag,m.disabled_flag,
+            m.rank
         FROM
             tb_user_role ur
             LEFT JOIN tb_role_menu rm ON ur.role_id = rm.role_id

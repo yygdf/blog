@@ -37,6 +37,11 @@ public class UserMenuDTO {
     private String component;
 
     /**
+     * 0未隐藏，1已隐藏
+     */
+    private Boolean hideFlag;
+
+    /**
      * 0未禁用，1已禁用
      */
     private Boolean disabledFlag;

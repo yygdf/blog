@@ -37,7 +37,7 @@ public class ExceptionAdvice {
     }
 
     /********** 未知异常 **********/
-    @ExceptionHandler(value = Exception.class)
+//    @ExceptionHandler(value = Exception.class)
     public Result exceptionAdvice(Exception e) {
         return Result.failure().code(FAILURE).message("发生未知异常,请联系管理员[" + CommonConst.CONTACT + "]");
     }

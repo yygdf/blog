@@ -48,8 +48,8 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .select(User::getId, User::getNickname, User::getAvatar, User::getIntro, User::getEmail, User::getWebsite)
                 .eq(User::getId, loginUser.getUserId()));
-        Set<Integer> articleLikeSet = (Set<Integer>) redisTemplate.boundHashOps(ARTICLE_USER_LIKE).get(user.getId());
-        Set<Integer> commentLikeSet = (Set<Integer>) redisTemplate.boundHashOps(COMMENT_USER_LIKE).get(user.getId());
+        Set<Integer> articleLikeSet = (Set<Integer>) redisTemplate.boundHashOps(ARTICLE_USER_LIKE).get(user.getId().toString());
+        Set<Integer> commentLikeSet = (Set<Integer>) redisTemplate.boundHashOps(COMMENT_USER_LIKE).get(user.getId().toString());
         LoginUserDTO loginUserDTO = LoginUserDTO.builder()
                 .userId(user.getId())
                 .intro(user.getIntro())

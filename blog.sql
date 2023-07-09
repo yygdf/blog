@@ -11,7 +11,7 @@
  Target Server Version : 50731
  File Encoding         : 65001
 
- Date: 08/07/2023 11:39:54
+ Date: 09/07/2023 11:51:28
 */
 
 SET NAMES utf8mb4;
@@ -33,6 +33,7 @@ CREATE TABLE `tb_article`  (
   `public_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0未公开，1已公开',
   `hidden_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
   `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
+  `garbage_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0不是垃圾，1是垃圾',
   `commentable_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0不可评论，1可评论',
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址',
@@ -41,11 +42,13 @@ CREATE TABLE `tb_article`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_article
 -- ----------------------------
+INSERT INTO `tb_article` VALUES (1, 2, 1, '测试文章1', 'http://192.168.203.130/static/img/article/2/1/1677835052211286018.jpg', '# 测试文章1\n![beijing1.jpeg](http://192.168.203.130/static/img/article/2/1/1677834997010051074.jpeg)\n\n![beijing2.jpg](http://192.168.203.130/static/img/article/2/1/1677838235826434049.jpg)', 1, 0, 1, 0, 0, 0, 1, '', '127.0.0.1', 2, '2023-07-09 08:20:10', 2, '2023-07-09 08:33:39');
+INSERT INTO `tb_article` VALUES (2, 2, 2, '测试文章2', '', '1. 哈哈哈哈哈哈\n2. 呵呵呵呵', 1, 0, 1, 1, 0, 0, 1, '', '127.0.0.1', 2, '2023-07-09 09:51:12', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_article_tag
@@ -56,11 +59,13 @@ CREATE TABLE `tb_article_tag`  (
   `tag_id` int(11) NOT NULL COMMENT '标签id',
   `article_id` int(11) NOT NULL COMMENT '文章id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_article_tag
 -- ----------------------------
+INSERT INTO `tb_article_tag` VALUES (1, 1, 1);
+INSERT INTO `tb_article_tag` VALUES (2, 2, 2);
 
 -- ----------------------------
 -- Table structure for tb_base_config
@@ -223,11 +228,31 @@ CREATE TABLE `tb_login_log`  (
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 21 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_login_log
 -- ----------------------------
+INSERT INTO `tb_login_log` VALUES (1, 2, 1, '2023-07-09 08:12:04', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (2, 2, 1, '2023-07-09 08:19:45', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (3, 2, 1, '2023-07-09 08:35:59', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (4, 2, 1, '2023-07-09 08:42:02', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (5, 2, 1, '2023-07-09 08:46:41', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (6, 2, 1, '2023-07-09 08:48:44', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (7, 2, 1, '2023-07-09 08:51:34', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (8, 2, 1, '2023-07-09 08:52:58', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (9, 2, 1, '2023-07-09 08:55:55', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (10, 2, 1, '2023-07-09 09:02:34', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (11, 2, 1, '2023-07-09 09:08:01', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (12, 2, 1, '2023-07-09 09:50:14', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (13, 2, 1, '2023-07-09 09:52:59', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (14, 2, 1, '2023-07-09 09:55:05', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (15, 2, 1, '2023-07-09 10:02:55', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (16, 2, 1, '2023-07-09 10:11:15', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (17, 2, 1, '2023-07-09 11:34:49', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (18, 2, 1, '2023-07-09 11:45:24', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (19, 2, 1, '2023-07-09 11:48:15', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (20, 2, 1, '2023-07-09 11:49:38', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
 
 -- ----------------------------
 -- Table structure for tb_menu
@@ -236,14 +261,16 @@ DROP TABLE IF EXISTS `tb_menu`;
 CREATE TABLE `tb_menu`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '菜单id',
   `user_id` int(11) NOT NULL COMMENT '用户id',
-  `parent_id` int(11) NOT NULL DEFAULT 0 COMMENT '父菜单id',
+  `parent_id` int(11) NOT NULL DEFAULT -1 COMMENT '父菜单id',
   `icon` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '菜单图标',
-  `rank` tinyint(1) NOT NULL DEFAULT 0 COMMENT '排序指标',
+  `rank` tinyint(1) NOT NULL DEFAULT 127 COMMENT '排序指标',
   `path` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '菜单路径',
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '菜单名称',
   `component` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '菜单组件',
+  `hide_flag` tinyint(1) NOT NULL COMMENT '0未隐藏，1已隐藏',
   `hidden_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
   `disabled_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用，1已禁用',
+  `deletable_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0不可删除，1可删除',
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
@@ -254,35 +281,36 @@ CREATE TABLE `tb_menu`  (
 -- ----------------------------
 -- Records of tb_menu
 -- ----------------------------
-INSERT INTO `tb_menu` VALUES (1, 2, -1, 'el-icon-odometer', 1, '/', '首页', '/home/Home.vue', 0, 0, 0, '2023-04-26 23:04:13', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (2, 2, -1, 'el-icon-document', 2, '/article-menu', '文章管理', 'Layout', 0, 0, 0, '2023-05-12 13:30:18', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (3, 2, -1, 'el-icon-message', 3, '/message-menu', '消息管理', 'Layout', 0, 0, 0, '2023-05-12 13:31:28', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (4, 2, -1, 'el-icon-link', 4, '/link-menu', '链接管理', 'Layout', 0, 0, 0, '2023-05-12 13:33:40', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (5, 2, -1, 'el-icon-s-data', 5, '/statistic-menu', '数据统计', 'Layout', 0, 0, 0, '2023-05-12 13:37:45', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (6, 2, -1, 'el-icon-setting', 6, '/system-menu', '系统管理', 'Layout', 0, 0, 0, '2023-05-12 13:40:50', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (7, 2, -1, 'el-icon-user', 7, '/user-menu', '用户管理', 'Layout', 0, 0, 0, '2023-05-12 13:43:01', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (8, 2, -1, 'el-icon-notebook-1', 8, '/log-menu', '日志管理', 'Layout', 0, 0, 0, '2023-05-12 13:50:43', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (9, 2, -1, 'el-icon-s-home', 9, '/personal-menu', '个人中心', 'Layout', 0, 0, 0, '2023-05-12 13:52:12', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (201, 2, 2, 'el-icon-document-add', 21, '/article', '添加文章', '/article/Article.vue', 0, 0, 0, '2023-05-12 13:57:27', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (202, 2, 2, 'el-icon-document-copy', 22, '/articles', '文章列表', '/article/Articles.vue', 0, 0, 0, '2023-05-12 14:01:25', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (203, 2, 2, 'el-icon-files', 23, '/category', '分类管理', '/article/Category.vue', 0, 0, 0, '2023-05-12 14:09:01', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (204, 2, 2, 'el-icon-collection-tag', 24, '/tag', '标签管理', '/article/Tag.vue', 0, 0, 0, '2023-05-12 14:10:41', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (301, 2, 3, 'el-icon-chat-dot-square', 31, '/comment', '评论管理', '/message/Comment.vue', 0, 0, 0, '2023-05-12 14:16:31', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (302, 2, 3, 'el-icon-chat-dot-round', 32, '/message', '留言管理', '/message/Message.vue', 0, 0, 0, '2023-05-12 14:17:18', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (401, 2, 4, 'el-icon-connection', 41, '/friend', '友链管理', '/link/Friend.vue', 0, 0, 0, '2023-05-12 17:37:47', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (501, 2, 5, 'el-icon-tickets', 51, '/article-statistic', '文章统计', '/statistic/Article.vue', 0, 0, 0, '2023-05-12 14:22:50', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (502, 2, 5, 'el-icon-chat-line-square', 52, '/message-statistic', '留言统计', '/statistic/Message.vue', 0, 0, 0, '2023-05-12 14:25:34', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (503, 2, 5, 'el-icon-s-check', 53, '/user-statistic', '用户统计', '/statistic/User.vue', 0, 0, 0, '2023-05-12 14:27:43', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (601, 2, 6, 'el-icon-coin', 61, '/base', '基础配置', '/system/Base.vue', 0, 0, 0, '2023-05-12 14:32:36', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (602, 2, 6, 'el-icon-menu', 62, '/menu', '菜单管理', '/system/Menu.vue', 0, 0, 0, '2023-05-12 14:44:36', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (603, 2, 6, 'el-icon-s-grid', 63, '/resource', '资源管理', '/system/Resource.vue', 0, 0, 0, '2023-05-12 15:33:35', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (604, 2, 6, 'el-icon-s-custom', 64, '/role', '角色管理', '/system/Role.vue', 0, 0, 0, '2023-05-12 15:37:11', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (701, 2, 7, 'el-icon-coordinate', 71, '/online-user', '在线用户', '/user/Online.vue', 0, 0, 0, '2023-05-12 14:38:37', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (702, 2, 7, 'el-icon-user-solid', 72, '/users', '用户列表', '/user/Users.vue', 0, 0, 0, '2023-05-12 14:41:42', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (801, 2, 8, 'el-icon-map-location', 81, '/login', '登录日志', '/log/Login.vue', 0, 0, 0, '2023-05-12 15:44:03', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (802, 2, 8, 'el-icon-receiving', 82, '/operation', '操作日志', '/log/Operation.vue', 0, 0, 0, '2023-05-12 15:49:53', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (901, 2, 9, 'el-icon-place', 91, '/about', '关于我', '/personal/About.vue', 0, 0, 0, '2023-05-12 16:00:46', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (902, 2, 9, 'el-icon-postcard', 92, '/personal', '个人配置', '/personal/Personal.vue', 0, 0, 0, '2023-05-12 14:36:02', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (1, 2, -1, 'el-icon-odometer', 1, '/', '首页', '/home/Home.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (2, 2, -1, 'el-icon-document', 2, '/article-menu', '文章管理', 'Layout', 0, 0, 0, 0, 2, '2023-05-12 13:30:18', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (3, 2, -1, 'el-icon-message', 3, '/message-menu', '消息管理', 'Layout', 0, 0, 0, 0, 2, '2023-05-12 13:31:28', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (4, 2, -1, 'el-icon-link', 4, '/link-menu', '链接管理', 'Layout', 0, 0, 0, 0, 2, '2023-05-12 13:33:40', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (5, 2, -1, 'el-icon-s-data', 5, '/statistic-menu', '数据统计', 'Layout', 0, 0, 0, 0, 2, '2023-05-12 13:37:45', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (6, 2, -1, 'el-icon-setting', 6, '/system-menu', '系统管理', 'Layout', 0, 0, 0, 0, 2, '2023-05-12 13:40:50', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (7, 2, -1, 'el-icon-user', 7, '/user-menu', '用户管理', 'Layout', 0, 0, 0, 0, 2, '2023-05-12 13:43:01', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (8, 2, -1, 'el-icon-notebook-1', 8, '/log-menu', '日志管理', 'Layout', 0, 0, 0, 0, 2, '2023-05-12 13:50:43', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (9, 2, -1, 'el-icon-s-home', 9, '/personal-menu', '个人中心', 'Layout', 0, 0, 0, 0, 2, '2023-05-12 13:52:12', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (201, 2, 2, 'el-icon-document-add', 21, '/article', '添加文章', '/article/Article.vue', 0, 0, 0, 0, 2, '2023-05-12 13:57:27', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (202, 2, 2, 'el-icon-document-copy', 22, '/articles', '文章列表', '/article/Articles.vue', 0, 0, 0, 0, 2, '2023-05-12 14:01:25', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (203, 2, 2, 'el-icon-files', 23, '/category', '分类管理', '/article/Category.vue', 0, 0, 1, 0, 2, '2023-05-12 14:09:01', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (204, 2, 2, 'el-icon-collection-tag', 24, '/tag', '标签管理', '/article/Tag.vue', 0, 1, 0, 0, 2, '2023-05-12 14:10:41', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (205, 2, 2, 'el-icon-document-add', 25, '/article/*', '修改文章', '/article/Article.vue', 1, 0, 0, 0, 2, '2023-07-09 09:58:07', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (301, 2, 3, 'el-icon-chat-dot-square', 31, '/comment', '评论管理', '/message/Comment.vue', 0, 0, 0, 0, 2, '2023-05-12 14:16:31', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (302, 2, 3, 'el-icon-chat-dot-round', 32, '/message', '留言管理', '/message/Message.vue', 0, 0, 0, 0, 2, '2023-05-12 14:17:18', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (401, 2, 4, 'el-icon-connection', 41, '/friend', '友链管理', '/link/Friend.vue', 0, 0, 0, 0, 2, '2023-05-12 17:37:47', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (501, 2, 5, 'el-icon-tickets', 51, '/article-statistic', '文章统计', '/statistic/Article.vue', 0, 0, 0, 0, 2, '2023-05-12 14:22:50', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (502, 2, 5, 'el-icon-chat-line-square', 52, '/message-statistic', '留言统计', '/statistic/Message.vue', 0, 0, 0, 0, 2, '2023-05-12 14:25:34', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (503, 2, 5, 'el-icon-s-check', 53, '/user-statistic', '用户统计', '/statistic/User.vue', 0, 0, 0, 0, 2, '2023-05-12 14:27:43', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (601, 2, 6, 'el-icon-coin', 61, '/base', '基础配置', '/system/Base.vue', 0, 0, 0, 0, 2, '2023-05-12 14:32:36', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (602, 2, 6, 'el-icon-menu', 62, '/menu', '菜单管理', '/system/Menu.vue', 0, 0, 0, 0, 2, '2023-05-12 14:44:36', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (603, 2, 6, 'el-icon-s-grid', 63, '/resource', '资源管理', '/system/Resource.vue', 0, 0, 0, 0, 2, '2023-05-12 15:33:35', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (604, 2, 6, 'el-icon-s-custom', 64, '/role', '角色管理', '/system/Role.vue', 0, 0, 0, 0, 2, '2023-05-12 15:37:11', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (701, 2, 7, 'el-icon-coordinate', 71, '/online-user', '在线用户', '/user/Online.vue', 0, 0, 0, 0, 2, '2023-05-12 14:38:37', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (702, 2, 7, 'el-icon-user-solid', 72, '/users', '用户列表', '/user/Users.vue', 0, 0, 0, 0, 2, '2023-05-12 14:41:42', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (801, 2, 8, 'el-icon-map-location', 81, '/login', '登录日志', '/log/Login.vue', 0, 0, 0, 0, 2, '2023-05-12 15:44:03', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (802, 2, 8, 'el-icon-receiving', 82, '/operation', '操作日志', '/log/Operation.vue', 0, 0, 0, 0, 2, '2023-05-12 15:49:53', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (901, 2, 9, 'el-icon-place', 91, '/about', '关于我', '/personal/About.vue', 0, 0, 0, 0, 2, '2023-05-12 16:00:46', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (902, 2, 9, 'el-icon-postcard', 92, '/personal', '个人配置', '/personal/Personal.vue', 0, 0, 0, 0, 2, '2023-05-12 14:36:02', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_message
@@ -323,7 +351,7 @@ CREATE TABLE `tb_multi_dir`  (
   `public_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0未公开，1已公开',
   `hidden_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
   `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
-  `deletable_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0不可删除，1可删除',
+  `deletable_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0不可删除，1可删除',
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
@@ -349,7 +377,7 @@ CREATE TABLE `tb_multi_file`  (
   `file_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件地址',
   `file_desc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '文件描述',
   `file_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '文件名称',
-  `file_sub_dir` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '子目录',
+  `file_sub_dir` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '文件子目录',
   `hidden_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
   `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
@@ -359,11 +387,14 @@ CREATE TABLE `tb_multi_file`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_multi_file
 -- ----------------------------
+INSERT INTO `tb_multi_file` VALUES (1, 2, 3, 'http://192.168.203.130/static/img/article/2/1/1677834997010051074.jpeg', '用户: root@qq.com, 文章id: 1 中的图片', 'beijing1.jpeg', '2/1/', 0, 0, '', '127.0.0.1', 2, '2023-07-09 08:20:12', NULL, NULL);
+INSERT INTO `tb_multi_file` VALUES (2, 2, 3, 'http://192.168.203.130/static/img/article/2/1/1677835052211286018.jpg', '用户: root@qq.com, 文章id: 1 中的图片', 'beijing3.jpg', '2/1/', 0, 0, '', '127.0.0.1', 2, '2023-07-09 08:20:24', NULL, NULL);
+INSERT INTO `tb_multi_file` VALUES (3, 2, 3, 'http://192.168.203.130/static/img/article/2/1/1677838235826434049.jpg', '用户: root@qq.com, 文章id: 1 中的图片', 'beijing2.jpg', '2/1/', 0, 0, '', '127.0.0.1', 2, '2023-07-09 08:33:03', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_operation_log
@@ -385,11 +416,23 @@ CREATE TABLE `tb_operation_log`  (
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_operation_log
 -- ----------------------------
+INSERT INTO `tb_operation_log` VALUES (1, 2, '/back/article', '新增或修改', '添加或修改文章', '文章模块', 'com.iksling.blog.controller.ArticleController.saveBackArticle', '[{\"articleContent\":\"# 测试文章1\\n![beijing1.jpeg](1)\",\"articleCover\":\"\",\"articleTitle\":\"测试文章1\",\"commentableFlag\":true,\"draftFlag\":true,\"hiddenFlag\":false,\"publicFlag\":true,\"tagIdList\":[],\"topFlag\":false}]', 'POST', '{\"code\":20000,\"data\":1,\"flag\":true,\"message\":\"操作成功\"}', '', '127.0.0.1', 2, '2023-07-09 08:20:11');
+INSERT INTO `tb_operation_log` VALUES (2, 2, '/back/article/image', '上传', '上传文章图片', '文章模块', 'com.iksling.blog.controller.ArticleController.saveBackArticleImage', '[{\"fileSubDir\":\"1\"}]', 'POST', '{\"code\":20000,\"data\":\"http://192.168.203.130/static/img/article/2/1/1677834997010051074.jpeg\",\"flag\":true,\"message\":\"上传成功\"}', '', '127.0.0.1', 2, '2023-07-09 08:20:12');
+INSERT INTO `tb_operation_log` VALUES (3, 2, '/back/article/image', '上传', '上传文章图片', '文章模块', 'com.iksling.blog.controller.ArticleController.saveBackArticleImage', '[{\"fileSubDir\":\"1\"}]', 'POST', '{\"code\":20000,\"data\":\"http://192.168.203.130/static/img/article/2/1/1677835052211286018.jpg\",\"flag\":true,\"message\":\"上传成功\"}', '', '127.0.0.1', 2, '2023-07-09 08:20:24');
+INSERT INTO `tb_operation_log` VALUES (4, 2, '/back/article/image', '上传', '上传文章图片', '文章模块', 'com.iksling.blog.controller.ArticleController.saveBackArticleImage', '[{\"fileSubDir\":\"1\"}]', 'POST', '{\"code\":20000,\"data\":\"http://192.168.203.130/static/img/article/2/1/1677838235826434049.jpg\",\"flag\":true,\"message\":\"上传成功\"}', '', '127.0.0.1', 2, '2023-07-09 08:33:03');
+INSERT INTO `tb_operation_log` VALUES (5, 2, '/back/article', '新增或修改', '添加或修改文章', '文章模块', 'com.iksling.blog.controller.ArticleController.saveBackArticle', '[{\"articleContent\":\"# 测试文章1\\n![beijing1.jpeg](http://192.168.203.130/static/img/article/2/1/1677834997010051074.jpeg)\\n\\n![beijing2.jpg](http://192.168.203.130/static/img/article/2/1/1677838235826434049.jpg)\",\"articleCover\":\"http://192.168.203.130/static/img/article/2/1/1677835052211286018.jpg\",\"articleTitle\":\"测试文章1\",\"categoryId\":1,\"commentableFlag\":true,\"draftFlag\":false,\"hiddenFlag\":false,\"id\":1,\"publicFlag\":true,\"tagIdList\":[1],\"topFlag\":true}]', 'POST', '{\"code\":20000,\"data\":1,\"flag\":true,\"message\":\"操作成功\"}', '', '127.0.0.1', 2, '2023-07-09 08:33:39');
+INSERT INTO `tb_operation_log` VALUES (6, 2, '/back/article', '新增或修改', '添加或修改文章', '文章模块', 'com.iksling.blog.controller.ArticleController.saveBackArticle', '[{\"articleContent\":\"1. 哈哈哈哈哈哈\\n2. 呵呵呵呵\",\"articleCover\":\"\",\"articleTitle\":\"测试文章2\",\"categoryId\":2,\"commentableFlag\":false,\"draftFlag\":false,\"hiddenFlag\":false,\"publicFlag\":true,\"tagIdList\":[2],\"topFlag\":true}]', 'POST', '{\"code\":20000,\"data\":2,\"flag\":true,\"message\":\"操作成功\"}', '', '127.0.0.1', 2, '2023-07-09 09:51:12');
+INSERT INTO `tb_operation_log` VALUES (7, 2, '/back/article/top/2', '修改', '修改文章置顶', '文章模块', 'com.iksling.blog.controller.ArticleController.updateArticleTop', '[2,false]', 'PUT', '{\"code\":20000,\"flag\":true,\"message\":\"操作成功\"}', '', '127.0.0.1', 2, '2023-07-09 09:51:46');
+INSERT INTO `tb_operation_log` VALUES (8, 2, '/back/article/public/2', '修改', '修改文章是否公开', '文章模块', 'com.iksling.blog.controller.ArticleController.updateArticlePublic', '[2,false]', 'PUT', '{\"code\":20000,\"flag\":true,\"message\":\"操作成功\"}', '', '127.0.0.1', 2, '2023-07-09 09:51:49');
+INSERT INTO `tb_operation_log` VALUES (9, 2, '/back/article/hidden/2', '修改', '修改文章是否隐藏', '文章模块', 'com.iksling.blog.controller.ArticleController.updateArticleHidden', '[2,true]', 'PUT', '{\"code\":20000,\"flag\":true,\"message\":\"操作成功\"}', '', '127.0.0.1', 2, '2023-07-09 09:51:59');
+INSERT INTO `tb_operation_log` VALUES (10, 2, '/back/article/commentable/2', '修改', '修改文章是否可评论', '文章模块', 'com.iksling.blog.controller.ArticleController.updateArticleCommentable', '[2,true]', 'PUT', '{\"code\":20000,\"flag\":true,\"message\":\"操作成功\"}', '', '127.0.0.1', 2, '2023-07-09 09:55:24');
+INSERT INTO `tb_operation_log` VALUES (11, 2, '/back/article/top/2', '修改', '修改文章置顶', '文章模块', 'com.iksling.blog.controller.ArticleController.updateArticleTop', '[2,true]', 'PUT', '{\"code\":20000,\"flag\":true,\"message\":\"操作成功\"}', '', '127.0.0.1', 2, '2023-07-09 09:55:37');
+INSERT INTO `tb_operation_log` VALUES (12, 2, '/back/article/public/2', '修改', '修改文章是否公开', '文章模块', 'com.iksling.blog.controller.ArticleController.updateArticlePublic', '[2,true]', 'PUT', '{\"code\":20000,\"flag\":true,\"message\":\"操作成功\"}', '', '127.0.0.1', 2, '2023-07-09 09:55:38');
 
 -- ----------------------------
 -- Table structure for tb_qq_auth
@@ -429,6 +472,7 @@ CREATE TABLE `tb_resource`  (
   `resource_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '资源名称',
   `resource_request_method` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '请求方式',
   `disabled_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用，1已禁用',
+  `deletable_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0不可删除，1可删除',
   `anonymous_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未匿名，1已匿名',
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
@@ -440,17 +484,24 @@ CREATE TABLE `tb_resource`  (
 -- ----------------------------
 -- Records of tb_resource
 -- ----------------------------
-INSERT INTO `tb_resource` VALUES (1, 2, -1, '', '菜单模块', '', 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (2, 2, -1, '', '首页模块', '', 0, 0, 2, '2023-05-11 10:42:09', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (3, 2, -1, '', '文章模块', '', 0, 0, 2, '2023-07-08 09:08:55', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (9, 2, -1, '', '其他模块', '', 0, 0, 2, '2023-07-02 11:16:14', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (101, 2, 1, '/back/user/menus', '查看用户菜单', 'GET', 0, 0, 2, '2023-04-26 21:33:02', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (201, 2, 2, '/back', '查看后台首页信息', 'GET', 0, 0, 2, '2023-04-26 21:34:33', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (301, 2, 3, '/back/articles/*', '根据文章id查找文章', 'GET', 0, 0, 2, '2023-07-08 09:10:16', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (302, 2, 3, '/back/articles/options', '查看文章选项', 'GET', 0, 0, 2, '2023-07-08 09:10:53', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (303, 2, 3, '/back/articles', '添加或修改文章', 'POST', 0, 0, 2, '2023-07-08 09:11:36', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (304, 2, 3, '/back/articles/images', '上传文章图片', 'POST', 0, 0, 2, '2023-07-08 09:12:09', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (901, 2, 9, '/swagger-ui.html', 'SwaggerUI', 'GET', 0, 1, 2, '2023-07-02 11:17:04', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (1, 2, -1, '', '菜单模块', '', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (2, 2, -1, '', '首页模块', '', 0, 0, 0, 2, '2023-05-11 10:42:09', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (3, 2, -1, '', '文章模块', '', 0, 0, 0, 2, '2023-07-08 09:08:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (9, 2, -1, '', '其他模块', '', 0, 0, 0, 2, '2023-07-02 11:16:14', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (101, 2, 1, '/back/user/menus', '查看用户菜单', 'GET', 0, 0, 0, 2, '2023-04-26 21:33:02', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (201, 2, 2, '/back', '查看后台首页信息', 'GET', 0, 0, 0, 2, '2023-04-26 21:34:33', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (301, 2, 3, '/back/article/*', '根据文章id查找文章', 'GET', 0, 0, 0, 2, '2023-07-08 09:10:16', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (302, 2, 3, '/back/article/options', '查看文章选项', 'GET', 0, 0, 0, 2, '2023-07-08 09:10:53', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (303, 2, 3, '/back/article', '添加或修改文章', 'POST', 0, 0, 0, 2, '2023-07-08 09:11:36', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (304, 2, 3, '/back/article/image', '上传文章图片', 'POST', 0, 0, 0, 2, '2023-07-08 09:12:09', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (305, 2, 3, '/back/articles', '查看后台文章列表', 'GET', 0, 0, 0, 2, '2023-07-08 14:46:19', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (306, 2, 3, '/back/articles', '更新文章是否为垃圾文章', 'PUT', 0, 0, 0, 2, '2023-07-08 18:24:10', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (307, 2, 3, '/back/articles', '逻辑删除文章', 'DELETE', 0, 0, 0, 2, '2023-07-08 18:51:02', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (308, 2, 3, '/back/article/top/*', '修改文章置顶', 'PUT', 0, 0, 0, 2, '2023-07-08 18:51:51', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (309, 2, 3, '/back/article/public/*', '修改文章是否公开', 'PUT', 0, 0, 0, 2, '2023-07-08 18:52:21', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (310, 2, 3, '/back/article/hidden/*', '修改文章是否隐藏', 'PUT', 0, 0, 0, 2, '2023-07-08 18:52:54', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (311, 2, 3, '/back/article/commentable/*', '修改文章是否可评论', 'PUT', 0, 0, 0, 2, '2023-07-08 18:53:19', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (901, 2, 9, '/swagger-ui.html', 'SwaggerUI', 'GET', 0, 0, 1, 2, '2023-07-02 11:17:04', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_role
@@ -488,7 +539,7 @@ CREATE TABLE `tb_role_menu`  (
   `role_id` int(11) NOT NULL COMMENT '角色id',
   `menu_id` int(11) NOT NULL COMMENT '菜单id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 30 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_role_menu
@@ -522,6 +573,7 @@ INSERT INTO `tb_role_menu` VALUES (26, 1, 801);
 INSERT INTO `tb_role_menu` VALUES (27, 1, 802);
 INSERT INTO `tb_role_menu` VALUES (28, 1, 901);
 INSERT INTO `tb_role_menu` VALUES (29, 1, 902);
+INSERT INTO `tb_role_menu` VALUES (30, 1, 205);
 
 -- ----------------------------
 -- Table structure for tb_role_resource
@@ -634,7 +686,7 @@ CREATE TABLE `tb_user_auth`  (
 -- ----------------------------
 INSERT INTO `tb_user_auth` VALUES (0, 0, 'ling@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (1, 1, 'ks@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
-INSERT INTO `tb_user_auth` VALUES (2, 2, 'root@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-08 11:22:18', 'Computer', 0, 0, '', '127.0.0.1', 0, '2023-04-26 21:44:26', NULL, NULL);
+INSERT INTO `tb_user_auth` VALUES (2, 2, 'root@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-09 11:49:38', 'Computer', 0, 0, '', '127.0.0.1', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (3, 3, 'admin@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (4, 4, 'editor@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (5, 5, 'author@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);

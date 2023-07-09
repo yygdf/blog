@@ -1,13 +1,17 @@
 package com.iksling.blog.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ArticlesBackDTO {
     /**
      * 文章id
@@ -77,7 +81,7 @@ public class ArticlesBackDTO {
     /**
      * 分类名
      */
-    private Integer categoryName;
+    private String categoryName;
 
     /**
      * 文章标签

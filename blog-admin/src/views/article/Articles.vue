@@ -140,8 +140,8 @@
             active-color="#13ce66"
             inactive-color="#F4F4F5"
             :disabled="scope.row.garbageFlag || scope.row.draftFlag"
-            :active-value="1"
-            :inactive-value="0"
+            :active-value="true"
+            :inactive-value="false"
             @change="changeTop(scope.row)"
           />
         </template>
@@ -158,8 +158,8 @@
             active-color="#13ce66"
             inactive-color="#F4F4F5"
             :disabled="scope.row.garbageFlag || scope.row.draftFlag"
-            :active-value="1"
-            :inactive-value="0"
+            :active-value="true"
+            :inactive-value="false"
             @change="changePublic(scope.row)"
           />
         </template>
@@ -176,8 +176,8 @@
             active-color="#13ce66"
             inactive-color="#F4F4F5"
             :disabled="scope.row.garbageFlag || scope.row.draftFlag"
-            :active-value="1"
-            :inactive-value="0"
+            :active-value="true"
+            :inactive-value="false"
             @change="changeHidden(scope.row)"
           />
         </template>
@@ -194,8 +194,8 @@
             active-color="#13ce66"
             inactive-color="#F4F4F5"
             :disabled="scope.row.garbageFlag || scope.row.draftFlag"
-            :active-value="1"
-            :inactive-value="0"
+            :active-value="true"
+            :inactive-value="false"
             @change="changeCommentable(scope.row)"
           />
         </template>
@@ -413,7 +413,7 @@ export default {
         })
         .then(({ data }) => {
           this.count = data.data.count;
-          this.articleList = data.data.tList;
+          this.articleList = data.data.pageList;
           this.loading = false;
         });
     }

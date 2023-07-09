@@ -18,5 +18,5 @@ public class PageDTO<T> {
     /**
      * 分页列表
      */
-    private List<T> tList;
+    private List<T> pageList;
 }

@@ -64,6 +64,7 @@
           <el-upload
             class="upload-cover"
             drag
+            action=""
             :http-request="uploadCover"
             :limit="1"
           >
@@ -80,42 +81,41 @@
           </el-upload>
         </el-form-item>
       </el-form>
-
-      <el-form label-width="80px" size="medium" :model="article" inline="true">
+      <el-form label-width="80px" size="medium" :model="article" :inline="true">
         <el-form-item label="置顶">
           <el-switch
-                  v-model="article.topFlag"
-                  active-color="#13ce66"
-                  inactive-color="#F4F4F5"
-                  :active-value="1"
-                  :inactive-value="0"
+            v-model="article.topFlag"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            :active-value="true"
+            :inactive-value="false"
           />
         </el-form-item>
         <el-form-item label="公开">
           <el-switch
-                  v-model="article.publicFlag"
-                  active-color="#13ce66"
-                  inactive-color="#F4F4F5"
-                  :active-value="1"
-                  :inactive-value="0"
+            v-model="article.publicFlag"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            :active-value="true"
+            :inactive-value="false"
           />
         </el-form-item>
         <el-form-item label="隐藏">
           <el-switch
-                  v-model="article.hiddenFlag"
-                  active-color="#13ce66"
-                  inactive-color="#F4F4F5"
-                  :active-value="1"
-                  :inactive-value="0"
+            v-model="article.hiddenFlag"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            :active-value="true"
+            :inactive-value="false"
           />
         </el-form-item>
         <el-form-item label="可评论">
           <el-switch
-                  v-model="article.commentableFlag"
-                  active-color="#13ce66"
-                  inactive-color="#F4F4F5"
-                  :active-value="1"
-                  :inactive-value="0"
+            v-model="article.commentableFlag"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            :active-value="true"
+            :inactive-value="false"
           />
         </el-form-item>
       </el-form>

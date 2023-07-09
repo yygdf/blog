@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iksling.blog.dto.ArticlesBackDTO;
 import com.iksling.blog.entity.Article;
 import com.iksling.blog.vo.ConditionVO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -12,9 +13,9 @@ import java.util.List;
  */
 public interface ArticleMapper extends BaseMapper<Article> {
 
-    Integer selectCountByCondition(ConditionVO condition);
+    Integer selectCountByCondition(@Param("condition") ConditionVO condition);
 
-    List<ArticlesBackDTO> listArticlesBackDTO(ConditionVO condition);
+    List<ArticlesBackDTO> listArticlesBackDTO(@Param("condition") ConditionVO condition);
 }
 
 

@@ -11,7 +11,7 @@
     <el-scrollbar style="height: 100%;">
       <template v-for="route of this.$store.state.userMenuList">
         <template v-if="!route.children[0].path">
-          <el-menu-item :index="route.path" :key="route.path" :disabled="route.isDisabled == 1">
+          <el-menu-item :index="route.path" :key="route.path" :disabled="route.disabledFlag">
             <i :class="route.icon" />
             <span>{{ route.children[0].name }}</span>
             <template slot="title">
@@ -26,7 +26,7 @@
               <span>{{ route.name }}</span>
             </template>
             <template v-for="(item, index) of route.children">
-              <el-menu-item v-if="!item.hidden" :key="index" :index="item.path">
+              <el-menu-item v-if="!item.hideFlag" :disabled="item.disabledFlag" :key="index" :index="item.path">
                 <i :class="item.icon" />
                 <span slot="title">{{ item.name }}</span>
               </el-menu-item>

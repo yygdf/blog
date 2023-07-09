@@ -12,6 +12,7 @@
             <result property="resourceName" column="resource_name" jdbcType="VARCHAR"/>
             <result property="resourceRequestMethod" column="resource_request_method" jdbcType="VARCHAR"/>
             <result property="disabledFlag" column="disabled_flag" jdbcType="BOOLEAN"/>
+            <result property="deletableFlag" column="deletable_flag" jdbcType="BOOLEAN"/>
             <result property="anonymousFlag" column="anonymous_flag" jdbcType="BOOLEAN"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -35,8 +36,9 @@
     <sql id="Base_Column_List">
         id,user_id,parent_id,
         resource_uri,resource_name,resource_request_method,
-        disabled_flag,anonymous_flag,create_user,
-        create_time,update_user,update_time
+        disabled_flag,deletable_flag,anonymous_flag,
+        create_user,create_time,update_user,
+        update_time
     </sql>
 
     <select id="listResourceRoles" resultMap="ResourceRoleMap">

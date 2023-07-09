@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 
@@ -59,12 +60,22 @@ public class Menu implements Serializable {
     /**
      * 0未隐藏，1已隐藏
      */
+    private Boolean hideFlag;
+
+    /**
+     * 0未隐藏，1已隐藏
+     */
     private Boolean hiddenFlag;
 
     /**
      * 0未禁用，1已禁用
      */
     private Boolean disabledFlag;
+
+    /**
+     * 0不可删除，1可删除
+     */
+    private Boolean deletableFlag;
 
     /**
      * 创建人

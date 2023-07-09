@@ -64,15 +64,15 @@ public class ArticleController {
     }
 
     @OptLog(optType = UPDATE)
-    @ApiOperation(value = "更新文章是否为垃圾文章")
+    @ApiOperation(value = "批量更新垃圾文章")
     @PutMapping("/back/articles")
     public Result updateBackArticles(ArticlesGarbageVO articlesGarbageVO) {
-        articleService.updateArticlesDeleteVO(articlesGarbageVO);
+        articleService.updateArticlesGarbageVO(articlesGarbageVO);
         return Result.success().message("操作成功");
     }
 
     @OptLog(optType = REMOVE)
-    @ApiOperation(value = "逻辑删除文章")
+    @ApiOperation(value = "批量删除文章")
     @DeleteMapping("/back/articles")
     public Result deleteBackArticles(@RequestBody List<Integer> articleIdList) {
         articleService.deleteArticleIdList(articleIdList);
@@ -108,6 +108,14 @@ public class ArticleController {
     @PutMapping("/back/article/commentable/{articleId}")
     public Result updateArticleCommentable(@PathVariable("articleId") Integer articleId, Boolean commentableFlag) {
         articleService.updateArticleCommentableById(articleId, commentableFlag);
+        return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = REMOVE)
+    @ApiOperation(value = "删除文章图片")
+    @DeleteMapping("/back/article/image")
+    public Result deleteBackArticleImage(String url) {
+        multiFileService.deleteArticleImageByUrl(url);
         return Result.success().message("操作成功");
     }
 }

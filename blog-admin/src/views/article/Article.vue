@@ -5,6 +5,7 @@
       <el-input
         v-model="article.articleTitle"
         size="medium"
+        :maxlength="50"
         placeholder="输入文章标题"
       />
       <el-button
@@ -29,6 +30,7 @@
       ref="md"
       v-model="article.articleContent"
       @imgAdd="uploadArticleImg"
+      @imgDel="deleteArticleImg"
       style="height:calc(100vh - 260px)"
     />
     <el-dialog :visible.sync="addOrEdit" width="40%" top="10vh">
@@ -66,6 +68,7 @@
             drag
             action=""
             :http-request="uploadCover"
+            :on-remove="deleteCover"
             :limit="1"
           >
             <i class="el-icon-upload" v-if="article.articleCover === ''" />
@@ -91,18 +94,18 @@
             :inactive-value="false"
           />
         </el-form-item>
-        <el-form-item label="公开">
+        <el-form-item label="隐藏">
           <el-switch
-            v-model="article.publicFlag"
+            v-model="article.hiddenFlag"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
             :active-value="true"
             :inactive-value="false"
           />
         </el-form-item>
-        <el-form-item label="隐藏">
+        <el-form-item label="公开">
           <el-switch
-            v-model="article.hiddenFlag"
+            v-model="article.publicFlag"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
             :active-value="true"
@@ -137,6 +140,9 @@ export default {
     const articleId = arr[2];
     if (articleId) {
       this.axios.get("/api/back/article/" + articleId).then(({ data }) => {
+        if (data.data.categoryId === -1) {
+          data.data.categoryId = null;
+        }
         this.article = data.data;
       });
     }
@@ -148,7 +154,7 @@ export default {
   data: function() {
     return {
       addOrEdit: false,
-      autoSave: true,
+      autoSave: false,
       categoryList: [],
       tagList: [],
       article: {
@@ -166,6 +172,26 @@ export default {
       }
     };
   },
+  computed: {
+    watchList() {
+      const {
+        id,
+        categoryId,
+        articleTitle,
+        articleCover,
+        articleContent,
+        tagIdList
+      } = this.article;
+      return {
+        id,
+        categoryId,
+        articleTitle,
+        articleCover,
+        articleContent,
+        tagIdList
+      };
+    }
+  },
   methods: {
     listArticleOptions() {
       this.axios.get("/api/back/article/options").then(({ data }) => {
@@ -174,10 +200,20 @@ export default {
       });
     },
     uploadCover(form) {
+      if (this.article.articleCover !== "") {
+        this.deleteImg(this.article.articleCover);
+      }
       this.uploadImg(null, form.file);
+    },
+    deleteCover() {
+      this.deleteImg(this.article.articleCover);
+      this.article.articleCover = "";
     },
     uploadArticleImg(pos, file) {
       this.uploadImg(pos, file);
+    },
+    deleteArticleImg(pos) {
+      this.deleteImg(pos[0]);
     },
     uploadImg(pos, file) {
       if (this.article.id == null) {
@@ -226,6 +262,10 @@ export default {
             }
           });
       }
+    },
+    deleteImg(url) {
+      var param = { url: url };
+      this.axios.delete("/api/back/article/image", { params: param });
     },
     saveArticleDraft() {
       if (this.article.articleTitle.trim() === "") {
@@ -305,6 +345,16 @@ export default {
           }
         });
       }
+    }
+  },
+  watch: {
+    watchList: {
+      handler(newVal, oldVal) {
+        if (oldVal.id != null) {
+          this.autoSave = true;
+        }
+      },
+      deep: true
     }
   }
 };

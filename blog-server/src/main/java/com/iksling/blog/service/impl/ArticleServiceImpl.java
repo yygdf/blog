@@ -106,9 +106,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             article.setIpAddress(loginUser.getIpAddress());
             article.setCreateUser(loginUser.getUserId());
             article.setCreateTime(new Date());
-        } else if (!article.getDraftFlag()) {
-            article.setUpdateUser(loginUser.getUserId());
-            article.setUpdateTime(new Date());
+        } else {
+            if (!article.getDraftFlag()) {
+                article.setUpdateUser(loginUser.getUserId());
+                article.setUpdateTime(new Date());
+            }
             articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>()
                     .eq(ArticleTag::getArticleId, article.getId()));
         }
@@ -141,7 +143,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     @Transactional
-    public void updateArticlesDeleteVO(ArticlesGarbageVO articlesGarbageVO) {
+    public void updateArticlesGarbageVO(ArticlesGarbageVO articlesGarbageVO) {
         List<Article> articleList = articlesGarbageVO.getIdList().stream().map(id -> Article.builder()
                 .id(id)
                 .topFlag(false)

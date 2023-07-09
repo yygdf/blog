@@ -10,4 +10,6 @@ import com.iksling.blog.vo.MultiFileArticleBackVO;
 public interface MultiFileService extends IService<MultiFile> {
 
     String saveMultiFileArticleBackVO(MultiFileArticleBackVO multiFileArticleBackVO);
+
+    void deleteArticleImageByUrl(String url);
 }

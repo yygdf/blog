@@ -25,7 +25,7 @@ public interface ArticleService extends IService<Article> {
 
     PageDTO<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition);
 
-    void updateArticlesDeleteVO(ArticlesGarbageVO articlesGarbageVO);
+    void updateArticlesGarbageVO(ArticlesGarbageVO articlesGarbageVO);
 
     void deleteArticleIdList(List<Integer> articleIdList);
 

@@ -147,24 +147,6 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="publicFlag"
-        label="公开"
-        width="100"
-        align="center"
-      >
-        <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.publicFlag"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
-            :disabled="scope.row.garbageFlag || scope.row.draftFlag"
-            :active-value="true"
-            :inactive-value="false"
-            @change="changePublic(scope.row)"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column
         prop="hiddenFlag"
         label="隐藏"
         width="100"
@@ -179,6 +161,24 @@
             :active-value="true"
             :inactive-value="false"
             @change="changeHidden(scope.row)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="publicFlag"
+        label="公开"
+        width="100"
+        align="center"
+      >
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.publicFlag"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            :disabled="scope.row.garbageFlag || scope.row.draftFlag"
+            :active-value="true"
+            :inactive-value="false"
+            @change="changePublic(scope.row)"
           />
         </template>
       </el-table-column>

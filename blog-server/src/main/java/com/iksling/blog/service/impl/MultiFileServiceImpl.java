@@ -1,5 +1,6 @@
 package com.iksling.blog.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.entity.MultiFile;
 import com.iksling.blog.enums.FilePathEnum;
@@ -57,6 +58,13 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .createTime(new Date())
                 .build());
         return url;
+    }
+
+    @Override
+    public void deleteArticleImageByUrl(String url) {
+        multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+                .eq(MultiFile::getFileUrl, url)
+                .set(MultiFile::getDeletedFlag, true));
     }
 }
 

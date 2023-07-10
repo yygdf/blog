@@ -30,7 +30,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     @Override
     public String saveMultiFileArticleBackVO(MultiFileArticleBackVO multiFileArticleBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (multiFileArticleBackVO.getFile().isEmpty())
+        if (multiFileArticleBackVO.getFile() == null || multiFileArticleBackVO.getFile().isEmpty())
             throw new FileStatusException("文件不存在!");
         MultipartFile file = multiFileArticleBackVO.getFile();
         if (!FileUploadUtil.checkImageFileType(file))

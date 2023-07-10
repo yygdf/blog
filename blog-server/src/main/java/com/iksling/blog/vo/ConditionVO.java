@@ -7,7 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @Builder
@@ -18,14 +19,14 @@ public class ConditionVO {
     /**
      * 每页数量
      */
-    @NotBlank(message = "每页数量不能为空")
+    @NotNull(message = "每页数量不能为null")
     @ApiModelProperty(name = "size", value = "每页数量", required = true, dataType = "Integer")
     private Integer size;
 
     /**
      * 当前页码
      */
-    @NotBlank(message = "当前页码不能为空")
+    @NotNull(message = "当前页码不能为null")
     @ApiModelProperty(name = "current", value = "当前页码", required = true, dataType = "Integer")
     private Integer current;
 
@@ -44,7 +45,20 @@ public class ConditionVO {
     /**
      * 是否为垃圾
      */
-    @NotBlank(message = "是否为垃圾不能为空")
+    @NotNull(message = "垃圾标志不能为null")
     @ApiModelProperty(name = "garbageFlag", value = "是否为垃圾", dataType = "Boolean")
     private Boolean garbageFlag;
+
+    /**
+     * 分类id
+     */
+    @ApiModelProperty(name = "categoryId", value = "分类id", dataType = "Integer")
+    private  Integer categoryId;
+
+    /**
+     * 标签id集合
+     */
+    @NotNull(message = "标签id集合不能为null")
+    @ApiModelProperty(name = "tagIdList", value = "标签id集合", dataType = "List<Integer>")
+    private List<Integer> tagIdList;
 }

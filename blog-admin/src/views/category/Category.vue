@@ -1,7 +1,6 @@
 <template>
   <el-card class="main-card">
     <div class="title">{{ this.$route.name }}</div>
-    <!-- 表格操作 -->
     <div class="operation-container">
       <el-button
         type="primary"
@@ -15,8 +14,8 @@
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="this.categoryIdList.length == 0"
-        @click="isDelete = true"
+        :disabled="this.categoryIdList.length === 0"
+        @click="remove = true"
       >
         批量删除
       </el-button>
@@ -40,25 +39,60 @@
         </el-button>
       </div>
     </div>
-    <!-- 表格展示 -->
     <el-table
       border
       :data="categoryList"
       @selection-change="selectionChange"
       v-loading="loading"
     >
-      <!-- 表格列 -->
       <el-table-column type="selection" width="55" />
-      <!-- 分类名 -->
       <el-table-column prop="categoryName" label="分类名" align="center" />
-      <!-- 分类创建时间 -->
       <el-table-column prop="createTime" label="创建时间" align="center">
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.createTime | date }}
         </template>
       </el-table-column>
-      <!-- 列操作 -->
+      <el-table-column prop="updateTime" label="更新时间" align="center">
+        <template slot-scope="scope">
+          <i class="el-icon-time" style="margin-right:5px" />
+          {{ scope.row.updateTime | date }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="hiddenFlag"
+        label="隐藏"
+        width="100"
+        align="center"
+      >
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.hiddenFlag"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            :active-value="true"
+            :inactive-value="false"
+            @change="changeHidden(scope.row)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="publicFlag"
+        label="公开"
+        width="100"
+        align="center"
+      >
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.publicFlag"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            :active-value="true"
+            :inactive-value="false"
+            @change="changePublic(scope.row)"
+          />
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="160" align="center">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="openModel(scope.row)">
@@ -76,7 +110,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <!-- 分页 -->
     <el-pagination
       class="pagination-container"
       background
@@ -88,25 +121,23 @@
       :page-sizes="[10, 20]"
       layout="total, sizes, prev, pager, next, jumper"
     />
-    <!-- 批量删除对话框 -->
-    <el-dialog :visible.sync="isDelete" width="30%">
+    <el-dialog :visible.sync="remove" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
-        <el-button @click="isDelete = false">取 消</el-button>
+        <el-button @click="remove = false">取 消</el-button>
         <el-button type="primary" @click="deleteCategory(null)">
           确 定
         </el-button>
       </div>
     </el-dialog>
-    <!-- 添加编辑对话框 -->
     <el-dialog :visible.sync="addOrEdit" width="30%">
       <div class="dialog-title-container" slot="title" ref="categoryTitle" />
-      <el-form label-width="80px" size="medium" :model="categoryForm">
+      <el-form label-width="80px" size="medium" :model="category">
         <el-form-item label="分类名">
-          <el-input v-model="categoryForm.categoryName" style="width:220px" />
+          <el-input v-model="category.categoryName" style="width:220px" />
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -126,15 +157,17 @@ export default {
   },
   data: function() {
     return {
-      isDelete: false,
+      remove: false,
       loading: true,
       addOrEdit: false,
       keywords: null,
       categoryIdList: [],
       categoryList: [],
-      categoryForm: {
+      category: {
         id: null,
-        categoryName: ""
+        categoryName: "",
+        publicFlag: true,
+        hiddenFlag: false
       },
       current: 1,
       size: 10,
@@ -156,6 +189,16 @@ export default {
       this.current = current;
       this.listCategories();
     },
+    changePublic(category) {
+      let param = new URLSearchParams();
+      param.append("publicFlag", category.publicFlag);
+      this.axios.put("/api/back/category/public/" + category.id, param);
+    },
+    changeHidden(category) {
+      let param = new URLSearchParams();
+      param.append("hiddenFlag", category.hiddenFlag);
+      this.axios.put("/api/back/category/hidden/" + category.id, param);
+    },
     deleteCategory(id) {
       var param = {};
       if (id == null) {
@@ -163,7 +206,7 @@ export default {
       } else {
         param = { data: [id] };
       }
-      this.axios.delete("/api/admin/categories", param).then(({ data }) => {
+      this.axios.delete("/api/back/categories", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -176,42 +219,44 @@ export default {
             message: data.message
           });
         }
-        this.isDelete = false;
+        this.remove = false;
       });
     },
     listCategories() {
       this.axios
-        .get("/api/admin/categories", {
+        .get("/api/back/categories", {
           params: {
-            current: this.current,
             size: this.size,
+            current: this.current,
             keywords: this.keywords
           }
         })
         .then(({ data }) => {
-          this.categoryList = data.data.recordList;
           this.count = data.data.count;
+          this.categoryList = data.data.pageList;
           this.loading = false;
         });
     },
     openModel(category) {
       if (category != null) {
-        this.categoryForm = JSON.parse(JSON.stringify(category));
+        this.category = JSON.parse(JSON.stringify(category));
         this.$refs.categoryTitle.innerHTML = "修改分类";
       } else {
-        this.categoryForm.id = null;
-        this.categoryForm.categoryName = "";
+        this.category.id = null;
+        this.category.categoryName = "";
+        this.category.publicFlag = true;
+        this.category.hiddenFlag = false;
         this.$refs.categoryTitle.innerHTML = "添加分类";
       }
       this.addOrEdit = true;
     },
     addOrEditCategory() {
-      if (this.categoryForm.categoryName.trim() == "") {
+      if (this.category.categoryName.trim() === "") {
         this.$message.error("分类名不能为空");
         return false;
       }
       this.axios
-        .post("/api/admin/categories", this.categoryForm)
+        .post("/api/back/categories", this.category)
         .then(({ data }) => {
           if (data.flag) {
             this.$notify.success({

@@ -264,8 +264,8 @@ export default {
       }
     },
     deleteImg(url) {
-      var param = { url: url };
-      this.axios.delete("/api/back/article/image", { params: param });
+      var param = { data: url };
+      this.axios.delete("/api/back/article/image", param);
     },
     saveArticleDraft() {
       if (this.article.articleTitle.trim() === "") {

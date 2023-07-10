@@ -24,6 +24,33 @@
       </el-button>
       <div style="margin-left:auto">
         <el-select
+          v-model="tagIdList"
+          placeholder="请选择"
+          multiple
+          size="small"
+          style="margin-right:1rem"
+        >
+          <el-option
+            v-for="item in tagList"
+            :key="item.id"
+            :label="item.tagName"
+            :value="item.id"
+          />
+        </el-select>
+        <el-select
+          v-model="categoryId"
+          placeholder="请选择"
+          size="small"
+          style="margin-right:1rem"
+        >
+          <el-option
+            v-for="item in categoryList"
+            :key="item.id"
+            :label="item.categoryName"
+            :value="item.id"
+          />
+        </el-select>
+        <el-select
           v-model="condition"
           placeholder="请选择"
           size="small"
@@ -284,6 +311,7 @@
 export default {
   created() {
     this.listArticles();
+    this.listArticleOptions();
   },
   data: function() {
     return {
@@ -307,7 +335,11 @@ export default {
       condition: '{"garbageFlag":false,"draftFlag":false}',
       articleList: [],
       articleIdList: [],
+      tagList: [],
+      categoryList: [],
       keywords: null,
+      categoryId: null,
+      tagIdList: [],
       garbageFlag: false,
       draftFlag: false,
       current: 1,
@@ -316,6 +348,12 @@ export default {
     };
   },
   methods: {
+    listArticleOptions() {
+      this.axios.get("/api/back/article/options").then(({ data }) => {
+        this.categoryList = data.data.categoryDTOList;
+        this.tagList = data.data.tagDTOList;
+      });
+    },
     selectionChange(articleList) {
       this.articleIdList = [];
       articleList.forEach(item => {
@@ -328,9 +366,9 @@ export default {
     updateArticleStatus(id) {
       let param = new URLSearchParams();
       if (id != null) {
-        param.append("idList", [id]);
+        param.append("articleIdList", [id]);
       } else {
-        param.append("idList", this.articleIdList);
+        param.append("articleIdList", this.articleIdList);
       }
       param.append("garbageFlag", !this.garbageFlag);
       this.axios.put("/api/back/articles", param).then(({ data }) => {
@@ -401,16 +439,18 @@ export default {
       this.axios.put("/api/back/article/commentable/" + article.id, param);
     },
     listArticles() {
+      let param = new URLSearchParams();
+      param.append("size", this.size);
+      param.append("current", this.current);
+      param.append("keywords", this.keywords);
+      param.append("draftFlag", this.draftFlag);
+      param.append("garbageFlag", this.garbageFlag);
+      if (!this.garbageFlag) {
+        param.append("categoryId", this.categoryId);
+        param.append("tagIdList", this.tagIdList);
+      }
       this.axios
-        .get("/api/back/articles", {
-          params: {
-            size: this.size,
-            current: this.current,
-            keywords: this.keywords,
-            draftFlag: this.draftFlag,
-            garbageFlag: this.garbageFlag
-          }
-        })
+        .get("/api/back/articles", { params: param })
         .then(({ data }) => {
           this.count = data.data.count;
           this.articleList = data.data.pageList;

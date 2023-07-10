@@ -144,7 +144,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     @Transactional
     public void updateArticlesGarbageVO(ArticlesGarbageVO articlesGarbageVO) {
-        List<Article> articleList = articlesGarbageVO.getIdList().stream().map(id -> Article.builder()
+        List<Article> articleList = articlesGarbageVO.getArticleIdList().stream().map(id -> Article.builder()
                 .id(id)
                 .topFlag(false)
                 .garbageFlag(articlesGarbageVO.getGarbageFlag())

@@ -6,6 +6,7 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Data
@@ -14,7 +15,7 @@ public class MultiFileArticleBackVO implements Serializable {
     /**
      * 文件
      */
-    @NotBlank(message = "文件不能为空")
+    @NotNull(message = "文件不能为null")
     @ApiModelProperty(name = "file", value = "文件", required = true, dataType = "MultiPartFile")
     private MultipartFile file;
 

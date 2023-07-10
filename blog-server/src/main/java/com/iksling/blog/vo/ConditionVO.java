@@ -53,12 +53,11 @@ public class ConditionVO {
      * 分类id
      */
     @ApiModelProperty(name = "categoryId", value = "分类id", dataType = "Integer")
-    private  Integer categoryId;
+    private Integer categoryId;
 
     /**
      * 标签id集合
      */
-    @NotNull(message = "标签id集合不能为null")
     @ApiModelProperty(name = "tagIdList", value = "标签id集合", dataType = "List<Integer>")
     private List<Integer> tagIdList;
 }

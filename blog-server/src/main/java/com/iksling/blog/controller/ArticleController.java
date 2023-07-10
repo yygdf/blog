@@ -4,10 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.service.MultiFileService;
-import com.iksling.blog.vo.ArticleBackVO;
-import com.iksling.blog.vo.ArticlesGarbageVO;
-import com.iksling.blog.vo.ConditionVO;
-import com.iksling.blog.vo.MultiFileArticleBackVO;
+import com.iksling.blog.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -59,14 +56,14 @@ public class ArticleController {
 
     @ApiOperation(value = "查看后台文章列表")
     @GetMapping("/back/articles")
-    public Result listBackArticles(ConditionVO condition) {
+    public Result listBackArticles(@Valid ConditionVO condition) {
         return Result.success().message("查询成功").data(articleService.getPageArticlesBackDTO(condition));
     }
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "批量更新垃圾文章")
     @PutMapping("/back/articles")
-    public Result updateBackArticles(ArticlesGarbageVO articlesGarbageVO) {
+    public Result updateBackArticles(@Valid ArticlesGarbageVO articlesGarbageVO) {
         articleService.updateArticlesGarbageVO(articlesGarbageVO);
         return Result.success().message("操作成功");
     }
@@ -80,34 +77,10 @@ public class ArticleController {
     }
 
     @OptLog(optType = UPDATE)
-    @ApiOperation(value = "修改文章置顶")
-    @PutMapping("/back/article/top/{articleId}")
-    public Result updateArticleTop(@PathVariable("articleId") Integer articleId, Boolean topFlag) {
-        articleService.updateArticleTopById(articleId, topFlag);
-        return Result.success().message("操作成功");
-    }
-
-    @OptLog(optType = UPDATE)
-    @ApiOperation(value = "修改文章是否公开")
-    @PutMapping("/back/article/public/{articleId}")
-    public Result updateArticlePublic(@PathVariable("articleId") Integer articleId, Boolean publicFlag) {
-        articleService.updateArticlePublicById(articleId, publicFlag);
-        return Result.success().message("操作成功");
-    }
-
-    @OptLog(optType = UPDATE)
-    @ApiOperation(value = "修改文章是否隐藏")
-    @PutMapping("/back/article/hidden/{articleId}")
-    public Result updateArticleHidden(@PathVariable("articleId") Integer articleId, Boolean hiddenFlag) {
-        articleService.updateArticleHiddenById(articleId, hiddenFlag);
-        return Result.success().message("操作成功");
-    }
-
-    @OptLog(optType = UPDATE)
-    @ApiOperation(value = "修改文章是否可评论")
-    @PutMapping("/back/article/commentable/{articleId}")
-    public Result updateArticleCommentable(@PathVariable("articleId") Integer articleId, Boolean commentableFlag) {
-        articleService.updateArticleCommentableById(articleId, commentableFlag);
+    @ApiOperation(value = "修改文章状态")
+    @PutMapping("/back/article/status")
+    public Result updateArticleStatus(@Valid @RequestBody ArticleStatusVO articleStatusVO) {
+        articleService.updateArticleStatusVO(articleStatusVO);
         return Result.success().message("操作成功");
     }
 

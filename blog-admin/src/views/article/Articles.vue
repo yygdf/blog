@@ -25,10 +25,12 @@
       <div style="margin-left:auto">
         <el-select
           v-model="tagIdList"
-          placeholder="请选择"
+          placeholder="请选择标签"
           multiple
           size="small"
-          style="margin-right:1rem"
+          style="margin-right:1rem;width: 300px"
+          clearable
+          v-if="!garbageFlag && !draftFlag"
         >
           <el-option
             v-for="item in tagList"
@@ -39,9 +41,11 @@
         </el-select>
         <el-select
           v-model="categoryId"
-          placeholder="请选择"
+          placeholder="请选择分类"
           size="small"
           style="margin-right:1rem"
+          clearable
+          v-if="!garbageFlag && !draftFlag"
         >
           <el-option
             v-for="item in categoryList"
@@ -54,7 +58,7 @@
           v-model="condition"
           placeholder="请选择"
           size="small"
-          style="margin-right:1rem"
+          style="margin-right:1rem;"
         >
           <el-option
             v-for="item in options"
@@ -169,7 +173,7 @@
             :disabled="scope.row.garbageFlag || scope.row.draftFlag"
             :active-value="true"
             :inactive-value="false"
-            @change="changeTop(scope.row)"
+            @change="changeArticleStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -187,7 +191,7 @@
             :disabled="scope.row.garbageFlag || scope.row.draftFlag"
             :active-value="true"
             :inactive-value="false"
-            @change="changeHidden(scope.row)"
+            @change="changeArticleStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -205,7 +209,7 @@
             :disabled="scope.row.garbageFlag || scope.row.draftFlag"
             :active-value="true"
             :inactive-value="false"
-            @change="changePublic(scope.row)"
+            @change="changeArticleStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -223,7 +227,7 @@
             :disabled="scope.row.garbageFlag || scope.row.draftFlag"
             :active-value="true"
             :inactive-value="false"
-            @change="changeCommentable(scope.row)"
+            @change="changeArticleStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -308,6 +312,7 @@
 </template>
 
 <script>
+import qs from "qs";
 export default {
   created() {
     this.listArticles();
@@ -418,39 +423,35 @@ export default {
       this.current = current;
       this.listArticles();
     },
-    changeTop(article) {
-      let param = new URLSearchParams();
-      param.append("topFlag", article.topFlag);
-      this.axios.put("/api/back/article/top/" + article.id, param);
-    },
-    changePublic(article) {
-      let param = new URLSearchParams();
-      param.append("publicFlag", article.publicFlag);
-      this.axios.put("/api/back/article/public/" + article.id, param);
-    },
-    changeHidden(article) {
-      let param = new URLSearchParams();
-      param.append("hiddenFlag", article.hiddenFlag);
-      this.axios.put("/api/back/article/hidden/" + article.id, param);
-    },
-    changeCommentable(article) {
-      let param = new URLSearchParams();
-      param.append("commentableFlag", article.commentableFlag);
-      this.axios.put("/api/back/article/commentable/" + article.id, param);
+    changeArticleStatus(article) {
+      let param = {
+        id: article.id,
+        topFlag: article.topFlag,
+        publicFlag: article.publicFlag,
+        hiddenFlag: article.hiddenFlag,
+        commentableFlag: article.commentableFlag
+      };
+      this.axios.put("/api/back/article/status", param);
     },
     listArticles() {
-      let param = new URLSearchParams();
-      param.append("size", this.size);
-      param.append("current", this.current);
-      param.append("keywords", this.keywords);
-      param.append("draftFlag", this.draftFlag);
-      param.append("garbageFlag", this.garbageFlag);
-      if (!this.garbageFlag) {
-        param.append("categoryId", this.categoryId);
-        param.append("tagIdList", this.tagIdList);
+      let params = {
+        size: this.size,
+        current: this.current,
+        keywords: this.keywords,
+        draftFlag: this.draftFlag,
+        garbageFlag: this.garbageFlag
+      };
+      if (!this.garbageFlag && !this.draftFlag) {
+        params.categoryId = this.categoryId;
+        params.tagIdList = this.tagIdList;
       }
       this.axios
-        .get("/api/back/articles", { params: param })
+        .get("/api/back/articles", {
+          params,
+          paramsSerializer: params => {
+            return qs.stringify(params, { indices: false, skipNulls: true });
+          }
+        })
         .then(({ data }) => {
           this.count = data.data.count;
           this.articleList = data.data.pageList;
@@ -463,6 +464,12 @@ export default {
       const condition = JSON.parse(this.condition);
       this.garbageFlag = condition.garbageFlag;
       this.draftFlag = condition.draftFlag;
+      this.listArticles();
+    },
+    categoryId() {
+      this.listArticles();
+    },
+    tagIdList() {
       this.listArticles();
     }
   }

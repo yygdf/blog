@@ -7,6 +7,7 @@ import com.iksling.blog.dto.ArticlesBackDTO;
 import com.iksling.blog.dto.PageDTO;
 import com.iksling.blog.entity.Article;
 import com.iksling.blog.vo.ArticleBackVO;
+import com.iksling.blog.vo.ArticleStatusVO;
 import com.iksling.blog.vo.ArticlesGarbageVO;
 import com.iksling.blog.vo.ConditionVO;
 
@@ -29,11 +30,5 @@ public interface ArticleService extends IService<Article> {
 
     void deleteArticleIdList(List<Integer> articleIdList);
 
-    void updateArticleTopById(Integer articleId, Boolean topFlag);
-
-    void updateArticlePublicById(Integer articleId, Boolean publicFlag);
-
-    void updateArticleHiddenById(Integer articleId, Boolean hiddenFlag);
-
-    void updateArticleCommentableById(Integer articleId, Boolean commentableFlag);
+    void updateArticleStatusVO(ArticleStatusVO articleStatusVO);
 }

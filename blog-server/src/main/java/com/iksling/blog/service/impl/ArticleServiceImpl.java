@@ -1,12 +1,14 @@
 package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.*;
 import com.iksling.blog.entity.Article;
 import com.iksling.blog.entity.ArticleTag;
 import com.iksling.blog.entity.Category;
 import com.iksling.blog.entity.Tag;
+import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.ArticleMapper;
 import com.iksling.blog.mapper.ArticleTagMapper;
 import com.iksling.blog.mapper.CategoryMapper;
@@ -17,6 +19,7 @@ import com.iksling.blog.service.ArticleTagService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ArticleBackVO;
+import com.iksling.blog.vo.ArticleStatusVO;
 import com.iksling.blog.vo.ArticlesGarbageVO;
 import com.iksling.blog.vo.ConditionVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,6 +110,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             article.setCreateUser(loginUser.getUserId());
             article.setCreateTime(new Date());
         } else {
+            Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
+                .eq(Article::getId, article.getId())
+                .eq(Article::getUserId, loginUser.getUserId()));
+            if (count != 1)
+                throw new IllegalRequestException("你不要瞎搞, 小心我顺着网线爬过去找你!");
             if (!article.getDraftFlag()) {
                 article.setUpdateUser(loginUser.getUserId());
                 article.setUpdateTime(new Date());
@@ -115,6 +123,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     .eq(ArticleTag::getArticleId, article.getId()));
         }
         articleService.saveOrUpdate(article);
+        articleService.saveOrUpdate(article, new LambdaUpdateWrapper<Article>()
+            .eq(Article::getUserId, loginUser.getUserId()));
         if (!articleBackVO.getTagIdList().isEmpty()) {
             List<ArticleTag> articleTagList = articleBackVO.getTagIdList().stream().map(tagId -> ArticleTag.builder()
                     .articleId(article.getId())
@@ -166,38 +176,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     @Transactional
-    public void updateArticleTopById(Integer articleId, Boolean topFlag) {
+    public void updateArticleStatusVO(ArticleStatusVO articleStatusVO) {
         articleMapper.updateById(Article.builder()
-            .id(articleId)
-            .topFlag(topFlag)
+            .id(articleStatusVO.getId())
+            .topFlag(articleStatusVO.getTopFlag())
+            .publicFlag(articleStatusVO.getPublicFlag())
+            .hiddenFlag(articleStatusVO.getHiddenFlag())
+            .commentableFlag(articleStatusVO.getCommentableFlag())
             .build());
-    }
-
-    @Override
-    @Transactional
-    public void updateArticlePublicById(Integer articleId, Boolean publicFlag) {
-        articleMapper.updateById(Article.builder()
-                .id(articleId)
-                .publicFlag(publicFlag)
-                .build());
-    }
-
-    @Override
-    @Transactional
-    public void updateArticleHiddenById(Integer articleId, Boolean hiddenFlag) {
-        articleMapper.updateById(Article.builder()
-                .id(articleId)
-                .hiddenFlag(hiddenFlag)
-                .build());
-    }
-
-    @Override
-    @Transactional
-    public void updateArticleCommentableById(Integer articleId, Boolean commentableFlag) {
-        articleMapper.updateById(Article.builder()
-                .id(articleId)
-                .commentableFlag(commentableFlag)
-                .build());
     }
 }
 

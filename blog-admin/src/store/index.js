@@ -9,7 +9,7 @@ export default new Vuex.Store({
     collapse: false,
     userMenuList: [],
     tabList: [{ name: "首页", path: "/" }],
-    userId: 0,
+    userId: null,
     email: "",
     avatar: "",
     nickname: "",

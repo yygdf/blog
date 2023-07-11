@@ -24,8 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -86,6 +88,22 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                 .eq(Category::getUserId, userId));
         if (count > 0) {
             throw new OperationStatusException("分类名已存在!");
+        }
+        Category category = BeanCopyUtil.copyObject(categoryBackVO, Category.class);
+        if (Objects.isNull(category.getId())) {
+            category.setUserId(userId);
+            category.setCreateUser(userId);
+            category.setCreateTime(new Date());
+            categoryMapper.insert(category);
+        } else {
+            categoryMapper.update(null, new LambdaUpdateWrapper<Category>()
+                    .set(Category::getCategoryName, category.getCategoryName())
+                    .set(Category::getPublicFlag, category.getPublicFlag())
+                    .set(Category::getHiddenFlag, category.getHiddenFlag())
+                    .set(Category::getUpdateUser, userId)
+                    .set(Category::getUpdateTime, new Date())
+                    .eq(Category::getId, category.getId())
+                    .eq(Category::getUserId, userId));
         }
     }
 }

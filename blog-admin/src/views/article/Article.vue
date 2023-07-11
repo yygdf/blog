@@ -350,7 +350,7 @@ export default {
   watch: {
     watchList: {
       handler(newVal, oldVal) {
-        if (oldVal.id != null) {
+        if (oldVal.id != null || (newVal.id == null && oldVal.id == null)) {
           this.autoSave = true;
         }
       },

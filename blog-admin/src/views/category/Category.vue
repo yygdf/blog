@@ -45,9 +45,16 @@
       @selection-change="selectionChange"
       v-loading="loading"
     >
-      <el-table-column type="selection" width="55" />
+      <el-table-column type="selection" width="55" :selectable="handleDisabled" />
       <el-table-column prop="categoryName" label="分类名" align="center" />
-      <el-table-column prop="articleCount" label="文章数" align="center" />
+      <el-table-column prop="articleCount" label="文章数" align="center">
+        <template slot-scope="scope">
+          <span v-if="scope.row.articleCount">
+            {{ scope.row.articleCount }}
+          </span>
+          <span v-else>0</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="createTime" label="创建时间" align="center">
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
@@ -104,7 +111,7 @@
             style="margin-left:1rem"
             @confirm="deleteCategory(scope.row.id)"
           >
-            <el-button size="mini" type="danger" slot="reference">
+            <el-button size="mini" type="danger" slot="reference" :disabled="scope.row.articleCount !== null">
               删除
             </el-button>
           </el-popconfirm>
@@ -139,6 +146,31 @@
       <el-form label-width="80px" size="medium" :model="category">
         <el-form-item label="分类名">
           <el-input v-model="category.categoryName" style="width:220px" />
+        </el-form-item>
+      </el-form>
+      <el-form
+        label-width="80px"
+        size="medium"
+        :model="category"
+        :inline="true"
+      >
+        <el-form-item label="隐藏">
+          <el-switch
+            v-model="category.hiddenFlag"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            :active-value="true"
+            :inactive-value="false"
+          />
+        </el-form-item>
+        <el-form-item label="公开">
+          <el-switch
+            v-model="category.publicFlag"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            :active-value="true"
+            :inactive-value="false"
+          />
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -181,6 +213,9 @@ export default {
       categoryList.forEach(item => {
         this.categoryIdList.push(item.id);
       });
+    },
+    handleDisabled(row) {
+      return row.articleCount == null;
     },
     sizeChange(size) {
       this.size = size;
@@ -254,23 +289,21 @@ export default {
         this.$message.error("分类名不能为空");
         return false;
       }
-      this.axios
-        .post("/api/back/categories", this.category)
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: "成功",
-              message: data.message
-            });
-            this.listCategories();
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: data.message
-            });
-          }
-          this.addOrEdit = false;
-        });
+      this.axios.post("/api/back/category", this.category).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listCategories();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.addOrEdit = false;
+      });
     }
   }
 };

@@ -59,15 +59,33 @@
         SELECT
             count(1)
         FROM
-            tb_article
+            tb_article a
         <where>
             deleted_flag = 0
+            AND user_id = #{userId}
             AND garbage_flag = #{condition.garbageFlag}
             <if test="condition.draftFlag != null">
                 AND draft_flag = #{condition.draftFlag}
             </if>
+            <if test="condition.categoryId != null">
+                AND category_id = #{condition.categoryId}
+            </if>
             <if test="condition.keywords != null">
                 AND article_title like concat('%', #{condition.keywords}, '%')
+            </if>
+            <if test="condition.tagIdList != null">
+                AND a.id in
+                    (
+                    SELECT
+                        ata.article_id
+                    FROM
+                        tb_article_tag ata
+                    WHERE
+                        ata.tag_id in
+                        <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
+                            #{tagId}
+                        </foreach>
+                    )
             </if>
         </where>
     </select>
@@ -90,12 +108,30 @@
                 tb_article
             <where>
                 deleted_flag = 0
+                AND user_id = #{userId}
                 AND garbage_flag = #{condition.garbageFlag}
                 <if test="condition.draftFlag != null">
                     AND draft_flag = #{condition.draftFlag}
                 </if>
+                <if test="condition.categoryId != null">
+                    AND category_id = #{condition.categoryId}
+                </if>
                 <if test="condition.keywords != null">
                     AND article_title like concat('%', #{condition.keywords}, '%')
+                </if>
+                <if test="condition.tagIdList != null">
+                    AND id in
+                    (
+                    SELECT
+                        ata.article_id
+                    FROM
+                        tb_article_tag ata
+                    WHERE
+                        ata.tag_id in
+                        <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
+                            #{tagId}
+                        </foreach>
+                    )
                 </if>
             </where>
             ORDER BY
@@ -111,4 +147,27 @@
             a.top_flag DESC,
             a.id DESC
     </select>
+
+    <update id="updateArticlesGarbageVO">
+        UPDATE
+            tb_article
+        SET
+            <choose>
+                <when test="articlesGarbage.garbageFlag != null">
+                    garbage_flag = #{articlesGarbage.garbageFlag}
+                    <if test="!articlesGarbage.garbageFlag">
+                        , draft_flag = 1
+                    </if>
+                </when>
+                <otherwise>
+                    deleted_flag = 1
+                </otherwise>
+            </choose>
+        WHERE
+            user_id = #{userId}
+        AND id in
+            <foreach collection="articlesGarbage.idList" item="id" index="index" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </update>
 </mapper>

@@ -24,6 +24,21 @@
       </el-button>
       <div style="margin-left:auto">
         <el-select
+          v-model="categoryId"
+          placeholder="请选择分类"
+          size="small"
+          style="margin-right:1rem"
+          clearable
+          v-if="!garbageFlag && !draftFlag"
+        >
+          <el-option
+            v-for="item in categoryList"
+            :key="item.id"
+            :label="item.categoryName"
+            :value="item.id"
+          />
+        </el-select>
+        <el-select
           v-model="tagIdList"
           placeholder="请选择标签"
           multiple
@@ -36,21 +51,6 @@
             v-for="item in tagList"
             :key="item.id"
             :label="item.tagName"
-            :value="item.id"
-          />
-        </el-select>
-        <el-select
-          v-model="categoryId"
-          placeholder="请选择分类"
-          size="small"
-          style="margin-right:1rem"
-          clearable
-          v-if="!garbageFlag && !draftFlag"
-        >
-          <el-option
-            v-for="item in categoryList"
-            :key="item.id"
-            :label="item.categoryName"
             :value="item.id"
           />
         </el-select>
@@ -244,7 +244,7 @@
           <el-popconfirm
             title="确定删除吗？"
             style="margin-left:10px"
-            @confirm="updateArticleStatus(scope.row.id)"
+            @confirm="updateArticleGarbageFlag(scope.row.id)"
             v-if="!scope.row.garbageFlag"
           >
             <el-button size="mini" type="danger" slot="reference">
@@ -254,7 +254,7 @@
           <el-popconfirm
             title="确定恢复吗？"
             v-if="scope.row.garbageFlag"
-            @confirm="updateArticleStatus(scope.row.id)"
+            @confirm="updateArticleGarbageFlag(scope.row.id)"
           >
             <el-button size="mini" type="success" slot="reference">
               恢复
@@ -291,7 +291,7 @@
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
         <el-button @click="updateGarbageFlag = false">取 消</el-button>
-        <el-button type="primary" @click="updateArticleStatus(null)">
+        <el-button type="primary" @click="updateArticleGarbageFlag(null)">
           确 定
         </el-button>
       </div>
@@ -368,12 +368,12 @@ export default {
     editArticle(id) {
       this.$router.push({ path: "/article/" + id });
     },
-    updateArticleStatus(id) {
+    updateArticleGarbageFlag(id) {
       let param = new URLSearchParams();
       if (id != null) {
-        param.append("articleIdList", [id]);
+        param.append("idList", [id]);
       } else {
-        param.append("articleIdList", this.articleIdList);
+        param.append("idList", this.articleIdList);
       }
       param.append("garbageFlag", !this.garbageFlag);
       this.axios.put("/api/back/articles", param).then(({ data }) => {

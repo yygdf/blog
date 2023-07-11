@@ -9,5 +9,11 @@ public class CommonConst {
     /**
      * 默认用户头像
      */
-    public static final String DEFAULT_AVATAR = "https://ksling.cn/static/img/avatar/defaultAvatar.jpg";
+    public static final String DEFAULT_AVATAR = "https://ksling.cn/static/img/avatar/default/defaultAvatar.jpg";
+
+
+    /**
+     * 静态资源根路径
+     */
+    public static final String STATIC_RESOURCE_URL = "https://ksling.cn/static/";
 }

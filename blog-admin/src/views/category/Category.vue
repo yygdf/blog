@@ -54,7 +54,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="updateTime" label="更新时间" align="center">
-        <template slot-scope="scope">
+        <template slot-scope="scope" v-if="scope.row.updateTime">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.updateTime | date }}
         </template>

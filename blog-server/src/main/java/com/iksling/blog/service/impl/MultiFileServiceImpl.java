@@ -63,8 +63,9 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     @Override
     public void deleteArticleImageByUrl(String url) {
         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+                .set(MultiFile::getDeletedFlag, true)
                 .eq(MultiFile::getFileUrl, url)
-                .set(MultiFile::getDeletedFlag, true));
+                .eq(MultiFile::getUserId, UserUtil.getLoginUser().getUserId()));
     }
 }
 

@@ -2,12 +2,14 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.*;
 import com.iksling.blog.entity.Article;
 import com.iksling.blog.entity.ArticleTag;
 import com.iksling.blog.entity.Category;
 import com.iksling.blog.entity.Tag;
+import com.iksling.blog.enums.FilePathEnum;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.ArticleMapper;
 import com.iksling.blog.mapper.ArticleTagMapper;
@@ -33,6 +35,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_LIKE_COUNT;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_VIEW_COUNT;
 
@@ -122,9 +125,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>()
                     .eq(ArticleTag::getArticleId, article.getId()));
         }
+        if (StringUtils.isBlank(article.getArticleCover()))
+            article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.ARTICLE.getPath() + loginUser.getUserId() + "/default/defaultCover.png");
         articleService.saveOrUpdate(article);
-        articleService.saveOrUpdate(article, new LambdaUpdateWrapper<Article>()
-            .eq(Article::getUserId, loginUser.getUserId()));
         if (!articleBackVO.getTagIdList().isEmpty()) {
             List<ArticleTag> articleTagList = articleBackVO.getTagIdList().stream().map(tagId -> ArticleTag.builder()
                     .articleId(article.getId())
@@ -138,10 +141,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public PageDTO<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition) {
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        Integer count = articleMapper.selectCountByCondition(condition);
+        Integer userId = UserUtil.getLoginUser().getUserId();
+        Integer count = articleMapper.selectCountByCondition(condition, userId);
         if (count == 0)
             return new PageDTO<>();
-        List<ArticlesBackDTO> articlesBackDTOList = articleMapper.listArticlesBackDTO(condition);
+        List<ArticlesBackDTO> articlesBackDTOList = articleMapper.listArticlesBackDTO(condition, userId);
         Map<String, Integer> viewCountMap = redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).entries();
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).entries();
         articlesBackDTOList.forEach(item -> {
@@ -154,36 +158,27 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     @Transactional
     public void updateArticlesGarbageVO(ArticlesGarbageVO articlesGarbageVO) {
-        List<Article> articleList = articlesGarbageVO.getArticleIdList().stream().map(id -> Article.builder()
-                .id(id)
-                .topFlag(false)
-                .garbageFlag(articlesGarbageVO.getGarbageFlag())
-                .build())
-                .collect(Collectors.toList());
-        articleService.updateBatchById(articleList);
+        articleMapper.updateArticlesGarbageVO(articlesGarbageVO, UserUtil.getLoginUser().getUserId());
     }
 
     @Override
     @Transactional
     public void deleteArticleIdList(List<Integer> articleIdList) {
-        List<Article> articleList = articleIdList.stream().map(id -> Article.builder()
-                .id(id)
-                .deletedFlag(true)
-                .build())
-                .collect(Collectors.toList());
-        articleService.updateBatchById(articleList);
+        ArticlesGarbageVO articlesGarbageVO = new ArticlesGarbageVO();
+        articlesGarbageVO.setIdList(articleIdList);
+        articleMapper.updateArticlesGarbageVO(articlesGarbageVO, UserUtil.getLoginUser().getUserId());
     }
 
     @Override
     @Transactional
     public void updateArticleStatusVO(ArticleStatusVO articleStatusVO) {
-        articleMapper.updateById(Article.builder()
-            .id(articleStatusVO.getId())
-            .topFlag(articleStatusVO.getTopFlag())
-            .publicFlag(articleStatusVO.getPublicFlag())
-            .hiddenFlag(articleStatusVO.getHiddenFlag())
-            .commentableFlag(articleStatusVO.getCommentableFlag())
-            .build());
+        articleMapper.update(null, new LambdaUpdateWrapper<Article>()
+                .set(Article::getTopFlag, articleStatusVO.getTopFlag())
+                .set(Article::getPublicFlag, articleStatusVO.getPublicFlag())
+                .set(Article::getHiddenFlag, articleStatusVO.getHiddenFlag())
+                .set(Article::getCommentableFlag, articleStatusVO.getCommentableFlag())
+                .eq(Article::getId, articleStatusVO.getId())
+                .eq(Article::getUserId, UserUtil.getLoginUser().getUserId()));
     }
 }
 

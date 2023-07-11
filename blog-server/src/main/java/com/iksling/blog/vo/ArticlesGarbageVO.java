@@ -16,7 +16,7 @@ public class ArticlesGarbageVO {
      */
     @NotEmpty(message = "id列表不能为空")
     @ApiModelProperty(name = "idList", value = "id列表", required = true, dataType = "List<Integer>")
-    private List<Integer> articleIdList;
+    private List<Integer> idList;
 
     /**
      * 是否为垃圾

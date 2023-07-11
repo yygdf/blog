@@ -33,7 +33,7 @@ public class ConditionVO {
     /**
      * 搜索关键字
      */
-    @ApiModelProperty(name = "keywords", value = "搜索关键字", required = true, dataType = "String")
+    @ApiModelProperty(name = "keywords", value = "搜索关键字", dataType = "String")
     private String keywords;
 
     /**
@@ -46,7 +46,7 @@ public class ConditionVO {
      * 是否为垃圾
      */
     @NotNull(message = "垃圾标志不能为null")
-    @ApiModelProperty(name = "garbageFlag", value = "是否为垃圾", dataType = "Boolean")
+    @ApiModelProperty(name = "garbageFlag", value = "是否为垃圾", required = true, dataType = "Boolean")
     private Boolean garbageFlag;
 
     /**

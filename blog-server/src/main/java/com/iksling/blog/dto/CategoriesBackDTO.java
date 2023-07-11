@@ -2,11 +2,10 @@ package com.iksling.blog.dto;
 
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.Date;
 
 @Data
-public class CategoriesBackDTO implements Serializable {
+public class CategoriesBackDTO {
     /**
      * 分类id
      */
@@ -41,4 +40,9 @@ public class CategoriesBackDTO implements Serializable {
      * 更新时间
      */
     private Date updateTime;
+
+    /**
+     * 文章数量
+     */
+    private Integer articleCount;
 }

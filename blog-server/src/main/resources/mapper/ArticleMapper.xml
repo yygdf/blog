@@ -145,7 +145,8 @@
             LEFT JOIN tb_tag t ON ata.tag_id = t.id
         ORDER BY
             a.top_flag DESC,
-            a.id DESC
+            a.id DESC,
+            t.id ASC
     </select>
 
     <update id="updateArticlesGarbageVO">
@@ -170,4 +171,16 @@
                 #{id}
             </foreach>
     </update>
+
+    <select id="selectCategoryArticleCount" resultType="com.iksling.blog.dto.CategoryArticleDTO">
+        SELECT
+            category_id id,
+            count(*) articleCount
+        FROM
+            tb_article
+        WHERE
+            user_id = #{userId}
+        GROUP BY
+            category_id;
+    </select>
 </mapper>

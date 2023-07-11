@@ -2,26 +2,28 @@ package com.iksling.blog.vo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-@ApiModel(description = "文章状态VO")
-public class ArticleStatusVO {
+@Builder
+@ApiModel(description = "分类后台VO")
+public class CategoryBackVO {
     /**
-     * 文章id
+     * 分类id
      */
-    @NotNull(message = "文章id不能为null")
-    @ApiModelProperty(name = "id", value = "文章id", required = true, dataType = "Integer")
+    @ApiModelProperty(name = "id", value = "分类id", dataType = "Integer")
     private Integer id;
 
     /**
-     * 0未置顶，1已置顶
+     * 分类名
      */
-    @NotNull(message = "置顶标志不能为null")
-    @ApiModelProperty(name = "isTop", value = "0未置顶，1已置顶", required = true, dataType = "Boolean")
-    private Boolean topFlag;
+    @NotBlank(message = "分类名不能为空")
+    @ApiModelProperty(name = "categoryName", value = "分类名", required = true, dataType = "String")
+    private String categoryName;
 
     /**
      * 0未公开，1已公开
@@ -36,11 +38,4 @@ public class ArticleStatusVO {
     @NotNull(message = "隐藏标志不能为null")
     @ApiModelProperty(name = "isHidden", value = "0未隐藏，1已隐藏", required = true, dataType = "Boolean")
     private Boolean hiddenFlag;
-
-    /**
-     * 0不可评论，1可评论
-     */
-    @NotNull(message = "评论标志不能为null")
-    @ApiModelProperty(name = "isCommentable", value = "0不可评论，1可评论", required = true, dataType = "Boolean")
-    private Boolean commentableFlag;
 }

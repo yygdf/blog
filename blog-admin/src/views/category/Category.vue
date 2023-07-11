@@ -47,6 +47,7 @@
     >
       <el-table-column type="selection" width="55" />
       <el-table-column prop="categoryName" label="分类名" align="center" />
+      <el-table-column prop="articleCount" label="文章数" align="center" />
       <el-table-column prop="createTime" label="创建时间" align="center">
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
@@ -72,7 +73,7 @@
             inactive-color="#F4F4F5"
             :active-value="true"
             :inactive-value="false"
-            @change="changeHidden(scope.row)"
+            @change="changeCategoryStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -89,7 +90,7 @@
             inactive-color="#F4F4F5"
             :active-value="true"
             :inactive-value="false"
-            @change="changePublic(scope.row)"
+            @change="changeCategoryStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -189,15 +190,13 @@ export default {
       this.current = current;
       this.listCategories();
     },
-    changePublic(category) {
-      let param = new URLSearchParams();
-      param.append("publicFlag", category.publicFlag);
-      this.axios.put("/api/back/category/public/" + category.id, param);
-    },
-    changeHidden(category) {
-      let param = new URLSearchParams();
-      param.append("hiddenFlag", category.hiddenFlag);
-      this.axios.put("/api/back/category/hidden/" + category.id, param);
+    changeCategoryStatus(category) {
+      let param = {
+        id: category.id,
+        publicFlag: category.publicFlag,
+        hiddenFlag: category.hiddenFlag
+      };
+      this.axios.put("/api/back/category/status", param);
     },
     deleteCategory(id) {
       var param = {};

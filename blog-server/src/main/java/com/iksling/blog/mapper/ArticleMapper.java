@@ -2,6 +2,7 @@ package com.iksling.blog.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iksling.blog.dto.ArticlesBackDTO;
+import com.iksling.blog.dto.CategoryArticleDTO;
 import com.iksling.blog.entity.Article;
 import com.iksling.blog.vo.ArticlesGarbageVO;
 import com.iksling.blog.vo.ConditionVO;
@@ -19,6 +20,8 @@ public interface ArticleMapper extends BaseMapper<Article> {
     List<ArticlesBackDTO> listArticlesBackDTO(@Param("condition") ConditionVO condition, Integer userId);
 
     Integer updateArticlesGarbageVO(@Param("articlesGarbage") ArticlesGarbageVO articlesGarbage, Integer userId);
+
+    List<CategoryArticleDTO> selectCategoryArticleCount(Integer userId);
 }
 
 

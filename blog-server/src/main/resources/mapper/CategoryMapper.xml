@@ -21,4 +21,16 @@
         public_flag,hidden_flag,create_user,
         create_time,update_user,update_time
     </sql>
+
+    <delete id="deleteCategoryIdList">
+        DELETE
+        FROM
+            tb_category
+        WHERE
+            user_id = #{userId}
+            AND id in
+            <foreach collection="categoryIdList" item="id" index="index" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </delete>
 </mapper>

@@ -3,6 +3,14 @@
     <div class="title">{{ this.$route.name }}</div>
     <div class="operation-container">
       <el-button
+        type="primary"
+        size="small"
+        icon="el-icon-plus"
+        @click="addArticle()"
+      >
+        新增
+      </el-button>
+      <el-button
         v-if="!garbageFlag"
         type="danger"
         size="small"
@@ -364,6 +372,9 @@ export default {
       articleList.forEach(item => {
         this.articleIdList.push(item.id);
       });
+    },
+    addArticle() {
+      this.$router.push({ path: "/article" });
     },
     editArticle(id) {
       this.$router.push({ path: "/article/" + id });

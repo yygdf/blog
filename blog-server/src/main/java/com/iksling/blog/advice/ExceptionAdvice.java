@@ -3,6 +3,7 @@ package com.iksling.blog.advice;
 import com.iksling.blog.constant.CommonConst;
 import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.IllegalRequestException;
+import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.pojo.Result;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -40,5 +41,11 @@ public class ExceptionAdvice {
 //    @ExceptionHandler(value = Exception.class)
     public Result exceptionAdvice(Exception e) {
         return Result.failure().code(FAILURE).message("发生未知异常,请联系管理员[" + CommonConst.CONTACT + "]");
+    }
+
+    /********** 操作状态异常 **********/
+    @ExceptionHandler(value = OperationStatusException.class)
+    public Result exceptionAdvice(OperationStatusException e) {
+        return Result.failure().code(FAILURE).message(e.getMessage());
     }
 }

@@ -291,6 +291,7 @@ export default {
           });
         }
       });
+      this.autoSave = false;
     },
     saveOrUpdateArticle() {
       if (this.article.articleTitle.trim() === "") {

@@ -37,6 +37,9 @@
 import { generaMenu } from "../../assets/js/menu";
 import md5 from "js-md5";
 export default {
+  created() {
+    this.$store.commit("logout");
+  },
   data: function() {
     return {
       loginForm: {

@@ -1,2 +1,3 @@
-# blog
-A Simple Blog System.
+# A Simple Blog System.
+# Author KS.
+# A Qiu!

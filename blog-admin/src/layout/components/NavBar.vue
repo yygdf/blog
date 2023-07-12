@@ -1,25 +1,19 @@
 <template>
   <div>
-    <!-- 导航栏 -->
     <div class="nav-bar">
-      <!-- 折叠按钮 -->
       <div class="hamburger-container" @click="trigger">
         <i :class="isFold" />
       </div>
-      <!-- 面包屑导航 -->
       <el-breadcrumb>
         <el-breadcrumb-item v-for="item of breadcrumbList" :key="item.path">
           <span v-if="item.redirect">{{ item.name }}</span>
           <router-link v-else :to="item.path">{{ item.name }}</router-link>
         </el-breadcrumb-item>
       </el-breadcrumb>
-      <!-- 右侧菜单 -->
       <div class="right-menu">
-        <!-- 全屏按钮 -->
         <div class="screen-full" @click="fullScreen">
           <i class="el-icon-full-screen" />
         </div>
-        <!-- 用户选项 -->
         <el-dropdown @command="handleCommand">
           <el-avatar :size="40" :src="this.$store.state.avatar" />
           <i class="el-icon-caret-bottom" />
@@ -34,7 +28,6 @@
         </el-dropdown>
       </div>
     </div>
-    <!-- 历史标签栏 -->
     <div class="tabs-view-container">
       <span
         :class="isActive(item)"
@@ -45,7 +38,7 @@
         {{ item.name }}
         <i
           class="el-icon-close"
-          v-if="item.path != '/'"
+          v-if="item.path !== '/'"
           @click.stop="removeTab(item)"
         />
       </span>
@@ -60,14 +53,12 @@
 import { resetRouter } from "../../router";
 export default {
   created() {
-    //替换面包屑导航
     let matched = this.$route.matched.filter(item => item.name);
     const first = matched[0];
     if (first && first.name !== "首页") {
       matched = [{ path: "/", name: "首页" }].concat(matched);
     }
     this.breadcrumbList = matched;
-    //保存当前页标签
     this.$store.commit("saveTab", this.$route);
   },
   data: function() {
@@ -79,14 +70,11 @@ export default {
   },
   methods: {
     goTo(tab) {
-      //跳转标签
       this.$router.push({ path: tab.path });
     },
     removeTab(tab) {
-      //删除标签
       this.$store.commit("removeTab", tab);
-      //如果删除的是当前页则返回上一标签页
-      if (tab.path == this.$route.path) {
+      if (tab.path === this.$route.path) {
         var tabList = this.$store.state.tabList;
         this.$router.push({ path: tabList[tabList.length - 1].path });
       }
@@ -95,16 +83,13 @@ export default {
       this.$store.commit("trigger");
     },
     handleCommand(command) {
-      if (command == "setting") {
+      if (command === "setting") {
         this.$router.push({ path: "/setting" });
       }
-      if (command == "logout") {
-        // 调用注销接口
+      if (command === "logout") {
         this.axios.post("/api/logout");
-        // 清空用户信息
         this.$store.commit("logout");
         this.$store.commit("resetTab");
-        // 清空用户菜单
         resetRouter();
         this.$router.push({ path: "/login" });
       }
@@ -140,10 +125,9 @@ export default {
     }
   },
   computed: {
-    // 标签是否处于当前页
     isActive() {
       return function(tab) {
-        if (tab.path == this.$route.path) {
+        if (tab.path === this.$route.path) {
           return "tabs-view-item-active";
         }
         return "tabs-view-item";

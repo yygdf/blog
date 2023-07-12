@@ -54,6 +54,7 @@ router.beforeEach((to, from, next) => {
     next({ path: "/login", query: { url: to.path } });
   } else {
     next();
+    store.state.currentRoutePath = to.path;
   }
 });
 
@@ -66,7 +67,6 @@ axios.interceptors.response.use(
     switch (response.data.code) {
       case 40002:
       case 40003:
-      case 40004:
       case 40005:
       case 50001:
       case 50002:
@@ -76,6 +76,16 @@ axios.interceptors.response.use(
           message: response.data.message
         });
         router.push({ path: "/login" });
+        break;
+      case 40004:
+        Vue.prototype.$message({
+          type: "error",
+          message: response.data.message
+        });
+        router.push({
+          path: "/login",
+          query: { url: store.state.currentRoutePath }
+        });
         break;
     }
     return response;

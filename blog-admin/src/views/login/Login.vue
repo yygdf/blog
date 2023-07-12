@@ -2,7 +2,6 @@
   <div class="login-container">
     <div class="login-card">
       <div class="login-title">欢迎登录</div>
-      <!-- 登录表单 -->
       <el-form
         status-icon
         :model="loginForm"
@@ -10,7 +9,6 @@
         ref="ruleForm"
         class="login-form"
       >
-        <!-- 用户名输入框 -->
         <el-form-item prop="username">
           <el-input
             v-model="loginForm.username"
@@ -20,7 +18,6 @@
             autofocus
           />
         </el-form-item>
-        <!-- 密码输入框 -->
         <el-form-item prop="password">
           <el-input
             v-model="loginForm.password"
@@ -31,7 +28,6 @@
           />
         </el-form-item>
       </el-form>
-      <!-- 登录按钮 -->
       <el-button type="primary" @click="validLogin">登录</el-button>
     </div>
   </div>

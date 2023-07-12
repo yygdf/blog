@@ -25,14 +25,4 @@ public class OptLogConst {
      * 上传操作
      */
     public static final String UPLOAD = "上传";
-
-    /**
-     * 登录操作
-     */
-    public static final String LOGIN = "登录";
-
-    /**
-     * 登出操作
-     */
-    public static final String LOGOUT = "登出";
 }

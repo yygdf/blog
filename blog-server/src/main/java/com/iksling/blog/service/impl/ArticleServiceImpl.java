@@ -126,7 +126,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     .eq(ArticleTag::getArticleId, article.getId()));
         }
         if (StringUtils.isBlank(article.getArticleCover()))
-            article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.ARTICLE.getPath() + loginUser.getUserId() + "/default/defaultCover.png");
+            article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.ARTICLE.getPath() + loginUser.getUserId() + "/default/defaultCover.jpg");
         articleService.saveOrUpdate(article);
         if (!articleBackVO.getTagIdList().isEmpty()) {
             List<ArticleTag> articleTagList = articleBackVO.getTagIdList().stream().map(tagId -> ArticleTag.builder()

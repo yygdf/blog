@@ -14,7 +14,8 @@ export default new Vuex.Store({
     avatar: "",
     nickname: "",
     intro: "",
-    webSite: ""
+    webSite: "",
+    currentRoutePath: "/"
   },
   mutations: {
     saveTab(state, tab) {

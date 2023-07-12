@@ -24,10 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +52,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         List<CategoriesBackDTO> categoriesBackDTOList = BeanCopyUtil.copyList(categoryPage.getRecords(), CategoriesBackDTO.class);
         Map<Integer, Integer> categoryArticleMap = categoryArticleDTOList.stream().collect(Collectors.toMap(CategoryArticleDTO::getId, CategoryArticleDTO::getArticleCount, (k1, k2) -> k2));
         categoriesBackDTOList.forEach(c -> c.setArticleCount(categoryArticleMap.get(c.getId())));
-        return new PageDTO<>((int)categoryPage.getTotal(), categoriesBackDTOList);
+        return new PageDTO<>((int)categoryPage.getTotal(), categoriesBackDTOList.stream().sorted(Comparator.comparing(CategoriesBackDTO::getArticleCount).reversed()).collect(Collectors.toList()));
     }
 
     @Override
@@ -86,9 +83,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                 .eq(Category::getCategoryName, categoryBackVO.getCategoryName())
                 .eq(Category::getUserId, userId));
-        if (count > 0) {
+        if (count > 0)
             throw new OperationStatusException("分类名已存在!");
-        }
         Category category = BeanCopyUtil.copyObject(categoryBackVO, Category.class);
         if (Objects.isNull(category.getId())) {
             category.setUserId(userId);

@@ -19,4 +19,16 @@
         create_user,create_time,update_user,
         update_time
     </sql>
+
+    <delete id="deleteTagIdList">
+        DELETE
+        FROM
+            tb_tag
+        WHERE
+            user_id = #{userId}
+        AND id in
+            <foreach collection="tagIdList" item="id" index="index" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </delete>
 </mapper>

@@ -13,4 +13,15 @@
     <sql id="Base_Column_List">
         id,tag_id,article_id
     </sql>
+
+    <delete id="deleteByTagIdList">
+        DELETE
+        FROM
+            tb_article_tag
+        WHERE
+            tag_id in
+            <foreach collection="tagIdList" item="tagId" index="index" open="(" separator="," close=")">
+                #{tagId}
+            </foreach>
+    </delete>
 </mapper>

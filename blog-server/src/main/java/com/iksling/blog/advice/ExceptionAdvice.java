@@ -34,10 +34,9 @@ public class ExceptionAdvice {
     public Result exceptionAdvice(IllegalRequestException e) {
         Integer userId = UserUtil.getLoginUser().getUserId();
         String username = UserUtil.getLoginUser().getUsername();
-        if (!redisTemplate.hasKey(USER_ILLEGAL_OPERATION))
-            redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).expire(1, TimeUnit.DAYS);
-        redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).increment(userId, 1);
-        Integer count = (Integer) redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).get(userId);
+        redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).expire(1, TimeUnit.DAYS);
+        redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).increment(userId.toString(), 1);
+        Integer count = (Integer) redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).get(userId.toString());
         if (count != null && count == 3) {
             userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                     .set(UserAuth::getLockedFlag, true)
@@ -64,9 +63,9 @@ public class ExceptionAdvice {
     }
 
     /********** 未知异常 **********/
-//    @ExceptionHandler(value = Exception.class)
+    @ExceptionHandler(value = Exception.class)
     public Result exceptionAdvice(Exception e) {
-        return Result.failure().code(FAILURE).message("发生未知异常,请联系管理员[" + CommonConst.CONTACT + "]");
+        return Result.failure().code(FAILURE).message("发生未知异常, 请联系管理员[" + CommonConst.CONTACT + "]");
     }
 
     /********** 操作状态异常 **********/

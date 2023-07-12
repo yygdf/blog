@@ -24,7 +24,7 @@ public class CategoryController {
 
     @ApiOperation(value = "查看后台分类列表")
     @GetMapping("/back/categories")
-    public Result listBackCategories(ConditionVO condition) {
+    public Result listBackCategories(@Valid ConditionVO condition) {
         return Result.success().message("查询成功").data(categoryService.getPageCategoriesBackDTO(condition));
     }
 

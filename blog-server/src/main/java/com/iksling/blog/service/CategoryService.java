@@ -1,7 +1,7 @@
 package com.iksling.blog.service;
 
 import com.iksling.blog.dto.CategoriesBackDTO;
-import com.iksling.blog.pojo.Page;
+import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.entity.Category;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.iksling.blog.vo.CategoryBackVO;
@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface CategoryService extends IService<Category> {
 
-    Page<CategoriesBackDTO> getPageCategoriesBackDTO(ConditionVO condition);
+    PagePojo<CategoriesBackDTO> getPageCategoriesBackDTO(ConditionVO condition);
 
     void updateCategoryStatusVO(CategoryStatusVO categoryStatusVO);
 

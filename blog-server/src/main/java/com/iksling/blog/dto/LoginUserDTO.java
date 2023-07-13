@@ -29,6 +29,11 @@ public class LoginUserDTO {
     private String avatar;
 
     /**
+     * 权重
+     */
+    private Integer weight;
+
+    /**
      * 用户网站
      */
     private String website;

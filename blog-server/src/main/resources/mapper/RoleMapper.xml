@@ -9,7 +9,9 @@
             <result property="userId" column="user_id" jdbcType="INTEGER"/>
             <result property="roleDesc" column="role_desc" jdbcType="VARCHAR"/>
             <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
+            <result property="roleWeight" column="role_weight" jdbcType="INTEGER"/>
             <result property="disabledFlag" column="disabled_flag" jdbcType="BOOLEAN"/>
+            <result property="deletableFlag" column="deletable_flag" jdbcType="BOOLEAN"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
@@ -18,13 +20,14 @@
 
     <sql id="Base_Column_List">
         id,user_id,role_desc,
-        role_name,disabled_flag,create_user,
-        create_time,update_user,update_time
+        role_name,role_weight,disabled_flag,
+        deletable_flag,create_user,create_time,
+        update_user,update_time
     </sql>
 
-    <select id="listRolesByUserId" resultType="java.lang.String">
+    <select id="listLoginRoleByUserId" resultType="com.iksling.blog.pojo.LoginRole">
         SELECT
-            r.role_name
+            r.role_name,r.role_weight
         FROM
             tb_user_role ur,
             tb_role r
@@ -32,5 +35,7 @@
             ur.user_id = #{userId}
             AND ur.role_id = r.id
             AND r.disabled_flag = 0
+        ORDER BY
+            r.role_weight ASC
     </select>
 </mapper>

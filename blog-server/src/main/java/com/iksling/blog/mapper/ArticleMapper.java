@@ -15,13 +15,13 @@ import java.util.List;
  */
 public interface ArticleMapper extends BaseMapper<Article> {
 
-    Integer selectCountByCondition(@Param("condition") ConditionVO condition, Integer userId);
+    Integer selectCountByCondition(@Param("condition") ConditionVO condition, Integer userId, Integer roleWeight);
 
-    List<ArticlesBackDTO> listArticlesBackDTO(@Param("condition") ConditionVO condition, Integer userId);
+    List<ArticlesBackDTO> listArticlesBackDTO(@Param("condition") ConditionVO condition, Integer userId, Integer roleWeight);
 
-    Integer updateArticlesGarbageVO(@Param("articlesGarbage") ArticlesGarbageVO articlesGarbage, Integer userId);
+    Integer updateArticlesGarbageVO(@Param("articlesGarbage") ArticlesGarbageVO articlesGarbage, Integer userId, Integer roleWeight);
 
-    List<CategoryArticleDTO> selectCategoryArticleCount(Integer userId);
+    List<CategoryArticleDTO> selectCategoryArticleCount(Integer userId, Integer roleWeight);
 }
 
 

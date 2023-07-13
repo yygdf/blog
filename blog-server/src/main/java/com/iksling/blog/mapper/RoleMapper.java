@@ -1,7 +1,8 @@
 package com.iksling.blog.mapper;
 
-import com.iksling.blog.entity.Role;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.iksling.blog.entity.Role;
+import com.iksling.blog.pojo.LoginRole;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  */
 public interface RoleMapper extends BaseMapper<Role> {
 
-    List<String> listRolesByUserId(Integer userId);
+    List<LoginRole> listLoginRoleByUserId(Integer userId);
 }
 
 

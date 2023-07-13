@@ -47,7 +47,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .userId(loginUser.getUserId())
                 .multiDirId(FilePathEnum.ARTICLE.getId())
                 .fileUrl(url)
-                .fileDesc("用户: " + loginUser.getUsername() + ", 文章id: " + multiFileArticleBackVO.getFileSubDir() + " 中的图片")
+                .fileDesc("用户[" + loginUser.getUsername() + "], 文章id[" + multiFileArticleBackVO.getFileSubDir() + "]中的插图")
                 .fileName(file.getOriginalFilename())
                 .fileSubDir(fireSubDir)
                 .hiddenFlag(false)
@@ -62,10 +62,11 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
 
     @Override
     public void deleteArticleImageByUrl(String url) {
+        LoginUser loginUser = UserUtil.getLoginUser();
         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                 .set(MultiFile::getDeletedFlag, true)
                 .eq(MultiFile::getFileUrl, url)
-                .eq(MultiFile::getUserId, UserUtil.getLoginUser().getUserId()));
+                .eq(loginUser.getRoleWeight() > 300, MultiFile::getUserId, loginUser.getUserId()));
     }
 }
 

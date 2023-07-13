@@ -151,14 +151,14 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="createTime"
+        prop="publishTime"
         label="发表时间"
         width="140"
         align="center"
       >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
-          {{ scope.row.createTime | date }}
+          {{ scope.row.publishTime | date }}
         </template>
       </el-table-column>
       <el-table-column
@@ -334,7 +334,7 @@ export default {
       options: [
         {
           value: '{"garbageFlag":false,"draftFlag":false}',
-          label: "已发布"
+          label: "已发表"
         },
         {
           value: '{"garbageFlag":true,"draftFlag":null}',

@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Page<T> {
+public class PagePojo<T> {
     /**
      * 总数
      */

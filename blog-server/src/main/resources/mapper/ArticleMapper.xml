@@ -24,6 +24,8 @@
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="publishUser" column="publish_user" jdbcType="INTEGER"/>
+            <result property="publishTime" column="publish_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <resultMap id="articlesBackResultMap" type="com.iksling.blog.dto.ArticlesBackDTO">
@@ -36,7 +38,7 @@
         <result column="hidden_flag" property="hiddenFlag"/>
         <result column="garbage_flag" property="garbageFlag"/>
         <result column="commentable_flag" property="commentableFlag"/>
-        <result column="create_time" property="createTime"/>
+        <result column="publish_time" property="publishTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="category_name" property="categoryName"/>
         <collection property="tagDTOList" ofType="com.iksling.blog.dto.TagDTO">
@@ -52,7 +54,7 @@
         hidden_flag,deleted_flag,garbage_flag,
         commentable_flag,ip_source,ip_address,
         create_user,create_time,update_user,
-        update_time
+        update_time,publish_user,publish_time
     </sql>
 
     <select id="selectCountByCondition" resultType="java.lang.Integer">
@@ -62,8 +64,10 @@
             tb_article a
         <where>
             deleted_flag = 0
-            AND user_id = #{userId}
             AND garbage_flag = #{condition.garbageFlag}
+            <if test="roleWeight > 300">
+                AND user_id = #{userId}
+            </if>
             <if test="condition.draftFlag != null">
                 AND draft_flag = #{condition.draftFlag}
             </if>
@@ -95,7 +99,7 @@
             a.id,a.user_id,a.article_title,
             a.top_flag,a.draft_flag,a.public_flag,
             a.hidden_flag,a.garbage_flag,a.commentable_flag,
-            a.create_time,a.update_time,c.category_name,
+            a.publish_time,a.update_time,c.category_name,
             t.id tag_id,t.tag_name
         FROM
             (
@@ -103,13 +107,15 @@
                 id,user_id,category_id,
                 article_title,top_flag,draft_flag,
                 public_flag,hidden_flag,garbage_flag,
-                commentable_flag,create_time,update_time
+                commentable_flag,publish_time,update_time
             FROM
                 tb_article
             <where>
                 deleted_flag = 0
-                AND user_id = #{userId}
                 AND garbage_flag = #{condition.garbageFlag}
+                <if test="roleWeight > 300">
+                    AND user_id = #{userId}
+                </if>
                 <if test="condition.draftFlag != null">
                     AND draft_flag = #{condition.draftFlag}
                 </if>
@@ -165,8 +171,11 @@
                 </otherwise>
             </choose>
         WHERE
-            user_id = #{userId}
-        AND id in
+            1 = 1
+        <if test="roleWeight > 300">
+            AND user_id = #{userId}
+        </if>
+            AND id in
             <foreach collection="articlesGarbage.idList" item="id" index="index" open="(" separator="," close=")">
                 #{id}
             </foreach>
@@ -179,7 +188,10 @@
         FROM
             tb_article
         WHERE
-            user_id = #{userId}
+            1 = 1
+        <if test="roleWeight > 300">
+            AND user_id = #{userId}
+        </if>
         GROUP BY
             category_id;
     </select>

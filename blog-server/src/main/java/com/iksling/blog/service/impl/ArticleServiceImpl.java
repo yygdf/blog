@@ -16,7 +16,7 @@ import com.iksling.blog.mapper.ArticleTagMapper;
 import com.iksling.blog.mapper.CategoryMapper;
 import com.iksling.blog.mapper.TagMapper;
 import com.iksling.blog.pojo.LoginUser;
-import com.iksling.blog.pojo.Page;
+import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.service.ArticleTagService;
 import com.iksling.blog.util.BeanCopyUtil;
@@ -56,8 +56,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     private CategoryMapper categoryMapper;
 
     @Autowired
-    private ArticleService articleService;
-    @Autowired
     private ArticleTagService articleTagService;
 
     @Autowired
@@ -65,12 +63,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     public ArticleBackDTO getArticleBackDTOById(Integer articleId) {
-        Integer userId = UserUtil.getLoginUser().getUserId();
+        LoginUser loginUser = UserUtil.getLoginUser();
         Article article = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
                 .select(Article::getId, Article::getUserId, Article::getCategoryId, Article::getArticleTitle, Article::getArticleCover, Article::getArticleContent,
                         Article::getTopFlag, Article::getDraftFlag, Article::getPublicFlag, Article::getHiddenFlag, Article::getCommentableFlag)
                 .eq(Article::getId, articleId)
-                .eq(Article::getUserId, userId)
+                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
                 .eq(Article::getGarbageFlag, 0)
                 .eq(Article::getDeletedFlag, 0));
         List<Integer> tagIdList = articleTagMapper.selectList(new LambdaQueryWrapper<ArticleTag>()
@@ -84,17 +82,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     public ArticleOptionDTO getArticleOptionDTO() {
-        Integer userId = UserUtil.getLoginUser().getUserId();
+        LoginUser loginUser = UserUtil.getLoginUser();
         List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
                 .select(Tag::getId, Tag::getUserId, Tag::getTagName)
-                .eq(Tag::getUserId, userId));
+                .eq(loginUser.getRoleWeight() > 300, Tag::getUserId, loginUser.getUserId()));
         List<TagDTO> tagDTOList = BeanCopyUtil.copyList(tagList, TagDTO.class);
         List<Category> categoryList = categoryMapper.selectList(new LambdaQueryWrapper<Category>()
                 .select(Category::getId, Category::getUserId, Category::getCategoryName)
-                .eq(Category::getUserId, userId));
+                .eq(loginUser.getRoleWeight() > 300, Category::getUserId, loginUser.getUserId()));
         List<CategoryDTO> categoryDTOList = BeanCopyUtil.copyList(categoryList, CategoryDTO.class);
         return ArticleOptionDTO.builder()
-                .userId(userId)
+                .userId(loginUser.getUserId())
                 .tagDTOList(tagDTOList)
                 .categoryDTOList(categoryDTOList)
                 .build();
@@ -113,23 +111,50 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             article.setIpAddress(loginUser.getIpAddress());
             article.setCreateUser(loginUser.getUserId());
             article.setCreateTime(new Date());
-        } else {
-            Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
-                .eq(Article::getId, article.getId())
-                .eq(Article::getUserId, loginUser.getUserId()));
-            if (count != 1)
-                throw new IllegalRequestException("你不要瞎搞, 小心我顺着网线爬过去找你!");
             if (!article.getDraftFlag()) {
+                Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
+                        .eq(Category::getId, article.getCategoryId())
+                        .eq(Category::getUserId, loginUser.getUserId()));
+                if (count != 1)
+                    throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
+                article.setPublishUser(loginUser.getUserId());
+                article.setPublishTime(new Date());
+                if (StringUtils.isBlank(article.getArticleCover()))
+                    article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.ARTICLE.getPath() + loginUser.getUserId() + "/default/defaultCover.jpg");
+            }
+        } else {
+            Article article2 = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
+                    .select(Article::getId, Article::getUserId, Article::getPublishUser)
+                    .eq(Article::getId, article.getId())
+                    .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
+            if (Objects.isNull(article2.getId()))
+                throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
+            if (!article.getDraftFlag()) {
+                Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
+                        .eq(Category::getId, article.getCategoryId())
+                        .eq(Category::getUserId, article2.getUserId()));
+                if (count != 1)
+                    throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
                 article.setUpdateUser(loginUser.getUserId());
                 article.setUpdateTime(new Date());
+                if (Objects.isNull(article2.getPublishUser())) {
+                    article.setPublishUser(loginUser.getUserId());
+                    article.setPublishTime(new Date());
+                }
+                if (StringUtils.isBlank(article.getArticleCover()))
+                    article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.ARTICLE.getPath() + loginUser.getUserId() + "/default/defaultCover.jpg");
             }
             articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>()
                     .eq(ArticleTag::getArticleId, article.getId()));
+            article.setUserId(article2.getUserId());
         }
-        if (StringUtils.isBlank(article.getArticleCover()))
-            article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.ARTICLE.getPath() + loginUser.getUserId() + "/default/defaultCover.jpg");
-        articleService.saveOrUpdate(article);
+        this.saveOrUpdate(article);
         if (!articleBackVO.getTagIdList().isEmpty()) {
+            List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
+                    .select(Tag::getId)
+                    .eq(Tag::getUserId, article.getUserId()));
+            if (!tagList.stream().map(Tag::getId).collect(Collectors.toList()).containsAll(articleBackVO.getTagIdList()))
+                throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
             List<ArticleTag> articleTagList = articleBackVO.getTagIdList().stream().map(tagId -> ArticleTag.builder()
                     .articleId(article.getId())
                     .tagId(tagId)
@@ -140,46 +165,55 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     @Override
-    public Page<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition) {
+    public PagePojo<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition) {
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        Integer userId = UserUtil.getLoginUser().getUserId();
-        Integer count = articleMapper.selectCountByCondition(condition, userId);
+        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer count = articleMapper.selectCountByCondition(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count == 0)
-            return new Page<>();
-        List<ArticlesBackDTO> articlesBackDTOList = articleMapper.listArticlesBackDTO(condition, userId);
+            return new PagePojo<>();
+        List<ArticlesBackDTO> articlesBackDTOList = articleMapper.listArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         Map<String, Integer> viewCountMap = redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).entries();
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).entries();
         articlesBackDTOList.forEach(item -> {
             item.setViewCount(Objects.requireNonNull(viewCountMap).get(item.getId().toString()));
             item.setLikeCount(Objects.requireNonNull(likeCountMap).get(item.getId().toString()));
         });
-        return new Page<>(count, articlesBackDTOList);
+        return new PagePojo<>(count, articlesBackDTOList);
     }
 
     @Override
     @Transactional
     public void updateArticlesGarbageVO(ArticlesGarbageVO articlesGarbageVO) {
-        articleMapper.updateArticlesGarbageVO(articlesGarbageVO, UserUtil.getLoginUser().getUserId());
+        LoginUser loginUser = UserUtil.getLoginUser();
+        int count = articleMapper.updateArticlesGarbageVO(articlesGarbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (count != articlesGarbageVO.getIdList().size())
+            throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
     }
 
     @Override
     @Transactional
     public void deleteArticleIdList(List<Integer> articleIdList) {
+        LoginUser loginUser = UserUtil.getLoginUser();
         ArticlesGarbageVO articlesGarbageVO = new ArticlesGarbageVO();
         articlesGarbageVO.setIdList(articleIdList);
-        articleMapper.updateArticlesGarbageVO(articlesGarbageVO, UserUtil.getLoginUser().getUserId());
+        int count = articleMapper.updateArticlesGarbageVO(articlesGarbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (count != articlesGarbageVO.getIdList().size())
+            throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
     }
 
     @Override
     @Transactional
     public void updateArticleStatusVO(ArticleStatusVO articleStatusVO) {
-        articleMapper.update(null, new LambdaUpdateWrapper<Article>()
+        LoginUser loginUser = UserUtil.getLoginUser();
+        int count = articleMapper.update(null, new LambdaUpdateWrapper<Article>()
                 .set(Article::getTopFlag, articleStatusVO.getTopFlag())
                 .set(Article::getPublicFlag, articleStatusVO.getPublicFlag())
                 .set(Article::getHiddenFlag, articleStatusVO.getHiddenFlag())
                 .set(Article::getCommentableFlag, articleStatusVO.getCommentableFlag())
                 .eq(Article::getId, articleStatusVO.getId())
-                .eq(Article::getUserId, UserUtil.getLoginUser().getUserId()));
+                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
+        if (count != 1)
+            throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
     }
 }
 

@@ -7,14 +7,15 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     collapse: false,
-    userMenuList: [],
     tabList: [{ name: "首页", path: "/" }],
     userId: null,
     email: "",
-    avatar: "",
-    nickname: "",
     intro: "",
+    avatar: "",
+    weight: 1000,
     webSite: "",
+    nickname: "",
+    userMenuList: [],
     currentRoutePath: "/"
   },
   mutations: {
@@ -35,31 +36,33 @@ export default new Vuex.Store({
     },
     login(state, user) {
       state.userId = user.userId;
-      state.nickname = user.nickname;
-      state.avatar = user.avatar;
       state.intro = user.intro;
       state.email = user.email;
+      state.avatar = user.avatar;
+      state.weight = user.weight;
       state.webSite = user.webSite;
+      state.nickname = user.nickname;
     },
     saveUserMenuList(state, userMenuList) {
       state.userMenuList = userMenuList;
     },
     logout(state) {
       state.userId = null;
-      state.avatar = "";
-      state.nickname = "";
       state.intro = "";
       state.email = "";
+      state.avatar = "";
+      state.weight = 1000;
       state.webSite = "";
+      state.nickname = "";
       state.userMenuList = [];
     },
     updateAvatar(state, avatar) {
       state.avatar = avatar;
     },
     updateUserInfo(state, user) {
-      state.nickname = user.nickname;
       state.intro = user.intro;
       state.webSite = user.webSite;
+      state.nickname = user.nickname;
     }
   },
   actions: {},

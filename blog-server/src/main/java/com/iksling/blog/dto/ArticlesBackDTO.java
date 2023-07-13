@@ -59,9 +59,9 @@ public class ArticlesBackDTO {
     private Boolean commentableFlag;
 
     /**
-     * 创建时间
+     * 发表时间
      */
-    private Date createTime;
+    private Date publishTime;
 
     /**
      * 更新时间

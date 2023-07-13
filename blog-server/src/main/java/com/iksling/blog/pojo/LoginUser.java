@@ -78,6 +78,11 @@ public class LoginUser implements UserDetails {
      */
     private List<String> roleList;
 
+    /**
+     * 角色权重
+     */
+    private Integer roleWeight;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roleList.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());

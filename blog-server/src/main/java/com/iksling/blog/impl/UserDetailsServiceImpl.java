@@ -2,6 +2,7 @@ package com.iksling.blog.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.iksling.blog.pojo.LoginRole;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.mapper.RoleMapper;
 import com.iksling.blog.mapper.UserAuthMapper;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -39,7 +41,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             .eq(UserAuth::getUsername, username));
         if (Objects.isNull(userAuth))
             throw new UsernameNotFoundException("用户名不存在!");
-        List<String> roleList = roleMapper.listRolesByUserId(userAuth.getUserId());
+        List<LoginRole> roleList = roleMapper.listLoginRoleByUserId(userAuth.getUserId());
         UserAgent userAgent = UserAgent.parseUserAgentString(request.getHeader("User-Agent"));
         String ipAddress = IpUtil.getIpAddress(request);
         String ipSource = IpUtil.getIpSource(ipAddress);
@@ -55,7 +57,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .ipSource(ipSource)
                 .lockedFlag(userAuth.getLockedFlag())
                 .disabledFlag(userAuth.getDisabledFlag())
-                .roleList(roleList)
+                .roleWeight(roleList.get(0).getRoleWeight())
+                .roleList(roleList.stream().map(LoginRole::getRoleName).collect(Collectors.toList()))
                 .build();
     }
 }

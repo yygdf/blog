@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface CategoryMapper extends BaseMapper<Category> {
 
-    void deleteCategoryIdList(List<Integer> categoryIdList, Integer userId);
+    void deleteCategoryIdList(List<Integer> categoryIdList, Integer userId, Integer roleWeight);
 }
 
 

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.iksling.blog.dto.ArticleBackDTO;
 import com.iksling.blog.dto.ArticleOptionDTO;
 import com.iksling.blog.dto.ArticlesBackDTO;
-import com.iksling.blog.pojo.Page;
+import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.entity.Article;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleStatusVO;
@@ -24,7 +24,7 @@ public interface ArticleService extends IService<Article> {
 
     Integer saveOrUpdateArticleBackVO(ArticleBackVO articleBackVO);
 
-    Page<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition);
+    PagePojo<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition);
 
     void updateArticlesGarbageVO(ArticlesGarbageVO articlesGarbageVO);
 

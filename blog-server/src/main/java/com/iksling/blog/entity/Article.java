@@ -118,6 +118,16 @@ public class Article implements Serializable {
      */
     private Date updateTime;
 
+    /**
+     * 发表人
+     */
+    private Integer publishUser;
+
+    /**
+     * 发表时间
+     */
+    private Date publishTime;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

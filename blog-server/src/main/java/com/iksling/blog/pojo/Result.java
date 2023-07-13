@@ -16,7 +16,6 @@ public class Result {
         Result result = new Result();
         result.flag = true;
         result.code = StatusConst.SUCCESS;
-        result.message = "操作成功";
         return result;
     }
 

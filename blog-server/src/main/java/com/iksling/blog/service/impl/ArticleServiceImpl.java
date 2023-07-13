@@ -16,6 +16,7 @@ import com.iksling.blog.mapper.ArticleTagMapper;
 import com.iksling.blog.mapper.CategoryMapper;
 import com.iksling.blog.mapper.TagMapper;
 import com.iksling.blog.pojo.LoginUser;
+import com.iksling.blog.pojo.Page;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.service.ArticleTagService;
 import com.iksling.blog.util.BeanCopyUtil;
@@ -139,12 +140,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     @Override
-    public PageDTO<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition) {
+    public Page<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition) {
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         Integer userId = UserUtil.getLoginUser().getUserId();
         Integer count = articleMapper.selectCountByCondition(condition, userId);
         if (count == 0)
-            return new PageDTO<>();
+            return new Page<>();
         List<ArticlesBackDTO> articlesBackDTOList = articleMapper.listArticlesBackDTO(condition, userId);
         Map<String, Integer> viewCountMap = redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).entries();
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).entries();
@@ -152,7 +153,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             item.setViewCount(Objects.requireNonNull(viewCountMap).get(item.getId().toString()));
             item.setLikeCount(Objects.requireNonNull(likeCountMap).get(item.getId().toString()));
         });
-        return new PageDTO<>(count, articlesBackDTOList);
+        return new Page<>(count, articlesBackDTOList);
     }
 
     @Override

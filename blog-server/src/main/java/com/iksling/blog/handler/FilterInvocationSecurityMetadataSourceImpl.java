@@ -1,12 +1,12 @@
 package com.iksling.blog.handler;
 
-import com.iksling.blog.pojo.ResourceRole;
 import com.iksling.blog.mapper.ResourceMapper;
+import com.iksling.blog.pojo.ResourceRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.stereotype.Component;
@@ -26,20 +26,20 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
     private ResourceMapper resourceMapper;
 
     @PostConstruct
-    private void loadDataSource() {
+    private void loadResourceRoleList() {
         resourceRoleList = resourceMapper.listResourceRoles();
     }
 
-    public void clearMetadataSource() {
+    public void clearResourceRoleList() {
         resourceRoleList = null;
     }
 
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
         if (CollectionUtils.isEmpty(resourceRoleList)) {
-            this.loadDataSource();
+            this.loadResourceRoleList();
             if (CollectionUtils.isEmpty(resourceRoleList))
-                throw new AuthorizationServiceException("服务器繁忙, 请稍后再试!");
+                throw new AuthenticationServiceException("服务器繁忙, 请稍后再试!");
         }
         FilterInvocation fi = (FilterInvocation) object;
         String method = fi.getRequest().getMethod();

@@ -3,9 +3,8 @@ package com.iksling.blog.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.dto.PageDTO;
+import com.iksling.blog.pojo.Page;
 import com.iksling.blog.dto.TagsBackDTO;
 import com.iksling.blog.entity.Tag;
 import com.iksling.blog.exception.OperationStatusException;
@@ -36,14 +35,14 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     private ArticleTagMapper articleTagMapper;
 
     @Override
-    public PageDTO<TagsBackDTO> getPageTagsBackDTO(ConditionVO condition) {
-        Page<Tag> page = new Page<>(condition.getCurrent(), condition.getSize());
-        Page<Tag> tagPage = tagMapper.selectPage(page, new LambdaQueryWrapper<Tag>()
+    public Page<TagsBackDTO> getPageTagsBackDTO(ConditionVO condition) {
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page page = new com.baomidou.mybatisplus.extension.plugins.pagination.Page(condition.getCurrent(), condition.getSize());
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page tagPage = tagMapper.selectPage(page, new LambdaQueryWrapper<Tag>()
                 .select(Tag::getId, Tag::getUserId, Tag::getTagName, Tag::getCreateTime, Tag::getUpdateTime)
                 .like(StringUtils.isNotBlank(condition.getKeywords()), Tag::getTagName, condition.getKeywords())
                 .eq(Tag::getUserId, UserUtil.getLoginUser().getUserId())
                 .orderByDesc(Tag::getId));
-        return new PageDTO<>((int) tagPage.getTotal(), BeanCopyUtil.copyList(tagPage.getRecords(), TagsBackDTO.class));
+        return new Page<>((int) tagPage.getTotal(), BeanCopyUtil.copyList(tagPage.getRecords(), TagsBackDTO.class));
     }
 
     @Override

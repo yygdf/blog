@@ -62,15 +62,15 @@ public class ExceptionAdvice {
         return Result.failure().code(FILE_STATUS).message(e.getMessage());
     }
 
-    /********** 未知异常 **********/
-    @ExceptionHandler(value = Exception.class)
-    public Result exceptionAdvice(Exception e) {
-        return Result.failure().code(FAILURE).message("发生未知异常, 请联系管理员[" + CommonConst.CONTACT + "]");
-    }
-
     /********** 操作状态异常 **********/
     @ExceptionHandler(value = OperationStatusException.class)
     public Result exceptionAdvice(OperationStatusException e) {
         return Result.failure().code(FAILURE).message(e.getMessage());
+    }
+
+    /********** 未知异常 **********/
+    @ExceptionHandler(value = Exception.class)
+    public Result exceptionAdvice(Exception e) {
+        return Result.failure().code(FAILURE).message("服务器繁忙, 如有疑问请联系管理员[" + CommonConst.CONTACT + "]");
     }
 }

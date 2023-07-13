@@ -320,8 +320,8 @@ export default {
             message: data.message
           });
         }
-        this.addOrEdit = false;
       });
+      this.addOrEdit = false;
       this.autoSave = false;
     },
     autoSaveArticle() {

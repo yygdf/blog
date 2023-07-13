@@ -11,7 +11,7 @@
  Target Server Version : 50731
  File Encoding         : 65001
 
- Date: 09/07/2023 18:43:49
+ Date: 13/07/2023 10:36:23
 */
 
 SET NAMES utf8mb4;
@@ -41,6 +41,8 @@ CREATE TABLE `tb_article`  (
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `publish_user` int(11) NULL DEFAULT NULL COMMENT '发表人',
+  `publish_time` datetime(0) NULL DEFAULT NULL COMMENT '发表时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
@@ -117,14 +119,11 @@ CREATE TABLE `tb_category`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_category
 -- ----------------------------
-INSERT INTO `tb_category` VALUES (1, 2, '测试分类1', 1, 0, 2, '2023-07-08 09:39:02', NULL, NULL);
-INSERT INTO `tb_category` VALUES (2, 2, '测试分类2', 1, 0, 2, '2023-07-08 09:39:18', NULL, NULL);
-INSERT INTO `tb_category` VALUES (3, 2, '测试分类3', 1, 0, 2, '2023-07-08 09:39:30', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_chat_record
@@ -352,8 +351,8 @@ CREATE TABLE `tb_multi_file`  (
   `multi_dir_id` int(11) NOT NULL COMMENT '父目录id',
   `file_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件地址',
   `file_desc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '文件描述',
-  `file_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '文件名称',
-  `file_sub_dir` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '文件子目录',
+  `file_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件名称',
+  `file_sub_dir` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件子目录',
   `hidden_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏',
   `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
@@ -440,7 +439,7 @@ CREATE TABLE `tb_resource`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 902 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 904 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_resource
@@ -448,6 +447,8 @@ CREATE TABLE `tb_resource`  (
 INSERT INTO `tb_resource` VALUES (1, 2, -1, '', '菜单模块', '', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (2, 2, -1, '', '首页模块', '', 0, 0, 0, 2, '2023-05-11 10:42:09', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (3, 2, -1, '', '文章模块', '', 0, 0, 0, 2, '2023-07-08 09:08:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (4, 2, -1, '', '分类模块', '', 0, 0, 0, 2, '2023-07-11 10:24:40', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (5, 2, -1, '', '标签模块', '', 0, 0, 0, 2, '2023-07-12 10:48:21', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (9, 2, -1, '', '其他模块', '', 0, 0, 0, 2, '2023-07-02 11:16:14', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (101, 2, 1, '/back/user/menus', '查看用户菜单', 'GET', 0, 0, 0, 2, '2023-04-26 21:33:02', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (201, 2, 2, '/back', '查看后台首页信息', 'GET', 0, 0, 0, 2, '2023-04-26 21:34:33', NULL, NULL);
@@ -458,12 +459,18 @@ INSERT INTO `tb_resource` VALUES (304, 2, 3, '/back/article/image', '上传文�
 INSERT INTO `tb_resource` VALUES (305, 2, 3, '/back/articles', '查看后台文章列表', 'GET', 0, 0, 0, 2, '2023-07-08 14:46:19', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (306, 2, 3, '/back/articles', '批量更新垃圾文章', 'PUT', 0, 0, 0, 2, '2023-07-08 18:24:10', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (307, 2, 3, '/back/articles', '批量删除文章', 'DELETE', 0, 0, 0, 2, '2023-07-08 18:51:02', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (308, 2, 3, '/back/article/top/*', '修改文章置顶', 'PUT', 0, 0, 0, 2, '2023-07-08 18:51:51', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (309, 2, 3, '/back/article/public/*', '修改文章是否公开', 'PUT', 0, 0, 0, 2, '2023-07-08 18:52:21', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (310, 2, 3, '/back/article/hidden/*', '修改文章是否隐藏', 'PUT', 0, 0, 0, 2, '2023-07-08 18:52:54', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (311, 2, 3, '/back/article/commentable/*', '修改文章是否可评论', 'PUT', 0, 0, 0, 2, '2023-07-08 18:53:19', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (312, 2, 3, '/back/article/image', '删除文章图片', 'DELETE', 0, 0, 0, 2, '2023-07-09 15:01:11', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (308, 2, 3, '/back/article/status', '修改文章状态', 'PUT', 0, 0, 0, 2, '2023-07-10 15:02:03', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (309, 2, 3, '/back/article/image', '删除文章图片', 'DELETE', 0, 0, 0, 2, '2023-07-09 15:01:11', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (401, 2, 4, '/back/categories', '查看后台分类列表', 'GET', 0, 0, 0, 2, '2023-07-11 10:25:18', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (402, 2, 4, '/back/category/status', '修改分类状态', 'PUT', 0, 0, 0, 2, '2023-07-12 07:03:22', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (403, 2, 4, '/back/categories', '批量删除分类', 'DELETE', 0, 0, 0, 2, '2023-07-12 07:04:01', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (404, 2, 4, '/back/category', '添加或修改分类', 'POST', 0, 0, 0, 2, '2023-07-12 07:04:38', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (501, 2, 5, '/back/tags', '查看后台标签列表', 'GET', 0, 0, 0, 2, '2023-07-12 10:48:53', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (502, 2, 5, '/back/tags', '批量删除标签', 'DELETE', 0, 0, 0, 2, '2023-07-12 10:49:26', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (503, 2, 5, '/back/tag', '添加或修改标签', 'POST', 0, 0, 0, 2, '2023-07-12 10:50:07', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (901, 2, 9, '/swagger-ui.html', 'SwaggerUI', 'GET', 0, 0, 1, 2, '2023-07-02 11:17:04', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (902, 2, 9, '/webjars/**', 'SwaggerUI', 'GET', 0, 0, 1, 2, '2023-07-12 17:18:57', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (903, 2, 9, '/login', '登录', 'POST', 0, 0, 1, 2, '2023-07-12 17:20:53', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_role
@@ -474,7 +481,9 @@ CREATE TABLE `tb_role`  (
   `user_id` int(11) NOT NULL COMMENT '用户id',
   `role_desc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '角色描述',
   `role_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '角色名称',
+  `role_weight` int(11) NOT NULL DEFAULT 500 COMMENT '角色权重',
   `disabled_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用，1已禁用',
+  `deletable_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0不可删除，1可删除',
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
@@ -485,12 +494,12 @@ CREATE TABLE `tb_role`  (
 -- ----------------------------
 -- Records of tb_role
 -- ----------------------------
-INSERT INTO `tb_role` VALUES (1, 2, 'root', 'root', 0, 0, '2023-04-25 08:47:06', NULL, NULL);
-INSERT INTO `tb_role` VALUES (2, 2, '管理员', 'admin', 0, 0, '2023-04-25 19:42:22', NULL, NULL);
-INSERT INTO `tb_role` VALUES (3, 2, '编辑', 'editor', 0, 0, '2023-04-25 19:44:08', NULL, NULL);
-INSERT INTO `tb_role` VALUES (4, 2, '作者', 'author', 0, 0, '2023-04-26 21:35:54', NULL, NULL);
-INSERT INTO `tb_role` VALUES (5, 2, '用户', 'user', 0, 0, '2023-04-26 21:36:11', NULL, NULL);
-INSERT INTO `tb_role` VALUES (6, 2, 'test', 'test', 0, 0, '2023-04-26 21:36:30', NULL, NULL);
+INSERT INTO `tb_role` VALUES (1, 2, 'root', 'root', 100, 0, 0, 0, '2023-04-25 08:47:06', NULL, NULL);
+INSERT INTO `tb_role` VALUES (2, 2, '管理员', 'admin', 200, 0, 0, 0, '2023-04-25 19:42:22', NULL, NULL);
+INSERT INTO `tb_role` VALUES (3, 2, '编辑', 'editor', 300, 0, 0, 0, '2023-04-25 19:44:08', NULL, NULL);
+INSERT INTO `tb_role` VALUES (4, 2, '作者', 'author', 400, 0, 0, 0, '2023-04-26 21:35:54', NULL, NULL);
+INSERT INTO `tb_role` VALUES (5, 2, '用户', 'user', 500, 0, 0, 0, '2023-04-26 21:36:11', NULL, NULL);
+INSERT INTO `tb_role` VALUES (6, 2, 'test', 'test', 1000, 0, 0, 0, '2023-04-26 21:36:30', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_role_menu
@@ -546,7 +555,7 @@ CREATE TABLE `tb_role_resource`  (
   `role_id` int(11) NOT NULL COMMENT '角色id',
   `resource_id` int(11) NOT NULL COMMENT '资源id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_role_resource
@@ -570,6 +579,17 @@ INSERT INTO `tb_role_resource` VALUES (16, 1, 310);
 INSERT INTO `tb_role_resource` VALUES (17, 1, 311);
 INSERT INTO `tb_role_resource` VALUES (18, 1, 312);
 INSERT INTO `tb_role_resource` VALUES (19, 1, 901);
+INSERT INTO `tb_role_resource` VALUES (20, 1, 4);
+INSERT INTO `tb_role_resource` VALUES (21, 1, 401);
+INSERT INTO `tb_role_resource` VALUES (22, 1, 402);
+INSERT INTO `tb_role_resource` VALUES (23, 1, 403);
+INSERT INTO `tb_role_resource` VALUES (24, 1, 404);
+INSERT INTO `tb_role_resource` VALUES (25, 1, 5);
+INSERT INTO `tb_role_resource` VALUES (26, 1, 501);
+INSERT INTO `tb_role_resource` VALUES (27, 1, 502);
+INSERT INTO `tb_role_resource` VALUES (28, 1, 503);
+INSERT INTO `tb_role_resource` VALUES (29, 1, 902);
+INSERT INTO `tb_role_resource` VALUES (30, 1, 903);
 
 -- ----------------------------
 -- Table structure for tb_tag
@@ -584,14 +604,11 @@ CREATE TABLE `tb_tag`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_tag
 -- ----------------------------
-INSERT INTO `tb_tag` VALUES (1, 2, '测试标签1', 2, '2023-07-08 09:39:56', NULL, NULL);
-INSERT INTO `tb_tag` VALUES (2, 2, '测试标签2', 2, '2023-07-08 09:40:11', NULL, NULL);
-INSERT INTO `tb_tag` VALUES (3, 2, '测试标签3', 2, '2023-07-08 09:40:21', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_user
@@ -614,15 +631,15 @@ CREATE TABLE `tb_user`  (
 -- ----------------------------
 -- Records of tb_user
 -- ----------------------------
-INSERT INTO `tb_user` VALUES (0, '', '', 'https://ksling.cn/static/img/avatar/defaultAvatar.jpg', '', 'ling', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (1, '', '', 'https://ksling.cn/static/img/avatar/defaultAvatar.jpg', '', 'ks', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (2, '', '', 'https://ksling.cn/static/img/avatar/defaultAvatar.jpg', '', 'root', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (3, '', '', 'https://ksling.cn/static/img/avatar/defaultAvatar.jpg', '', 'admin', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (4, '', '', 'https://ksling.cn/static/img/avatar/defaultAvatar.jpg', '', 'editor', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (5, '', '', 'https://ksling.cn/static/img/avatar/defaultAvatar.jpg', '', 'author', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (6, '', '', 'https://ksling.cn/static/img/avatar/defaultAvatar.jpg', '', 'user', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (7, '', '', 'https://ksling.cn/static/img/avatar/defaultAvatar.jpg', '', 'test', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (100000001, '', '', 'https://ksling.cn/static/img/avatar/defaultAvatar.jpg', '', 'zhangsan', 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (0, '', '', 'https://ksling.cn/static/img/avatar/default/defaultAvatar.jpg', '', 'ling', 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (1, '', '', 'https://ksling.cn/static/img/avatar/default/defaultAvatar.jpg', '', 'ks', 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (2, '', '', 'https://ksling.cn/static/img/avatar/default/defaultAvatar.jpg', '', 'root', 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (3, '', '', 'https://ksling.cn/static/img/avatar/default/defaultAvatar.jpg', '', 'admin', 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (4, '', '', 'https://ksling.cn/static/img/avatar/default/defaultAvatar.jpg', '', 'editor', 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (5, '', '', 'https://ksling.cn/static/img/avatar/default/defaultAvatar.jpg', '', 'author', 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (6, '', '', 'https://ksling.cn/static/img/avatar/default/defaultAvatar.jpg', '', 'user', 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (7, '', '', 'https://ksling.cn/static/img/avatar/default/defaultAvatar.jpg', '', 'test', 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (100000001, '', '', 'https://ksling.cn/static/img/avatar/default/defaultAvatar.jpg', '', 'zhangsan', 2, '2023-04-25 08:46:25', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_user_auth
@@ -651,36 +668,13 @@ CREATE TABLE `tb_user_auth`  (
 -- ----------------------------
 INSERT INTO `tb_user_auth` VALUES (0, 0, 'ling@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (1, 1, 'ks@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
-INSERT INTO `tb_user_auth` VALUES (2, 2, 'root@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-09 16:18:34', 'Computer', 0, 0, '', '127.0.0.1', 0, '2023-04-26 21:44:26', NULL, NULL);
+INSERT INTO `tb_user_auth` VALUES (2, 2, 'root@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-13 07:04:45', 'Computer', 0, 0, '', '127.0.0.1', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (3, 3, 'admin@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (4, 4, 'editor@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (5, 5, 'author@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (6, 6, 'user@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (7, 7, 'test@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (100000001, 100000001, 'zhangsan@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
-
--- ----------------------------
--- Table structure for tb_user_config
--- ----------------------------
-DROP TABLE IF EXISTS `tb_user_config`;
-CREATE TABLE `tb_user_config`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '配置id',
-  `user_id` int(11) NOT NULL COMMENT '用户id',
-  `config_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '配置描述',
-  `config_value` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '配置值',
-  `config_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '配置名',
-  `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除',
-  `deletable_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0不可删除，1可删除',
-  `create_user` int(11) NOT NULL COMMENT '创建人',
-  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
-  `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of tb_user_config
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for tb_user_role

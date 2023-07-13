@@ -1,4 +1,4 @@
-package com.iksling.blog.dto;
+package com.iksling.blog.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageDTO<T> {
+public class Page<T> {
     /**
      * 总数
      */

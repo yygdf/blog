@@ -3,11 +3,10 @@ package com.iksling.blog.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.CategoriesBackDTO;
 import com.iksling.blog.dto.CategoryArticleDTO;
-import com.iksling.blog.dto.PageDTO;
+import com.iksling.blog.pojo.Page;
 import com.iksling.blog.entity.Article;
 import com.iksling.blog.entity.Category;
 import com.iksling.blog.exception.IllegalRequestException;
@@ -40,10 +39,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     private ArticleMapper articleMapper;
 
     @Override
-    public PageDTO<CategoriesBackDTO> getPageCategoriesBackDTO(ConditionVO condition) {
+    public Page<CategoriesBackDTO> getPageCategoriesBackDTO(ConditionVO condition) {
         Integer userId = UserUtil.getLoginUser().getUserId();
-        Page<Category> page = new Page<>(condition.getCurrent(), condition.getSize());
-        Page<Category> categoryPage = categoryMapper.selectPage(page, new LambdaQueryWrapper<Category>()
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page page = new com.baomidou.mybatisplus.extension.plugins.pagination.Page(condition.getCurrent(), condition.getSize());
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page categoryPage = categoryMapper.selectPage(page, new LambdaQueryWrapper<Category>()
                 .select(Category::getId, Category::getUserId, Category::getCategoryName, Category::getHiddenFlag, Category::getPublicFlag, Category::getCreateTime, Category::getUpdateTime)
                 .like(StringUtils.isNotBlank(condition.getKeywords()), Category::getCategoryName, condition.getKeywords())
                 .eq(Category::getUserId, userId)
@@ -52,7 +51,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         List<CategoriesBackDTO> categoriesBackDTOList = BeanCopyUtil.copyList(categoryPage.getRecords(), CategoriesBackDTO.class);
         Map<Integer, Integer> categoryArticleMap = categoryArticleDTOList.stream().collect(Collectors.toMap(CategoryArticleDTO::getId, CategoryArticleDTO::getArticleCount, (k1, k2) -> k2));
         categoriesBackDTOList.forEach(c -> c.setArticleCount(categoryArticleMap.get(c.getId())));
-        return new PageDTO<>((int)categoryPage.getTotal(), categoriesBackDTOList.stream().sorted(Comparator.comparing(CategoriesBackDTO::getArticleCount).reversed()).collect(Collectors.toList()));
+        return new Page<>((int)categoryPage.getTotal(), categoriesBackDTOList.stream().sorted(Comparator.comparing(CategoriesBackDTO::getArticleCount).reversed()).collect(Collectors.toList()));
     }
 
     @Override

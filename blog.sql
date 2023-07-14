@@ -11,7 +11,7 @@
  Target Server Version : 50731
  File Encoding         : 65001
 
- Date: 13/07/2023 10:36:23
+ Date: 14/07/2023 17:56:35
 */
 
 SET NAMES utf8mb4;
@@ -23,7 +23,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `tb_article`;
 CREATE TABLE `tb_article`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '文章id',
-  `user_id` int(11) NOT NULL COMMENT '作者id',
+  `user_id` int(11) NOT NULL COMMENT '用户id',
   `category_id` int(11) NOT NULL DEFAULT -1 COMMENT '分类id',
   `article_title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文章标题',
   `article_cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '文章封面',
@@ -44,11 +44,21 @@ CREATE TABLE `tb_article`  (
   `publish_user` int(11) NULL DEFAULT NULL COMMENT '发表人',
   `publish_time` datetime(0) NULL DEFAULT NULL COMMENT '发表时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_article
 -- ----------------------------
+INSERT INTO `tb_article` VALUES (1, 2, 1, '2023-07-14', 'http://192.168.203.130/static/img/article/2/default/defaultCover.jpg', '1231231232', 0, 0, 1, 0, 0, 0, 1, '', '127.0.0.1', 2, '2023-07-14 10:57:47', 2, '2023-07-14 11:40:44', 2, '2023-07-14 11:40:44');
+INSERT INTO `tb_article` VALUES (2, 2, 1, '123123', 'http://192.168.203.130/static/img/article/2/default/defaultCover.jpg', '123213\n\n![tiaozhan2.png](http://192.168.203.130/static/img/article/2/2/1679785113212174338.png)', 0, 1, 1, 0, 0, 0, 1, '', '127.0.0.1', 2, '2023-07-14 11:40:04', NULL, NULL, 2, '2023-07-14 11:40:04');
+INSERT INTO `tb_article` VALUES (3, 5, 6, '2023-07-14123123', 'http://192.168.203.130/static/img/article/5/default/defaultCover.jpg', '12312323![beijing2.jpg](http://192.168.203.130/static/img/article/5/3/1679744888247226369.jpg)\n\n\n\n![tiaozhan.png](http://192.168.203.130/static/img/article/5/3/1679756298993807361.png)\n\n![tiaozhan.png](http://192.168.203.130/static/img/article/5/3/1679756298993807361.png)', 1, 0, 0, 1, 0, 0, 0, '', '127.0.0.1', 5, '2023-07-14 14:43:46', 2, '2023-07-14 15:39:17', 5, '2023-07-14 14:50:31');
+INSERT INTO `tb_article` VALUES (4, 5, 5, '2023-07-14gggg', 'http://192.168.203.130/static/img/article/5/default/defaultCover.jpg', '123123213![beijing3.jpg](1)\n\n\n![beijing6.jpg](1)\n\n\n![beijing6.jpg](1)\n\n\n\n![beijing6.jpg](1)\n\n\n', 1, 0, 1, 1, 0, 0, 1, '', '127.0.0.1', 5, '2023-07-14 14:53:23', 2, '2023-07-14 15:39:30', 2, '2023-07-14 15:14:14');
+INSERT INTO `tb_article` VALUES (5, 5, 5, '2023-07-1412312', 'http://192.168.203.130/static/img/article/5/5/1679784094264737794.png', '1231232![beijing4.jpg](http://192.168.203.130/static/img/article/5/5/1679746860593516546.jpg)![beijing4.jpg](http://192.168.203.130/static/img/article/5/5/1679746860593516546.jpg)\n\n\n![tiaozhan.png](http://192.168.203.130/static/img/article/5/5/1679782793879490561.png)![wushuangtiaozhan.png](http://192.168.203.130/static/img/article/5/5/1679783897514131458.png)\n\n\n![beijing2.jpg](http://192.168.203.130/static/img/article/5/5/1679784040380514306.jpg)', 1, 0, 1, 0, 0, 0, 1, '', '127.0.0.1', 5, '2023-07-14 14:54:11', 2, '2023-07-14 17:25:13', 5, '2023-07-14 14:57:33');
+INSERT INTO `tb_article` VALUES (6, 2, -1, '2023-07-14', '', '![beijing1.jpeg](http://192.168.203.130/static/img/article/2/6/1679782574081183745.jpeg)', 0, 1, 1, 0, 0, 0, 1, '', '127.0.0.1', 2, '2023-07-14 17:19:09', NULL, NULL, NULL, NULL);
+INSERT INTO `tb_article` VALUES (7, 5, -1, '哈哈哈', '', '哈哈哈![beijing2.jpg](1)', 0, 1, 1, 0, 0, 0, 1, '', '127.0.0.1', 5, '2023-07-14 17:26:01', NULL, NULL, NULL, NULL);
+INSERT INTO `tb_article` VALUES (8, 2, -1, '2023-07-14', '', '\n\n![beijing2.jpg](1)', 0, 1, 1, 0, 0, 0, 1, '', '127.0.0.1', 2, '2023-07-14 17:28:26', NULL, NULL, NULL, NULL);
+INSERT INTO `tb_article` VALUES (9, 2, -1, '2023-07-14', '', '![beijing3.jpg](1)', 0, 1, 1, 0, 0, 0, 1, '', '127.0.0.1', 2, '2023-07-14 17:29:00', NULL, NULL, NULL, NULL);
+INSERT INTO `tb_article` VALUES (10, 2, -1, '2023-07-14', '', '![beijing2.jpg](1)', 0, 1, 1, 0, 0, 0, 1, '', '127.0.0.1', 2, '2023-07-14 17:29:28', NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_article_tag
@@ -59,11 +69,13 @@ CREATE TABLE `tb_article_tag`  (
   `tag_id` int(11) NOT NULL COMMENT '标签id',
   `article_id` int(11) NOT NULL COMMENT '文章id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_article_tag
 -- ----------------------------
+INSERT INTO `tb_article_tag` VALUES (15, 5, 3);
+INSERT INTO `tb_article_tag` VALUES (19, 5, 5);
 
 -- ----------------------------
 -- Table structure for tb_base_config
@@ -119,11 +131,17 @@ CREATE TABLE `tb_category`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_category
 -- ----------------------------
+INSERT INTO `tb_category` VALUES (1, 2, '测试分类1', 1, 1, 2, '2023-07-14 11:06:24', NULL, NULL);
+INSERT INTO `tb_category` VALUES (2, 2, '测试分类123', 1, 1, 2, '2023-07-14 11:11:25', 2, '2023-07-14 14:02:08');
+INSERT INTO `tb_category` VALUES (3, 2, '测试分类3', 1, 0, 2, '2023-07-14 14:01:28', NULL, NULL);
+INSERT INTO `tb_category` VALUES (5, 5, '测试分类1', 1, 0, 5, '2023-07-14 14:37:53', NULL, NULL);
+INSERT INTO `tb_category` VALUES (6, 5, '测试分类author', 1, 0, 5, '2023-07-14 14:38:06', NULL, NULL);
+INSERT INTO `tb_category` VALUES (11, 2, '123', 1, 0, 2, '2023-07-14 17:10:09', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_chat_record
@@ -223,11 +241,39 @@ CREATE TABLE `tb_login_log`  (
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 29 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_login_log
 -- ----------------------------
+INSERT INTO `tb_login_log` VALUES (1, 2, 1, '2023-07-14 10:55:24', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (2, 2, 1, '2023-07-14 10:57:02', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (3, 2, 1, '2023-07-14 11:03:37', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (4, 2, 1, '2023-07-14 11:09:38', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (5, 2, 1, '2023-07-14 11:11:09', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (6, 2, 1, '2023-07-14 11:13:18', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (7, 2, 1, '2023-07-14 11:34:13', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (8, 2, 1, '2023-07-14 13:59:19', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (9, 6, 1, '2023-07-14 14:17:53', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (10, 6, 1, '2023-07-14 14:18:51', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (11, 5, 1, '2023-07-14 14:19:54', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (12, 5, 1, '2023-07-14 14:20:23', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (13, 5, 1, '2023-07-14 14:22:40', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (14, 5, 1, '2023-07-14 14:25:02', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (15, 5, 1, '2023-07-14 14:31:31', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (16, 5, 1, '2023-07-14 14:34:02', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (17, 5, 1, '2023-07-14 14:54:03', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (18, 5, 1, '2023-07-14 14:56:59', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (19, 2, 1, '2023-07-14 14:57:54', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (20, 2, 1, '2023-07-14 15:05:29', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (21, 2, 1, '2023-07-14 15:13:21', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (22, 2, 1, '2023-07-14 15:26:43', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (23, 2, 1, '2023-07-14 15:34:19', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (24, 2, 1, '2023-07-14 15:49:58', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (25, 2, 1, '2023-07-14 17:08:55', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (26, 2, 1, '2023-07-14 17:22:50', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (27, 5, 1, '2023-07-14 17:25:42', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (28, 2, 1, '2023-07-14 17:28:13', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
 
 -- ----------------------------
 -- Table structure for tb_menu
@@ -362,11 +408,21 @@ CREATE TABLE `tb_multi_file`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_multi_file
 -- ----------------------------
+INSERT INTO `tb_multi_file` VALUES (1, 5, 3, 'http://192.168.203.130/static/img/article/5/3/1679744888247226369.jpg', '用户[author@qq.com], 文章id[3]中的插图', 'beijing2.jpg', '5/3/', 0, 0, '', '127.0.0.1', 5, '2023-07-14 14:49:25', NULL, NULL);
+INSERT INTO `tb_multi_file` VALUES (2, 5, 3, 'http://192.168.203.130/static/img/article/5/5/1679746860593516546.jpg', '用户[author@qq.com], 文章id[5]中的插图', 'beijing4.jpg', '5/5/', 0, 0, '', '127.0.0.1', 5, '2023-07-14 14:57:15', NULL, NULL);
+INSERT INTO `tb_multi_file` VALUES (3, 5, 3, 'http://192.168.203.130/static/img/article/5/3/1679756298993807361.png', '用户[root@qq.com], 文章id[3]中的插图', 'tiaozhan.png', '5/3/', 0, 0, '', '127.0.0.1', 2, '2023-07-14 15:34:45', NULL, NULL);
+INSERT INTO `tb_multi_file` VALUES (4, 2, 3, 'http://192.168.203.130/static/img/article/2/6/1679782574081183745.jpeg', '用户[root@qq.com], 文章id[6]中的插图', 'beijing1.jpeg', '2/6/', 0, 0, '', '127.0.0.1', 2, '2023-07-14 17:19:10', NULL, NULL);
+INSERT INTO `tb_multi_file` VALUES (5, 5, 3, 'http://192.168.203.130/static/img/article/5/5/1679782793879490561.png', '用户[root@qq.com], 文章id[5]中的插图', 'tiaozhan.png', '5/5/', 0, 0, '', '127.0.0.1', 2, '2023-07-14 17:20:02', NULL, NULL);
+INSERT INTO `tb_multi_file` VALUES (6, 5, 3, 'http://192.168.203.130/static/img/article/5/5/1679782842894127106.png', '用户[root@qq.com], 文章id[5]中的插图', 'wushuang.png', '5/5/', 0, 1, '', '127.0.0.1', 2, '2023-07-14 17:20:13', NULL, NULL);
+INSERT INTO `tb_multi_file` VALUES (7, 5, 3, 'http://192.168.203.130/static/img/article/5/5/1679783897514131458.png', '用户[root@qq.com], 文章id[5]中的插图', 'tiaozhan.png', '5/5/', 0, 1, '', '127.0.0.1', 2, '2023-07-14 17:24:25', NULL, NULL);
+INSERT INTO `tb_multi_file` VALUES (8, 5, 3, 'http://192.168.203.130/static/img/article/5/5/1679784040380514306.jpg', '用户[root@qq.com], 文章id[5]中的插图', 'beijing2.jpg', '5/5/', 0, 0, '', '127.0.0.1', 2, '2023-07-14 17:24:59', NULL, NULL);
+INSERT INTO `tb_multi_file` VALUES (9, 5, 3, 'http://192.168.203.130/static/img/article/5/5/1679784094264737794.png', '用户[root@qq.com], 文章id[5]中的插图', 'tiaozhan2.png', '5/5/', 0, 0, '', '127.0.0.1', 2, '2023-07-14 17:25:12', NULL, NULL);
+INSERT INTO `tb_multi_file` VALUES (10, 2, 3, 'http://192.168.203.130/static/img/article/2/2/1679785113212174338.png', '用户[root@qq.com], 文章id[2]中的插图', 'tiaozhan2.png', '2/2/', 0, 0, '', '127.0.0.1', 2, '2023-07-14 17:29:15', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_operation_log
@@ -439,7 +495,7 @@ CREATE TABLE `tb_resource`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 904 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 906 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_resource
@@ -449,18 +505,18 @@ INSERT INTO `tb_resource` VALUES (2, 2, -1, '', '首页模块', '', 0, 0, 0, 2, 
 INSERT INTO `tb_resource` VALUES (3, 2, -1, '', '文章模块', '', 0, 0, 0, 2, '2023-07-08 09:08:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (4, 2, -1, '', '分类模块', '', 0, 0, 0, 2, '2023-07-11 10:24:40', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (5, 2, -1, '', '标签模块', '', 0, 0, 0, 2, '2023-07-12 10:48:21', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (6, 2, -1, '', '用户模块', '', 0, 0, 0, 2, '2023-07-14 13:56:54', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (7, 2, -1, '', '文件模块', '', 0, 0, 0, 2, '2023-07-14 16:20:03', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (9, 2, -1, '', '其他模块', '', 0, 0, 0, 2, '2023-07-02 11:16:14', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (101, 2, 1, '/back/user/menus', '查看用户菜单', 'GET', 0, 0, 0, 2, '2023-04-26 21:33:02', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (201, 2, 2, '/back', '查看后台首页信息', 'GET', 0, 0, 0, 2, '2023-04-26 21:34:33', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (301, 2, 3, '/back/article/*', '根据文章id查找文章', 'GET', 0, 0, 0, 2, '2023-07-08 09:10:16', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (302, 2, 3, '/back/article/options', '查看文章选项', 'GET', 0, 0, 0, 2, '2023-07-08 09:10:53', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (303, 2, 3, '/back/article', '添加或修改文章', 'POST', 0, 0, 0, 2, '2023-07-08 09:11:36', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (304, 2, 3, '/back/article/image', '上传文章图片', 'POST', 0, 0, 0, 2, '2023-07-08 09:12:09', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (305, 2, 3, '/back/articles', '查看后台文章列表', 'GET', 0, 0, 0, 2, '2023-07-08 14:46:19', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (306, 2, 3, '/back/articles', '批量更新垃圾文章', 'PUT', 0, 0, 0, 2, '2023-07-08 18:24:10', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (307, 2, 3, '/back/articles', '批量删除文章', 'DELETE', 0, 0, 0, 2, '2023-07-08 18:51:02', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (308, 2, 3, '/back/article/status', '修改文章状态', 'PUT', 0, 0, 0, 2, '2023-07-10 15:02:03', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (309, 2, 3, '/back/article/image', '删除文章图片', 'DELETE', 0, 0, 0, 2, '2023-07-09 15:01:11', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (401, 2, 4, '/back/categories', '查看后台分类列表', 'GET', 0, 0, 0, 2, '2023-07-11 10:25:18', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (402, 2, 4, '/back/category/status', '修改分类状态', 'PUT', 0, 0, 0, 2, '2023-07-12 07:03:22', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (403, 2, 4, '/back/categories', '批量删除分类', 'DELETE', 0, 0, 0, 2, '2023-07-12 07:04:01', NULL, NULL);
@@ -468,9 +524,14 @@ INSERT INTO `tb_resource` VALUES (404, 2, 4, '/back/category', '添加或修改�
 INSERT INTO `tb_resource` VALUES (501, 2, 5, '/back/tags', '查看后台标签列表', 'GET', 0, 0, 0, 2, '2023-07-12 10:48:53', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (502, 2, 5, '/back/tags', '批量删除标签', 'DELETE', 0, 0, 0, 2, '2023-07-12 10:49:26', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (503, 2, 5, '/back/tag', '添加或修改标签', 'POST', 0, 0, 0, 2, '2023-07-12 10:50:07', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (601, 2, 6, '/back/user/username', '查看所有的用户名', 'GET', 0, 0, 0, 2, '2023-07-14 13:57:41', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (701, 2, 3, '/back/article/image', '上传文章图片', 'POST', 0, 0, 0, 2, '2023-07-08 09:12:09', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (702, 2, 3, '/back/article/image', '删除文章图片', 'DELETE', 0, 0, 0, 2, '2023-07-09 15:01:11', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (901, 2, 9, '/swagger-ui.html', 'SwaggerUI', 'GET', 0, 0, 1, 2, '2023-07-02 11:17:04', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (902, 2, 9, '/webjars/**', 'SwaggerUI', 'GET', 0, 0, 1, 2, '2023-07-12 17:18:57', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (903, 2, 9, '/login', '登录', 'POST', 0, 0, 1, 2, '2023-07-12 17:20:53', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (904, 2, 9, '/v2/**', 'SwaggerUI', 'GET', 0, 0, 1, 2, '2023-07-14 10:53:32', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (905, 2, 9, '/swagger-resources/**', 'SwaggerUI', 'GET', 0, 0, 1, 2, '2023-07-14 10:53:59', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_role
@@ -510,7 +571,7 @@ CREATE TABLE `tb_role_menu`  (
   `role_id` int(11) NOT NULL COMMENT '角色id',
   `menu_id` int(11) NOT NULL COMMENT '菜单id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 42 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_role_menu
@@ -545,6 +606,17 @@ INSERT INTO `tb_role_menu` VALUES (27, 1, 802);
 INSERT INTO `tb_role_menu` VALUES (28, 1, 901);
 INSERT INTO `tb_role_menu` VALUES (29, 1, 902);
 INSERT INTO `tb_role_menu` VALUES (30, 1, 205);
+INSERT INTO `tb_role_menu` VALUES (31, 4, 1);
+INSERT INTO `tb_role_menu` VALUES (32, 4, 2);
+INSERT INTO `tb_role_menu` VALUES (33, 4, 3);
+INSERT INTO `tb_role_menu` VALUES (34, 4, 9);
+INSERT INTO `tb_role_menu` VALUES (35, 4, 201);
+INSERT INTO `tb_role_menu` VALUES (36, 4, 202);
+INSERT INTO `tb_role_menu` VALUES (37, 4, 203);
+INSERT INTO `tb_role_menu` VALUES (38, 4, 204);
+INSERT INTO `tb_role_menu` VALUES (39, 4, 205);
+INSERT INTO `tb_role_menu` VALUES (40, 4, 301);
+INSERT INTO `tb_role_menu` VALUES (41, 4, 302);
 
 -- ----------------------------
 -- Table structure for tb_role_resource
@@ -555,7 +627,7 @@ CREATE TABLE `tb_role_resource`  (
   `role_id` int(11) NOT NULL COMMENT '角色id',
   `resource_id` int(11) NOT NULL COMMENT '资源id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 59 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_role_resource
@@ -569,12 +641,12 @@ INSERT INTO `tb_role_resource` VALUES (6, 1, 201);
 INSERT INTO `tb_role_resource` VALUES (7, 1, 301);
 INSERT INTO `tb_role_resource` VALUES (8, 1, 302);
 INSERT INTO `tb_role_resource` VALUES (9, 1, 303);
-INSERT INTO `tb_role_resource` VALUES (10, 1, 304);
+INSERT INTO `tb_role_resource` VALUES (10, 1, 701);
 INSERT INTO `tb_role_resource` VALUES (11, 1, 305);
 INSERT INTO `tb_role_resource` VALUES (12, 1, 306);
 INSERT INTO `tb_role_resource` VALUES (13, 1, 307);
 INSERT INTO `tb_role_resource` VALUES (14, 1, 308);
-INSERT INTO `tb_role_resource` VALUES (15, 1, 309);
+INSERT INTO `tb_role_resource` VALUES (15, 1, 702);
 INSERT INTO `tb_role_resource` VALUES (16, 1, 310);
 INSERT INTO `tb_role_resource` VALUES (17, 1, 311);
 INSERT INTO `tb_role_resource` VALUES (18, 1, 312);
@@ -590,6 +662,34 @@ INSERT INTO `tb_role_resource` VALUES (27, 1, 502);
 INSERT INTO `tb_role_resource` VALUES (28, 1, 503);
 INSERT INTO `tb_role_resource` VALUES (29, 1, 902);
 INSERT INTO `tb_role_resource` VALUES (30, 1, 903);
+INSERT INTO `tb_role_resource` VALUES (31, 1, 904);
+INSERT INTO `tb_role_resource` VALUES (32, 1, 905);
+INSERT INTO `tb_role_resource` VALUES (33, 1, 6);
+INSERT INTO `tb_role_resource` VALUES (34, 1, 601);
+INSERT INTO `tb_role_resource` VALUES (35, 4, 1);
+INSERT INTO `tb_role_resource` VALUES (36, 4, 2);
+INSERT INTO `tb_role_resource` VALUES (37, 4, 3);
+INSERT INTO `tb_role_resource` VALUES (38, 4, 4);
+INSERT INTO `tb_role_resource` VALUES (39, 4, 5);
+INSERT INTO `tb_role_resource` VALUES (40, 4, 9);
+INSERT INTO `tb_role_resource` VALUES (41, 4, 101);
+INSERT INTO `tb_role_resource` VALUES (42, 4, 201);
+INSERT INTO `tb_role_resource` VALUES (43, 4, 301);
+INSERT INTO `tb_role_resource` VALUES (44, 4, 302);
+INSERT INTO `tb_role_resource` VALUES (45, 4, 303);
+INSERT INTO `tb_role_resource` VALUES (46, 4, 701);
+INSERT INTO `tb_role_resource` VALUES (47, 4, 305);
+INSERT INTO `tb_role_resource` VALUES (48, 4, 306);
+INSERT INTO `tb_role_resource` VALUES (49, 4, 307);
+INSERT INTO `tb_role_resource` VALUES (50, 4, 308);
+INSERT INTO `tb_role_resource` VALUES (51, 4, 702);
+INSERT INTO `tb_role_resource` VALUES (52, 4, 401);
+INSERT INTO `tb_role_resource` VALUES (53, 4, 402);
+INSERT INTO `tb_role_resource` VALUES (54, 4, 403);
+INSERT INTO `tb_role_resource` VALUES (55, 4, 404);
+INSERT INTO `tb_role_resource` VALUES (56, 4, 501);
+INSERT INTO `tb_role_resource` VALUES (57, 4, 502);
+INSERT INTO `tb_role_resource` VALUES (58, 4, 503);
 
 -- ----------------------------
 -- Table structure for tb_tag
@@ -604,11 +704,16 @@ CREATE TABLE `tb_tag`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_tag
 -- ----------------------------
+INSERT INTO `tb_tag` VALUES (1, 2, '测试标签1', 2, '2023-07-14 14:02:27', NULL, NULL);
+INSERT INTO `tb_tag` VALUES (2, 2, '测试标签123', 2, '2023-07-14 14:02:36', 2, '2023-07-14 14:03:06');
+INSERT INTO `tb_tag` VALUES (3, 2, '测试标签3', 2, '2023-07-14 14:03:00', NULL, NULL);
+INSERT INTO `tb_tag` VALUES (5, 5, '测试标签author', 5, '2023-07-14 14:39:00', NULL, NULL);
+INSERT INTO `tb_tag` VALUES (10, 2, '123', 2, '2023-07-14 17:09:15', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_user
@@ -648,7 +753,7 @@ DROP TABLE IF EXISTS `tb_user_auth`;
 CREATE TABLE `tb_user_auth`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '账号id',
   `user_id` int(11) NOT NULL COMMENT '用户id',
-  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户名称',
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户名',
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户密码',
   `login_time` datetime(0) NOT NULL COMMENT '登录时间',
   `login_device` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '登录设备',
@@ -668,11 +773,11 @@ CREATE TABLE `tb_user_auth`  (
 -- ----------------------------
 INSERT INTO `tb_user_auth` VALUES (0, 0, 'ling@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (1, 1, 'ks@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
-INSERT INTO `tb_user_auth` VALUES (2, 2, 'root@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-13 07:04:45', 'Computer', 0, 0, '', '127.0.0.1', 0, '2023-04-26 21:44:26', NULL, NULL);
+INSERT INTO `tb_user_auth` VALUES (2, 2, 'root@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-14 17:28:13', 'Computer', 0, 0, '', '127.0.0.1', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (3, 3, 'admin@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (4, 4, 'editor@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
-INSERT INTO `tb_user_auth` VALUES (5, 5, 'author@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
-INSERT INTO `tb_user_auth` VALUES (6, 6, 'user@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
+INSERT INTO `tb_user_auth` VALUES (5, 5, 'author@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-14 17:25:42', 'Computer', 0, 0, '', '127.0.0.1', 0, '2023-04-26 21:44:26', NULL, NULL);
+INSERT INTO `tb_user_auth` VALUES (6, 6, 'user@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-14 14:18:51', 'Computer', 0, 0, '', '127.0.0.1', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (7, 7, 'test@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (100000001, 100000001, 'zhangsan@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 

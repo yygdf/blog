@@ -3,8 +3,10 @@ package com.iksling.blog.controller;
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ArticleService;
-import com.iksling.blog.service.MultiFileService;
-import com.iksling.blog.vo.*;
+import com.iksling.blog.vo.ArticleBackVO;
+import com.iksling.blog.vo.ArticleStatusVO;
+import com.iksling.blog.vo.ArticlesGarbageVO;
+import com.iksling.blog.vo.ConditionVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -21,8 +23,6 @@ import static com.iksling.blog.constant.OptLogConst.*;
 public class ArticleController {
     @Autowired
     private ArticleService articleService;
-    @Autowired
-    private MultiFileService multiFileService;
 
     @ApiOperation(value = "根据文章id查找文章")
     @ApiImplicitParam(name = "articleId", value = "文章id", required = true, dataType = "Integer")
@@ -40,22 +40,15 @@ public class ArticleController {
 
     @OptLog(optType = SAVE_OR_UPDATE)
     @ApiOperation(value = "添加或修改文章")
+    @ApiImplicitParam(name = "articleBackVO", value = "文章后台VO", required = true, dataType = "ArticleBackVO")
     @PostMapping("/back/article")
     public Result saveBackArticle(@Valid @RequestBody ArticleBackVO articleBackVO) {
         Integer id = articleService.saveOrUpdateArticleBackVO(articleBackVO);
         return Result.success().message("操作成功").data(id);
     }
 
-    @OptLog(optType = UPLOAD)
-    @ApiOperation(value = "上传文章图片")
-    @ApiImplicitParam(name = "file", value = "文章图片", required = true, dataType = "MultipartFile")
-    @PostMapping("/back/article/image")
-    public Result saveBackArticleImage(@Valid MultiFileArticleBackVO multiFileArticleBackVO) {
-        String url = multiFileService.saveMultiFileArticleBackVO(multiFileArticleBackVO);
-        return Result.success().message("上传成功").data(url);
-    }
-
     @ApiOperation(value = "查看后台文章列表")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/back/articles")
     public Result listBackArticles(@Valid ConditionVO condition) {
         return Result.success().message("查询成功").data(articleService.getPageArticlesBackDTO(condition));
@@ -63,6 +56,7 @@ public class ArticleController {
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "批量更新垃圾文章")
+    @ApiImplicitParam(name = "articlesGarbageVO", value = "多文章垃圾标志", required = true, dataType = "ArticlesGarbageVO")
     @PutMapping("/back/articles")
     public Result updateBackArticles(@Valid ArticlesGarbageVO articlesGarbageVO) {
         articleService.updateArticlesGarbageVO(articlesGarbageVO);
@@ -71,6 +65,7 @@ public class ArticleController {
 
     @OptLog(optType = REMOVE)
     @ApiOperation(value = "批量删除文章")
+    @ApiImplicitParam(name = "articleIdList", value = "文章idList", required = true, dataType = "List<Integer>")
     @DeleteMapping("/back/articles")
     public Result deleteBackArticles(@RequestBody List<Integer> articleIdList) {
         articleService.deleteArticleIdList(articleIdList);
@@ -79,17 +74,10 @@ public class ArticleController {
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "修改文章状态")
+    @ApiImplicitParam(name = "articleStatusVO", value = "文章状态VO", required = true, dataType = "ArticleStatusVO")
     @PutMapping("/back/article/status")
     public Result updateArticleStatus(@Valid @RequestBody ArticleStatusVO articleStatusVO) {
         articleService.updateArticleStatusVO(articleStatusVO);
-        return Result.success().message("操作成功");
-    }
-
-    @OptLog(optType = REMOVE)
-    @ApiOperation(value = "删除文章图片")
-    @DeleteMapping("/back/article/image")
-    public Result deleteBackArticleImage(String url) {
-        multiFileService.deleteArticleImageByUrl(url);
         return Result.success().message("操作成功");
     }
 }

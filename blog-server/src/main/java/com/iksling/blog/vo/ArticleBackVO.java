@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -47,36 +48,42 @@ public class ArticleBackVO {
     /**
      * 0未置顶，1已置顶
      */
+    @NotNull(message = "置顶标志不能为null")
     @ApiModelProperty(name = "isTop", value = "0未置顶，1已置顶", dataType = "Boolean")
     private Boolean topFlag;
 
     /**
      * 0是草稿，1不是草稿
      */
+    @NotNull(message = "草稿标志不能为null")
     @ApiModelProperty(name = "isDraft", value = "0不是草稿，1是草稿", dataType = "Boolean")
     private Boolean draftFlag;
 
     /**
      * 0未公开，1已公开
      */
+    @NotNull(message = "公开标志不能为null")
     @ApiModelProperty(name = "isPublic", value = "0未公开，1已公开", dataType = "Boolean")
     private Boolean publicFlag;
 
     /**
      * 0未隐藏，1已隐藏
      */
+    @NotNull(message = "隐藏标志不能为null")
     @ApiModelProperty(name = "isHidden", value = "0未隐藏，1已隐藏", dataType = "Boolean")
     private Boolean hiddenFlag;
 
     /**
      * 0不可评论，1可评论
      */
+    @NotNull(message = "评论标志不能为null")
     @ApiModelProperty(name = "isCommentable", value = "0不可评论，1可评论", dataType = "Boolean")
     private Boolean commentableFlag;
 
     /**
      * 标签id集合
      */
+    @NotNull(message = "标签id集合不能为null")
     @ApiModelProperty(name = "tagIdList", value = "标签id集合", dataType = "List<Integer>")
     private List<Integer> tagIdList;
 }

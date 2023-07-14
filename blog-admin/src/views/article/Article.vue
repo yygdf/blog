@@ -150,7 +150,7 @@ export default {
   },
   destroyed() {
     this.autoSaveArticle();
-    this.$store.commit("updateArticleUserId", "");
+    this.$store.commit("updateArticleUserId", null);
   },
   data: function() {
     return {
@@ -236,7 +236,7 @@ export default {
             this.article.id = data.data;
             var formData = new FormData();
             formData.append("file", file);
-            formData.append("userId", this.$store.state.articleUserId);
+            formData.append("userId", this.checkArticleUserIdIsNull());
             formData.append("fileSubDir", this.article.id);
             this.axios
               .post("/api/back/article/image", formData)
@@ -257,7 +257,7 @@ export default {
       } else {
         var formData = new FormData();
         formData.append("file", file);
-        formData.append("userId", this.$store.state.articleUserId);
+        formData.append("userId", this.checkArticleUserIdIsNull());
         formData.append("fileSubDir", this.article.id);
         this.axios
           .post("/api/back/article/image", formData)
@@ -273,6 +273,11 @@ export default {
     deleteImg(url) {
       var param = { data: url };
       this.axios.delete("/api/back/article/image", param);
+    },
+    checkArticleUserIdIsNull() {
+      return this.$store.state.articleUserId == null
+        ? ""
+        : this.$store.state.articleUserId;
     },
     saveArticleDraft() {
       if (this.article.articleTitle.trim() === "") {

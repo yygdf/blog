@@ -20,6 +20,12 @@ public class MultiFileArticleBackVO implements Serializable {
     private MultipartFile file;
 
     /**
+     * 用户id
+     */
+    @ApiModelProperty(name = "userId", value = "用户id", dataType = "Integer")
+    private Integer userId;
+
+    /**
      * 文件子目录
      */
     @NotBlank(message = "文件子目录不能为空")

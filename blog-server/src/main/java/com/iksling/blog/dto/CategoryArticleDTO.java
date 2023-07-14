@@ -7,7 +7,7 @@ public class CategoryArticleDTO {
     /**
      * 分类id
      */
-    private Integer id;
+    private Integer categoryId;
 
     /**
      * 文章数

@@ -24,6 +24,12 @@ public class ConditionVO {
     private Integer size;
 
     /**
+     * 用户id
+     */
+    @ApiModelProperty(name = "userId", value = "用户id", dataType = "Integer")
+    private Integer userId;
+
+    /**
      * 当前页码
      */
     @NotNull(message = "当前页码不能为null")

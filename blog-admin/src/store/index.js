@@ -16,7 +16,8 @@ export default new Vuex.Store({
     webSite: "",
     nickname: "",
     userMenuList: [],
-    currentRoutePath: "/"
+    currentRoutePath: "/",
+    articleUserId: null
   },
   mutations: {
     saveTab(state, tab) {
@@ -63,6 +64,9 @@ export default new Vuex.Store({
       state.intro = user.intro;
       state.webSite = user.webSite;
       state.nickname = user.nickname;
+    },
+    updateArticleUserId(state, userId) {
+      state.articleUserId = userId;
     }
   },
   actions: {},

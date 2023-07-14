@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface TagMapper extends BaseMapper<Tag> {
 
-    void deleteTagIdList(List<Integer> tagIdList, Integer userId);
+    Integer deleteTagIdList(List<Integer> tagIdList, Integer userId);
 }
 
 

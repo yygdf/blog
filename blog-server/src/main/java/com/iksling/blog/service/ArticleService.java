@@ -20,7 +20,7 @@ public interface ArticleService extends IService<Article> {
 
     ArticleBackDTO getArticleBackDTOById(Integer articleId);
 
-    ArticleOptionDTO getArticleOptionDTO();
+    ArticleOptionDTO getArticleOptionDTO(Integer userId);
 
     Integer saveOrUpdateArticleBackVO(ArticleBackVO articleBackVO);
 

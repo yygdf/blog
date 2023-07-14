@@ -20,6 +20,22 @@
         批量删除
       </el-button>
       <div style="margin-left:auto">
+        <el-select
+          v-model="userId"
+          placeholder="请选择用户"
+          size="small"
+          style="margin-right:1rem"
+          clearable
+          filterable
+          v-if="checkWeight"
+        >
+          <el-option
+            v-for="item in tagList"
+            :key="item.userId"
+            :label="item.username"
+            :value="item.userId"
+          />
+        </el-select>
         <el-input
           v-model="keywords"
           prefix-icon="el-icon-search"
@@ -46,6 +62,12 @@
       @selection-change="selectionChange"
     >
       <el-table-column type="selection" width="55" />
+      <el-table-column
+        prop="username"
+        label="用户"
+        align="center"
+        v-if="checkWeight"
+      />
       <el-table-column prop="tagName" label="标签名" align="center">
         <template slot-scope="scope">
           <el-tag>
@@ -135,6 +157,7 @@ export default {
       keywords: null,
       tagList: [],
       tagIdList: [],
+      userId: null,
       tag: {
         id: null,
         tagName: ""
@@ -186,8 +209,9 @@ export default {
       this.axios
         .get("/api/back/tags", {
           params: {
-            current: this.current,
             size: this.size,
+            userId: this.userId,
+            current: this.current,
             keywords: this.keywords
           }
         })
@@ -228,6 +252,14 @@ export default {
         }
       });
       this.addOrEdit = false;
+    },
+    checkWeight() {
+      return this.$store.state.weight <= 300;
+    }
+  },
+  watch: {
+    userId() {
+      this.listTags();
     }
   }
 };

@@ -150,13 +150,14 @@ export default {
   },
   destroyed() {
     this.autoSaveArticle();
+    this.$store.state.commit("articleUserId", null);
   },
   data: function() {
     return {
       addOrEdit: false,
       autoSave: false,
-      categoryList: [],
       tagList: [],
+      categoryList: [],
       article: {
         id: null,
         categoryId: null,
@@ -194,10 +195,14 @@ export default {
   },
   methods: {
     listArticleOptions() {
-      this.axios.get("/api/back/article/options").then(({ data }) => {
-        this.categoryList = data.data.categoryDTOList;
-        this.tagList = data.data.tagDTOList;
-      });
+      this.axios
+        .get("/api/back/article/options", {
+          params: { userId: this.$store.state.articleUserId }
+        })
+        .then(({ data }) => {
+          this.tagList = data.data.tagDTOList;
+          this.categoryList = data.data.categoryDTOList;
+        });
     },
     uploadCover(form) {
       if (this.article.articleCover !== "") {
@@ -231,6 +236,7 @@ export default {
             this.article.id = data.data;
             var formData = new FormData();
             formData.append("file", file);
+            formData.append("userId", this.$store.state.articleUserId);
             formData.append("fileSubDir", this.article.id);
             this.axios
               .post("/api/back/article/image", formData)

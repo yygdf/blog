@@ -31,6 +31,7 @@
     <resultMap id="articlesBackResultMap" type="com.iksling.blog.dto.ArticlesBackDTO">
         <id column="id" property="id"/>
         <result column="user_id" property="userId"/>
+        <result column="username" property="username"/>
         <result column="article_title" property="articleTitle"/>
         <result column="top_flag" property="topFlag"/>
         <result column="draft_flag" property="draftFlag"/>
@@ -65,9 +66,16 @@
         <where>
             deleted_flag = 0
             AND garbage_flag = #{condition.garbageFlag}
-            <if test="roleWeight > 300">
-                AND user_id = #{userId}
-            </if>
+            <choose>
+                <when test="roleWeight > 300">
+                    AND user_id = #{userId}
+                </when>
+                <otherwise>
+                    <if test="condition.userId != null">
+                        AND user_id = #{condition.userId}
+                    </if>
+                </otherwise>
+            </choose>
             <if test="condition.draftFlag != null">
                 AND draft_flag = #{condition.draftFlag}
             </if>
@@ -96,11 +104,11 @@
 
     <select id="listArticlesBackDTO" resultMap="articlesBackResultMap">
         SELECT
-            a.id,a.user_id,a.article_title,
-            a.top_flag,a.draft_flag,a.public_flag,
-            a.hidden_flag,a.garbage_flag,a.commentable_flag,
-            a.publish_time,a.update_time,c.category_name,
-            t.id tag_id,t.tag_name
+            a.id,a.user_id,ua.username,
+            a.article_title,a.top_flag,a.draft_flag,
+            a.public_flag,a.hidden_flag,a.garbage_flag,
+            a.commentable_flag,a.publish_time,a.update_time,
+            c.category_name,t.id tag_id,t.tag_name
         FROM
             (
             SELECT
@@ -113,9 +121,16 @@
             <where>
                 deleted_flag = 0
                 AND garbage_flag = #{condition.garbageFlag}
-                <if test="roleWeight > 300">
-                    AND user_id = #{userId}
-                </if>
+                <choose>
+                    <when test="roleWeight > 300">
+                        AND user_id = #{userId}
+                    </when>
+                    <otherwise>
+                        <if test="condition.userId != null">
+                            AND user_id = #{condition.userId}
+                        </if>
+                    </otherwise>
+                </choose>
                 <if test="condition.draftFlag != null">
                     AND draft_flag = #{condition.draftFlag}
                 </if>
@@ -149,6 +164,7 @@
             LEFT JOIN tb_category c ON a.category_id = c.id
             LEFT JOIN tb_article_tag ata ON a.id = ata.article_id
             LEFT JOIN tb_tag t ON ata.tag_id = t.id
+            LEFT JOIN tb_user_auth ua ON a.user_id = ua.user_id
         ORDER BY
             a.top_flag DESC,
             a.id DESC,
@@ -183,15 +199,15 @@
 
     <select id="selectCategoryArticleCount" resultType="com.iksling.blog.dto.CategoryArticleDTO">
         SELECT
-            category_id id,
+            category_id categoryId,
             count(*) articleCount
         FROM
             tb_article
         WHERE
-            1 = 1
-        <if test="roleWeight > 300">
-            AND user_id = #{userId}
-        </if>
+            category_id in
+            <foreach collection="categoryIdList" item="categoryId" index="index" open="(" separator="," close=")">
+                #{categoryId}
+            </foreach>
         GROUP BY
             category_id;
     </select>

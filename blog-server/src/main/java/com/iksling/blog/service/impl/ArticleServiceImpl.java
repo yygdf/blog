@@ -81,15 +81,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     @Override
-    public ArticleOptionDTO getArticleOptionDTO() {
+    public ArticleOptionDTO getArticleOptionDTO(Integer userId) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
+        if (Objects.nonNull(userId) && loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(userId))
+            throw new IllegalRequestException();
+            List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
                 .select(Tag::getId, Tag::getUserId, Tag::getTagName)
-                .eq(loginUser.getRoleWeight() > 300, Tag::getUserId, loginUser.getUserId()));
+                .eq(Objects.isNull(userId), Tag::getUserId, loginUser.getUserId())
+                .eq(Objects.nonNull(userId), Tag::getUserId, userId));
         List<TagDTO> tagDTOList = BeanCopyUtil.copyList(tagList, TagDTO.class);
         List<Category> categoryList = categoryMapper.selectList(new LambdaQueryWrapper<Category>()
                 .select(Category::getId, Category::getUserId, Category::getCategoryName)
-                .eq(loginUser.getRoleWeight() > 300, Category::getUserId, loginUser.getUserId()));
+                .eq(Objects.isNull(userId), Category::getUserId, loginUser.getUserId())
+                .eq(Objects.nonNull(userId), Category::getUserId, userId));
         List<CategoryDTO> categoryDTOList = BeanCopyUtil.copyList(categoryList, CategoryDTO.class);
         return ArticleOptionDTO.builder()
                 .userId(loginUser.getUserId())
@@ -116,7 +120,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         .eq(Category::getId, article.getCategoryId())
                         .eq(Category::getUserId, loginUser.getUserId()));
                 if (count != 1)
-                    throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
+                    throw new IllegalRequestException();
                 article.setPublishUser(loginUser.getUserId());
                 article.setPublishTime(new Date());
                 if (StringUtils.isBlank(article.getArticleCover()))
@@ -128,13 +132,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     .eq(Article::getId, article.getId())
                     .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
             if (Objects.isNull(article2.getId()))
-                throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
+                throw new IllegalRequestException();
             if (!article.getDraftFlag()) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                         .eq(Category::getId, article.getCategoryId())
                         .eq(Category::getUserId, article2.getUserId()));
                 if (count != 1)
-                    throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
+                    throw new IllegalRequestException();
                 article.setUpdateUser(loginUser.getUserId());
                 article.setUpdateTime(new Date());
                 if (Objects.isNull(article2.getPublishUser())) {
@@ -154,7 +158,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     .select(Tag::getId)
                     .eq(Tag::getUserId, article.getUserId()));
             if (!tagList.stream().map(Tag::getId).collect(Collectors.toList()).containsAll(articleBackVO.getTagIdList()))
-                throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
+                throw new IllegalRequestException();
             List<ArticleTag> articleTagList = articleBackVO.getTagIdList().stream().map(tagId -> ArticleTag.builder()
                     .articleId(article.getId())
                     .tagId(tagId)
@@ -172,6 +176,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (count == 0)
             return new PagePojo<>();
         List<ArticlesBackDTO> articlesBackDTOList = articleMapper.listArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (articlesBackDTOList.size() == 0)
+            return new PagePojo<>();
         Map<String, Integer> viewCountMap = redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).entries();
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).entries();
         articlesBackDTOList.forEach(item -> {
@@ -187,7 +193,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         LoginUser loginUser = UserUtil.getLoginUser();
         int count = articleMapper.updateArticlesGarbageVO(articlesGarbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count != articlesGarbageVO.getIdList().size())
-            throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
+            throw new IllegalRequestException();
     }
 
     @Override
@@ -198,7 +204,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         articlesGarbageVO.setIdList(articleIdList);
         int count = articleMapper.updateArticlesGarbageVO(articlesGarbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count != articlesGarbageVO.getIdList().size())
-            throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
+            throw new IllegalRequestException();
     }
 
     @Override
@@ -213,7 +219,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .eq(Article::getId, articleStatusVO.getId())
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
         if (count != 1)
-            throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
+            throw new IllegalRequestException();
     }
 }
 

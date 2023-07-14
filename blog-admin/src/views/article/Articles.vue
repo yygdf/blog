@@ -32,11 +32,28 @@
       </el-button>
       <div style="margin-left:auto">
         <el-select
+          v-model="userId"
+          placeholder="请选择用户"
+          size="small"
+          style="margin-right:1rem"
+          clearable
+          filterable
+          v-if="checkWeight"
+        >
+          <el-option
+            v-for="item in articleList"
+            :key="item.userId"
+            :label="item.username"
+            :value="item.userId"
+          />
+        </el-select>
+        <el-select
           v-model="categoryId"
           placeholder="请选择分类"
           size="small"
           style="margin-right:1rem"
           clearable
+          filterable
           v-if="!garbageFlag && !draftFlag"
         >
           <el-option
@@ -51,8 +68,9 @@
           placeholder="请选择标签"
           multiple
           size="small"
-          style="margin-right:1rem;width: 300px"
+          style="margin-right:1rem;"
           clearable
+          filterable
           v-if="!garbageFlag && !draftFlag"
         >
           <el-option
@@ -101,6 +119,12 @@
       v-loading="loading"
     >
       <el-table-column type="selection" width="55" />
+      <el-table-column
+        prop="username"
+        label="用户"
+        align="center"
+        v-if="checkWeight"
+      />
       <el-table-column prop="articleTitle" label="标题" align="center" />
       <el-table-column
         prop="categoryName"
@@ -244,7 +268,7 @@
           <el-button
             type="primary"
             size="mini"
-            @click="editArticle(scope.row.id)"
+            @click="editArticle(scope.row.id, scope.row.userId)"
             v-if="!scope.row.garbageFlag"
           >
             编辑
@@ -351,8 +375,9 @@ export default {
       tagList: [],
       categoryList: [],
       keywords: null,
-      categoryId: null,
       tagIdList: [],
+      categoryId: null,
+      userId: null,
       garbageFlag: false,
       draftFlag: false,
       current: 1,
@@ -362,10 +387,14 @@ export default {
   },
   methods: {
     listArticleOptions() {
-      this.axios.get("/api/back/article/options").then(({ data }) => {
-        this.categoryList = data.data.categoryDTOList;
-        this.tagList = data.data.tagDTOList;
-      });
+      this.axios
+        .get("/api/back/article/options", {
+          params: { userId: this.userId }
+        })
+        .then(({ data }) => {
+          this.tagList = data.data.tagDTOList;
+          this.categoryList = data.data.categoryDTOList;
+        });
     },
     selectionChange(articleList) {
       this.articleIdList = [];
@@ -376,8 +405,9 @@ export default {
     addArticle() {
       this.$router.push({ path: "/article" });
     },
-    editArticle(id) {
+    editArticle(id, userId) {
       this.$router.push({ path: "/article/" + id });
+      this.$store.commit("updateArticleUserId", userId);
     },
     updateArticleGarbageFlag(id) {
       let param = new URLSearchParams();
@@ -447,14 +477,15 @@ export default {
     listArticles() {
       let params = {
         size: this.size,
+        userId: this.userId,
         current: this.current,
         keywords: this.keywords,
         draftFlag: this.draftFlag,
         garbageFlag: this.garbageFlag
       };
       if (!this.garbageFlag && !this.draftFlag) {
-        params.categoryId = this.categoryId;
         params.tagIdList = this.tagIdList;
+        params.categoryId = this.categoryId;
       }
       this.axios
         .get("/api/back/articles", {
@@ -468,6 +499,9 @@ export default {
           this.articleList = data.data.pageList;
           this.loading = false;
         });
+    },
+    checkWeight() {
+      return this.$store.state.weight <= 300;
     }
   },
   watch: {
@@ -482,6 +516,10 @@ export default {
     },
     tagIdList() {
       this.listArticles();
+    },
+    userId() {
+      this.listArticles();
+      this.listArticleOptions();
     }
   }
 };

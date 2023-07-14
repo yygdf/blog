@@ -1,10 +1,14 @@
 package com.iksling.blog.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.iksling.blog.entity.Article;
 import com.iksling.blog.entity.MultiFile;
 import com.iksling.blog.enums.FilePathEnum;
 import com.iksling.blog.exception.FileStatusException;
+import com.iksling.blog.exception.IllegalRequestException;
+import com.iksling.blog.mapper.ArticleMapper;
 import com.iksling.blog.mapper.MultiFileMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MultiFileService;
@@ -27,9 +31,13 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     @Autowired
     private MultiFileMapper multiFileMapper;
 
+    @Autowired
+    private ArticleMapper articleMapper;
+
     @Override
     public String saveMultiFileArticleBackVO(MultiFileArticleBackVO multiFileArticleBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
+        Integer articleUserId = multiFileArticleBackVO.getUserId();
         if (multiFileArticleBackVO.getFile() == null || multiFileArticleBackVO.getFile().isEmpty())
             throw new FileStatusException("文件不存在!");
         MultipartFile file = multiFileArticleBackVO.getFile();
@@ -37,14 +45,24 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
         if (!FileUploadUtil.checkFileSize(file.getSize(), FilePathEnum.ARTICLE.getSize(), FilePathEnum.ARTICLE.getUnit()))
             throw new FileStatusException("文件大小超出限制!文件最大为{" + FilePathEnum.ARTICLE.getSize() + FilePathEnum.ARTICLE.getUnit() + "}");
-        String fireSubDir = loginUser.getUserId() + "/" + multiFileArticleBackVO.getFileSubDir() + "/";
+        if (Objects.nonNull(articleUserId) && loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(articleUserId))
+            throw new IllegalRequestException();
+        Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
+                .eq(Article::getId, Integer.parseInt(multiFileArticleBackVO.getFileSubDir()))
+                .eq(Objects.isNull(articleUserId), Article::getUserId, loginUser.getUserId())
+                .eq(Objects.nonNull(articleUserId), Article::getUserId, articleUserId));
+        if (count != 1)
+            throw new IllegalRequestException();
+        if (Objects.isNull(articleUserId))
+            articleUserId = loginUser.getUserId();
+        String fireSubDir = articleUserId + "/" + multiFileArticleBackVO.getFileSubDir() + "/";
         String targetAddr = FilePathEnum.ARTICLE.getPath() + fireSubDir;
         String url = FileUploadUtil.upload(file, targetAddr);
         if (Objects.isNull(url))
             throw new FileStatusException("文件上传失败!");
         multiFileArticleBackVO.setFile(null);
         multiFileMapper.insert(MultiFile.builder()
-                .userId(loginUser.getUserId())
+                .userId(articleUserId)
                 .multiDirId(FilePathEnum.ARTICLE.getId())
                 .fileUrl(url)
                 .fileDesc("用户[" + loginUser.getUsername() + "], 文章id[" + multiFileArticleBackVO.getFileSubDir() + "]中的插图")

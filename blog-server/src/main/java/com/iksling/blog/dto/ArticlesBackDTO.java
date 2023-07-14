@@ -24,6 +24,11 @@ public class ArticlesBackDTO {
     private Integer userId;
 
     /**
+     * 作者账号
+     */
+    private String username;
+
+    /**
      * 文章标题
      */
     private String articleTitle;

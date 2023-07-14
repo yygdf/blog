@@ -20,6 +20,22 @@
         批量删除
       </el-button>
       <div style="margin-left:auto">
+        <el-select
+          v-model="userId"
+          placeholder="请选择用户"
+          size="small"
+          style="margin-right:1rem"
+          clearable
+          filterable
+          v-if="checkWeight"
+        >
+          <el-option
+            v-for="item in categoryList"
+            :key="item.userId"
+            :label="item.username"
+            :value="item.userId"
+          />
+        </el-select>
         <el-input
           v-model="keywords"
           prefix-icon="el-icon-search"
@@ -45,7 +61,17 @@
       @selection-change="selectionChange"
       v-loading="loading"
     >
-      <el-table-column type="selection" width="55" :selectable="handleDisabled" />
+      <el-table-column
+        type="selection"
+        width="55"
+        :selectable="handleDisabled"
+      />
+      <el-table-column
+        prop="username"
+        label="用户"
+        align="center"
+        v-if="checkWeight"
+      />
       <el-table-column prop="categoryName" label="分类名" align="center" />
       <el-table-column prop="articleCount" label="文章数" align="center">
         <template slot-scope="scope">
@@ -111,7 +137,12 @@
             style="margin-left:1rem"
             @confirm="deleteCategory(scope.row.id)"
           >
-            <el-button size="mini" type="danger" slot="reference" :disabled="scope.row.articleCount !== null">
+            <el-button
+              size="mini"
+              type="danger"
+              slot="reference"
+              :disabled="scope.row.articleCount !== null"
+            >
               删除
             </el-button>
           </el-popconfirm>
@@ -196,6 +227,7 @@ export default {
       keywords: null,
       categoryIdList: [],
       categoryList: [],
+      userId: null,
       category: {
         id: null,
         categoryName: "",
@@ -261,6 +293,7 @@ export default {
         .get("/api/back/categories", {
           params: {
             size: this.size,
+            userId: this.userId,
             current: this.current,
             keywords: this.keywords
           }
@@ -304,6 +337,14 @@ export default {
         }
         this.addOrEdit = false;
       });
+    },
+    checkWeight() {
+      return this.$store.state.weight <= 300;
+    }
+  },
+  watch: {
+    userId() {
+      this.listCategories();
     }
   }
 };

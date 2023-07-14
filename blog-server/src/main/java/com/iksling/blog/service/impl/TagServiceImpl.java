@@ -7,10 +7,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.TagsBackDTO;
 import com.iksling.blog.entity.Tag;
+import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.ArticleTagMapper;
 import com.iksling.blog.mapper.TagMapper;
+import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.TagService;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -35,8 +38,11 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     implements TagService{
     @Autowired
     private TagMapper tagMapper;
+
     @Autowired
     private ArticleTagMapper articleTagMapper;
+    @Autowired
+    private UserAuthMapper userAuthMapper;
 
     @Override
     public PagePojo<TagsBackDTO> getPageTagsBackDTO(ConditionVO condition) {
@@ -45,9 +51,19 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
         Page<Tag> tagPage = tagMapper.selectPage(page, new LambdaQueryWrapper<Tag>()
                 .select(Tag::getId, Tag::getUserId, Tag::getTagName, Tag::getCreateTime, Tag::getUpdateTime)
                 .like(StringUtils.isNotBlank(condition.getKeywords()), Tag::getTagName, condition.getKeywords())
+                .eq(Objects.nonNull(condition.getUserId()), Tag::getUserId, condition.getUserId())
                 .eq(loginUser.getRoleWeight() > 300, Tag::getUserId, loginUser.getUserId())
                 .orderByDesc(Tag::getId));
-        return new PagePojo<>((int) tagPage.getTotal(), BeanCopyUtil.copyList(tagPage.getRecords(), TagsBackDTO.class));
+        if (tagPage.getTotal() == 0)
+            return new PagePojo<>();
+        List<TagsBackDTO> tagsBackDTOList = BeanCopyUtil.copyList(tagPage.getRecords(), TagsBackDTO.class);
+        List<Integer> userIdList = tagsBackDTOList.stream().map(TagsBackDTO::getUserId).distinct().collect(Collectors.toList());
+        List<UserAuth> userAuthList = userAuthMapper.selectList(new LambdaQueryWrapper<UserAuth>()
+                .select(UserAuth::getUserId, UserAuth::getUsername)
+                .in(UserAuth::getUserId, userIdList));
+        Map<Integer, String> userAuthMap = userAuthList.stream().collect(Collectors.toMap(UserAuth::getUserId, UserAuth::getUsername, (k1, k2) -> k2));
+        tagsBackDTOList.forEach(t -> t.setUsername(userAuthMap.get(t.getUserId())));
+        return new PagePojo<>((int) tagPage.getTotal(), tagsBackDTOList);
     }
 
     @Override
@@ -59,10 +75,12 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
                     .select(Tag::getId)
                     .eq(Tag::getUserId, loginUser.getUserId()));
             if (!tagList.stream().map(Tag::getId).collect(Collectors.toList()).containsAll(tagIdList))
-                throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
+                throw new IllegalRequestException();
         }
+        int count = tagMapper.deleteTagIdList(tagIdList, UserUtil.getLoginUser().getUserId());
+        if (count != tagIdList.size())
+            throw new IllegalRequestException();
         articleTagMapper.deleteByTagIdList(tagIdList);
-        tagMapper.deleteTagIdList(tagIdList, UserUtil.getLoginUser().getUserId());
     }
 
     @Override
@@ -87,7 +105,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
                     .eq(Tag::getId, tagBackVO.getId())
                     .eq(loginUser.getRoleWeight() > 0, Tag::getUserId, loginUser.getUserId()));
             if (count != 1)
-                throw new IllegalRequestException("请不要瞎搞, 小心我顺着网线爬过去找你!");
+                throw new IllegalRequestException();
         }
     }
 }

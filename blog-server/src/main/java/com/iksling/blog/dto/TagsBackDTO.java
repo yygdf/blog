@@ -17,6 +17,11 @@ public class TagsBackDTO {
     private Integer userId;
 
     /**
+     * 用户名
+     */
+    private String username;
+
+    /**
      * 标签名
      */
     private String tagName;

@@ -32,9 +32,10 @@ public class ArticleController {
     }
 
     @ApiOperation(value = "查看文章选项")
+    @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer")
     @GetMapping("/back/article/options")
-    public Result listBackArticleOptions() {
-        return Result.success().message("查询成功").data(articleService.getArticleOptionDTO());
+    public Result listBackArticleOptions(Integer userId) {
+        return Result.success().message("查询成功").data(articleService.getArticleOptionDTO(userId));
     }
 
     @OptLog(optType = SAVE_OR_UPDATE)

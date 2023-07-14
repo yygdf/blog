@@ -38,7 +38,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     public String saveMultiFileArticleBackVO(MultiFileArticleBackVO multiFileArticleBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer articleUserId = multiFileArticleBackVO.getUserId();
-        if (multiFileArticleBackVO.getFile() == null || multiFileArticleBackVO.getFile().isEmpty())
+        if (multiFileArticleBackVO.getFile().isEmpty())
             throw new FileStatusException("文件不存在!");
         MultipartFile file = multiFileArticleBackVO.getFile();
         if (!FileUploadUtil.checkImageFileType(file))
@@ -65,7 +65,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .userId(articleUserId)
                 .multiDirId(FilePathEnum.ARTICLE.getId())
                 .fileUrl(url)
-                .fileDesc("用户[" + loginUser.getUsername() + "], 文章id[" + multiFileArticleBackVO.getFileSubDir() + "]中的插图")
+                .fileDesc("用户[" + articleUserId + "], 文章id[" + multiFileArticleBackVO.getFileSubDir() + "]中的插图")
                 .fileName(file.getOriginalFilename())
                 .fileSubDir(fireSubDir)
                 .hiddenFlag(false)
@@ -81,10 +81,12 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     @Override
     public void deleteArticleImageByUrl(String url) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+        int count = multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                 .set(MultiFile::getDeletedFlag, true)
                 .eq(MultiFile::getFileUrl, url)
                 .eq(loginUser.getRoleWeight() > 300, MultiFile::getUserId, loginUser.getUserId()));
+        if (count != 1)
+            throw new IllegalRequestException();
     }
 }
 

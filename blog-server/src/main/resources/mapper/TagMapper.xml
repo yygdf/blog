@@ -25,7 +25,10 @@
         FROM
             tb_tag
         WHERE
+            1 = 1
+        <if test="roleWeight > 300">
             user_id = #{userId}
+        </if>
         AND id in
             <foreach collection="tagIdList" item="id" index="index" open="(" separator="," close=")">
                 #{id}

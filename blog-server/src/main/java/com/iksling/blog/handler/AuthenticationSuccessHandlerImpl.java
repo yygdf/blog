@@ -55,6 +55,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
                 .intro(user.getIntro())
                 .email(user.getEmail())
                 .avatar(user.getAvatar())
+                .weight(loginUser.getRoleWeight())
                 .website(user.getWebsite())
                 .nickname(user.getNickname())
                 .articleLikeSet(articleLikeSet)

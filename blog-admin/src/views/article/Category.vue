@@ -27,10 +27,10 @@
           style="margin-right:1rem"
           clearable
           filterable
-          v-if="checkWeight"
+          v-if="checkWeight()"
         >
           <el-option
-            v-for="item in categoryList"
+            v-for="item in usernameList"
             :key="item.userId"
             :label="item.username"
             :value="item.userId"
@@ -70,7 +70,7 @@
         prop="username"
         label="用户"
         align="center"
-        v-if="checkWeight"
+        v-if="checkWeight()"
       />
       <el-table-column prop="categoryName" label="分类名" align="center" />
       <el-table-column prop="articleCount" label="文章数" align="center">
@@ -141,7 +141,7 @@
               size="mini"
               type="danger"
               slot="reference"
-              :disabled="scope.row.articleCount !== null"
+              :disabled="scope.row.articleCount !== 0"
             >
               删除
             </el-button>
@@ -218,28 +218,37 @@
 export default {
   created() {
     this.listCategories();
+    this.listAllUsername();
   },
   data: function() {
     return {
-      remove: false,
-      loading: true,
-      addOrEdit: false,
-      keywords: null,
-      categoryIdList: [],
-      categoryList: [],
-      userId: null,
       category: {
         id: null,
         categoryName: "",
         publicFlag: true,
         hiddenFlag: false
       },
-      current: 1,
+      usernameList: [],
+      categoryList: [],
+      categoryIdList: [],
+      userId: null,
+      keywords: null,
+      remove: false,
+      loading: true,
+      addOrEdit: false,
       size: 10,
-      count: 0
+      count: 0,
+      current: 1
     };
   },
   methods: {
+    listAllUsername() {
+      if (this.checkWeight()) {
+        this.axios.get("/api/back/user/username").then(({ data }) => {
+          this.usernameList = data.data;
+        });
+      }
+    },
     selectionChange(categoryList) {
       this.categoryIdList = [];
       categoryList.forEach(item => {
@@ -247,7 +256,7 @@ export default {
       });
     },
     handleDisabled(row) {
-      return row.articleCount == null;
+      return row.articleCount === 0;
     },
     sizeChange(size) {
       this.size = size;

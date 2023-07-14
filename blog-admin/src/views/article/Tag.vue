@@ -27,10 +27,10 @@
           style="margin-right:1rem"
           clearable
           filterable
-          v-if="checkWeight"
+          v-if="checkWeight()"
         >
           <el-option
-            v-for="item in tagList"
+            v-for="item in usernameList"
             :key="item.userId"
             :label="item.username"
             :value="item.userId"
@@ -66,7 +66,7 @@
         prop="username"
         label="用户"
         align="center"
-        v-if="checkWeight"
+        v-if="checkWeight()"
       />
       <el-table-column prop="tagName" label="标签名" align="center">
         <template slot-scope="scope">
@@ -148,26 +148,35 @@
 export default {
   created() {
     this.listTags();
+    this.listAllUsername();
   },
   data: function() {
     return {
-      remove: false,
-      loading: true,
-      addOrEdit: false,
-      keywords: null,
-      tagList: [],
-      tagIdList: [],
-      userId: null,
       tag: {
         id: null,
         tagName: ""
       },
-      current: 1,
+      tagList: [],
+      tagIdList: [],
+      usernameList: [],
+      keywords: null,
+      userId: null,
+      loading: true,
+      remove: false,
+      addOrEdit: false,
       size: 10,
-      count: 0
+      count: 0,
+      current: 1
     };
   },
   methods: {
+    listAllUsername() {
+      if (this.checkWeight()) {
+        this.axios.get("/api/back/user/username").then(({ data }) => {
+          this.usernameList = data.data;
+        });
+      }
+    },
     selectionChange(tagList) {
       this.tagIdList = [];
       tagList.forEach(item => {

@@ -77,7 +77,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
             if (!tagList.stream().map(Tag::getId).collect(Collectors.toList()).containsAll(tagIdList))
                 throw new IllegalRequestException();
         }
-        int count = tagMapper.deleteTagIdList(tagIdList, UserUtil.getLoginUser().getUserId());
+        int count = tagMapper.deleteTagIdList(tagIdList, UserUtil.getLoginUser().getUserId(), loginUser.getRoleWeight());
         if (count != tagIdList.size())
             throw new IllegalRequestException();
         articleTagMapper.deleteByTagIdList(tagIdList);

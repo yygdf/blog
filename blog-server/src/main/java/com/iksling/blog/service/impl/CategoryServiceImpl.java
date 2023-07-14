@@ -66,10 +66,14 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                 .in(UserAuth::getUserId, userIdList));
         Map<Integer, String> userAuthMap = userAuthList.stream().collect(Collectors.toMap(UserAuth::getUserId, UserAuth::getUsername, (k1, k2) -> k2));
         categoriesBackDTOList.forEach(c -> {
-            c.setArticleCount(categoryArticleMap.get(c.getId()));
+            c.setArticleCount(checkIntegerIsNull(categoryArticleMap.get(c.getId())));
             c.setUsername(userAuthMap.get(c.getUserId()));
         });
         return new PagePojo<>((int) categoryPage.getTotal(), categoriesBackDTOList.stream().sorted(Comparator.comparing(CategoriesBackDTO::getArticleCount).reversed()).collect(Collectors.toList()));
+    }
+
+    private Integer checkIntegerIsNull(Integer num) {
+        return Objects.isNull(num) ? 0 : num;
     }
 
     @Override

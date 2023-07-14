@@ -37,7 +37,7 @@ public class ExceptionAdvice {
         redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).expire(1, TimeUnit.DAYS);
         redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).increment(userId.toString(), 1);
         Integer count = (Integer) redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).get(userId.toString());
-        if (count != null && count == 3) {
+        if (count != null && count >= 3) {
             userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                     .set(UserAuth::getLockedFlag, true)
                     .set(UserAuth::getDisabledFlag, true)
@@ -69,7 +69,7 @@ public class ExceptionAdvice {
     }
 
     /********** 未知异常 **********/
-    @ExceptionHandler(value = Exception.class)
+//    @ExceptionHandler(value = Exception.class)
     public Result exceptionAdvice(Exception e) {
         return Result.failure().code(FAILURE).message("服务器繁忙, 如有疑问请联系管理员[" + CommonConst.CONTACT + "]");
     }

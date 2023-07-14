@@ -23,7 +23,7 @@
         @click="addOrEdit = true"
         style="margin-left:10px"
       >
-        发布文章
+        发表文章
       </el-button>
     </div>
     <mavon-editor
@@ -150,7 +150,7 @@ export default {
   },
   destroyed() {
     this.autoSaveArticle();
-    this.$store.state.commit("articleUserId", null);
+    this.$store.commit("updateArticleUserId", "");
   },
   data: function() {
     return {
@@ -257,6 +257,7 @@ export default {
       } else {
         var formData = new FormData();
         formData.append("file", file);
+        formData.append("userId", this.$store.state.articleUserId);
         formData.append("fileSubDir", this.article.id);
         this.axios
           .post("/api/back/article/image", formData)

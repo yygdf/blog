@@ -21,7 +21,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
 
     Integer updateArticlesGarbageVO(@Param("articlesGarbage") ArticlesGarbageVO articlesGarbage, Integer userId, Integer roleWeight);
 
-    List<CategoryArticleDTO> selectCategoryArticleCount(List<Integer> categoryIdList);
+    List<CategoryArticleDTO> selectCategoryArticleCount(@Param("categoryIdList") List<Integer> categoryIdList);
 }
 
 

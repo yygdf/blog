@@ -38,10 +38,10 @@
           style="margin-right:1rem"
           clearable
           filterable
-          v-if="checkWeight"
+          v-if="checkWeight()"
         >
           <el-option
-            v-for="item in articleList"
+            v-for="item in usernameList"
             :key="item.userId"
             :label="item.username"
             :value="item.userId"
@@ -123,7 +123,7 @@
         prop="username"
         label="用户"
         align="center"
-        v-if="checkWeight"
+        v-if="checkWeight()"
       />
       <el-table-column prop="articleTitle" label="标题" align="center" />
       <el-table-column
@@ -180,7 +180,7 @@
         width="140"
         align="center"
       >
-        <template slot-scope="scope">
+        <template slot-scope="scope" v-if="scope.row.publishTime">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.publishTime | date }}
         </template>
@@ -348,13 +348,11 @@ import qs from "qs";
 export default {
   created() {
     this.listArticles();
+    this.listAllUsername();
     this.listArticleOptions();
   },
   data: function() {
     return {
-      loading: true,
-      updateGarbageFlag: false,
-      remove: false,
       options: [
         {
           value: '{"garbageFlag":false,"draftFlag":false}',
@@ -370,19 +368,23 @@ export default {
         }
       ],
       condition: '{"garbageFlag":false,"draftFlag":false}',
-      articleList: [],
-      articleIdList: [],
       tagList: [],
-      categoryList: [],
-      keywords: null,
       tagIdList: [],
-      categoryId: null,
+      articleList: [],
+      usernameList: [],
+      categoryList: [],
+      articleIdList: [],
       userId: null,
-      garbageFlag: false,
+      keywords: null,
+      categoryId: null,
+      remove: false,
+      loading: true,
       draftFlag: false,
-      current: 1,
+      garbageFlag: false,
+      updateGarbageFlag: false,
       size: 10,
-      count: 0
+      count: 0,
+      current: 1
     };
   },
   methods: {
@@ -395,6 +397,13 @@ export default {
           this.tagList = data.data.tagDTOList;
           this.categoryList = data.data.categoryDTOList;
         });
+    },
+    listAllUsername() {
+      if (this.checkWeight()) {
+        this.axios.get("/api/back/user/username").then(({ data }) => {
+          this.usernameList = data.data;
+        });
+      }
     },
     selectionChange(articleList) {
       this.articleIdList = [];

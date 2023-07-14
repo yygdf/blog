@@ -204,7 +204,8 @@
         FROM
             tb_article
         WHERE
-            category_id in
+            category_id != -1
+            AND category_id in
             <foreach collection="categoryIdList" item="categoryId" index="index" open="(" separator="," close=")">
                 #{categoryId}
             </foreach>

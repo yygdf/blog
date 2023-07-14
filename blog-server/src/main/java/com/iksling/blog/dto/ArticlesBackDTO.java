@@ -19,12 +19,12 @@ public class ArticlesBackDTO {
     private Integer id;
 
     /**
-     * 作者id
+     * 用户id
      */
     private Integer userId;
 
     /**
-     * 作者账号
+     * 用户名
      */
     private String username;
 

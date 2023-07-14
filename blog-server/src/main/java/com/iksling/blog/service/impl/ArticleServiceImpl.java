@@ -146,7 +146,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     article.setPublishTime(new Date());
                 }
                 if (StringUtils.isBlank(article.getArticleCover()))
-                    article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.ARTICLE.getPath() + loginUser.getUserId() + "/default/defaultCover.jpg");
+                    article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.ARTICLE.getPath() + article2.getUserId() + "/default/defaultCover.jpg");
             }
             articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>()
                     .eq(ArticleTag::getArticleId, article.getId()));

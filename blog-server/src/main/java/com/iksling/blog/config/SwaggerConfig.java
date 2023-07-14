@@ -19,7 +19,7 @@ public class SwaggerConfig {
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .protocols(Collections.singleton("http"))
-                .host("iksling.com")
+                .host("https://iksling.com")
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.iksling.blog.controller"))
@@ -30,7 +30,6 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("博客api文档")
-                .contact("ks")
                 .description("springboot+vue开发的博客项目")
                 .termsOfServiceUrl("https://iksling.com")
                 .version("1.0")

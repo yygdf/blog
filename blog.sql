@@ -11,7 +11,7 @@
  Target Server Version : 50731
  File Encoding         : 65001
 
- Date: 14/07/2023 17:56:35
+ Date: 14/07/2023 18:59:40
 */
 
 SET NAMES utf8mb4;
@@ -241,7 +241,7 @@ CREATE TABLE `tb_login_log`  (
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 29 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 32 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_login_log
@@ -274,6 +274,9 @@ INSERT INTO `tb_login_log` VALUES (25, 2, 1, '2023-07-14 17:08:55', 'Computer', 
 INSERT INTO `tb_login_log` VALUES (26, 2, 1, '2023-07-14 17:22:50', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
 INSERT INTO `tb_login_log` VALUES (27, 5, 1, '2023-07-14 17:25:42', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
 INSERT INTO `tb_login_log` VALUES (28, 2, 1, '2023-07-14 17:28:13', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (29, 2, 1, '2023-07-14 18:51:35', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (30, 5, 1, '2023-07-14 18:51:55', 'Computer', 'Windows 10', 'Firefox 11', '', '127.0.0.1');
+INSERT INTO `tb_login_log` VALUES (31, 2, 1, '2023-07-14 18:53:40', 'Unknown', 'Unknown', 'Unknown', '', '0:0:0:0:0:0:0:1');
 
 -- ----------------------------
 -- Table structure for tb_menu
@@ -527,11 +530,11 @@ INSERT INTO `tb_resource` VALUES (503, 2, 5, '/back/tag', '添加或修改标签
 INSERT INTO `tb_resource` VALUES (601, 2, 6, '/back/user/username', '查看所有的用户名', 'GET', 0, 0, 0, 2, '2023-07-14 13:57:41', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (701, 2, 3, '/back/article/image', '上传文章图片', 'POST', 0, 0, 0, 2, '2023-07-08 09:12:09', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (702, 2, 3, '/back/article/image', '删除文章图片', 'DELETE', 0, 0, 0, 2, '2023-07-09 15:01:11', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (901, 2, 9, '/swagger-ui.html', 'SwaggerUI', 'GET', 0, 0, 1, 2, '2023-07-02 11:17:04', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (902, 2, 9, '/webjars/**', 'SwaggerUI', 'GET', 0, 0, 1, 2, '2023-07-12 17:18:57', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (903, 2, 9, '/login', '登录', 'POST', 0, 0, 1, 2, '2023-07-12 17:20:53', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (904, 2, 9, '/v2/**', 'SwaggerUI', 'GET', 0, 0, 1, 2, '2023-07-14 10:53:32', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (905, 2, 9, '/swagger-resources/**', 'SwaggerUI', 'GET', 0, 0, 1, 2, '2023-07-14 10:53:59', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (901, 2, 9, '/swagger-ui.html', 'SwaggerUI', 'GET', 0, 0, 0, 2, '2023-07-02 11:17:04', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (902, 2, 9, '/webjars/**', 'SwaggerUI', 'GET', 0, 0, 0, 2, '2023-07-12 17:18:57', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (903, 2, 9, '/login', '登录', 'POST', 0, 0, 0, 2, '2023-07-12 17:20:53', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (904, 2, 9, '/v2/**', 'SwaggerUI', 'GET', 0, 0, 0, 2, '2023-07-14 10:53:32', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (905, 2, 9, '/swagger-resources/**', 'SwaggerUI', 'GET', 0, 0, 0, 2, '2023-07-14 10:53:59', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_role
@@ -773,10 +776,10 @@ CREATE TABLE `tb_user_auth`  (
 -- ----------------------------
 INSERT INTO `tb_user_auth` VALUES (0, 0, 'ling@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (1, 1, 'ks@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
-INSERT INTO `tb_user_auth` VALUES (2, 2, 'root@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-14 17:28:13', 'Computer', 0, 0, '', '127.0.0.1', 0, '2023-04-26 21:44:26', NULL, NULL);
+INSERT INTO `tb_user_auth` VALUES (2, 2, 'root@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-14 18:53:40', 'Unknown', 0, 0, '', '0:0:0:0:0:0:0:1', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (3, 3, 'admin@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (4, 4, 'editor@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
-INSERT INTO `tb_user_auth` VALUES (5, 5, 'author@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-14 17:25:42', 'Computer', 0, 0, '', '127.0.0.1', 0, '2023-04-26 21:44:26', NULL, NULL);
+INSERT INTO `tb_user_auth` VALUES (5, 5, 'author@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-14 18:51:55', 'Computer', 0, 0, '', '127.0.0.1', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (6, 6, 'user@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-07-14 14:18:51', 'Computer', 0, 0, '', '127.0.0.1', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (7, 7, 'test@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (100000001, 100000001, 'zhangsan@qq.com', '$2a$10$EEJEoO4JH09hUTWezz9pq.pYk/HU2HDigdSWIos9GfFODrnXVcrHe', '2023-04-26 21:44:26', '', 0, 0, '', '', 0, '2023-04-26 21:44:26', NULL, NULL);

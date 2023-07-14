@@ -56,7 +56,7 @@ public class ArticleController {
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "批量更新垃圾文章")
-    @ApiImplicitParam(name = "articlesGarbageVO", value = "多文章垃圾标志", required = true, dataType = "ArticlesGarbageVO")
+    @ApiImplicitParam(name = "articlesGarbageVO", value = "文章垃圾VO", required = true, dataType = "ArticlesGarbageVO")
     @PutMapping("/back/articles")
     public Result updateBackArticles(@Valid ArticlesGarbageVO articlesGarbageVO) {
         articleService.updateArticlesGarbageVO(articlesGarbageVO);

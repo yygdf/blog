@@ -12,7 +12,7 @@ public class OptLogConst {
     public static final String UPDATE = "修改";
 
     /**
-     * 新增操作
+     * 新增或修改
      */
     public static final String SAVE_OR_UPDATE = "新增或修改";
 

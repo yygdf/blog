@@ -20,27 +20,27 @@ public class ArticleStatusVO {
      * 0未置顶，1已置顶
      */
     @NotNull(message = "置顶标志不能为null")
-    @ApiModelProperty(name = "isTop", value = "0未置顶，1已置顶", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "topFlag", value = "0未置顶，1已置顶", required = true, dataType = "Boolean")
     private Boolean topFlag;
 
     /**
      * 0未公开，1已公开
      */
     @NotNull(message = "公开标志不能为null")
-    @ApiModelProperty(name = "isPublic", value = "0未公开，1已公开", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "publicFlag", value = "0未公开，1已公开", required = true, dataType = "Boolean")
     private Boolean publicFlag;
 
     /**
      * 0未隐藏，1已隐藏
      */
     @NotNull(message = "隐藏标志不能为null")
-    @ApiModelProperty(name = "isHidden", value = "0未隐藏，1已隐藏", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏", required = true, dataType = "Boolean")
     private Boolean hiddenFlag;
 
     /**
      * 0不可评论，1可评论
      */
     @NotNull(message = "评论标志不能为null")
-    @ApiModelProperty(name = "isCommentable", value = "0不可评论，1可评论", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "commentableFlag", value = "0不可评论，1可评论", required = true, dataType = "Boolean")
     private Boolean commentableFlag;
 }

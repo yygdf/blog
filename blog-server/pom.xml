@@ -29,7 +29,6 @@
         <fastjson-version>1.2.62</fastjson-version>
         <mybatis-plus-boot-starter-version>3.3.0</mybatis-plus-boot-starter-version>
         <UserAgentUtils-version>1.20</UserAgentUtils-version>
-        <aliyun-sdk-oss-version>3.8.0</aliyun-sdk-oss-version>
         <commons-net-version>3.3</commons-net-version>
         <hibernate-validator-version>7.0.0.Final</hibernate-validator-version>
     </properties>
@@ -136,12 +135,6 @@
             <groupId>eu.bitwalker</groupId>
             <artifactId>UserAgentUtils</artifactId>
             <version>${UserAgentUtils-version}</version>
-        </dependency>
-        <!-- aliyun oss-->
-        <dependency>
-            <groupId>com.aliyun.oss</groupId>
-            <artifactId>aliyun-sdk-oss</artifactId>
-            <version>${aliyun-sdk-oss-version}</version>
         </dependency>
         <!-- ftp -->
         <dependency>

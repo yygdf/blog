@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 
 @Data
@@ -21,6 +22,7 @@ public class TagBackVO {
      * 标签名
      */
     @NotBlank(message = "标签名不能为空")
+    @Max(message = "标签名最大长度", value = 50)
     @ApiModelProperty(name = "tagName", value = "标签名", required = true, dataType = "String")
     private String tagName;
 }

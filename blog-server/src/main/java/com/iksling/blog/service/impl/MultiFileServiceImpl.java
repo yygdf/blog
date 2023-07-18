@@ -47,10 +47,15 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             throw new FileStatusException("文件大小超出限制!文件最大为{" + FilePathEnum.ARTICLE.getSize() + FilePathEnum.ARTICLE.getUnit() + "}");
         if (Objects.nonNull(articleUserId) && loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(articleUserId))
             throw new IllegalRequestException();
-        Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
-                .eq(Article::getId, Integer.parseInt(multiFileArticleBackVO.getFileSubDir()))
-                .eq(Objects.isNull(articleUserId), Article::getUserId, loginUser.getUserId())
-                .eq(Objects.nonNull(articleUserId), Article::getUserId, articleUserId));
+        Integer count;
+        try {
+            count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
+                    .eq(Article::getId, Integer.parseInt(multiFileArticleBackVO.getFileSubDir()))
+                    .eq(Objects.isNull(articleUserId), Article::getUserId, loginUser.getUserId())
+                    .eq(Objects.nonNull(articleUserId), Article::getUserId, articleUserId));
+        } catch (NumberFormatException e) {
+            throw new IllegalRequestException();
+        }
         if (count != 1)
             throw new IllegalRequestException();
         if (Objects.isNull(articleUserId))

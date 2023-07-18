@@ -131,7 +131,7 @@
       <div class="dialog-title-container" slot="title" ref="tagTitle" />
       <el-form label-width="80px" size="medium" :model="tag">
         <el-form-item label="标签名">
-          <el-input style="width:220px" v-model="tag.tagName" />
+          <el-input style="width:220px" v-model="tag.tagName" :maxLength="50" />
         </el-form-item>
       </el-form>
       <div slot="footer">

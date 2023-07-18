@@ -176,7 +176,7 @@
       <div class="dialog-title-container" slot="title" ref="categoryTitle" />
       <el-form label-width="80px" size="medium" :model="category">
         <el-form-item label="分类名">
-          <el-input v-model="category.categoryName" style="width:220px" />
+          <el-input v-model="category.categoryName" style="width:220px" :maxLength="50" />
         </el-form-item>
       </el-form>
       <el-form

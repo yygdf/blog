@@ -2,14 +2,17 @@ package com.iksling.blog.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.iksling.blog.pojo.LoginRole;
+import com.iksling.blog.constant.CommonConst;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.mapper.RoleMapper;
 import com.iksling.blog.mapper.UserAuthMapper;
+import com.iksling.blog.pojo.LoginRole;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.util.IpUtil;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -41,6 +44,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             .eq(UserAuth::getUsername, username));
         if (Objects.isNull(userAuth))
             throw new UsernameNotFoundException("用户名不存在!");
+        if (userAuth.getLockedFlag())
+            throw new LockedException("您的账户已被锁定, 如有疑问请联系管理员[" + CommonConst.CONTACT + "]");
+        if (userAuth.getDisabledFlag())
+            throw new DisabledException("您的账户已被禁用, 如有疑问请联系管理员[" + CommonConst.CONTACT + "]");
         List<LoginRole> roleList = roleMapper.listLoginRoleByUserId(userAuth.getUserId());
         UserAgent userAgent = UserAgent.parseUserAgentString(request.getHeader("User-Agent"));
         String ipAddress = IpUtil.getIpAddress(request);
@@ -55,8 +62,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .loginTime(new Date())
                 .ipAddress(ipAddress)
                 .ipSource(ipSource)
-                .lockedFlag(userAuth.getLockedFlag())
-                .disabledFlag(userAuth.getDisabledFlag())
                 .roleWeight(roleList.get(0).getRoleWeight())
                 .roleList(roleList.stream().map(LoginRole::getRoleName).collect(Collectors.toList()))
                 .build();

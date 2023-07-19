@@ -54,16 +54,6 @@ public class LoginUser implements UserDetails {
     private String loginDevice;
 
     /**
-     * 0未锁定，1已锁定
-     */
-    private Boolean lockedFlag;
-
-    /**
-     * 0未禁用，1已禁用
-     */
-    private Boolean disabledFlag;
-
-    /**
      * ip来源
      */
     private String ipSource;
@@ -95,7 +85,7 @@ public class LoginUser implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !this.lockedFlag;
+        return true;
     }
 
     @Override
@@ -105,6 +95,6 @@ public class LoginUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return !this.disabledFlag;
+        return true;
     }
 }

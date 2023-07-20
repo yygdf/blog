@@ -347,6 +347,7 @@
 import qs from "qs";
 export default {
   created() {
+    this.userId = this.$store.state.userId;
     this.listArticles();
     this.listAllUsername();
     this.listArticleOptions();
@@ -526,9 +527,11 @@ export default {
     tagIdList() {
       this.listArticles();
     },
-    userId() {
-      this.listArticles();
-      this.listArticleOptions();
+    userId(newVal, oldVal) {
+      if (oldVal != null) {
+        this.listArticles();
+        this.listArticleOptions();
+      }
     }
   }
 };

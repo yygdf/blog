@@ -147,6 +147,7 @@
 <script>
 export default {
   created() {
+    this.userId = this.$store.state.userId;
     this.listTags();
     this.listAllUsername();
   },
@@ -267,8 +268,10 @@ export default {
     }
   },
   watch: {
-    userId() {
-      this.listTags();
+    userId(newVal, oldVal) {
+      if (oldVal != null) {
+        this.listTags();
+      }
     }
   }
 };

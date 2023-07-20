@@ -1,7 +1,8 @@
 package com.iksling.blog.pojo;
 
-import com.iksling.blog.constant.StatusConst;
 import lombok.Getter;
+
+import static com.iksling.blog.constant.StatusConst.SUCCESS;
 
 @Getter
 public class Result {
@@ -15,7 +16,7 @@ public class Result {
     public static Result success() {
         Result result = new Result();
         result.flag = true;
-        result.code = StatusConst.SUCCESS;
+        result.code = SUCCESS;
         return result;
     }
 

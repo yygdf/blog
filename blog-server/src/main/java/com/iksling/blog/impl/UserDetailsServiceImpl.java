@@ -2,7 +2,6 @@ package com.iksling.blog.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.iksling.blog.constant.CommonConst;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.mapper.RoleMapper;
 import com.iksling.blog.mapper.UserAuthMapper;
@@ -25,6 +24,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.iksling.blog.constant.CommonConst.ADMIN_CONTACT;
+
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
@@ -45,9 +46,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (Objects.isNull(userAuth))
             throw new UsernameNotFoundException("用户名不存在!");
         if (userAuth.getLockedFlag())
-            throw new LockedException("您的账户已被锁定, 如有疑问请联系管理员[" + CommonConst.CONTACT + "]");
+            throw new LockedException("您的账户已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         if (userAuth.getDisabledFlag())
-            throw new DisabledException("您的账户已被禁用, 如有疑问请联系管理员[" + CommonConst.CONTACT + "]");
+            throw new DisabledException("您的账户已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         List<LoginRole> roleList = roleMapper.listLoginRoleByUserId(userAuth.getUserId());
         UserAgent userAgent = UserAgent.parseUserAgentString(request.getHeader("User-Agent"));
         String ipAddress = IpUtil.getIpAddress(request);

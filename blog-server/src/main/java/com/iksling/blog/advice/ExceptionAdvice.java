@@ -1,7 +1,6 @@
 package com.iksling.blog.advice;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.iksling.blog.constant.CommonConst;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.IllegalRequestException;
@@ -20,6 +19,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.iksling.blog.constant.CommonConst.ADMIN_CONTACT;
 import static com.iksling.blog.constant.RedisConst.USER_ILLEGAL_OPERATION;
 import static com.iksling.blog.constant.StatusConst.*;
 
@@ -43,7 +43,7 @@ public class ExceptionAdvice {
                     .set(UserAuth::getLockedFlag, true)
                     .set(UserAuth::getDisabledFlag, true)
                     .eq(UserAuth::getUserId, userId));
-            return Result.failure().code(ACCOUNT_LOCKED).message("账户[" + username + "]已被锁定, 如有疑问请联系管理员[" + CommonConst.CONTACT + "]");
+            return Result.failure().code(ACCOUNT_LOCKED).message("账户[" + username + "]已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         }
         return Result.failure().code(ILLEGAL_REQUEST).message(e.getMessage());
     }
@@ -70,8 +70,8 @@ public class ExceptionAdvice {
     }
 
     /********** 未知异常 **********/
-//    @ExceptionHandler(value = Exception.class)
+    @ExceptionHandler(value = Exception.class)
     public Result exceptionAdvice(Exception e) {
-        return Result.failure().code(FAILURE).message("服务器繁忙, 如有疑问请联系管理员[" + CommonConst.CONTACT + "]");
+        return Result.failure().code(FAILURE).message("服务器繁忙, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
     }
 }

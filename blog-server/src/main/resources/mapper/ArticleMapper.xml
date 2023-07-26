@@ -176,9 +176,9 @@
             tb_article
         SET
             <choose>
-                <when test="articlesGarbage.garbageFlag != null">
-                    garbage_flag = #{articlesGarbage.garbageFlag}
-                    <if test="!articlesGarbage.garbageFlag">
+                <when test="garbage.garbageFlag != null">
+                    garbage_flag = #{garbage.garbageFlag}
+                    <if test="!garbage.garbageFlag">
                         , draft_flag = 1
                     </if>
                 </when>
@@ -192,7 +192,7 @@
             AND user_id = #{userId}
         </if>
             AND id in
-            <foreach collection="articlesGarbage.idList" item="id" index="index" open="(" separator="," close=")">
+            <foreach collection="garbage.idList" item="id" index="index" open="(" separator="," close=")">
                 #{id}
             </foreach>
     </update>

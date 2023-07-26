@@ -23,7 +23,7 @@ import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleStatusVO;
-import com.iksling.blog.vo.ArticlesGarbageVO;
+import com.iksling.blog.vo.GarbageVO;
 import com.iksling.blog.vo.ConditionVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -189,10 +189,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     @Transactional
-    public void updateArticlesGarbageVO(ArticlesGarbageVO articlesGarbageVO) {
+    public void updateArticlesGarbageVO(GarbageVO garbageVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        int count = articleMapper.updateArticlesGarbageVO(articlesGarbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (count != articlesGarbageVO.getIdList().size())
+        int count = articleMapper.updateArticlesGarbageVO(garbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (count != garbageVO.getIdList().size())
             throw new IllegalRequestException();
     }
 
@@ -200,10 +200,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Transactional
     public void deleteArticleIdList(List<Integer> articleIdList) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        ArticlesGarbageVO articlesGarbageVO = new ArticlesGarbageVO();
-        articlesGarbageVO.setIdList(articleIdList);
-        int count = articleMapper.updateArticlesGarbageVO(articlesGarbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (count != articlesGarbageVO.getIdList().size())
+        GarbageVO garbageVO = new GarbageVO();
+        garbageVO.setIdList(articleIdList);
+        int count = articleMapper.updateArticlesGarbageVO(garbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (count != garbageVO.getIdList().size())
             throw new IllegalRequestException();
     }
 

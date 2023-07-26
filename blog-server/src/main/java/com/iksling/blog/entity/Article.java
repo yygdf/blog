@@ -79,7 +79,7 @@ public class Article implements Serializable {
     private Boolean deletedFlag;
 
     /**
-     * 0不是垃圾，1是垃圾
+     * 0未回收，1已回收
      */
     private Boolean garbageFlag;
 

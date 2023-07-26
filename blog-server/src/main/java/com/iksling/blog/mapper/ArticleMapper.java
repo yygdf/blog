@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iksling.blog.dto.ArticlesBackDTO;
 import com.iksling.blog.dto.CategoryArticleDTO;
 import com.iksling.blog.entity.Article;
-import com.iksling.blog.vo.ArticlesGarbageVO;
+import com.iksling.blog.vo.GarbageVO;
 import com.iksling.blog.vo.ConditionVO;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,7 +19,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
 
     List<ArticlesBackDTO> listArticlesBackDTO(@Param("condition") ConditionVO condition, Integer userId, Integer roleWeight);
 
-    Integer updateArticlesGarbageVO(@Param("articlesGarbage") ArticlesGarbageVO articlesGarbage, Integer userId, Integer roleWeight);
+    Integer updateArticlesGarbageVO(@Param("garbage") GarbageVO garbage, Integer userId, Integer roleWeight);
 
     List<CategoryArticleDTO> selectCategoryArticleCount(@Param("categoryIdList") List<Integer> categoryIdList);
 }

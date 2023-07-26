@@ -27,6 +27,11 @@ public class RedisConst {
     public static final String ARTICLE_LIKE_COUNT = "article_like_count";
 
     /**
+     * 评论点赞量
+     */
+    public static final String COMMENT_LIKE_COUNT = "comment_like_count";
+
+    /**
      * 用户非法操作
      */
     public static final String USER_ILLEGAL_OPERATION = "user_illegal_operation";

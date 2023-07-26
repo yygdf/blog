@@ -1,15 +1,14 @@
 <template>
   <el-card class="main-card">
     <div class="title">{{ this.$route.name }}</div>
-    <!-- 表格操作 -->
     <div class="operation-container">
       <el-button
-        v-if="isDelete == 0"
+        v-if="!garbageFlag"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="commentIdList.length == 0"
-        @click="updateIsDelete = true"
+        :disabled="commentIdList.length === 0"
+        @click="updateGarbageFlag = true"
       >
         批量删除
       </el-button>
@@ -18,15 +17,30 @@
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="commentIdList.length == 0"
+        :disabled="commentIdList.length === 0"
         @click="remove = true"
       >
         批量删除
       </el-button>
-      <!-- 数据筛选 -->
       <div style="margin-left:auto">
         <el-select
-          v-model="isDelete"
+          v-model="userId"
+          placeholder="请选择用户"
+          size="small"
+          style="margin-right:1rem"
+          clearable
+          filterable
+          v-if="checkWeight()"
+        >
+          <el-option
+            v-for="item in usernameList"
+            :key="item.userId"
+            :label="item.username"
+            :value="item.userId"
+          />
+        </el-select>
+        <el-select
+          v-model="garbageFlag"
           placeholder="请选择"
           size="small"
           style="margin-right:1rem"
@@ -42,7 +56,7 @@
           v-model="keywords"
           prefix-icon="el-icon-search"
           size="small"
-          placeholder="请输入用户昵称"
+          placeholder="请输入文章标题"
           style="width:200px"
           @keyup.enter.native="listComments"
         />
@@ -57,28 +71,24 @@
         </el-button>
       </div>
     </div>
-    <!-- 表格展示 -->
     <el-table
       border
       :data="commentList"
       @selection-change="selectionChange"
       v-loading="loading"
     >
-      <!-- 表格列 -->
       <el-table-column type="selection" width="55" />
       <el-table-column prop="avatar" label="头像" align="center" width="120">
         <template slot-scope="scope">
           <img :src="scope.row.avatar" width="40" height="40" />
         </template>
       </el-table-column>
-      <!-- 评论人昵称 -->
       <el-table-column
         prop="nickname"
         label="评论人"
         align="center"
         width="120"
       />
-      <!-- 回复人昵称 -->
       <el-table-column
         prop="replyNickname"
         label="回复人"
@@ -92,7 +102,6 @@
           <span v-else>无</span>
         </template>
       </el-table-column>
-      <!-- 评论文章标题 -->
       <el-table-column prop="articleTitle" label="文章标题" align="center">
         <template slot-scope="scope">
           <span v-if="scope.row.articleTitle">
@@ -101,13 +110,11 @@
           <span v-else>无</span>
         </template>
       </el-table-column>
-      <!-- 评论内容 -->
       <el-table-column prop="commentContent" label="评论内容" align="center">
         <template slot-scope="scope">
           <span v-html="scope.row.commentContent" class="comment-content" />
         </template>
       </el-table-column>
-      <!-- 点赞量 -->
       <el-table-column
         prop="likeCount"
         label="点赞量"
@@ -121,16 +128,15 @@
           <span v-else>0</span>
         </template>
       </el-table-column>
-      <!-- 评论时间 -->
       <el-table-column
         prop="createTime"
         label="评论时间"
-        width="150"
+        width="200"
         align="center"
       >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
-          {{ scope.row.createTime | date }}
+          {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
       <el-table-column label="来源" align="center" width="100">
@@ -139,22 +145,21 @@
           <el-tag v-else type="warning">友链</el-tag>
         </template>
       </el-table-column>
-      <!-- 列操作 -->
       <el-table-column label="操作" width="160" align="center">
         <template slot-scope="scope">
           <el-popconfirm
-            v-if="scope.row.isDelete == 0"
+            v-if="!scope.row.garbageFlag"
             title="确定删除吗？"
-            @confirm="updateCommentStatus(scope.row.id)"
+            @confirm="updateCommentGarbageFlag(scope.row.id)"
           >
             <el-button size="mini" type="danger" slot="reference">
               删除
             </el-button>
           </el-popconfirm>
           <el-popconfirm
-            v-if="scope.row.isDelete == 1"
+            v-if="scope.row.garbageFlag"
             title="确定恢复吗？"
-            @onConfirm="updateCommentStatus(scope.row.id)"
+            @confirm="updateCommentGarbageFlag(scope.row.id)"
           >
             <el-button size="mini" type="success" slot="reference">
               恢复
@@ -162,7 +167,7 @@
           </el-popconfirm>
           <el-popconfirm
             style="margin-left:10px"
-            v-if="scope.row.isDelete == 1"
+            v-if="scope.row.garbageFlag"
             title="确定彻底删除吗？"
             @confirm="deleteComments(scope.row.id)"
           >
@@ -173,7 +178,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <!-- 分页 -->
     <el-pagination
       class="pagination-container"
       background
@@ -185,20 +189,18 @@
       :page-sizes="[10, 20]"
       layout="total, sizes, prev, pager, next, jumper"
     />
-    <!-- 批量删除对话框 -->
-    <el-dialog :visible.sync="updateIsDelete" width="30%">
+    <el-dialog :visible.sync="updateGarbageFlag" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
-        <el-button @click="updateIsDelete = false">取 消</el-button>
-        <el-button type="primary" @click="updateCommentStatus(null)">
+        <el-button @click="updateGarbageFlag = false">取 消</el-button>
+        <el-button type="primary" @click="updateCommentGarbageFlag(null)">
           确 定
         </el-button>
       </div>
     </el-dialog>
-    <!-- 批量彻底删除对话框 -->
     <el-dialog :visible.sync="remove" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
@@ -217,33 +219,44 @@
 <script>
 export default {
   created() {
+    this.userId = this.$store.state.userId;
     this.listComments();
+    this.listAllUsername();
   },
   data: function() {
     return {
-      loading: true,
-      remove: false,
-      updateIsDelete: false,
       options: [
         {
-          value: 0,
-          label: "正常"
+          value: false,
+          label: "已发表"
         },
         {
-          value: 1,
+          value: true,
           label: "回收站"
         }
       ],
       commentList: [],
+      usernameList: [],
       commentIdList: [],
+      userId: null,
       keywords: null,
-      isDelete: 0,
-      current: 1,
+      remove: false,
+      loading: true,
+      garbageFlag: false,
+      updateGarbageFlag: false,
       size: 10,
-      count: 0
+      count: 0,
+      current: 1
     };
   },
   methods: {
+    listAllUsername() {
+      if (this.checkWeight()) {
+        this.axios.get("/api/back/user/username").then(({ data }) => {
+          this.usernameList = data.data;
+        });
+      }
+    },
     selectionChange(commentList) {
       this.commentIdList = [];
       commentList.forEach(item => {
@@ -258,15 +271,15 @@ export default {
       this.current = current;
       this.listComments();
     },
-    updateCommentStatus(id) {
+    updateCommentGarbageFlag(id) {
       let param = new URLSearchParams();
       if (id != null) {
         param.append("idList", [id]);
       } else {
         param.append("idList", this.commentIdList);
       }
-      param.append("isDelete", this.isDelete == 0 ? 1 : 0);
-      this.axios.put("/api/admin/comments", param).then(({ data }) => {
+      param.append("garbageFlag", !this.garbageFlag);
+      this.axios.put("/api/back/comments", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -279,7 +292,7 @@ export default {
             message: data.message
           });
         }
-        this.updateIsDelete = false;
+        this.updateGarbageFlag = false;
       });
     },
     deleteComments(id) {
@@ -289,7 +302,7 @@ export default {
       } else {
         param = { data: [id] };
       }
-      this.axios.delete("/api/admin/comments", param).then(({ data }) => {
+      this.axios.delete("/api/back/comments", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -307,24 +320,33 @@ export default {
     },
     listComments() {
       this.axios
-        .get("/api/admin/comments", {
+        .get("/api/back/comments", {
           params: {
-            current: this.current,
             size: this.size,
+            userId: this.userId,
+            current: this.current,
             keywords: this.keywords,
-            isDelete: this.isDelete
+            garbageFlag: this.garbageFlag
           }
         })
         .then(({ data }) => {
-          this.commentList = data.data.recordList;
           this.count = data.data.count;
+          this.commentList = data.data.pageList;
           this.loading = false;
         });
+    },
+    checkWeight() {
+      return this.$store.state.weight <= 300;
     }
   },
   watch: {
-    isDelete() {
+    garbageFlag() {
       this.listComments();
+    },
+    userId(newVal, oldVal) {
+      if (oldVal != null) {
+        this.listComments();
+      }
     }
   }
 };

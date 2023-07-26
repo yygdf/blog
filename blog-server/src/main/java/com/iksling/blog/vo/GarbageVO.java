@@ -9,8 +9,8 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
-@ApiModel(description = "文章垃圾VO")
-public class ArticlesGarbageVO {
+@ApiModel(description = "回收站VO")
+public class GarbageVO {
     /**
      * id列表
      */
@@ -19,9 +19,9 @@ public class ArticlesGarbageVO {
     private List<Integer> idList;
 
     /**
-     * 是否为垃圾
+     * 是否回收
      */
-    @NotNull(message = "垃圾标志不能为null")
-    @ApiModelProperty(name = "garbageFlag", value = "是否为垃圾", required = true, dataType = "Boolean")
+    @NotNull(message = "回收标志不能为null")
+    @ApiModelProperty(name = "garbageFlag", value = "是否回收", required = true, dataType = "Boolean")
     private Boolean garbageFlag;
 }

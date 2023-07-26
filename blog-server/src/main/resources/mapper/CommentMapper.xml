@@ -37,7 +37,9 @@
             AND c.garbage_flag = #{condition.garbageFlag}
             <choose>
                 <when test="roleWeight > 300">
-                    AND c.user_id = #{userId}
+                    AND (
+                    c.user_id = #{userId} OR a.user_id = #{userId}
+                    )
                 </when>
                 <otherwise>
                     <if test="condition.userId != null">
@@ -68,7 +70,9 @@
             AND c.garbage_flag = #{condition.garbageFlag}
             <choose>
                 <when test="roleWeight > 300">
-                    AND c.user_id = #{userId}
+                    AND (
+                    c.user_id = #{userId} OR a.user_id = #{userId}
+                    )
                 </when>
                 <otherwise>
                     <if test="condition.userId != null">
@@ -101,7 +105,9 @@
         WHERE
             1 = 1
         <if test="roleWeight > 300">
-            AND user_id = #{userId}
+            AND (
+            user_id = #{userId} OR #{userId} = (SELECT a.user_id FROM tb_article a WHERE article_id = a.id)
+            )
         </if>
             AND (
                 id in

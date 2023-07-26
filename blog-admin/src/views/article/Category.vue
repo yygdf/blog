@@ -42,6 +42,7 @@
           size="small"
           placeholder="请输入分类名"
           style="width:200px"
+          clearable
           @keyup.enter.native="listCategories"
         />
         <el-button

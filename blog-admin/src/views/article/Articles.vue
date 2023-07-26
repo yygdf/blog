@@ -99,6 +99,7 @@
           size="small"
           placeholder="请输入文章名"
           style="width:200px"
+          clearable
           @keyup.enter.native="listArticles"
         />
         <el-button

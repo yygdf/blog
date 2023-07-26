@@ -58,6 +58,7 @@
           size="small"
           placeholder="请输入文章标题"
           style="width:200px"
+          clearable
           @keyup.enter.native="listComments"
         />
         <el-button

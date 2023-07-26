@@ -42,6 +42,7 @@
           size="small"
           placeholder="请输入标签名"
           style="width:200px"
+          clearable
           @keyup.enter.native="listTags"
         />
         <el-button

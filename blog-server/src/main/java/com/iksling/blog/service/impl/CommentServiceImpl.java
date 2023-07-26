@@ -1,0 +1,72 @@
+package com.iksling.blog.service.impl;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.iksling.blog.dto.CommentsBackDTO;
+import com.iksling.blog.entity.Comment;
+import com.iksling.blog.mapper.CommentMapper;
+import com.iksling.blog.pojo.LoginUser;
+import com.iksling.blog.pojo.PagePojo;
+import com.iksling.blog.service.CommentService;
+import com.iksling.blog.util.UserUtil;
+import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.GarbageVO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import static com.iksling.blog.constant.RedisConst.COMMENT_LIKE_COUNT;
+
+/**
+ *
+ */
+@Service
+public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
+    implements CommentService{
+    @Autowired
+    private CommentMapper commentMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Override
+    public PagePojo<CommentsBackDTO> getPageCommentsBackDTO(ConditionVO condition) {
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
+        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer count = commentMapper.selectCountByCondition(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (count == 0)
+            return new PagePojo<>();
+        List<CommentsBackDTO> commentsBackDTOList = commentMapper.listCommentsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (commentsBackDTOList.size() == 0)
+            return new PagePojo<>();
+        Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
+        commentsBackDTOList.forEach(item -> {
+            item.setLikeCount(Objects.requireNonNull(likeCountMap).get(item.getId().toString()));
+        });
+        return new PagePojo<>(count, commentsBackDTOList);
+    }
+
+    @Override
+    @Transactional
+    public void updateCommentsGarbageVO(GarbageVO garbageVO) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        commentMapper.updateCommentsGarbageVO(garbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
+    }
+
+    @Override
+    @Transactional
+    public void deleteCommentIdList(List<Integer> commentIdList) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        GarbageVO garbageVO = new GarbageVO();
+        garbageVO.setIdList(commentIdList);
+        commentMapper.updateCommentsGarbageVO(garbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
+    }
+}
+
+
+
+

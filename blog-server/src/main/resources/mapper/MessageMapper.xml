@@ -11,6 +11,7 @@
             <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
             <result property="messageSpeed" column="message_speed" jdbcType="BOOLEAN"/>
             <result property="messageContent" column="message_content" jdbcType="VARCHAR"/>
+            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
             <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>
             <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
@@ -20,7 +21,19 @@
     <sql id="Base_Column_List">
         id,user_id,avatar,
         nickname,message_speed,message_content,
-        ip_source,ip_address,create_user,
-        create_time
+        deleted_flag,ip_source,ip_address,
+        create_user,create_time
     </sql>
+
+    <update id="updateMessagesDeletedFlag">
+        UPDATE
+            tb_message
+        SET
+            deleted_flag = 1
+        WHERE
+            id in
+            <foreach collection="messageIdList" item="id" index="index" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </update>
 </mapper>

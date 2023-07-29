@@ -1,18 +1,16 @@
 <template>
   <el-card class="main-card">
     <div class="title">{{ this.$route.name }}</div>
-    <!-- 表格操作 -->
     <div class="operation-container">
       <el-button
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="messageIdList.length == 0"
+        :disabled="messageIdList.length === 0"
         @click="deleteFlag = true"
       >
         批量删除
       </el-button>
-      <!-- 数据筛选 -->
       <div style="margin-left:auto">
         <el-input
           v-model="keywords"
@@ -33,16 +31,14 @@
         </el-button>
       </div>
     </div>
-    <!-- 表格展示 -->
     <el-table
       border
       v-loading="loading"
       :data="messageList"
       @selection-change="selectionChange"
     >
-      <!-- 表格列 -->
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="avatar" label="头像" align="center" width="150">
+      <el-table-column type="selection" width="40" align="center" />
+      <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
           <img :src="scope.row.avatar" width="40" height="40" />
         </template>
@@ -51,34 +47,33 @@
         prop="nickname"
         label="留言人"
         align="center"
-        width="150"
+        width="120"
       />
       <el-table-column prop="messageContent" label="留言内容" align="center" />
       <el-table-column
         prop="ipAddress"
         label="ip地址"
         align="center"
-        width="150"
+        width="120"
       />
       <el-table-column
         prop="ipSource"
         label="ip来源"
         align="center"
-        width="170"
+        width="120"
       />
       <el-table-column
         prop="createTime"
         label="留言时间"
-        width="140"
+        width="160"
         align="center"
       >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
-          {{ scope.row.createTime | date }}
+          {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
-      <!-- 列操作 -->
-      <el-table-column label="操作" width="100" align="center">
+      <el-table-column label="操作" width="120" align="center">
         <template slot-scope="scope">
           <el-popconfirm
             title="确定删除吗？"
@@ -91,7 +86,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <!-- 分页 -->
     <el-pagination
       class="pagination-container"
       background
@@ -103,7 +97,6 @@
       :page-sizes="[10, 20]"
       layout="total, sizes, prev, pager, next, jumper"
     />
-    <!-- 批量删除对话框 -->
     <el-dialog :visible.sync="deleteFlag" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
@@ -126,14 +119,14 @@ export default {
   },
   data: function() {
     return {
+      messageList: [],
+      messageIdList: [],
+      keywords: null,
       loading: true,
       deleteFlag: false,
-      messageIdList: [],
-      messageList: [],
-      keywords: null,
-      current: 1,
       size: 10,
-      count: 0
+      count: 0,
+      current: 1
     };
   },
   methods: {
@@ -158,7 +151,7 @@ export default {
       } else {
         param = { data: this.messageIdList };
       }
-      this.axios.delete("/api/admin/messages", param).then(({ data }) => {
+      this.axios.delete("/api/back/messages", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -176,16 +169,16 @@ export default {
     },
     listMessages() {
       this.axios
-        .get("/api/admin/messages", {
+        .get("/api/back/messages", {
           params: {
-            current: this.current,
             size: this.size,
+            current: this.current,
             keywords: this.keywords
           }
         })
         .then(({ data }) => {
-          this.messageList = data.data.recordList;
           this.count = data.data.count;
+          this.messageList = data.data.pageList;
           this.loading = false;
         });
     }

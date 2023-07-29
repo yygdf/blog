@@ -106,6 +106,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Transactional(rollbackFor = Exception.class)
     public Integer saveOrUpdateArticleBackVO(ArticleBackVO articleBackVO) {
         LoginUser loginUser =  UserUtil.getLoginUser();
+        articleBackVO.setArticleTitle(articleBackVO.getArticleTitle().trim());
         Article article = BeanCopyUtil.copyObject(articleBackVO, Article.class);
         if (Objects.isNull(article.getId())) {
             article.setUserId(loginUser.getUserId());

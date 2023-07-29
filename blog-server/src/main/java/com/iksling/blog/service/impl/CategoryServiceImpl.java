@@ -106,6 +106,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     @Override
     public void saveOrUpdateCategoryBackVO(CategoryBackVO categoryBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
+        categoryBackVO.setCategoryName(categoryBackVO.getCategoryName().trim());
         if (Objects.isNull(categoryBackVO.getId())) {
             Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                     .eq(Category::getCategoryName, categoryBackVO.getCategoryName())

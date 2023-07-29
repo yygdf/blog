@@ -64,7 +64,8 @@
     >
       <el-table-column
         type="selection"
-        width="55"
+        align="center"
+        width="40"
         :selectable="handleDisabled"
       />
       <el-table-column
@@ -74,7 +75,7 @@
         v-if="checkWeight()"
       />
       <el-table-column prop="categoryName" label="分类名" align="center" />
-      <el-table-column prop="articleCount" label="文章数" align="center">
+      <el-table-column prop="articleCount" label="文章数" align="center" width="80">
         <template slot-scope="scope">
           <span v-if="scope.row.articleCount">
             {{ scope.row.articleCount }}
@@ -82,13 +83,13 @@
           <span v-else>0</span>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" align="center">
+      <el-table-column prop="createTime" label="创建时间" align="center" width="120">
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.createTime | date }}
         </template>
       </el-table-column>
-      <el-table-column prop="updateTime" label="更新时间" align="center">
+      <el-table-column prop="updateTime" label="更新时间" align="center" width="120">
         <template slot-scope="scope" v-if="scope.row.updateTime">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.updateTime | date }}
@@ -97,7 +98,7 @@
       <el-table-column
         prop="hiddenFlag"
         label="隐藏"
-        width="100"
+        width="80"
         align="center"
       >
         <template slot-scope="scope">
@@ -114,7 +115,7 @@
       <el-table-column
         prop="publicFlag"
         label="公开"
-        width="100"
+        width="80"
         align="center"
       >
         <template slot-scope="scope">

@@ -62,7 +62,7 @@
       v-loading="loading"
       @selection-change="selectionChange"
     >
-      <el-table-column type="selection" width="55" />
+      <el-table-column type="selection" align="center" width="40" />
       <el-table-column
         prop="username"
         label="用户"
@@ -76,13 +76,13 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" align="center">
+      <el-table-column prop="createTime" label="创建时间" align="center" width="120">
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.createTime | date }}
         </template>
       </el-table-column>
-      <el-table-column prop="updateTime" label="更新时间" align="center">
+      <el-table-column prop="updateTime" label="更新时间" align="center" width="120">
         <template slot-scope="scope" v-if="scope.row.updateTime">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.updateTime | date }}

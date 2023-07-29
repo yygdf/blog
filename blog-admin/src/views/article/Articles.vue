@@ -119,14 +119,15 @@
       @selection-change="selectionChange"
       v-loading="loading"
     >
-      <el-table-column type="selection" width="55" />
+      <el-table-column type="selection" width="40" align="center" />
       <el-table-column
         prop="username"
         label="用户"
+        width="120"
         align="center"
         v-if="checkWeight()"
       />
-      <el-table-column prop="articleTitle" label="标题" align="center" />
+      <el-table-column prop="articleTitle" label="标题" align="center" width="120" />
       <el-table-column
         prop="categoryName"
         label="分类"
@@ -136,7 +137,6 @@
       <el-table-column
         prop="tagDTOList"
         label="标签"
-        width="180"
         align="center"
       >
         <template slot-scope="scope">
@@ -178,7 +178,7 @@
       <el-table-column
         prop="publishTime"
         label="发表时间"
-        width="140"
+        width="120"
         align="center"
       >
         <template slot-scope="scope" v-if="scope.row.publishTime">
@@ -189,7 +189,7 @@
       <el-table-column
         prop="updateTime"
         label="更新时间"
-        width="140"
+        width="120"
         align="center"
       >
         <template slot-scope="scope" v-if="scope.row.updateTime">
@@ -197,7 +197,7 @@
           {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
-      <el-table-column prop="topFlag" label="置顶" width="100" align="center">
+      <el-table-column prop="topFlag" label="置顶" width="80" align="center">
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.topFlag"
@@ -213,7 +213,7 @@
       <el-table-column
         prop="hiddenFlag"
         label="隐藏"
-        width="100"
+        width="80"
         align="center"
       >
         <template slot-scope="scope">
@@ -231,7 +231,7 @@
       <el-table-column
         prop="publicFlag"
         label="公开"
-        width="100"
+        width="80"
         align="center"
       >
         <template slot-scope="scope">
@@ -249,7 +249,7 @@
       <el-table-column
         prop="commentableFlag"
         label="可评论"
-        width="100"
+        width="80"
         align="center"
       >
         <template slot-scope="scope">

@@ -86,6 +86,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     @Override
     public void saveOrUpdateTagBackVO(TagBackVO tagBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
+        tagBackVO.setTagName(tagBackVO.getTagName().trim());
         if (Objects.isNull(tagBackVO.getId())) {
             Integer count = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
                     .eq(Tag::getTagName, tagBackVO.getTagName())

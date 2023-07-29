@@ -78,8 +78,8 @@
       @selection-change="selectionChange"
       v-loading="loading"
     >
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="avatar" label="头像" align="center" width="120">
+      <el-table-column type="selection" width="40" align="center" />
+      <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
           <img :src="scope.row.avatar" width="40" height="40" />
         </template>
@@ -103,7 +103,7 @@
           <span v-else>无</span>
         </template>
       </el-table-column>
-      <el-table-column prop="articleTitle" label="文章标题" align="center">
+      <el-table-column prop="articleTitle" label="文章标题" align="center" width="120">
         <template slot-scope="scope">
           <span v-if="scope.row.articleTitle">
             {{ scope.row.articleTitle }}
@@ -140,13 +140,13 @@
           {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="来源" align="center" width="100">
+      <el-table-column label="来源" align="center" width="80">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.articleTitle">文章</el-tag>
           <el-tag v-else type="warning">友链</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="160" align="center">
+      <el-table-column label="操作" width="80" align="center">
         <template slot-scope="scope">
           <el-popconfirm
             v-if="!scope.row.garbageFlag"

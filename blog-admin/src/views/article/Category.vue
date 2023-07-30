@@ -15,7 +15,7 @@
         size="small"
         icon="el-icon-minus"
         :disabled="this.categoryIdList.length === 0"
-        @click="remove = true"
+        @click="editStatus = true"
       >
         批量删除
       </el-button>
@@ -27,7 +27,7 @@
           style="margin-right:1rem"
           clearable
           filterable
-          v-if="checkWeight()"
+          v-if="checkWeight(300)"
         >
           <el-option
             v-for="item in usernameList"
@@ -72,7 +72,7 @@
         prop="username"
         label="用户"
         align="center"
-        v-if="checkWeight()"
+        v-if="checkWeight(300)"
       />
       <el-table-column prop="categoryName" label="分类名" align="center" />
       <el-table-column prop="articleCount" label="文章数" align="center" width="80">
@@ -162,19 +162,19 @@
       :page-sizes="[10, 20]"
       layout="total, sizes, prev, pager, next, jumper"
     />
-    <el-dialog :visible.sync="remove" width="30%">
+    <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
-        <el-button @click="remove = false">取 消</el-button>
+        <el-button @click="editStatus = false">取 消</el-button>
         <el-button type="primary" @click="deleteCategory(null)">
           确 定
         </el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="addOrEdit" width="30%">
+    <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="categoryTitle" />
       <el-form label-width="80px" size="medium" :model="category">
         <el-form-item label="分类名">
@@ -207,7 +207,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="addOrEdit = false">取 消</el-button>
+        <el-button @click="addOrEditStatus = false">取 消</el-button>
         <el-button type="primary" @click="addOrEditCategory">
           确 定
         </el-button>
@@ -236,21 +236,41 @@ export default {
       categoryIdList: [],
       userId: null,
       keywords: null,
-      remove: false,
       loading: true,
-      addOrEdit: false,
+      editStatus: false,
+      addOrEditStatus: false,
       size: 10,
       count: 0,
       current: 1
     };
   },
   methods: {
-    listAllUsername() {
-      if (this.checkWeight()) {
-        this.axios.get("/api/back/user/username").then(({ data }) => {
-          this.usernameList = data.data;
-        });
+    openModel(category) {
+      if (category != null) {
+        this.category = JSON.parse(JSON.stringify(category));
+        this.$refs.categoryTitle.innerHTML = "修改分类";
+      } else {
+        this.category.id = null;
+        this.category.categoryName = "";
+        this.category.publicFlag = true;
+        this.category.hiddenFlag = false;
+        this.$refs.categoryTitle.innerHTML = "添加分类";
       }
+      this.addOrEditStatus = true;
+    },
+    sizeChange(size) {
+      this.size = size;
+      this.listCategories();
+    },
+    checkWeight(weight = 200) {
+      return this.$store.state.weight <= weight;
+    },
+    currentChange(current) {
+      this.current = current;
+      this.listCategories();
+    },
+    handleDisabled(row) {
+      return row.articleCount === 0;
     },
     selectionChange(categoryList) {
       this.categoryIdList = [];
@@ -258,24 +278,28 @@ export default {
         this.categoryIdList.push(item.id);
       });
     },
-    handleDisabled(row) {
-      return row.articleCount === 0;
+    listCategories() {
+      this.axios
+              .get("/api/back/categories", {
+                params: {
+                  size: this.size,
+                  userId: this.userId,
+                  current: this.current,
+                  keywords: this.keywords
+                }
+              })
+              .then(({ data }) => {
+                this.count = data.data.count;
+                this.categoryList = data.data.pageList;
+                this.loading = false;
+              });
     },
-    sizeChange(size) {
-      this.size = size;
-      this.listCategories();
-    },
-    currentChange(current) {
-      this.current = current;
-      this.listCategories();
-    },
-    changeCategoryStatus(category) {
-      let param = {
-        id: category.id,
-        publicFlag: category.publicFlag,
-        hiddenFlag: category.hiddenFlag
-      };
-      this.axios.put("/api/back/category/status", param);
+    listAllUsername() {
+      if (this.checkWeight(300)) {
+        this.axios.get("/api/back/user/username").then(({ data }) => {
+          this.usernameList = data.data;
+        });
+      }
     },
     deleteCategory(id) {
       var param = {};
@@ -297,37 +321,8 @@ export default {
             message: data.message
           });
         }
-        this.remove = false;
+        this.editStatus = false;
       });
-    },
-    listCategories() {
-      this.axios
-        .get("/api/back/categories", {
-          params: {
-            size: this.size,
-            userId: this.userId,
-            current: this.current,
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.count = data.data.count;
-          this.categoryList = data.data.pageList;
-          this.loading = false;
-        });
-    },
-    openModel(category) {
-      if (category != null) {
-        this.category = JSON.parse(JSON.stringify(category));
-        this.$refs.categoryTitle.innerHTML = "修改分类";
-      } else {
-        this.category.id = null;
-        this.category.categoryName = "";
-        this.category.publicFlag = true;
-        this.category.hiddenFlag = false;
-        this.$refs.categoryTitle.innerHTML = "添加分类";
-      }
-      this.addOrEdit = true;
     },
     addOrEditCategory() {
       if (this.category.categoryName.trim() === "") {
@@ -347,11 +342,16 @@ export default {
             message: data.message
           });
         }
-        this.addOrEdit = false;
+        this.addOrEditStatus = false;
       });
     },
-    checkWeight() {
-      return this.$store.state.weight <= 300;
+    changeCategoryStatus(category) {
+      let param = {
+        id: category.id,
+        publicFlag: category.publicFlag,
+        hiddenFlag: category.hiddenFlag
+      };
+      this.axios.put("/api/back/category/status", param);
     }
   },
   watch: {

@@ -15,7 +15,7 @@
         size="small"
         icon="el-icon-minus"
         :disabled="tagIdList.length === 0"
-        @click="remove = true"
+        @click="editStatus = true"
       >
         批量删除
       </el-button>
@@ -27,7 +27,7 @@
           style="margin-right:1rem"
           clearable
           filterable
-          v-if="checkWeight()"
+          v-if="checkWeight(300)"
         >
           <el-option
             v-for="item in usernameList"
@@ -67,7 +67,7 @@
         prop="username"
         label="用户"
         align="center"
-        v-if="checkWeight()"
+        v-if="checkWeight(300)"
       />
       <el-table-column prop="tagName" label="标签名" align="center">
         <template slot-scope="scope">
@@ -76,13 +76,23 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" align="center" width="120">
+      <el-table-column
+        prop="createTime"
+        label="创建时间"
+        align="center"
+        width="120"
+      >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.createTime | date }}
         </template>
       </el-table-column>
-      <el-table-column prop="updateTime" label="更新时间" align="center" width="120">
+      <el-table-column
+        prop="updateTime"
+        label="更新时间"
+        align="center"
+        width="120"
+      >
         <template slot-scope="scope" v-if="scope.row.updateTime">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.updateTime | date }}
@@ -116,19 +126,19 @@
       :page-sizes="[10, 20]"
       layout="total, sizes, prev, pager, next, jumper"
     />
-    <el-dialog :visible.sync="remove" width="30%">
+    <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
-        <el-button @click="remove = false">取 消</el-button>
+        <el-button @click="editStatus = false">取 消</el-button>
         <el-button type="primary" @click="deleteTag(null)">
           确 定
         </el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="addOrEdit" width="30%">
+    <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="tagTitle" />
       <el-form label-width="80px" size="medium" :model="tag">
         <el-form-item label="标签名">
@@ -136,7 +146,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="addOrEdit = false">取 消</el-button>
+        <el-button @click="addOrEditStatus = false">取 消</el-button>
         <el-button type="primary" @click="addOrEditTag">
           确 定
         </el-button>
@@ -161,23 +171,38 @@ export default {
       tagList: [],
       tagIdList: [],
       usernameList: [],
-      keywords: null,
       userId: null,
+      keywords: null,
       loading: true,
-      remove: false,
-      addOrEdit: false,
+      editStatus: false,
+      addOrEditStatus: false,
       size: 10,
       count: 0,
       current: 1
     };
   },
   methods: {
-    listAllUsername() {
-      if (this.checkWeight()) {
-        this.axios.get("/api/back/user/username").then(({ data }) => {
-          this.usernameList = data.data;
-        });
+    openModel(tag) {
+      if (tag != null) {
+        this.tag = JSON.parse(JSON.stringify(tag));
+        this.$refs.tagTitle.innerHTML = "修改标签";
+      } else {
+        this.tag.id = null;
+        this.tag.tagName = "";
+        this.$refs.tagTitle.innerHTML = "添加标签";
       }
+      this.addOrEditStatus = true;
+    },
+    sizeChange(size) {
+      this.size = size;
+      this.listTags();
+    },
+    checkWeight(weight = 200) {
+      return this.$store.state.weight <= weight;
+    },
+    currentChange(current) {
+      this.current = current;
+      this.listTags();
     },
     selectionChange(tagList) {
       this.tagIdList = [];
@@ -185,13 +210,28 @@ export default {
         this.tagIdList.push(item.id);
       });
     },
-    sizeChange(size) {
-      this.size = size;
-      this.listTags();
+    listTags() {
+      this.axios
+        .get("/api/back/tags", {
+          params: {
+            size: this.size,
+            userId: this.userId,
+            current: this.current,
+            keywords: this.keywords
+          }
+        })
+        .then(({ data }) => {
+          this.count = data.data.count;
+          this.tagList = data.data.pageList;
+          this.loading = false;
+        });
     },
-    currentChange(current) {
-      this.current = current;
-      this.listTags();
+    listAllUsername() {
+      if (this.checkWeight(300)) {
+        this.axios.get("/api/back/user/username").then(({ data }) => {
+          this.usernameList = data.data;
+        });
+      }
     },
     deleteTag(id) {
       var param = {};
@@ -214,34 +254,7 @@ export default {
           });
         }
       });
-      this.remove = false;
-    },
-    listTags() {
-      this.axios
-        .get("/api/back/tags", {
-          params: {
-            size: this.size,
-            userId: this.userId,
-            current: this.current,
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.tagList = data.data.pageList;
-          this.count = data.data.count;
-          this.loading = false;
-        });
-    },
-    openModel(tag) {
-      if (tag != null) {
-        this.tag = JSON.parse(JSON.stringify(tag));
-        this.$refs.tagTitle.innerHTML = "修改标签";
-      } else {
-        this.tag.id = null;
-        this.tag.tagName = "";
-        this.$refs.tagTitle.innerHTML = "添加标签";
-      }
-      this.addOrEdit = true;
+      this.editStatus = false;
     },
     addOrEditTag() {
       if (this.tag.tagName.trim() === "") {
@@ -262,10 +275,7 @@ export default {
           });
         }
       });
-      this.addOrEdit = false;
-    },
-    checkWeight() {
-      return this.$store.state.weight <= 300;
+      this.addOrEditStatus = false;
     }
   },
   watch: {

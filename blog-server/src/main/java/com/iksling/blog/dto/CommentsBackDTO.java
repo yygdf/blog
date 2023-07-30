@@ -38,11 +38,6 @@ public class CommentsBackDTO {
     private String commentContent;
 
     /**
-     * 0未回收，1已回收
-     */
-    private Boolean garbageFlag;
-
-    /**
      * 创建时间
      */
     private Date createTime;

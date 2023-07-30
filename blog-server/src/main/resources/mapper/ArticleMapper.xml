@@ -73,7 +73,8 @@
             FROM
                 tb_article
             <where>
-                1 = 1
+                recycle_flag = #{condition.recycleFlag}
+                AND deleted_flag = #{condition.deletedFlag}
                 <choose>
                     <when test="roleWeight > 300">
                         AND user_id = #{userId}
@@ -87,12 +88,6 @@
                 <if test="condition.draftFlag != null">
                     AND draft_flag = #{condition.draftFlag}
                 </if>
-                <if test="condition.recycleFlag != null">
-                    AND recycle_flag = #{condition.recycleFlag}
-                </if>
-                <if test="condition.deletedFlag != null">
-                    AND deleted_flag = #{condition.deletedFlag}
-                </if>
                 <if test="condition.categoryId != null">
                     AND category_id = #{condition.categoryId}
                 </if>
@@ -101,17 +96,17 @@
                 </if>
                 <if test="condition.tagIdList != null">
                     AND a.id in
-                    (
-                    SELECT
-                    ata.article_id
-                    FROM
-                    tb_article_tag ata
-                    WHERE
-                    ata.tag_id in
-                    <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
-                        #{tagId}
-                    </foreach>
-                    )
+                        (
+                        SELECT
+                        ata.article_id
+                        FROM
+                        tb_article_tag ata
+                        WHERE
+                        ata.tag_id in
+                        <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
+                            #{tagId}
+                        </foreach>
+                        )
                 </if>
             </where>
             ORDER BY
@@ -134,17 +129,16 @@
         UPDATE
             tb_article
         SET
-        1 = 1
-        <if test="updateBatch.recycleFlag != null">
-            , recycle_flag = #{condition.recycleFlag}
-        </if>
-        <if test="updateBatch.deletedFlag != null">
-            , deleted_flag = #{condition.deletedFlag}
-        </if>
+            recycle_flag = #{updateBatch.recycleFlag},
+            deleted_flag = #{updateBatch.deletedFlag}
+            <if test="updateBatch.recycleFlag">
+                , draft_flag = 1
+            </if>
         WHERE
             1 = 1
         <if test="roleWeight > 300">
             AND user_id = #{userId}
+            AND deleted_flag = 0
         </if>
             AND id in
             <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
@@ -160,6 +154,7 @@
             tb_article
         WHERE
             category_id != -1
+            AND deleted_flag = 0
             AND category_id in
             <foreach collection="categoryIdList" item="categoryId" index="index" open="(" separator="," close=")">
                 #{categoryId}

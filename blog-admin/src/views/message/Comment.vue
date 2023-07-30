@@ -3,12 +3,12 @@
     <div class="title">{{ this.$route.name }}</div>
     <div class="operation-container">
       <el-button
-        v-if="!garbageFlag"
+        v-if="deletedFlag"
         type="danger"
         size="small"
         icon="el-icon-minus"
         :disabled="commentIdList.length === 0"
-        @click="updateGarbageFlag = true"
+        @click="removeStatus = true"
       >
         批量删除
       </el-button>
@@ -18,7 +18,7 @@
         size="small"
         icon="el-icon-minus"
         :disabled="commentIdList.length === 0"
-        @click="remove = true"
+        @click="editStatus = true"
       >
         批量删除
       </el-button>
@@ -30,7 +30,7 @@
           style="margin-right:1rem"
           clearable
           filterable
-          v-if="checkWeight()"
+          v-if="checkWeight(300)"
         >
           <el-option
             v-for="item in usernameList"
@@ -40,7 +40,7 @@
           />
         </el-select>
         <el-select
-          v-model="garbageFlag"
+          v-model="condition"
           placeholder="请选择"
           size="small"
           style="margin-right:1rem"
@@ -100,15 +100,18 @@
           <span v-if="scope.row.replyNickname">
             {{ scope.row.replyNickname }}
           </span>
-          <span v-else>无</span>
         </template>
       </el-table-column>
-      <el-table-column prop="articleTitle" label="文章标题" align="center" width="120">
+      <el-table-column
+        prop="articleTitle"
+        label="文章标题"
+        align="center"
+        width="120"
+      >
         <template slot-scope="scope">
           <span v-if="scope.row.articleTitle">
             {{ scope.row.articleTitle }}
           </span>
-          <span v-else>无</span>
         </template>
       </el-table-column>
       <el-table-column prop="commentContent" label="评论内容" align="center">
@@ -146,29 +149,38 @@
           <el-tag v-else type="warning">友链</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="80" align="center">
+      <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
           <el-popconfirm
-            v-if="!scope.row.garbageFlag"
-            title="确定删除吗？"
-            @confirm="updateCommentGarbageFlag(scope.row.id)"
-          >
-            <el-button size="mini" type="danger" slot="reference">
-              删除
-            </el-button>
-          </el-popconfirm>
-          <el-popconfirm
-            v-if="scope.row.garbageFlag"
+            v-if="optionIndex === 1"
             title="确定恢复吗？"
-            @confirm="updateCommentGarbageFlag(scope.row.id)"
+            @confirm="updateCommentsStatus(scope.row.id, false)"
           >
             <el-button size="mini" type="success" slot="reference">
               恢复
             </el-button>
           </el-popconfirm>
           <el-popconfirm
+            v-if="optionIndex === 2"
+            title="确定恢复吗？"
+            @confirm="updateCommentsStatus(scope.row.id)"
+          >
+            <el-button size="mini" type="success" slot="reference">
+              恢复
+            </el-button>
+          </el-popconfirm>
+          <el-popconfirm
+            v-if="optionIndex !== 2"
+            title="确定删除吗？"
+            @confirm="updateCommentsStatus(scope.row.id)"
+          >
+            <el-button size="mini" type="danger" slot="reference">
+              删除
+            </el-button>
+          </el-popconfirm>
+          <el-popconfirm
             style="margin-left:10px"
-            v-if="scope.row.garbageFlag"
+            v-if="optionIndex === 2"
             title="确定彻底删除吗？"
             @confirm="deleteComments(scope.row.id)"
           >
@@ -190,25 +202,25 @@
       :page-sizes="[10, 20]"
       layout="total, sizes, prev, pager, next, jumper"
     />
-    <el-dialog :visible.sync="updateGarbageFlag" width="30%">
+    <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
-        <el-button @click="updateGarbageFlag = false">取 消</el-button>
-        <el-button type="primary" @click="updateCommentGarbageFlag(null)">
+        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button type="primary" @click="updateCommentsStatus(null)">
           确 定
         </el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="remove" width="30%">
+    <el-dialog :visible.sync="removeStatus" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
       <div style="font-size:1rem">是否彻底删除选中项？</div>
       <div slot="footer">
-        <el-button @click="remove = false">取 消</el-button>
+        <el-button @click="removeStatus = false">取 消</el-button>
         <el-button type="primary" @click="deleteComments(null)">
           确 定
         </el-button>
@@ -223,40 +235,53 @@ export default {
     this.userId = this.$store.state.userId;
     this.listComments();
     this.listAllUsername();
+    if (this.checkWeight(100)) {
+      this.options[2] = {
+        value: '{"recycleFlag":true,"deletedFlag":true}',
+        label: "已删除"
+      };
+    }
   },
   data: function() {
     return {
       options: [
         {
-          value: false,
+          value: '{"recycleFlag":false,"deletedFlag":false}',
           label: "已发表"
         },
         {
-          value: true,
+          value: '{"recycleFlag":true,"deletedFlag":false}',
           label: "回收站"
         }
       ],
+      condition: '{"recycleFlag":false,"deletedFlag":false}',
       commentList: [],
       usernameList: [],
       commentIdList: [],
       userId: null,
       keywords: null,
-      remove: false,
       loading: true,
-      garbageFlag: false,
-      updateGarbageFlag: false,
+      editStatus: false,
+      removeStatus: false,
+      recycleFlag: false,
+      deletedFlag: false,
       size: 10,
       count: 0,
-      current: 1
+      current: 1,
+      optionIndex: 0
     };
   },
   methods: {
-    listAllUsername() {
-      if (this.checkWeight()) {
-        this.axios.get("/api/back/user/username").then(({ data }) => {
-          this.usernameList = data.data;
-        });
-      }
+    sizeChange(size) {
+      this.size = size;
+      this.listComments();
+    },
+    checkWeight(weight = 200) {
+      return this.$store.state.weight <= weight;
+    },
+    currentChange(current) {
+      this.current = current;
+      this.listComments();
     },
     selectionChange(commentList) {
       this.commentIdList = [];
@@ -264,37 +289,30 @@ export default {
         this.commentIdList.push(item.id);
       });
     },
-    sizeChange(size) {
-      this.size = size;
-      this.listComments();
+    listComments() {
+      this.axios
+        .get("/api/back/comments", {
+          params: {
+            size: this.size,
+            userId: this.userId,
+            current: this.current,
+            keywords: this.keywords,
+            recycleFlag: this.recycleFlag,
+            deletedFlag: this.deletedFlag
+          }
+        })
+        .then(({ data }) => {
+          this.count = data.data.count;
+          this.commentList = data.data.pageList;
+          this.loading = false;
+        });
     },
-    currentChange(current) {
-      this.current = current;
-      this.listComments();
-    },
-    updateCommentGarbageFlag(id) {
-      let param = new URLSearchParams();
-      if (id != null) {
-        param.append("idList", [id]);
-      } else {
-        param.append("idList", this.commentIdList);
+    listAllUsername() {
+      if (this.checkWeight()) {
+        this.axios.get("/api/back/user/username").then(({ data }) => {
+          this.usernameList = data.data;
+        });
       }
-      param.append("garbageFlag", !this.garbageFlag);
-      this.axios.put("/api/back/comments", param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: "成功",
-            message: data.message
-          });
-          this.listComments();
-        } else {
-          this.$notify.error({
-            title: "失败",
-            message: data.message
-          });
-        }
-        this.updateGarbageFlag = false;
-      });
     },
     deleteComments(id) {
       var param = {};
@@ -316,32 +334,53 @@ export default {
             message: data.message
           });
         }
-        this.remove = false;
+        this.removeStatus = false;
       });
     },
-    listComments() {
-      this.axios
-        .get("/api/back/comments", {
-          params: {
-            size: this.size,
-            userId: this.userId,
-            current: this.current,
-            keywords: this.keywords,
-            garbageFlag: this.garbageFlag
-          }
-        })
-        .then(({ data }) => {
-          this.count = data.data.count;
-          this.commentList = data.data.pageList;
-          this.loading = false;
-        });
-    },
-    checkWeight() {
-      return this.$store.state.weight <= 300;
+    updateCommentsStatus(id, isRec = true) {
+      let param = new URLSearchParams();
+      if (id != null) {
+        param.append("idList", [id]);
+      } else {
+        param.append("idList", this.commentIdList);
+      }
+      let recycleFlag = !this.recycleFlag;
+      let deletedFlag = this.deletedFlag;
+      if ((this.optionIndex === 1 && isRec) || this.optionIndex === 2) {
+        recycleFlag = this.recycleFlag;
+        deletedFlag = !this.deletedFlag;
+      }
+      param.append("recycleFlag", recycleFlag);
+      param.append("deletedFlag", deletedFlag);
+      this.axios.put("/api/back/comments", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listComments();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.editStatus = false;
+      });
     }
   },
   watch: {
-    garbageFlag() {
+    condition() {
+      const condition = JSON.parse(this.condition);
+      this.recycleFlag = condition.recycleFlag;
+      this.deletedFlag = condition.deletedFlag;
+      if (this.deletedFlag) {
+        this.optionIndex = 2;
+      } else if (this.recycleFlag) {
+        this.optionIndex = 1;
+      } else {
+        this.optionIndex = 0;
+      }
       this.listComments();
     },
     userId(newVal, oldVal) {

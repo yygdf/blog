@@ -173,7 +173,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     public PagePojo<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition) {
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100 && Objects.nonNull(condition.getDeletedFlag()))
+        if (loginUser.getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
         List<ArticlesBackDTO> articlesBackDTOList = articleMapper.listArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (articlesBackDTOList.size() == 0)
@@ -191,8 +191,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Transactional
     public void updateArticlesStatus(UpdateBatchVO updateBatchVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100 && Objects.equals(updateBatchVO.getDeletedFlag(), false))
-            throw new IllegalRequestException();
         int count = articleMapper.updateArticlesStatus(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();

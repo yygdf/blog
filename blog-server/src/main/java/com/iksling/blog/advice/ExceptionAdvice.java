@@ -70,7 +70,7 @@ public class ExceptionAdvice {
     }
 
     /********** 未知异常 **********/
-    @ExceptionHandler(value = Exception.class)
+//    @ExceptionHandler(value = Exception.class)
     public Result exceptionAdvice(Exception e) {
         return Result.failure().code(FAILURE).message("服务器繁忙, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
     }

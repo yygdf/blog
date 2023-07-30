@@ -194,6 +194,11 @@ export default {
     }
   },
   methods: {
+    checkArticleUserIdIsNull() {
+      return this.$store.state.articleUserId == null
+              ? ""
+              : this.$store.state.articleUserId;
+    },
     listArticleOptions() {
       this.axios
         .get("/api/back/article/options", {
@@ -204,21 +209,9 @@ export default {
           this.categoryList = data.data.categoryDTOList;
         });
     },
-    uploadCover(form) {
-      if (this.article.articleCover !== "") {
-        this.deleteImg(this.article.articleCover);
-      }
-      this.uploadImg(null, form.file);
-    },
-    deleteCover() {
-      this.deleteImg(this.article.articleCover);
-      this.article.articleCover = "";
-    },
-    uploadArticleImg(pos, file) {
-      this.uploadImg(pos, file);
-    },
-    deleteArticleImg(pos) {
-      this.deleteImg(pos[0]);
+    deleteImg(url) {
+      var param = { data: url };
+      this.axios.delete("/api/back/article/image", param);
     },
     uploadImg(pos, file) {
       if (this.article.id == null) {
@@ -239,14 +232,14 @@ export default {
             formData.append("userId", this.checkArticleUserIdIsNull());
             formData.append("fileSubDir", this.article.id);
             this.axios
-              .post("/api/back/article/image", formData)
-              .then(({ data }) => {
-                if (pos == null) {
-                  this.article.articleCover = data.data;
-                } else {
-                  this.$refs.md.$img2Url(pos, data.data);
-                }
-              });
+                    .post("/api/back/article/image", formData)
+                    .then(({ data }) => {
+                      if (pos == null) {
+                        this.article.articleCover = data.data;
+                      } else {
+                        this.$refs.md.$img2Url(pos, data.data);
+                      }
+                    });
           } else {
             this.$notify.error({
               title: "失败",
@@ -260,24 +253,54 @@ export default {
         formData.append("userId", this.checkArticleUserIdIsNull());
         formData.append("fileSubDir", this.article.id);
         this.axios
-          .post("/api/back/article/image", formData)
-          .then(({ data }) => {
-            if (pos == null) {
-              this.article.articleCover = data.data;
-            } else {
-              this.$refs.md.$img2Url(pos, data.data);
-            }
-          });
+                .post("/api/back/article/image", formData)
+                .then(({ data }) => {
+                  if (pos == null) {
+                    this.article.articleCover = data.data;
+                  } else {
+                    this.$refs.md.$img2Url(pos, data.data);
+                  }
+                });
       }
     },
-    deleteImg(url) {
-      var param = { data: url };
-      this.axios.delete("/api/back/article/image", param);
+    deleteCover() {
+      this.deleteImg(this.article.articleCover);
+      this.article.articleCover = "";
     },
-    checkArticleUserIdIsNull() {
-      return this.$store.state.articleUserId == null
-        ? ""
-        : this.$store.state.articleUserId;
+    uploadCover(form) {
+      if (this.article.articleCover !== "") {
+        this.deleteImg(this.article.articleCover);
+      }
+      this.uploadImg(null, form.file);
+    },
+    autoSaveArticle() {
+      if (
+              this.autoSave &&
+              this.article.articleTitle.trim() !== "" &&
+              this.article.articleContent.trim() !== ""
+      ) {
+        this.article.draftFlag = true;
+        this.axios.post("/api/back/article", this.article).then(({ data }) => {
+          this.article.id = data.data;
+          if (data.flag) {
+            this.$notify.success({
+              title: "成功",
+              message: "自动保存成功"
+            });
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: "自动保存失败"
+            });
+          }
+        });
+      }
+    },
+    uploadArticleImg(pos, file) {
+      this.uploadImg(pos, file);
+    },
+    deleteArticleImg(pos) {
+      this.deleteImg(pos[0]);
     },
     saveArticleDraft() {
       if (this.article.articleTitle.trim() === "") {
@@ -335,29 +358,6 @@ export default {
       });
       this.addOrEdit = false;
       this.autoSave = false;
-    },
-    autoSaveArticle() {
-      if (
-        this.autoSave &&
-        this.article.articleTitle.trim() !== "" &&
-        this.article.articleContent.trim() !== ""
-      ) {
-        this.article.draftFlag = true;
-        this.axios.post("/api/back/article", this.article).then(({ data }) => {
-          this.article.id = data.data;
-          if (data.flag) {
-            this.$notify.success({
-              title: "成功",
-              message: "自动保存成功"
-            });
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: "自动保存失败"
-            });
-          }
-        });
-      }
     }
   },
   watch: {

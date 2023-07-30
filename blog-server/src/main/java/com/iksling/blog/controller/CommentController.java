@@ -31,11 +31,11 @@ public class CommentController {
     }
 
     @OptLog(optType = UPDATE)
-    @ApiOperation(value = "批量更新回收站评论")
-    @ApiImplicitParam(name = "GarbageVO", value = "回收站VO", required = true, dataType = "GarbageVO")
+    @ApiOperation(value = "批量更新评论状态")
+    @ApiImplicitParam(name = "updateBatchVO", value = "批量更新VO", required = true, dataType = "UpdateBatchVO")
     @PutMapping("/back/comments")
-    public Result updateBackComments(@Valid UpdateBatchVO updateBatchVO) {
-        commentService.updateCommentsGarbageVO(updateBatchVO);
+    public Result updateCommentsStatus(@Valid UpdateBatchVO updateBatchVO) {
+        commentService.updateCommentsStatus(updateBatchVO);
         return Result.success().message("操作成功");
     }
 

@@ -24,12 +24,6 @@ public class ConditionVO {
     private Integer size;
 
     /**
-     * 用户id
-     */
-    @ApiModelProperty(name = "userId", value = "用户id", dataType = "Integer")
-    private Integer userId;
-
-    /**
      * 当前页码
      */
     @NotNull(message = "当前页码不能为null")
@@ -43,6 +37,12 @@ public class ConditionVO {
     private String keywords;
 
     /**
+     * 用户id
+     */
+    @ApiModelProperty(name = "userId", value = "用户id", dataType = "Integer")
+    private Integer userId;
+
+    /**
      * 是否是草稿
      */
     @ApiModelProperty(name = "draftFlag", value = "是否是草稿", dataType = "Boolean")
@@ -51,7 +51,8 @@ public class ConditionVO {
     /**
      * 是否已回收
      */
-    @ApiModelProperty(name = "recycleFlag", value = "是否已回收", dataType = "Boolean")
+    @NotNull(message = "回收标志不能为null")
+    @ApiModelProperty(name = "recycleFlag", value = "是否已回收", required = true, dataType = "Boolean")
     private Boolean recycleFlag;
 
     /**

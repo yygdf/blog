@@ -3,6 +3,7 @@ package com.iksling.blog.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.CommentsBackDTO;
 import com.iksling.blog.entity.Comment;
+import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.CommentMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
@@ -37,9 +38,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     public PagePojo<CommentsBackDTO> getPageCommentsBackDTO(ConditionVO condition) {
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         LoginUser loginUser = UserUtil.getLoginUser();
-        Integer count = commentMapper.selectCountByCondition(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (count == 0)
-            return new PagePojo<>();
+        if (loginUser.getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
+            throw new IllegalRequestException();
         List<CommentsBackDTO> commentsBackDTOList = commentMapper.listCommentsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (commentsBackDTOList.size() == 0)
             return new PagePojo<>();
@@ -47,23 +47,22 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         commentsBackDTOList.forEach(item -> {
             item.setLikeCount(Objects.requireNonNull(likeCountMap).get(item.getId().toString()));
         });
-        return new PagePojo<>(count, commentsBackDTOList);
+        return new PagePojo<>(commentsBackDTOList.size(), commentsBackDTOList);
     }
 
     @Override
     @Transactional
-    public void updateCommentsGarbageVO(UpdateBatchVO updateBatchVO) {
+    public void updateCommentsStatus(UpdateBatchVO updateBatchVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        commentMapper.updateCommentsGarbageVO(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
+        commentMapper.updateCommentsStatus(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
     }
 
     @Override
     @Transactional
     public void deleteCommentIdList(List<Integer> commentIdList) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        UpdateBatchVO updateBatchVO = new UpdateBatchVO();
-        updateBatchVO.setIdList(commentIdList);
-        commentMapper.updateCommentsGarbageVO(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (UserUtil.getLoginUser().getRoleWeight() > 100)
+            throw new IllegalRequestException();
+        commentMapper.deleteBatchIds(commentIdList);
     }
 }
 

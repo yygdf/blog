@@ -67,7 +67,7 @@
           placeholder="请选择标签"
           multiple
           size="small"
-          style="margin-right:1rem;"
+          style="margin-right:1rem"
           clearable
           filterable
         >
@@ -82,7 +82,7 @@
           v-model="condition"
           placeholder="请选择"
           size="small"
-          style="margin-right:1rem;"
+          style="margin-right:1rem"
         >
           <el-option
             v-for="item in options"
@@ -115,7 +115,7 @@
       border
       :data="articleList"
       @selection-change="selectionChange"
-      v-loading="loadStatus"
+      v-loading="loading"
     >
       <el-table-column type="selection" width="40" align="center" />
       <el-table-column
@@ -266,7 +266,7 @@
           <el-popconfirm
             title="确定恢复吗？"
             v-if="optionIndex === 2"
-            @confirm="updateArticlesStatus(scope.row.id, true)"
+            @confirm="updateArticlesStatus(scope.row.id, false)"
           >
             <el-button size="mini" type="success" slot="reference">
               恢复
@@ -352,7 +352,7 @@ export default {
     this.listArticleOptions();
     if (this.checkWeight(100)) {
       this.options[3] = {
-        value: '{"draftFlag":null,"recycleFlag":null,"deletedFlag":true}',
+        value: '{"draftFlag":null,"recycleFlag":true,"deletedFlag":true}',
         label: "已删除"
       };
     }
@@ -361,19 +361,19 @@ export default {
     return {
       options: [
         {
-          value: '{"draftFlag":false,"recycleFlag":false,"deletedFlag":null}',
+          value: '{"draftFlag":false,"recycleFlag":false,"deletedFlag":false}',
           label: "已发表"
         },
         {
-          value: '{"draftFlag":true,"recycleFlag":false,"deletedFlag":null}',
+          value: '{"draftFlag":true,"recycleFlag":false,"deletedFlag":false}',
           label: "草稿箱"
         },
         {
-          value: '{"draftFlag":null,"recycleFlag":true,"deletedFlag":null}',
+          value: '{"draftFlag":null,"recycleFlag":true,"deletedFlag":false}',
           label: "回收站"
         }
       ],
-      condition: '{"draftFlag":false,"recycleFlag":false,"deletedFlag":null}',
+      condition: '{"draftFlag":false,"recycleFlag":false,"deletedFlag":false}',
       tagList: [],
       tagIdList: [],
       articleList: [],
@@ -383,7 +383,7 @@ export default {
       userId: null,
       keywords: null,
       categoryId: null,
-      loadStatus: true,
+      loading: true,
       editStatus: false,
       removeStatus: false,
       draftFlag: false,
@@ -444,7 +444,7 @@ export default {
         .then(({ data }) => {
           this.count = data.data.count;
           this.articleList = data.data.pageList;
-          this.loadStatus = false;
+          this.loading = false;
         });
     },
     listAllUsername() {
@@ -497,7 +497,7 @@ export default {
       };
       this.axios.put("/api/back/article/status", param);
     },
-    updateArticlesStatus(id, isRec = false) {
+    updateArticlesStatus(id, isRec = true) {
       let param = new URLSearchParams();
       if (id != null) {
         param.append("idList", [id]);
@@ -506,15 +506,8 @@ export default {
       }
       let recycleFlag = !this.recycleFlag;
       let deletedFlag = this.deletedFlag;
-      if (this.optionIndex === 2) {
-        recycleFlag = null;
-        deletedFlag = !this.deletedFlag;
-        if (isRec) {
-          recycleFlag = !this.recycleFlag;
-          deletedFlag = this.deletedFlag;
-        }
-      }
-      if (this.optionIndex === 3) {
+      if ((this.optionIndex === 2 && isRec) || this.optionIndex === 3) {
+        recycleFlag = this.recycleFlag;
         deletedFlag = !this.deletedFlag;
       }
       param.append("recycleFlag", recycleFlag);

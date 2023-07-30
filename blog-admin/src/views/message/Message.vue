@@ -7,7 +7,7 @@
         size="small"
         icon="el-icon-minus"
         :disabled="messageIdList.length === 0"
-        @click="deleteFlag = true"
+        @click="editStatus = true"
       >
         批量删除
       </el-button>
@@ -97,13 +97,13 @@
       :page-sizes="[10, 20]"
       layout="total, sizes, prev, pager, next, jumper"
     />
-    <el-dialog :visible.sync="deleteFlag" width="30%">
+    <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
-        <el-button @click="deleteFlag = false">取 消</el-button>
+        <el-button @click="editStatus = false">取 消</el-button>
         <el-button type="primary" @click="deleteMessage(null)">
           确 定
         </el-button>
@@ -123,19 +123,13 @@ export default {
       messageIdList: [],
       keywords: null,
       loading: true,
-      deleteFlag: false,
+      editStatus: false,
       size: 10,
       count: 0,
       current: 1
     };
   },
   methods: {
-    selectionChange(messageList) {
-      this.messageIdList = [];
-      messageList.forEach(item => {
-        this.messageIdList.push(item.id);
-      });
-    },
     sizeChange(size) {
       this.size = size;
       this.listMessages();
@@ -143,6 +137,27 @@ export default {
     currentChange(current) {
       this.current = current;
       this.listMessages();
+    },
+    selectionChange(messageList) {
+      this.messageIdList = [];
+      messageList.forEach(item => {
+        this.messageIdList.push(item.id);
+      });
+    },
+    listMessages() {
+      this.axios
+              .get("/api/back/messages", {
+                params: {
+                  size: this.size,
+                  current: this.current,
+                  keywords: this.keywords
+                }
+              })
+              .then(({ data }) => {
+                this.count = data.data.count;
+                this.messageList = data.data.pageList;
+                this.loading = false;
+              });
     },
     deleteMessage(id) {
       var param = {};
@@ -164,23 +179,8 @@ export default {
             message: data.message
           });
         }
-        this.deleteFlag = false;
+        this.editStatus = false;
       });
-    },
-    listMessages() {
-      this.axios
-        .get("/api/back/messages", {
-          params: {
-            size: this.size,
-            current: this.current,
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.count = data.data.count;
-          this.messageList = data.data.pageList;
-          this.loading = false;
-        });
     }
   }
 };

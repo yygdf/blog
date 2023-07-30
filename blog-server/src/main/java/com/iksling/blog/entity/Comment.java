@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 
@@ -47,14 +48,14 @@ public class Comment implements Serializable {
     private String commentContent;
 
     /**
+     * 0未回收，1已回收
+     */
+    private Boolean recycleFlag;
+
+    /**
      * 0未删除，1已删除
      */
     private Boolean deletedFlag;
-
-    /**
-     * 0未回收，1已回收
-     */
-    private Boolean garbageFlag;
 
     /**
      * ip来源

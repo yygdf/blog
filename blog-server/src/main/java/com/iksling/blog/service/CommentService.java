@@ -15,7 +15,7 @@ import java.util.List;
 public interface CommentService extends IService<Comment> {
     PagePojo<CommentsBackDTO> getPageCommentsBackDTO(ConditionVO condition);
 
-    void updateCommentsGarbageVO(UpdateBatchVO updateBatchVO);
+    void updateCommentsStatus(UpdateBatchVO updateBatchVO);
 
     void deleteCommentIdList(List<Integer> commentIdList);
 }

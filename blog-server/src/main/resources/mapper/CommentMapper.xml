@@ -11,8 +11,8 @@
             <result property="articleId" column="article_id" jdbcType="INTEGER"/>
             <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
             <result property="commentContent" column="comment_content" jdbcType="VARCHAR"/>
+            <result property="recycleFlag" column="recycle_flag" jdbcType="BOOLEAN"/>
             <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
-            <result property="garbageFlag" column="garbage_flag" jdbcType="BOOLEAN"/>
             <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>
             <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
@@ -22,43 +22,15 @@
     <sql id="Base_Column_List">
         id,user_id,reply_id,
         article_id,parent_id,comment_content,
-        deleted_flag,garbage_flag,ip_source,
+        recycle_flag,deleted_flag,ip_source,
         ip_address,create_user,create_time
     </sql>
-
-    <select id="selectCountByCondition" resultType="java.lang.Integer">
-        SELECT
-            count(1)
-        FROM
-            tb_comment c
-        LEFT JOIN tb_article a ON c.article_id = a.id
-        <where>
-            c.deleted_flag = 0
-            AND c.garbage_flag = #{condition.garbageFlag}
-            <choose>
-                <when test="roleWeight > 300">
-                    AND (
-                    c.user_id = #{userId} OR a.user_id = #{userId}
-                    )
-                </when>
-                <otherwise>
-                    <if test="condition.userId != null">
-                        AND c.user_id = #{condition.userId}
-                    </if>
-                </otherwise>
-            </choose>
-            <if test="condition.keywords != null">
-                AND a.article_title like concat('%', #{condition.keywords}, '%')
-            </if>
-        </where>
-    </select>
 
     <select id="listCommentsBackDTO" resultType="com.iksling.blog.dto.CommentsBackDTO">
         SELECT
             c.id,c.user_id,ua.username,
-            a.article_title,c.comment_content,c.garbage_flag,
-            c.create_time,u.avatar,u.nickname,
-            u2.nickname replyNickname
+            a.article_title,c.comment_content,c.create_time,
+            u.avatar,u.nickname,u2.nickname replyNickname
         FROM
             tb_comment c
         LEFT JOIN tb_article a ON c.article_id = a.id
@@ -66,12 +38,12 @@
         LEFT JOIN tb_user u ON c.user_id = u.id
         LEFT JOIN tb_user u2 ON c.reply_id = u2.id
         <where>
-            c.deleted_flag = 0
-            AND c.garbage_flag = #{condition.garbageFlag}
+            c.recycle_flag = #{condition.recycleFlag}
+            AND c.deleted_flag = #{condition.deletedFlag}
             <choose>
                 <when test="roleWeight > 300">
                     AND (
-                    c.user_id = #{userId} OR a.user_id = #{userId}
+                        c.user_id = #{userId} OR a.user_id = #{userId}
                     )
                 </when>
                 <otherwise>
@@ -90,33 +62,28 @@
             #{condition.current}, #{condition.size}
     </select>
 
-    <update id="updateCommentsGarbageVO">
+    <update id="updateCommentsStatus">
         UPDATE
             tb_comment
         SET
-        <choose>
-            <when test="garbage.garbageFlag != null">
-                garbage_flag = #{garbage.garbageFlag}
-            </when>
-            <otherwise>
-                deleted_flag = 1
-            </otherwise>
-        </choose>
+            recycle_flag = #{updateBatch.recycleFlag},
+            deleted_flag = #{updateBatch.deletedFlag}
         WHERE
             1 = 1
         <if test="roleWeight > 300">
             AND (
-            user_id = #{userId} OR #{userId} = (SELECT a.user_id FROM tb_article a WHERE article_id = a.id)
+                user_id = #{userId} OR #{userId} = (SELECT a.user_id FROM tb_article a WHERE article_id = a.id)
             )
+            AND deleted_flag = 0
         </if>
             AND (
                 id in
-                <foreach collection="garbage.idList" item="id" index="index" open="(" separator="," close=")">
+                <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
                     #{id}
                 </foreach>
-                <if test="garbage.garbageFlag == null || garbage.garbageFlag">
+                <if test="updateBatch.recycleFlag == null || updateBatch.recycleFlag">
                     or parent_id in
-                    <foreach collection="garbage.idList" item="id" index="index" open="(" separator="," close=")">
+                    <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
                         #{id}
                     </foreach>
                 </if>

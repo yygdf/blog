@@ -69,13 +69,6 @@
             recycle_flag = #{updateBatch.recycleFlag},
             deleted_flag = #{updateBatch.deletedFlag}
         WHERE
-            1 = 1
-        <if test="roleWeight > 300">
-            AND (
-                user_id = #{userId} OR #{userId} = (SELECT a.user_id FROM tb_article a WHERE article_id = a.id)
-            )
-            AND deleted_flag = 0
-        </if>
             AND (
                 id in
                 <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
@@ -88,5 +81,13 @@
                     </foreach>
                 </if>
             )
+            <if test="roleWeight > 300">
+                AND (
+                    user_id = #{userId} OR #{userId} = (SELECT a.user_id FROM tb_article a WHERE article_id = a.id)
+                )
+            </if>
+            <if test="roleWeight > 100">
+                AND deleted_flag = 0
+            </if>
     </update>
 </mapper>

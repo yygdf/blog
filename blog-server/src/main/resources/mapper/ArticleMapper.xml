@@ -135,15 +135,16 @@
                 , draft_flag = 1
             </if>
         WHERE
-            1 = 1
-        <if test="roleWeight > 300">
-            AND user_id = #{userId}
-            AND deleted_flag = 0
-        </if>
             AND id in
             <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
                 #{id}
             </foreach>
+            <if test="roleWeight > 300">
+                AND user_id = #{userId}
+            </if>
+            <if test="roleWeight > 100">
+                AND deleted_flag = 0
+            </if>
     </update>
 
     <select id="selectCategoryArticleCount" resultType="com.iksling.blog.dto.CategoryArticleDTO">

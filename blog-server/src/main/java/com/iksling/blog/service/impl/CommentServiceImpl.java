@@ -36,10 +36,10 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
 
     @Override
     public PagePojo<CommentsBackDTO> getPageCommentsBackDTO(ConditionVO condition) {
-        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         LoginUser loginUser = UserUtil.getLoginUser();
         if (loginUser.getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<CommentsBackDTO> commentsBackDTOList = commentMapper.listCommentsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (commentsBackDTOList.size() == 0)
             return new PagePojo<>();

@@ -13,10 +13,13 @@ import com.iksling.blog.service.MessageService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -29,10 +32,12 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
 
     @Override
     public PagePojo<MessagesBackDTO> getPageMessagesBackDTO(ConditionVO condition) {
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
+            throw new IllegalRequestException();
         Page<Message> page = new Page<>(condition.getCurrent(), condition.getSize());
         Page<Message> messagePage = messageMapper.selectPage(page, new LambdaQueryWrapper<Message>()
                 .select(Message::getId, Message::getUserId, Message::getAvatar, Message::getNickname, Message::getMessageSpeed, Message::getMessageContent, Message::getIpSource, Message::getIpAddress, Message::getCreateTime)
-                .eq(Message::getDeletedFlag, false)
+                .eq(Message::getDeletedFlag, condition.getDeletedFlag())
                 .like(StringUtils.isNotBlank(condition.getKeywords()), Message::getNickname, condition.getKeywords())
                 .orderByDesc(Message::getCreateTime));
         if (messagePage.getTotal() == 0)
@@ -41,10 +46,19 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     }
 
     @Override
-    public void deleteMessageIdList(List<Integer> messageIdList) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 200)
+    @Transactional
+    public void updateMessagesStatus(UpdateBatchVO updateBatch) {
+        int count = messageMapper.updateMessagesStatus(updateBatch, UserUtil.getLoginUser().getRoleWeight());
+        if (count != updateBatch.getIdList().size())
             throw new IllegalRequestException();
-        int count = messageMapper.updateMessagesDeletedFlag(messageIdList);
+    }
+
+    @Override
+    @Transactional
+    public void deleteMessageIdList(List<Integer> messageIdList) {
+        if (UserUtil.getLoginUser().getRoleWeight() > 100)
+            throw new IllegalRequestException();
+        int count = messageMapper.deleteBatchIds(messageIdList);
         if (count != messageIdList.size())
             throw new IllegalRequestException();
     }

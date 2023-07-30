@@ -3,6 +3,17 @@
     <div class="title">{{ this.$route.name }}</div>
     <div class="operation-container">
       <el-button
+        v-if="deletedFlag"
+        type="danger"
+        size="small"
+        icon="el-icon-minus"
+        :disabled="messageIdList.length === 0"
+        @click="removeStatus = true"
+      >
+        批量删除
+      </el-button>
+      <el-button
+        v-else
         type="danger"
         size="small"
         icon="el-icon-minus"
@@ -12,6 +23,20 @@
         批量删除
       </el-button>
       <div style="margin-left:auto">
+        <el-select
+          v-if="checkWeight(100)"
+          v-model="deletedFlag"
+          placeholder="请选择"
+          size="small"
+          style="margin-right:1rem"
+        >
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
         <el-input
           v-model="keywords"
           prefix-icon="el-icon-search"
@@ -54,7 +79,6 @@
         prop="ipAddress"
         label="ip地址"
         align="center"
-        width="120"
       />
       <el-table-column
         prop="ipSource"
@@ -73,11 +97,21 @@
           {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="120" align="center">
+      <el-table-column label="操作" width="40" align="center">
         <template slot-scope="scope">
           <el-popconfirm
+            v-if="deletedFlag"
+            title="确定彻底删除吗？"
+            @confirm="deleteMessages(scope.row.id)"
+          >
+            <el-button size="mini" type="danger" slot="reference">
+              删除
+            </el-button>
+          </el-popconfirm>
+          <el-popconfirm
+            v-else
             title="确定删除吗？"
-            @confirm="deleteMessage(scope.row.id)"
+            @confirm="updateMessagesStatus(scope.row.id)"
           >
             <el-button size="mini" type="danger" slot="reference">
               删除
@@ -104,7 +138,19 @@
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
         <el-button @click="editStatus = false">取 消</el-button>
-        <el-button type="primary" @click="deleteMessage(null)">
+        <el-button type="primary" @click="updateMessagesStatus(null)">
+          确 定
+        </el-button>
+      </div>
+    </el-dialog>
+    <el-dialog :visible.sync="removeStatus" width="30%">
+      <div class="dialog-title-container" slot="title">
+        <i class="el-icon-warning" style="color:#ff9900" />提示
+      </div>
+      <div style="font-size:1rem">是否彻底删除选中项？</div>
+      <div slot="footer">
+        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button type="primary" @click="deleteMessages(null)">
           确 定
         </el-button>
       </div>
@@ -119,11 +165,23 @@ export default {
   },
   data: function() {
     return {
+      options: [
+        {
+          value: false,
+          label: "正常"
+        },
+        {
+          value: true,
+          label: "已删除"
+        }
+      ],
       messageList: [],
       messageIdList: [],
       keywords: null,
       loading: true,
       editStatus: false,
+      removeStatus: false,
+      deletedFlag: false,
       size: 10,
       count: 0,
       current: 1
@@ -133,6 +191,9 @@ export default {
     sizeChange(size) {
       this.size = size;
       this.listMessages();
+    },
+    checkWeight(weight = 200) {
+      return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
@@ -146,20 +207,21 @@ export default {
     },
     listMessages() {
       this.axios
-              .get("/api/back/messages", {
-                params: {
-                  size: this.size,
-                  current: this.current,
-                  keywords: this.keywords
-                }
-              })
-              .then(({ data }) => {
-                this.count = data.data.count;
-                this.messageList = data.data.pageList;
-                this.loading = false;
-              });
+        .get("/api/back/messages", {
+          params: {
+            size: this.size,
+            current: this.current,
+            keywords: this.keywords,
+            deletedFlag: this.deletedFlag
+          }
+        })
+        .then(({ data }) => {
+          this.count = data.data.count;
+          this.messageList = data.data.pageList;
+          this.loading = false;
+        });
     },
-    deleteMessage(id) {
+    deleteMessages(id) {
       var param = {};
       if (id != null) {
         param = { data: [id] };
@@ -179,8 +241,37 @@ export default {
             message: data.message
           });
         }
+        this.removeStatus = false;
+      });
+    },
+    updateMessagesStatus(id) {
+      let param = new URLSearchParams();
+      if (id != null) {
+        param.append("idList", [id]);
+      } else {
+        param.append("idList", this.messageIdList);
+      }
+      param.append("deletedFlag", !this.deletedFlag);
+      this.axios.put("/api/back/messages", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listArticles();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
         this.editStatus = false;
       });
+    }
+  },
+  watch: {
+    deletedFlag() {
+      this.listMessages();
     }
   }
 };

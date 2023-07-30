@@ -79,6 +79,7 @@
         prop="ipAddress"
         label="ip地址"
         align="center"
+        width="120"
       />
       <el-table-column
         prop="ipSource"
@@ -89,7 +90,7 @@
       <el-table-column
         prop="createTime"
         label="留言时间"
-        width="160"
+        width="200"
         align="center"
       >
         <template slot-scope="scope">
@@ -97,7 +98,7 @@
           {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="40" align="center">
+      <el-table-column label="操作" width="80" align="center">
         <template slot-scope="scope">
           <el-popconfirm
             v-if="deletedFlag"

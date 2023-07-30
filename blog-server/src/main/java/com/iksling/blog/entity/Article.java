@@ -74,14 +74,14 @@ public class Article implements Serializable {
     private Boolean hiddenFlag;
 
     /**
+     * 0未回收，1已回收
+     */
+    private Boolean recycleFlag;
+
+    /**
      * 0未删除，1已删除
      */
     private Boolean deletedFlag;
-
-    /**
-     * 0未回收，1已回收
-     */
-    private Boolean garbageFlag;
 
     /**
      * 0不可评论，1可评论

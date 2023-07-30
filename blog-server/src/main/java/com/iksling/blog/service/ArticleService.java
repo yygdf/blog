@@ -8,7 +8,7 @@ import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.entity.Article;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleStatusVO;
-import com.iksling.blog.vo.GarbageVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.ConditionVO;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public interface ArticleService extends IService<Article> {
 
     PagePojo<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition);
 
-    void updateArticlesGarbageVO(GarbageVO garbageVO);
+    void updateArticlesStatus(UpdateBatchVO updateBatchVO);
 
     void deleteArticleIdList(List<Integer> articleIdList);
 

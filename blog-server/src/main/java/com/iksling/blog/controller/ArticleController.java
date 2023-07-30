@@ -5,7 +5,7 @@ import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleStatusVO;
-import com.iksling.blog.vo.GarbageVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.ConditionVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -55,11 +55,11 @@ public class ArticleController {
     }
 
     @OptLog(optType = UPDATE)
-    @ApiOperation(value = "批量更新回收站文章")
-    @ApiImplicitParam(name = "GarbageVO", value = "回收站VO", required = true, dataType = "GarbageVO")
+    @ApiOperation(value = "批量更新文章状态")
+    @ApiImplicitParam(name = "updateBatchVO", value = "批量更新VO", required = true, dataType = "UpdateBatchVO")
     @PutMapping("/back/articles")
-    public Result updateBackArticles(@Valid GarbageVO garbageVO) {
-        articleService.updateArticlesGarbageVO(garbageVO);
+    public Result updateArticlesStatus(@Valid UpdateBatchVO updateBatchVO) {
+        articleService.updateArticlesStatus(updateBatchVO);
         return Result.success().message("操作成功");
     }
 

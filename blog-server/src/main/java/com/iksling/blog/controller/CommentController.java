@@ -4,7 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.CommentService;
 import com.iksling.blog.vo.ConditionVO;
-import com.iksling.blog.vo.GarbageVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -34,8 +34,8 @@ public class CommentController {
     @ApiOperation(value = "批量更新回收站评论")
     @ApiImplicitParam(name = "GarbageVO", value = "回收站VO", required = true, dataType = "GarbageVO")
     @PutMapping("/back/comments")
-    public Result updateBackComments(@Valid GarbageVO garbageVO) {
-        commentService.updateCommentsGarbageVO(garbageVO);
+    public Result updateBackComments(@Valid UpdateBatchVO updateBatchVO) {
+        commentService.updateCommentsGarbageVO(updateBatchVO);
         return Result.success().message("操作成功");
     }
 

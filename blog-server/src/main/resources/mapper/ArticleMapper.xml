@@ -15,8 +15,8 @@
             <result property="draftFlag" column="draft_flag" jdbcType="BOOLEAN"/>
             <result property="publicFlag" column="public_flag" jdbcType="BOOLEAN"/>
             <result property="hiddenFlag" column="hidden_flag" jdbcType="BOOLEAN"/>
+            <result property="recycleFlag" column="recycle_flag" jdbcType="BOOLEAN"/>
             <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
-            <result property="garbageFlag" column="garbage_flag" jdbcType="BOOLEAN"/>
             <result property="commentableFlag" column="commentable_flag" jdbcType="BOOLEAN"/>
             <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>
             <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
@@ -34,10 +34,8 @@
         <result column="username" property="username"/>
         <result column="article_title" property="articleTitle"/>
         <result column="top_flag" property="topFlag"/>
-        <result column="draft_flag" property="draftFlag"/>
         <result column="public_flag" property="publicFlag"/>
         <result column="hidden_flag" property="hiddenFlag"/>
-        <result column="garbage_flag" property="garbageFlag"/>
         <result column="commentable_flag" property="commentableFlag"/>
         <result column="publish_time" property="publishTime"/>
         <result column="update_time" property="updateTime"/>
@@ -52,75 +50,30 @@
         id,user_id,category_id,
         article_title,article_cover,article_content,
         top_flag,draft_flag,public_flag,
-        hidden_flag,deleted_flag,garbage_flag,
+        hidden_flag,recycle_flag,deleted_flag,
         commentable_flag,ip_source,ip_address,
         create_user,create_time,update_user,
         update_time,publish_user,publish_time
     </sql>
 
-    <select id="selectCountByCondition" resultType="java.lang.Integer">
-        SELECT
-            count(1)
-        FROM
-            tb_article a
-        <where>
-            deleted_flag = 0
-            AND garbage_flag = #{condition.garbageFlag}
-            <choose>
-                <when test="roleWeight > 300">
-                    AND user_id = #{userId}
-                </when>
-                <otherwise>
-                    <if test="condition.userId != null">
-                        AND user_id = #{condition.userId}
-                    </if>
-                </otherwise>
-            </choose>
-            <if test="condition.draftFlag != null">
-                AND draft_flag = #{condition.draftFlag}
-            </if>
-            <if test="condition.categoryId != null">
-                AND category_id = #{condition.categoryId}
-            </if>
-            <if test="condition.keywords != null">
-                AND article_title like concat('%', #{condition.keywords}, '%')
-            </if>
-            <if test="condition.tagIdList != null">
-                AND a.id in
-                    (
-                    SELECT
-                        ata.article_id
-                    FROM
-                        tb_article_tag ata
-                    WHERE
-                        ata.tag_id in
-                        <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
-                            #{tagId}
-                        </foreach>
-                    )
-            </if>
-        </where>
-    </select>
-
     <select id="listArticlesBackDTO" resultMap="articlesBackResultMap">
         SELECT
             a.id,a.user_id,ua.username,
-            a.article_title,a.top_flag,a.draft_flag,
-            a.public_flag,a.hidden_flag,a.garbage_flag,
-            a.commentable_flag,a.publish_time,a.update_time,
-            c.category_name,t.id tag_id,t.tag_name
+            a.article_title,a.top_flag,a.public_flag,
+            a.hidden_flag,a.commentable_flag,a.publish_time,
+            a.update_time,c.category_name,t.id tag_id,
+            t.tag_name
         FROM
             (
             SELECT
                 id,user_id,category_id,
-                article_title,top_flag,draft_flag,
-                public_flag,hidden_flag,garbage_flag,
-                commentable_flag,publish_time,update_time
+                article_title,top_flag,public_flag,
+                hidden_flag,commentable_flag,publish_time,
+                update_time
             FROM
                 tb_article
             <where>
-                deleted_flag = 0
-                AND garbage_flag = #{condition.garbageFlag}
+                1 = 1
                 <choose>
                     <when test="roleWeight > 300">
                         AND user_id = #{userId}
@@ -134,6 +87,12 @@
                 <if test="condition.draftFlag != null">
                     AND draft_flag = #{condition.draftFlag}
                 </if>
+                <if test="condition.recycleFlag != null">
+                    AND recycle_flag = #{condition.recycleFlag}
+                </if>
+                <if test="condition.deletedFlag != null">
+                    AND deleted_flag = #{condition.deletedFlag}
+                </if>
                 <if test="condition.categoryId != null">
                     AND category_id = #{condition.categoryId}
                 </if>
@@ -141,17 +100,17 @@
                     AND article_title like concat('%', #{condition.keywords}, '%')
                 </if>
                 <if test="condition.tagIdList != null">
-                    AND id in
+                    AND a.id in
                     (
                     SELECT
-                        ata.article_id
+                    ata.article_id
                     FROM
-                        tb_article_tag ata
+                    tb_article_tag ata
                     WHERE
-                        ata.tag_id in
-                        <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
-                            #{tagId}
-                        </foreach>
+                    ata.tag_id in
+                    <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
+                        #{tagId}
+                    </foreach>
                     )
                 </if>
             </where>
@@ -171,28 +130,24 @@
             t.id ASC
     </select>
 
-    <update id="updateArticlesGarbageVO">
+    <update id="updateArticlesStatus">
         UPDATE
             tb_article
         SET
-            <choose>
-                <when test="garbage.garbageFlag != null">
-                    garbage_flag = #{garbage.garbageFlag}
-                    <if test="!garbage.garbageFlag">
-                        , draft_flag = 1
-                    </if>
-                </when>
-                <otherwise>
-                    deleted_flag = 1
-                </otherwise>
-            </choose>
+        1 = 1
+        <if test="updateBatch.recycleFlag != null">
+            , recycle_flag = #{condition.recycleFlag}
+        </if>
+        <if test="updateBatch.deletedFlag != null">
+            , deleted_flag = #{condition.deletedFlag}
+        </if>
         WHERE
             1 = 1
         <if test="roleWeight > 300">
             AND user_id = #{userId}
         </if>
             AND id in
-            <foreach collection="garbage.idList" item="id" index="index" open="(" separator="," close=")">
+            <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
                 #{id}
             </foreach>
     </update>

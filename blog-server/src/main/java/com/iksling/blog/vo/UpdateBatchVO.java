@@ -5,12 +5,11 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
-@ApiModel(description = "回收站VO")
-public class GarbageVO {
+@ApiModel(description = "批量更新VO")
+public class UpdateBatchVO {
     /**
      * id列表
      */
@@ -19,9 +18,14 @@ public class GarbageVO {
     private List<Integer> idList;
 
     /**
-     * 是否回收
+     * 是否已回收
      */
-    @NotNull(message = "回收标志不能为null")
-    @ApiModelProperty(name = "garbageFlag", value = "是否回收", required = true, dataType = "Boolean")
-    private Boolean garbageFlag;
+    @ApiModelProperty(name = "recycleFlag", value = "是否已回收", dataType = "Boolean")
+    private Boolean recycleFlag;
+
+    /**
+     * 是否已删除
+     */
+    @ApiModelProperty(name = "deletedFlag", value = "是否已删除", dataType = "Boolean")
+    private Boolean deletedFlag;
 }

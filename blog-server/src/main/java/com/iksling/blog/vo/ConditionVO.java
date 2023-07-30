@@ -43,17 +43,23 @@ public class ConditionVO {
     private String keywords;
 
     /**
-     * 是否为草稿
+     * 是否是草稿
      */
-    @ApiModelProperty(name = "draftFlag", value = "是否为草稿", dataType = "Boolean")
+    @ApiModelProperty(name = "draftFlag", value = "是否是草稿", dataType = "Boolean")
     private Boolean draftFlag;
 
     /**
-     * 是否回收
+     * 是否已回收
      */
-    @NotNull(message = "回收标志不能为null")
-    @ApiModelProperty(name = "garbageFlag", value = "是否回收", required = true, dataType = "Boolean")
-    private Boolean garbageFlag;
+    @ApiModelProperty(name = "recycleFlag", value = "是否已回收", dataType = "Boolean")
+    private Boolean recycleFlag;
+
+    /**
+     * 是否已删除
+     */
+    @NotNull(message = "删除标志不能为null")
+    @ApiModelProperty(name = "deletedFlag", value = "是否已删除", required = true, dataType = "Boolean")
+    private Boolean deletedFlag;
 
     /**
      * 分类id

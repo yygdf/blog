@@ -23,7 +23,7 @@ import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleStatusVO;
-import com.iksling.blog.vo.GarbageVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.ConditionVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -69,7 +69,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         Article::getTopFlag, Article::getDraftFlag, Article::getPublicFlag, Article::getHiddenFlag, Article::getCommentableFlag)
                 .eq(Article::getId, articleId)
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
-                .eq(Article::getGarbageFlag, 0)
+                .eq(Article::getRecycleFlag, 0)
                 .eq(Article::getDeletedFlag, 0));
         List<Integer> tagIdList = articleTagMapper.selectList(new LambdaQueryWrapper<ArticleTag>()
                 .select(ArticleTag::getTagId)
@@ -110,8 +110,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         Article article = BeanCopyUtil.copyObject(articleBackVO, Article.class);
         if (Objects.isNull(article.getId())) {
             article.setUserId(loginUser.getUserId());
+            article.setRecycleFlag(false);
             article.setDeletedFlag(false);
-            article.setGarbageFlag(false);
             article.setIpSource(loginUser.getIpSource());
             article.setIpAddress(loginUser.getIpAddress());
             article.setCreateUser(loginUser.getUserId());
@@ -173,9 +173,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     public PagePojo<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition) {
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         LoginUser loginUser = UserUtil.getLoginUser();
-        Integer count = articleMapper.selectCountByCondition(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (count == 0)
-            return new PagePojo<>();
+        if (loginUser.getRoleWeight() > 100 && Objects.nonNull(condition.getDeletedFlag()))
+            throw new IllegalRequestException();
         List<ArticlesBackDTO> articlesBackDTOList = articleMapper.listArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (articlesBackDTOList.size() == 0)
             return new PagePojo<>();
@@ -185,26 +184,27 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             item.setViewCount(Objects.requireNonNull(viewCountMap).get(item.getId().toString()));
             item.setLikeCount(Objects.requireNonNull(likeCountMap).get(item.getId().toString()));
         });
-        return new PagePojo<>(count, articlesBackDTOList);
+        return new PagePojo<>(articlesBackDTOList.size(), articlesBackDTOList);
     }
 
     @Override
     @Transactional
-    public void updateArticlesGarbageVO(GarbageVO garbageVO) {
+    public void updateArticlesStatus(UpdateBatchVO updateBatchVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        int count = articleMapper.updateArticlesGarbageVO(garbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (count != garbageVO.getIdList().size())
+        if (loginUser.getRoleWeight() > 100 && Objects.equals(updateBatchVO.getDeletedFlag(), false))
+            throw new IllegalRequestException();
+        int count = articleMapper.updateArticlesStatus(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();
     }
 
     @Override
     @Transactional
     public void deleteArticleIdList(List<Integer> articleIdList) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        GarbageVO garbageVO = new GarbageVO();
-        garbageVO.setIdList(articleIdList);
-        int count = articleMapper.updateArticlesGarbageVO(garbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (count != garbageVO.getIdList().size())
+        if (UserUtil.getLoginUser().getRoleWeight() > 100)
+            throw new IllegalRequestException();
+        int count = articleMapper.deleteBatchIds(articleIdList);
+        if (count != articleIdList.size())
             throw new IllegalRequestException();
     }
 

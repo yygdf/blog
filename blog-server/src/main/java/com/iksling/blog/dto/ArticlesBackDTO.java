@@ -39,11 +39,6 @@ public class ArticlesBackDTO {
     private Boolean topFlag;
 
     /**
-     * 0是草稿，1不是草稿
-     */
-    private Boolean draftFlag;
-
-    /**
      * 0未公开，1已公开
      */
     private Boolean publicFlag;
@@ -52,11 +47,6 @@ public class ArticlesBackDTO {
      * 0未隐藏，1已隐藏
      */
     private Boolean hiddenFlag;
-
-    /**
-     * 0未回收，1已回收
-     */
-    private Boolean garbageFlag;
 
     /**
      * 0不可评论，1可评论

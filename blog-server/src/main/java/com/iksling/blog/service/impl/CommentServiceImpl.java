@@ -9,7 +9,7 @@ import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.CommentService;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionVO;
-import com.iksling.blog.vo.GarbageVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -52,18 +52,18 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
 
     @Override
     @Transactional
-    public void updateCommentsGarbageVO(GarbageVO garbageVO) {
+    public void updateCommentsGarbageVO(UpdateBatchVO updateBatchVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        commentMapper.updateCommentsGarbageVO(garbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
+        commentMapper.updateCommentsGarbageVO(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
     }
 
     @Override
     @Transactional
     public void deleteCommentIdList(List<Integer> commentIdList) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        GarbageVO garbageVO = new GarbageVO();
-        garbageVO.setIdList(commentIdList);
-        commentMapper.updateCommentsGarbageVO(garbageVO, loginUser.getUserId(), loginUser.getRoleWeight());
+        UpdateBatchVO updateBatchVO = new UpdateBatchVO();
+        updateBatchVO.setIdList(commentIdList);
+        commentMapper.updateCommentsGarbageVO(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
     }
 }
 

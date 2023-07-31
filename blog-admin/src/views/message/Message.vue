@@ -4,20 +4,20 @@
     <div class="operation-container">
       <el-button
         v-if="deletedFlag"
+        :disabled="messageIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="messageIdList.length === 0"
         @click="removeStatus = true"
       >
         批量删除
       </el-button>
       <el-button
         v-else
+        :disabled="messageIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="messageIdList.length === 0"
         @click="editStatus = true"
       >
         批量删除
@@ -26,23 +26,23 @@
         <el-select
           v-if="checkWeight(100)"
           v-model="deletedFlag"
-          placeholder="请选择"
           size="small"
           style="margin-right:1rem"
+          placeholder="请选择"
         >
           <el-option
             v-for="item in options"
             :key="item.value"
-            :label="item.label"
             :value="item.value"
+            :label="item.label"
           />
         </el-select>
         <el-input
           v-model="keywords"
-          prefix-icon="el-icon-search"
           size="small"
-          placeholder="请输入用户昵称"
           style="width:200px"
+          prefix-icon="el-icon-search"
+          placeholder="请输入用户昵称"
           @keyup.enter.native="listMessages"
         />
         <el-button
@@ -57,12 +57,12 @@
       </div>
     </div>
     <el-table
-      border
       v-loading="loading"
       :data="messageList"
+      border
       @selection-change="selectionChange"
     >
-      <el-table-column type="selection" width="40" align="center" />
+      <el-table-column type="selection" align="center" width="40" />
       <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
           <img :src="scope.row.avatar" width="40" height="40" />
@@ -90,22 +90,22 @@
       <el-table-column
         prop="createTime"
         label="留言时间"
-        width="200"
         align="center"
+        width="200"
       >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="80" align="center">
+      <el-table-column label="操作" align="center" width="80">
         <template slot-scope="scope">
           <el-popconfirm
             v-if="deletedFlag"
             title="确定彻底删除吗？"
             @confirm="deleteMessages(scope.row.id)"
           >
-            <el-button size="mini" type="danger" slot="reference">
+            <el-button type="danger" size="mini" slot="reference">
               删除
             </el-button>
           </el-popconfirm>
@@ -114,7 +114,7 @@
             title="确定删除吗？"
             @confirm="updateMessagesStatus(scope.row.id)"
           >
-            <el-button size="mini" type="danger" slot="reference">
+            <el-button type="danger" size="mini" slot="reference">
               删除
             </el-button>
           </el-popconfirm>
@@ -122,15 +122,15 @@
       </el-table-column>
     </el-table>
     <el-pagination
+      :total="count"
+      :page-size="size"
+      :page-sizes="[10, 20]"
+      :current-page="current"
       class="pagination-container"
+      layout="total, sizes, prev, pager, next, jumper"
       background
       @size-change="sizeChange"
       @current-change="currentChange"
-      :current-page="current"
-      :page-size="size"
-      :total="count"
-      :page-sizes="[10, 20]"
-      layout="total, sizes, prev, pager, next, jumper"
     />
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
@@ -169,7 +169,7 @@ export default {
       options: [
         {
           value: false,
-          label: "正常"
+          label: "已发送"
         },
         {
           value: true,
@@ -223,7 +223,7 @@ export default {
         });
     },
     deleteMessages(id) {
-      var param = {};
+      let param = {};
       if (id != null) {
         param = { data: [id] };
       } else {

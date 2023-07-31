@@ -4,60 +4,60 @@
     <div class="operation-container">
       <el-button
         v-if="deletedFlag"
+        :disabled="commentIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="commentIdList.length === 0"
         @click="removeStatus = true"
       >
         批量删除
       </el-button>
       <el-button
         v-else
+        :disabled="commentIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="commentIdList.length === 0"
         @click="editStatus = true"
       >
         批量删除
       </el-button>
       <div style="margin-left:auto">
         <el-select
+          v-if="checkWeight(300)"
           v-model="userId"
-          placeholder="请选择用户"
           size="small"
           style="margin-right:1rem"
+          placeholder="请选择用户"
           clearable
           filterable
-          v-if="checkWeight(300)"
         >
           <el-option
             v-for="item in usernameList"
             :key="item.userId"
-            :label="item.username"
             :value="item.userId"
+            :label="item.username"
           />
         </el-select>
         <el-select
           v-model="condition"
-          placeholder="请选择"
           size="small"
           style="margin-right:1rem"
+          placeholder="请选择"
         >
           <el-option
             v-for="item in options"
             :key="item.value"
-            :label="item.label"
             :value="item.value"
+            :label="item.label"
           />
         </el-select>
         <el-input
           v-model="keywords"
-          prefix-icon="el-icon-search"
           size="small"
-          placeholder="请输入文章标题"
           style="width:200px"
+          prefix-icon="el-icon-search"
+          placeholder="请输入文章标题"
           clearable
           @keyup.enter.native="listComments"
         />
@@ -73,12 +73,12 @@
       </div>
     </div>
     <el-table
-      border
-      :data="commentList"
-      @selection-change="selectionChange"
       v-loading="loading"
+      :data="commentList"
+      border
+      @selection-change="selectionChange"
     >
-      <el-table-column type="selection" width="40" align="center" />
+      <el-table-column type="selection" align="center" width="40" />
       <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
           <img :src="scope.row.avatar" width="40" height="40" />
@@ -122,8 +122,8 @@
       <el-table-column
         prop="likeCount"
         label="点赞量"
-        width="80"
         align="center"
+        width="80"
       >
         <template slot-scope="scope">
           <span v-if="scope.row.likeCount">
@@ -135,8 +135,8 @@
       <el-table-column
         prop="createTime"
         label="评论时间"
-        width="200"
         align="center"
+        width="200"
       >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
@@ -156,7 +156,7 @@
             title="确定恢复吗？"
             @confirm="updateCommentsStatus(scope.row.id, false)"
           >
-            <el-button size="mini" type="success" slot="reference">
+            <el-button type="success" size="mini" slot="reference">
               恢复
             </el-button>
           </el-popconfirm>
@@ -165,7 +165,7 @@
             title="确定恢复吗？"
             @confirm="updateCommentsStatus(scope.row.id)"
           >
-            <el-button size="mini" type="success" slot="reference">
+            <el-button type="success" size="mini" slot="reference">
               恢复
             </el-button>
           </el-popconfirm>
@@ -174,17 +174,17 @@
             title="确定删除吗？"
             @confirm="updateCommentsStatus(scope.row.id)"
           >
-            <el-button size="mini" type="danger" slot="reference">
+            <el-button type="danger" size="mini" slot="reference">
               删除
             </el-button>
           </el-popconfirm>
           <el-popconfirm
-            style="margin-left:10px"
             v-if="optionIndex === 2"
             title="确定彻底删除吗？"
+            style="margin-left:10px"
             @confirm="deleteComments(scope.row.id)"
           >
-            <el-button size="mini" type="danger" slot="reference">
+            <el-button type="danger" size="mini" slot="reference">
               删除
             </el-button>
           </el-popconfirm>
@@ -192,15 +192,15 @@
       </el-table-column>
     </el-table>
     <el-pagination
+      :total="count"
+      :page-size="size"
+      :page-sizes="[10, 20]"
+      :current-page="current"
       class="pagination-container"
+      layout="total, sizes, prev, pager, next, jumper"
       background
       @size-change="sizeChange"
       @current-change="currentChange"
-      :current-page="current"
-      :page-size="size"
-      :total="count"
-      :page-sizes="[10, 20]"
-      layout="total, sizes, prev, pager, next, jumper"
     />
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
@@ -315,7 +315,7 @@ export default {
       }
     },
     deleteComments(id) {
-      var param = {};
+      let param = {};
       if (id == null) {
         param = { data: this.commentIdList };
       } else {

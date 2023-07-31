@@ -12,91 +12,91 @@
       </el-button>
       <el-button
         v-if="deletedFlag"
+        :disabled="articleIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="articleIdList.length === 0"
         @click="removeStatus = true"
       >
         批量删除
       </el-button>
       <el-button
         v-else
+        :disabled="articleIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="articleIdList.length === 0"
         @click="editStatus = true"
       >
         批量删除
       </el-button>
       <div style="margin-left:auto">
         <el-select
+          v-if="checkWeight(300)"
           v-model="userId"
-          placeholder="请选择用户"
           size="small"
           style="margin-right:1rem"
+          placeholder="请选择用户"
           clearable
           filterable
-          v-if="checkWeight(300)"
         >
           <el-option
             v-for="item in usernameList"
             :key="item.userId"
-            :label="item.username"
             :value="item.userId"
+            :label="item.username"
           />
         </el-select>
         <el-select
           v-model="categoryId"
-          placeholder="请选择分类"
           size="small"
           style="margin-right:1rem"
+          placeholder="请选择分类"
           clearable
           filterable
         >
           <el-option
             v-for="item in categoryList"
             :key="item.id"
-            :label="item.categoryName"
             :value="item.id"
+            :label="item.categoryName"
           />
         </el-select>
         <el-select
           v-model="tagIdList"
-          placeholder="请选择标签"
-          multiple
           size="small"
           style="margin-right:1rem"
+          placeholder="请选择标签"
+          multiple
           clearable
           filterable
         >
           <el-option
             v-for="item in tagList"
             :key="item.id"
-            :label="item.tagName"
             :value="item.id"
+            :label="item.tagName"
           />
         </el-select>
         <el-select
           v-model="condition"
-          placeholder="请选择"
           size="small"
           style="margin-right:1rem"
+          placeholder="请选择"
         >
           <el-option
             v-for="item in options"
             :key="item.value"
-            :label="item.label"
             :value="item.value"
+            :label="item.label"
           />
         </el-select>
         <el-input
           v-model="keywords"
-          prefix-icon="el-icon-search"
           size="small"
-          placeholder="请输入文章名"
           style="width:200px"
+          prefix-icon="el-icon-search"
+          placeholder="请输入文章名"
           clearable
           @keyup.enter.native="listArticles"
         />
@@ -112,18 +112,18 @@
       </div>
     </div>
     <el-table
-      border
-      :data="articleList"
-      @selection-change="selectionChange"
       v-loading="loading"
+      :data="articleList"
+      border
+      @selection-change="selectionChange"
     >
-      <el-table-column type="selection" width="40" align="center" />
+      <el-table-column type="selection" align="center" width="40" />
       <el-table-column
+        v-if="checkWeight(300)"
         prop="username"
         label="用户"
-        width="120"
         align="center"
-        v-if="checkWeight(300)"
+        width="120"
       />
       <el-table-column
         prop="articleTitle"
@@ -134,8 +134,8 @@
       <el-table-column
         prop="categoryName"
         label="分类"
-        width="120"
         align="center"
+        width="120"
       />
       <el-table-column prop="tagDTOList" label="标签" align="center">
         <template slot-scope="scope">
@@ -151,8 +151,8 @@
       <el-table-column
         prop="viewCount"
         label="浏览量"
-        width="80"
         align="center"
+        width="80"
       >
         <template slot-scope="scope">
           <span v-if="scope.row.viewCount">
@@ -164,8 +164,8 @@
       <el-table-column
         prop="likeCount"
         label="点赞量"
-        width="80"
         align="center"
+        width="80"
       >
         <template slot-scope="scope">
           <span v-if="scope.row.likeCount">
@@ -177,8 +177,8 @@
       <el-table-column
         prop="publishTime"
         label="发表时间"
-        width="120"
         align="center"
+        width="120"
       >
         <template slot-scope="scope" v-if="scope.row.publishTime">
           <i class="el-icon-time" style="margin-right:5px" />
@@ -188,49 +188,49 @@
       <el-table-column
         prop="updateTime"
         label="更新时间"
-        width="120"
         align="center"
+        width="120"
       >
         <template slot-scope="scope" v-if="scope.row.updateTime">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
-      <el-table-column prop="topFlag" label="置顶" width="80" align="center">
+      <el-table-column prop="topFlag" label="置顶" align="center" width="80">
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.topFlag"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
             :disabled="optionIndex !== 0"
             :active-value="true"
             :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
             @change="updateArticleStatus(scope.row)"
           />
         </template>
       </el-table-column>
-      <el-table-column prop="hiddenFlag" label="隐藏" width="80" align="center">
+      <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hiddenFlag"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
             :disabled="optionIndex !== 0"
             :active-value="true"
             :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
             @change="updateArticleStatus(scope.row)"
           />
         </template>
       </el-table-column>
-      <el-table-column prop="publicFlag" label="公开" width="80" align="center">
+      <el-table-column prop="publicFlag" label="公开" align="center" width="80">
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.publicFlag"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
             :disabled="optionIndex !== 0"
             :active-value="true"
             :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
             @change="updateArticleStatus(scope.row)"
           />
         </template>
@@ -238,17 +238,17 @@
       <el-table-column
         prop="commentableFlag"
         label="可评论"
-        width="80"
         align="center"
+        width="80"
       >
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.commentableFlag"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
             :disabled="optionIndex !== 0"
             :active-value="true"
             :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
             @change="updateArticleStatus(scope.row)"
           />
         </template>
@@ -256,48 +256,48 @@
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
           <el-button
+            v-if="optionIndex === 0 || optionIndex === 1"
             type="primary"
             size="mini"
             @click="editArticle(scope.row.id, scope.row.userId)"
-            v-if="optionIndex === 0 || optionIndex === 1"
           >
             编辑
           </el-button>
           <el-popconfirm
-            title="确定恢复吗？"
             v-if="optionIndex === 2"
+            title="确定恢复吗？"
             @confirm="updateArticlesStatus(scope.row.id, false)"
           >
-            <el-button size="mini" type="success" slot="reference">
+            <el-button type="success" size="mini" slot="reference">
               恢复
             </el-button>
           </el-popconfirm>
           <el-popconfirm
-            title="确定恢复吗？"
             v-if="optionIndex === 3"
+            title="确定恢复吗？"
             @confirm="updateArticlesStatus(scope.row.id)"
           >
-            <el-button size="mini" type="success" slot="reference">
+            <el-button type="success" size="mini" slot="reference">
               恢复
             </el-button>
           </el-popconfirm>
           <el-popconfirm
+            v-if="optionIndex !== 3"
             title="确定删除吗？"
             style="margin-left:10px"
-            v-if="optionIndex !== 3"
             @confirm="updateArticlesStatus(scope.row.id)"
           >
-            <el-button size="mini" type="danger" slot="reference">
+            <el-button type="danger" size="mini" slot="reference">
               删除
             </el-button>
           </el-popconfirm>
           <el-popconfirm
-            style="margin-left:10px"
             v-if="optionIndex === 3"
             title="确定彻底删除吗？"
+            style="margin-left:10px"
             @confirm="deleteArticles(scope.row.id)"
           >
-            <el-button size="mini" type="danger" slot="reference">
+            <el-button type="danger" size="mini" slot="reference">
               删除
             </el-button>
           </el-popconfirm>
@@ -305,15 +305,15 @@
       </el-table-column>
     </el-table>
     <el-pagination
+      :total="count"
+      :page-size="size"
+      :page-sizes="[10, 20]"
+      :current-page="current"
       class="pagination-container"
+      layout="total, sizes, prev, pager, next, jumper"
       background
       @size-change="sizeChange"
       @current-change="currentChange"
-      :current-page="current"
-      :page-size="size"
-      :total="count"
-      :page-sizes="[10, 20]"
-      layout="total, sizes, prev, pager, next, jumper"
     />
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
@@ -430,7 +430,7 @@ export default {
         recycleFlag: this.recycleFlag,
         deletedFlag: this.deletedFlag
       };
-      if (!this.recycleFlag && !this.draftFlag) {
+      if (this.optionIndex === 0) {
         params.tagIdList = this.tagIdList;
         params.categoryId = this.categoryId;
       }
@@ -465,7 +465,7 @@ export default {
         });
     },
     deleteArticles(id) {
-      var param = {};
+      let param = {};
       if (id == null) {
         param = { data: this.articleIdList };
       } else {

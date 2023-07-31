@@ -11,37 +11,37 @@
         新增
       </el-button>
       <el-button
+        :disabled="tagIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="tagIdList.length === 0"
         @click="editStatus = true"
       >
         批量删除
       </el-button>
       <div style="margin-left:auto">
         <el-select
+          v-if="checkWeight(300)"
           v-model="userId"
-          placeholder="请选择用户"
           size="small"
           style="margin-right:1rem"
+          placeholder="请选择用户"
           clearable
           filterable
-          v-if="checkWeight(300)"
         >
           <el-option
             v-for="item in usernameList"
             :key="item.userId"
-            :label="item.username"
             :value="item.userId"
+            :label="item.username"
           />
         </el-select>
         <el-input
           v-model="keywords"
-          prefix-icon="el-icon-search"
           size="small"
-          placeholder="请输入标签名"
           style="width:200px"
+          placeholder="请输入标签名"
+          prefix-icon="el-icon-search"
           clearable
           @keyup.enter.native="listTags"
         />
@@ -57,17 +57,18 @@
       </div>
     </div>
     <el-table
-      border
       :data="tagList"
       v-loading="loading"
+      border
       @selection-change="selectionChange"
     >
       <el-table-column type="selection" align="center" width="40" />
       <el-table-column
+        v-if="checkWeight(300)"
         prop="username"
         label="用户"
         align="center"
-        v-if="checkWeight(300)"
+        width="120"
       />
       <el-table-column prop="tagName" label="标签名" align="center">
         <template slot-scope="scope">
@@ -108,7 +109,7 @@
             style="margin-left:1rem"
             @confirm="deleteTag(scope.row.id)"
           >
-            <el-button size="mini" type="danger" slot="reference">
+            <el-button type="danger" size="mini" slot="reference">
               删除
             </el-button>
           </el-popconfirm>
@@ -116,15 +117,15 @@
       </el-table-column>
     </el-table>
     <el-pagination
+      :total="count"
+      :page-size="size"
+      :page-sizes="[10, 20]"
+      :current-page="current"
       class="pagination-container"
+      layout="total, sizes, prev, pager, next, jumper"
       background
       @size-change="sizeChange"
       @current-change="currentChange"
-      :current-page="current"
-      :page-size="size"
-      :total="count"
-      :page-sizes="[10, 20]"
-      layout="total, sizes, prev, pager, next, jumper"
     />
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
@@ -140,9 +141,9 @@
     </el-dialog>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="tagTitle" />
-      <el-form label-width="80px" size="medium" :model="tag">
+      <el-form :model="tag" size="medium" label-width="80">
         <el-form-item label="标签名">
-          <el-input style="width:220px" v-model="tag.tagName" :maxLength="50" />
+          <el-input v-model="tag.tagName" style="width:200px" :maxLength="50" />
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -234,7 +235,7 @@ export default {
       }
     },
     deleteTag(id) {
-      var param = {};
+      let param = {};
       if (id == null) {
         param = { data: this.tagIdList };
       } else {

@@ -4,47 +4,47 @@
     <div class="article-title-container">
       <el-input
         v-model="article.articleTitle"
-        size="medium"
         :maxlength="50"
+        size="medium"
         placeholder="输入文章标题"
       />
       <el-button
+        v-if="article.draftFlag"
         type="danger"
         size="medium"
         class="save-btn"
         @click="saveArticleDraft"
-        v-if="article.draftFlag"
       >
         保存草稿
       </el-button>
       <el-button
+        @click="addOrEdit = true"
         type="danger"
         size="medium"
-        @click="addOrEdit = true"
         style="margin-left:10px"
       >
         发表文章
       </el-button>
     </div>
     <mavon-editor
-      ref="md"
       v-model="article.articleContent"
+      ref="md"
+      style="height:calc(100vh - 260px)"
       @imgAdd="uploadArticleImg"
       @imgDel="deleteArticleImg"
-      style="height:calc(100vh - 260px)"
     />
     <el-dialog :visible.sync="addOrEdit" width="40%" top="10vh">
       <div class="dialog-title-container" slot="title">
         上传文章
       </div>
-      <el-form label-width="80px" size="medium" :model="article">
+      <el-form label-width="80" size="medium" :model="article">
         <el-form-item label="文章分类">
           <el-select v-model="article.categoryId" placeholder="请选择分类">
             <el-option
               v-for="item in categoryList"
               :key="item.id"
-              :label="item.categoryName"
               :value="item.id"
+              :label="item.categoryName"
             />
           </el-select>
         </el-form-item>
@@ -57,19 +57,19 @@
             <el-option
               v-for="item in tagList"
               :key="item.id"
-              :label="item.tagName"
               :value="item.id"
+              :label="item.tagName"
             />
           </el-select>
         </el-form-item>
         <el-form-item label="上传封面">
           <el-upload
+            :limit="1"
+            action=""
             class="upload-cover"
             drag
-            action=""
-            :http-request="uploadCover"
             :on-remove="deleteCover"
-            :limit="1"
+            :http-request="uploadCover"
           >
             <i class="el-icon-upload" v-if="article.articleCover === ''" />
             <div class="el-upload__text" v-if="article.articleCover === ''">
@@ -78,47 +78,47 @@
             <img
               v-else
               :src="article.articleCover"
-              width="360px"
-              height="180px"
+              width="360"
+              height="180"
             />
           </el-upload>
         </el-form-item>
       </el-form>
-      <el-form label-width="80px" size="medium" :model="article" :inline="true">
+      <el-form :model="article" :inline="true" size="medium" label-width="80">
         <el-form-item label="置顶">
           <el-switch
             v-model="article.topFlag"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
             :active-value="true"
             :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
           />
         </el-form-item>
         <el-form-item label="隐藏">
           <el-switch
             v-model="article.hiddenFlag"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
             :active-value="true"
             :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
           />
         </el-form-item>
         <el-form-item label="公开">
           <el-switch
             v-model="article.publicFlag"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
             :active-value="true"
             :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
           />
         </el-form-item>
         <el-form-item label="可评论">
           <el-switch
             v-model="article.commentableFlag"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
             :active-value="true"
             :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
           />
         </el-form-item>
       </el-form>
@@ -196,8 +196,8 @@ export default {
   methods: {
     checkArticleUserIdIsNull() {
       return this.$store.state.articleUserId == null
-              ? ""
-              : this.$store.state.articleUserId;
+        ? ""
+        : this.$store.state.articleUserId;
     },
     listArticleOptions() {
       this.axios
@@ -210,7 +210,7 @@ export default {
         });
     },
     deleteImg(url) {
-      var param = { data: url };
+      let param = { data: url };
       this.axios.delete("/api/back/article/image", param);
     },
     uploadImg(pos, file) {
@@ -232,14 +232,14 @@ export default {
             formData.append("userId", this.checkArticleUserIdIsNull());
             formData.append("fileSubDir", this.article.id);
             this.axios
-                    .post("/api/back/article/image", formData)
-                    .then(({ data }) => {
-                      if (pos == null) {
-                        this.article.articleCover = data.data;
-                      } else {
-                        this.$refs.md.$img2Url(pos, data.data);
-                      }
-                    });
+              .post("/api/back/article/image", formData)
+              .then(({ data }) => {
+                if (pos == null) {
+                  this.article.articleCover = data.data;
+                } else {
+                  this.$refs.md.$img2Url(pos, data.data);
+                }
+              });
           } else {
             this.$notify.error({
               title: "失败",
@@ -248,19 +248,19 @@ export default {
           }
         });
       } else {
-        var formData = new FormData();
+        let formData = new FormData();
         formData.append("file", file);
         formData.append("userId", this.checkArticleUserIdIsNull());
         formData.append("fileSubDir", this.article.id);
         this.axios
-                .post("/api/back/article/image", formData)
-                .then(({ data }) => {
-                  if (pos == null) {
-                    this.article.articleCover = data.data;
-                  } else {
-                    this.$refs.md.$img2Url(pos, data.data);
-                  }
-                });
+          .post("/api/back/article/image", formData)
+          .then(({ data }) => {
+            if (pos == null) {
+              this.article.articleCover = data.data;
+            } else {
+              this.$refs.md.$img2Url(pos, data.data);
+            }
+          });
       }
     },
     deleteCover() {
@@ -275,9 +275,9 @@ export default {
     },
     autoSaveArticle() {
       if (
-              this.autoSave &&
-              this.article.articleTitle.trim() !== "" &&
-              this.article.articleContent.trim() !== ""
+        this.autoSave &&
+        this.article.articleTitle.trim() !== "" &&
+        this.article.articleContent.trim() !== ""
       ) {
         this.article.draftFlag = true;
         this.axios.post("/api/back/article", this.article).then(({ data }) => {

@@ -11,37 +11,37 @@
         新增
       </el-button>
       <el-button
+        :disabled="this.categoryIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        :disabled="this.categoryIdList.length === 0"
         @click="editStatus = true"
       >
         批量删除
       </el-button>
       <div style="margin-left:auto">
         <el-select
+          v-if="checkWeight(300)"
           v-model="userId"
-          placeholder="请选择用户"
           size="small"
           style="margin-right:1rem"
+          placeholder="请选择用户"
           clearable
           filterable
-          v-if="checkWeight(300)"
         >
           <el-option
             v-for="item in usernameList"
             :key="item.userId"
-            :label="item.username"
             :value="item.userId"
+            :label="item.username"
           />
         </el-select>
         <el-input
           v-model="keywords"
-          prefix-icon="el-icon-search"
           size="small"
-          placeholder="请输入分类名"
           style="width:200px"
+          prefix-icon="el-icon-search"
+          placeholder="请输入分类名"
           clearable
           @keyup.enter.native="listCategories"
         />
@@ -57,22 +57,24 @@
       </div>
     </div>
     <el-table
-      border
-      :data="categoryList"
-      @selection-change="selectionChange"
       v-loading="loading"
+      :data="categoryList"
+      border
+      @selection-change="selectionChange"
     >
       <el-table-column
         type="selection"
         align="center"
         width="40"
-        :selectable="handleDisabled"
+        slot-scope="scope"
+        :selectable="!scope.row.articleCount"
       />
       <el-table-column
+        v-if="checkWeight(300)"
         prop="username"
         label="用户"
         align="center"
-        v-if="checkWeight(300)"
+        width="120"
       />
       <el-table-column prop="categoryName" label="分类名" align="center" />
       <el-table-column prop="articleCount" label="文章数" align="center" width="80">
@@ -98,16 +100,16 @@
       <el-table-column
         prop="hiddenFlag"
         label="隐藏"
-        width="80"
         align="center"
+        width="80"
       >
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hiddenFlag"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
             :active-value="true"
             :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
             @change="changeCategoryStatus(scope.row)"
           />
         </template>
@@ -115,21 +117,21 @@
       <el-table-column
         prop="publicFlag"
         label="公开"
-        width="80"
         align="center"
+        width="80"
       >
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.publicFlag"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
             :active-value="true"
             :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
             @change="changeCategoryStatus(scope.row)"
           />
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="160" align="center">
+      <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="openModel(scope.row)">
             编辑
@@ -140,10 +142,10 @@
             @confirm="deleteCategory(scope.row.id)"
           >
             <el-button
-              size="mini"
-              type="danger"
-              slot="reference"
               :disabled="scope.row.articleCount !== 0"
+              type="danger"
+              size="mini"
+              slot="reference"
             >
               删除
             </el-button>
@@ -152,15 +154,15 @@
       </el-table-column>
     </el-table>
     <el-pagination
+      :total="count"
+      :page-size="size"
+      :page-sizes="[10, 20]"
+      :current-page="current"
       class="pagination-container"
+      layout="total, sizes, prev, pager, next, jumper"
       background
       @size-change="sizeChange"
       @current-change="currentChange"
-      :current-page="current"
-      :page-size="size"
-      :total="count"
-      :page-sizes="[10, 20]"
-      layout="total, sizes, prev, pager, next, jumper"
     />
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
@@ -176,33 +178,33 @@
     </el-dialog>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="categoryTitle" />
-      <el-form label-width="80px" size="medium" :model="category">
+      <el-form :model="category" size="medium" label-width="80">
         <el-form-item label="分类名">
-          <el-input v-model="category.categoryName" style="width:220px" :maxLength="50" />
+          <el-input v-model="category.categoryName" style="width:200px" :maxLength="50" />
         </el-form-item>
       </el-form>
       <el-form
-        label-width="80px"
-        size="medium"
         :model="category"
         :inline="true"
+        size="medium"
+        label-width="80"
       >
         <el-form-item label="隐藏">
           <el-switch
             v-model="category.hiddenFlag"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
             :active-value="true"
             :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
           />
         </el-form-item>
         <el-form-item label="公开">
           <el-switch
             v-model="category.publicFlag"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
             :active-value="true"
             :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
           />
         </el-form-item>
       </el-form>
@@ -269,9 +271,6 @@ export default {
       this.current = current;
       this.listCategories();
     },
-    handleDisabled(row) {
-      return row.articleCount === 0;
-    },
     selectionChange(categoryList) {
       this.categoryIdList = [];
       categoryList.forEach(item => {
@@ -280,19 +279,19 @@ export default {
     },
     listCategories() {
       this.axios
-              .get("/api/back/categories", {
-                params: {
-                  size: this.size,
-                  userId: this.userId,
-                  current: this.current,
-                  keywords: this.keywords
-                }
-              })
-              .then(({ data }) => {
-                this.count = data.data.count;
-                this.categoryList = data.data.pageList;
-                this.loading = false;
-              });
+        .get("/api/back/categories", {
+          params: {
+            size: this.size,
+            userId: this.userId,
+            current: this.current,
+            keywords: this.keywords
+          }
+        })
+        .then(({ data }) => {
+          this.count = data.data.count;
+          this.categoryList = data.data.pageList;
+          this.loading = false;
+        });
     },
     listAllUsername() {
       if (this.checkWeight(300)) {
@@ -302,7 +301,7 @@ export default {
       }
     },
     deleteCategory(id) {
-      var param = {};
+      let param = {};
       if (id == null) {
         param = { data: this.categoryIdList };
       } else {

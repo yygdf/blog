@@ -15,7 +15,7 @@
           <i class="el-icon-full-screen" />
         </div>
         <el-dropdown @command="handleCommand">
-          <el-avatar :size="40" :src="this.$store.state.avatar" />
+          <el-avatar :src="this.$store.state.avatar" :size="40" />
           <i class="el-icon-caret-bottom" />
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="setting">
@@ -75,7 +75,7 @@ export default {
     removeTab(tab) {
       this.$store.commit("removeTab", tab);
       if (tab.path === this.$route.path) {
-        var tabList = this.$store.state.tabList;
+        let tabList = this.$store.state.tabList;
         this.$router.push({ path: tabList[tabList.length - 1].path });
       }
     },

@@ -6,7 +6,7 @@ import axios from "axios";
 export function generaMenu() {
   axios.get("/api/back/user/menus").then(({ data }) => {
     if (data.flag) {
-      var userMenuList = data.data;
+      let userMenuList = data.data;
       userMenuList.forEach(item => {
         if (!item.children) {
           item.children = [

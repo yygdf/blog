@@ -26,7 +26,7 @@ export default new Vuex.Store({
       }
     },
     removeTab(state, tab) {
-      var index = state.tabList.findIndex(item => item.name === tab.name);
+      let index = state.tabList.findIndex(item => item.name === tab.name);
       state.tabList.splice(index, 1);
     },
     resetTab(state) {

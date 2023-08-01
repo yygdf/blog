@@ -4,7 +4,7 @@
       <SideBar />
     </el-aside>
     <el-container :class="'main-container ' + isHide">
-      <el-header height="84px" style="padding:0">
+      <el-header style="padding:0" height="84">
         <NavBar :key="$route.fullPath" />
       </el-header>
       <el-main style="background:#F7F9FB">

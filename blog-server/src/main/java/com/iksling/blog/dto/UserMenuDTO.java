@@ -42,6 +42,11 @@ public class UserMenuDTO {
     private Boolean hideFlag;
 
     /**
+     * 0未隐藏，1已隐藏
+     */
+    private Boolean hiddenFlag;
+
+    /**
      * 0未禁用，1已禁用
      */
     private Boolean disabledFlag;

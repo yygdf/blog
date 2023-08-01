@@ -66,8 +66,7 @@
         type="selection"
         align="center"
         width="40"
-        slot-scope="scope"
-        :selectable="!scope.row.articleCount"
+        :selectable="checkSelectable"
       />
       <el-table-column
         v-if="checkWeight(300)"
@@ -270,6 +269,9 @@ export default {
     currentChange(current) {
       this.current = current;
       this.listCategories();
+    },
+    checkSelectable(row) {
+      return !row.articleCount;
     },
     selectionChange(categoryList) {
       this.categoryIdList = [];

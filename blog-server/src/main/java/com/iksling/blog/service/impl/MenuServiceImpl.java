@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.UserMenuDTO;
 import com.iksling.blog.entity.Menu;
 import com.iksling.blog.mapper.MenuMapper;
+import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MenuService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
@@ -26,8 +27,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
 
     @Override
     public List<UserMenuDTO> listUserMenuDTO() {
-        Integer userId = UserUtil.getLoginUser().getUserId();
-        List<Menu> menuList = menuMapper.listMenusByUserId(userId);
+        LoginUser loginUser = UserUtil.getLoginUser();
+        List<Menu> menuList = menuMapper.listMenusByUserId(loginUser.getUserId(), loginUser.getRoleWeight());
         List<Menu> parentMenuList = getParentMenuList(menuList);
         Map<Integer, List<Menu>> childrenMenuMap = getChildrenMenuMap(menuList);
         return convertUserMenuDTOList(parentMenuList, childrenMenuMap);

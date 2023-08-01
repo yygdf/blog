@@ -94,7 +94,7 @@
                 <if test="condition.keywords != null">
                     AND article_title like concat('%', #{condition.keywords}, '%')
                 </if>
-                <if test="condition.tagIdList != null">
+                <if test="condition.tagIdList != null and condition.tagIdList.size() != 0">
                     AND a.id in
                         (
                         SELECT
@@ -135,7 +135,7 @@
                 , draft_flag = 1
             </if>
         WHERE
-            AND id in
+            id in
             <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
                 #{id}
             </foreach>

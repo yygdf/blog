@@ -60,7 +60,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     @Override
     @Transactional
     public void deleteMessageIdList(List<Integer> messageIdList) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100)
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 || messageIdList.size() == 0)
             throw new IllegalRequestException();
         int count = messageMapper.deleteBatchIds(messageIdList);
         if (count != messageIdList.size())

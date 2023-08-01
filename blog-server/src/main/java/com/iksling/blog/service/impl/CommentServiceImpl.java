@@ -60,7 +60,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     @Override
     @Transactional
     public void deleteCommentIdList(List<Integer> commentIdList) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100)
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 || commentIdList.size() == 0)
             throw new IllegalRequestException();
         commentMapper.deleteBatchIds(commentIdList);
     }

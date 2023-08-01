@@ -92,6 +92,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     @Override
     @Transactional
     public void deleteCategoryIdList(List<Integer> categoryIdList) {
+        if (categoryIdList.size() == 0)
+            throw new IllegalRequestException();
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())

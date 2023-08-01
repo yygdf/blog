@@ -69,6 +69,8 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     @Override
     @Transactional
     public void deleteTagIdList(List<Integer> tagIdList) {
+        if (tagIdList.size() == 0)
+            throw new IllegalRequestException();
         LoginUser loginUser = UserUtil.getLoginUser();
         if (loginUser.getRoleWeight() > 300) {
             List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()

@@ -199,7 +199,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     @Transactional
     public void deleteArticleIdList(List<Integer> articleIdList) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100)
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 || articleIdList.size() == 0)
             throw new IllegalRequestException();
         int count = articleMapper.deleteBatchIds(articleIdList);
         if (count != articleIdList.size())

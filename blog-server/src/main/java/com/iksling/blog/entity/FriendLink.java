@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 
@@ -45,6 +46,11 @@ public class FriendLink implements Serializable {
      * 友链名称
      */
     private String linkName;
+
+    /**
+     * 0未删除，1已删除
+     */
+    private Boolean deletedFlag;
 
     /**
      * 创建人

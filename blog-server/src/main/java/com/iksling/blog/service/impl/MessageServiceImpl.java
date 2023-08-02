@@ -52,7 +52,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     public void updateMessagesStatus(UpdateBatchVO updateBatchVO) {
         if (UserUtil.getLoginUser().getRoleWeight() > 200)
             throw new IllegalRequestException();
-        int count = messageMapper.updateMessagesStatus(updateBatchVO, UserUtil.getLoginUser().getRoleWeight());
+        Integer count = messageMapper.updateMessagesStatus(updateBatchVO, UserUtil.getLoginUser().getRoleWeight());
         if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();
     }

@@ -191,7 +191,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Transactional
     public void updateArticlesStatus(UpdateBatchVO updateBatchVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        int count = articleMapper.updateArticlesStatus(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
+        Integer count = articleMapper.updateArticlesStatus(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();
     }

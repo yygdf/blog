@@ -33,11 +33,6 @@ public class MessagesBackDTO {
     private String nickname;
 
     /**
-     * 留言速度
-     */
-    private Integer messageSpeed;
-
-    /**
      * 留言内容
      */
     private String messageContent;

@@ -32,8 +32,6 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
 
     @Override
     public PagePojo<MessagesBackDTO> getPageMessagesBackDTO(ConditionVO condition) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 200)
-            throw new IllegalRequestException();
         if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
         Page<Message> page = new Page<>(condition.getCurrent(), condition.getSize());
@@ -50,8 +48,6 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     @Override
     @Transactional
     public void updateMessagesStatus(UpdateBatchVO updateBatchVO) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 200)
-            throw new IllegalRequestException();
         Integer count = messageMapper.updateMessagesStatus(updateBatchVO, UserUtil.getLoginUser().getRoleWeight());
         if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();

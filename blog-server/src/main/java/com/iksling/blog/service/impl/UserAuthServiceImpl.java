@@ -1,6 +1,7 @@
 package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.UsernameDTO;
 import com.iksling.blog.entity.UserAuth;
@@ -22,9 +23,10 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     private UserAuthMapper userAuthMapper;
 
     @Override
-    public List<UsernameDTO> getAllUsername() {
+    public List<UsernameDTO> getAllUsername(String keywords) {
         List<UserAuth> userAuthList = userAuthMapper.selectList(new LambdaQueryWrapper<UserAuth>()
-                .select(UserAuth::getUserId, UserAuth::getUsername));
+                .select(UserAuth::getUserId, UserAuth::getUsername)
+                .likeRight(StringUtils.isNotBlank(keywords), UserAuth::getUsername, keywords.trim()));
         return BeanCopyUtil.copyList(userAuthList, UsernameDTO.class);
     }
 }

@@ -51,6 +51,7 @@ public class ConditionVO {
     /**
      * 是否已回收
      */
+    @NotNull(message = "回收标志不能为null")
     @ApiModelProperty(name = "recycleFlag", value = "是否已回收", dataType = "Boolean")
     private Boolean recycleFlag;
 

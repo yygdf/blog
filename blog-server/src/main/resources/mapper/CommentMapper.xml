@@ -42,9 +42,17 @@
             AND c.deleted_flag = #{condition.deletedFlag}
             <choose>
                 <when test="roleWeight > 300">
-                    AND (
-                        c.user_id = #{userId} OR a.user_id = #{userId}
-                    )
+                    <choose>
+                        <when test="roleWeight lte 400">
+                            AND (c.user_id = #{userId} OR a.user_id = #{userId})
+                            <if test="condition.userId != null">
+                                AND c.user_id = #{condition.userId}
+                            </if>
+                        </when>
+                        <otherwise>
+                            AND c.user_id = #{userId}
+                        </otherwise>
+                    </choose>
                 </when>
                 <otherwise>
                     <if test="condition.userId != null">
@@ -52,9 +60,17 @@
                     </if>
                 </otherwise>
             </choose>
-            <if test="condition.keywords != null">
-                AND a.article_title like concat('%', #{condition.keywords}, '%')
-            </if>
+            <choose>
+                <when test="condition.draftFlag == null || !condition.draftFlag">
+                    AND a.article_title IS NOT NULL
+                    <if test="condition.keywords != null">
+                        AND a.article_title like concat('%', #{condition.keywords}, '%')
+                    </if>
+                </when>
+                <otherwise>
+                    AND a.article_title IS NULL
+                </otherwise>
+            </choose>
         </where>
         ORDER BY
             c.create_time DESC
@@ -69,12 +85,12 @@
             recycle_flag = #{updateBatch.recycleFlag},
             deleted_flag = #{updateBatch.deletedFlag}
         WHERE
-            AND (
+            (
                 id in
                 <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
                     #{id}
                 </foreach>
-                <if test="updateBatch.recycleFlag == null || updateBatch.recycleFlag">
+                <if test="updateBatch.recycleFlag">
                     or parent_id in
                     <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
                         #{id}

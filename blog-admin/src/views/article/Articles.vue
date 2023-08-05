@@ -37,8 +37,10 @@
           size="small"
           style="margin-right:1rem"
           placeholder="请选择用户"
+          remote
           clearable
           filterable
+          :remote-method="listAllUsername"
         >
           <el-option
             v-for="item in usernameList"
@@ -346,9 +348,7 @@
 import qs from "qs";
 export default {
   created() {
-    this.userId = this.$store.state.userId;
     this.listArticles();
-    this.listAllUsername();
     this.listArticleOptions();
     if (this.checkWeight(100)) {
       this.options[3] = {
@@ -447,12 +447,15 @@ export default {
           this.loading = false;
         });
     },
-    listAllUsername() {
-      if (this.checkWeight(300)) {
-        this.axios.get("/api/back/user/username").then(({ data }) => {
+    listAllUsername(keywords) {
+      if (keywords.trim() === "") {
+        return;
+      }
+      this.axios
+        .get("/api/back/user/username", { params: { keywords } })
+        .then(({ data }) => {
           this.usernameList = data.data;
         });
-      }
     },
     listArticleOptions() {
       this.axios
@@ -546,11 +549,9 @@ export default {
       }
       this.listArticles();
     },
-    userId(newVal, oldVal) {
-      if (oldVal != null) {
-        this.listArticles();
-        this.listArticleOptions();
-      }
+    userId() {
+      this.listArticles();
+      this.listArticleOptions();
     },
     tagIdList() {
       this.listArticles();

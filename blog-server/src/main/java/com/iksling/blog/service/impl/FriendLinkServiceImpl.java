@@ -8,7 +8,6 @@ import com.iksling.blog.mapper.FriendLinkMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.FriendLinkService;
-import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.FriendLinkBackVO;
@@ -33,7 +32,7 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     @Override
     public PagePojo<FriendLinksBackDTO> getPageFriendLinksBackDTO(ConditionVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 200 || (loginUser.getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true)))
+        if (loginUser.getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<FriendLinksBackDTO> friendLinksBackDTOList = friendLinkMapper.listFriendLinksBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
@@ -45,8 +44,6 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     @Override
     @Transactional
     public void updateFriendLinksStatus(UpdateBatchVO updateBatchVO) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 200)
-            throw new IllegalRequestException();
         Integer count = friendLinkMapper.updateFriendLinksStatus(updateBatchVO, UserUtil.getLoginUser().getRoleWeight());
         if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();
@@ -66,9 +63,14 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     @Transactional
     public void saveOrUpdateFriendLinkBackVO(FriendLinkBackVO friendLinkBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 200)
-            throw new IllegalRequestException();
-        FriendLink friendLink = BeanCopyUtil.copyObject(friendLinkBackVO, FriendLink.class);
+        FriendLink friendLink = FriendLink.builder()
+                .id(friendLinkBackVO.getId())
+                .userId(friendLinkBackVO.getUserId())
+                .linkUrl(friendLinkBackVO.getLinkUrl().trim())
+                .linkDesc(friendLinkBackVO.getLinkDesc().trim())
+                .linkLogo(friendLinkBackVO.getLinkLogo().trim())
+                .linkName(friendLinkBackVO.getLinkName().trim())
+                .build();
         if (Objects.isNull(friendLinkBackVO.getId())) {
             friendLink.setUserId(loginUser.getUserId());
             friendLink.setCreateUser(loginUser.getUserId());

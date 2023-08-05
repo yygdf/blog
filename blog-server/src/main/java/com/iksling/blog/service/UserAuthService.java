@@ -11,5 +11,5 @@ import java.util.List;
  */
 public interface UserAuthService extends IService<UserAuth> {
 
-    List<UsernameDTO> getAllUsername();
+    List<UsernameDTO> getAllUsername(String keywords);
 }

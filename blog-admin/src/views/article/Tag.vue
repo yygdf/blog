@@ -15,7 +15,7 @@
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="editStatus = true"
+        @click="removeStatus = true"
       >
         批量删除
       </el-button>
@@ -26,8 +26,10 @@
           size="small"
           style="margin-right:1rem"
           placeholder="请选择用户"
+          remote
           clearable
           filterable
+          :remote-method="listAllUsername"
         >
           <el-option
             v-for="item in usernameList"
@@ -127,13 +129,13 @@
       @size-change="sizeChange"
       @current-change="currentChange"
     />
-    <el-dialog :visible.sync="editStatus" width="30%">
+    <el-dialog :visible.sync="removeStatus" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
-        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button @click="removeStatus = false">取 消</el-button>
         <el-button type="primary" @click="deleteTag(null)">
           确 定
         </el-button>
@@ -159,9 +161,7 @@
 <script>
 export default {
   created() {
-    this.userId = this.$store.state.userId;
     this.listTags();
-    this.listAllUsername();
   },
   data: function() {
     return {
@@ -175,7 +175,7 @@ export default {
       userId: null,
       keywords: null,
       loading: true,
-      editStatus: false,
+      removeStatus: false,
       addOrEditStatus: false,
       size: 10,
       count: 0,
@@ -227,12 +227,15 @@ export default {
           this.loading = false;
         });
     },
-    listAllUsername() {
-      if (this.checkWeight(300)) {
-        this.axios.get("/api/back/user/username").then(({ data }) => {
+    listAllUsername(keywords) {
+      if (keywords.trim() === "") {
+        return;
+      }
+      this.axios
+        .get("/api/back/user/username", { params: { keywords } })
+        .then(({ data }) => {
           this.usernameList = data.data;
         });
-      }
     },
     deleteTag(id) {
       let param = {};
@@ -255,7 +258,7 @@ export default {
           });
         }
       });
-      this.editStatus = false;
+      this.removeStatus = false;
     },
     addOrEditTag() {
       if (this.tag.tagName.trim() === "") {
@@ -280,10 +283,8 @@ export default {
     }
   },
   watch: {
-    userId(newVal, oldVal) {
-      if (oldVal != null) {
-        this.listTags();
-      }
+    userId() {
+      this.listTags();
     }
   }
 };

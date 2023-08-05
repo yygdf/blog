@@ -18,10 +18,10 @@
         保存草稿
       </el-button>
       <el-button
-        @click="addOrEdit = true"
         type="danger"
         size="medium"
         style="margin-left:10px"
+        @click="addOrEditStatus = true"
       >
         发表文章
       </el-button>
@@ -33,11 +33,11 @@
       @imgAdd="uploadArticleImg"
       @imgDel="deleteArticleImg"
     />
-    <el-dialog :visible.sync="addOrEdit" width="40%" top="10vh">
+    <el-dialog :visible.sync="addOrEditStatus" width="40%" top="10vh">
       <div class="dialog-title-container" slot="title">
         上传文章
       </div>
-      <el-form label-width="80" size="medium" :model="article">
+      <el-form :model="article" size="medium" label-width="80">
         <el-form-item label="文章分类">
           <el-select v-model="article.categoryId" placeholder="请选择分类">
             <el-option
@@ -123,7 +123,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="addOrEdit = false">取 消</el-button>
+        <el-button @click="addOrEditStatus = false">取 消</el-button>
         <el-button type="danger" @click="saveOrUpdateArticle">
           发 表
         </el-button>
@@ -154,10 +154,6 @@ export default {
   },
   data: function() {
     return {
-      addOrEdit: false,
-      autoSave: false,
-      tagList: [],
-      categoryList: [],
       article: {
         id: null,
         categoryId: null,
@@ -170,7 +166,11 @@ export default {
         hiddenFlag: false,
         commentableFlag: true,
         tagIdList: []
-      }
+      },
+      tagList: [],
+      categoryList: [],
+      autoSave: false,
+      addOrEditStatus: false
     };
   },
   computed: {
@@ -356,7 +356,7 @@ export default {
           });
         }
       });
-      this.addOrEdit = false;
+      this.addOrEditStatus = false;
       this.autoSave = false;
     }
   },

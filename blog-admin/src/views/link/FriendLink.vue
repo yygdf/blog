@@ -32,6 +32,23 @@
       </el-button>
       <div style="margin-left:auto">
         <el-select
+          v-model="userId"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择用户"
+          remote
+          clearable
+          filterable
+          :remote-method="listAllUsername"
+        >
+          <el-option
+            v-for="item in usernameList"
+            :key="item.userId"
+            :value="item.userId"
+            :label="item.username"
+          />
+        </el-select>
+        <el-select
           v-if="checkWeight(100)"
           v-model="deletedFlag"
           size="small"
@@ -45,36 +62,21 @@
             :label="item.label"
           />
         </el-select>
-        <el-select
-          v-if="checkWeight(200)"
-          v-model="userId"
-          size="small"
-          style="margin-right:1rem"
-          placeholder="请选择用户"
-          clearable
-          filterable
-        >
-          <el-option
-            v-for="item in usernameList"
-            :key="item.userId"
-            :value="item.userId"
-            :label="item.username"
-          />
-        </el-select>
         <el-input
           v-model="keywords"
           size="small"
           style="width:200px"
           prefix-icon="el-icon-search"
           placeholder="请输入友链名"
-          @keyup.enter.native="listLinks"
+          clearable
+          @keyup.enter.native="listFriendLinks"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listLinks"
+          @click="listFriendLinks"
         >
           搜索
         </el-button>
@@ -88,10 +90,16 @@
     >
       <el-table-column type="selection" align="center" width="40" />
       <el-table-column
+        prop="username"
+        label="用户"
+        align="center"
+        width="120"
+      />
+      <el-table-column
         prop="linkLogo"
         label="友链图标"
         align="center"
-        width="80"
+        width="120"
       >
         <template slot-scope="scope">
           <img :src="scope.row.linkLogo" width="40" height="40" />
@@ -178,8 +186,26 @@
       </div>
     </el-dialog>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
-      <div class="dialog-title-container" slot="title" ref="linkTitle" />
+      <div class="dialog-title-container" slot="title" ref="friendLinkTitle" />
       <el-form :model="friendLink" size="medium" label-width="80">
+        <el-form-item label="所属用户" v-if="!friendLink.id">
+          <el-select
+            v-model="friendLink.userId"
+            style="width:250px"
+            placeholder="请选择用户"
+            remote
+            clearable
+            filterable
+            :remote-method="query => listAllUsername(query, false)"
+          >
+            <el-option
+              v-for="item in usernameListAdd"
+              :key="item.userId"
+              :value="item.userId"
+              :label="item.username"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="友链名称">
           <el-input
             v-model="friendLink.linkName"
@@ -222,14 +248,14 @@
 <script>
 export default {
   created() {
-    this.listLinks();
+    this.listFriendLinks();
   },
   data: function() {
     return {
       options: [
         {
           value: false,
-          label: "已发送"
+          label: "已展示"
         },
         {
           value: true,
@@ -238,12 +264,14 @@ export default {
       ],
       friendLink: {
         id: null,
+        userId: null,
         linkUrl: "",
         linkDesc: "",
         linkLogo: "",
         linkName: ""
       },
       usernameList: [],
+      usernameListAdd: [],
       friendLinkList: [],
       friendLinkIdList: [],
       userId: null,
@@ -259,30 +287,31 @@ export default {
     };
   },
   methods: {
-    openModel(link) {
-      if (link != null) {
-        this.friendLink = JSON.parse(JSON.stringify(link));
-        this.$refs.linkTitle.innerHTML = "修改友链";
+    openModel(friendLink) {
+      if (friendLink != null) {
+        this.friendLink = JSON.parse(JSON.stringify(friendLink));
+        this.$refs.friendLinkTitle.innerHTML = "修改友链";
       } else {
         this.friendLink.id = null;
+        this.friendLink.userId = null;
         this.friendLink.linkUrl = "";
         this.friendLink.linkDesc = "";
         this.friendLink.linkLogo = "";
         this.friendLink.linkName = "";
-        this.$refs.linkTitle.innerHTML = "添加友链";
+        this.$refs.friendLinkTitle.innerHTML = "添加友链";
       }
       this.addOrEditStatus = true;
     },
     sizeChange(size) {
       this.size = size;
-      this.listLinks();
+      this.listFriendLinks();
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listLinks();
+      this.listFriendLinks();
     },
     selectionChange(friendLinkList) {
       this.friendLinkIdList = [];
@@ -290,11 +319,12 @@ export default {
         this.friendLinkIdList.push(item.id);
       });
     },
-    listLinks() {
+    listFriendLinks() {
       this.axios
-        .get("/api/back/links", {
+        .get("/api/back/friendLinks", {
           params: {
             size: this.size,
+            userId: this.userId,
             current: this.current,
             keywords: this.keywords,
             deletedFlag: this.deletedFlag
@@ -306,7 +336,25 @@ export default {
           this.loading = false;
         });
     },
+    listAllUsername(keywords, flag = true) {
+      if (keywords.trim() === "") {
+        return;
+      }
+      this.axios
+        .get("/api/back/user/username", { params: { keywords } })
+        .then(({ data }) => {
+          if (flag) {
+            this.usernameList = data.data;
+          } else {
+            this.usernameListAdd = data.data;
+          }
+        });
+    },
     addOrEditCategory() {
+      if (this.friendLink.userId == null) {
+        this.$message.error("所属用户不能为空");
+        return false;
+      }
       if (this.friendLink.linkName.trim() === "") {
         this.$message.error("友链名称不能为空");
         return false;
@@ -324,14 +372,14 @@ export default {
         return false;
       }
       this.axios
-        .post("/api/back/friendLinks", this.friendLink)
+        .post("/api/back/friendLink", this.friendLink)
         .then(({ data }) => {
           if (data.flag) {
             this.$notify.success({
               title: "成功",
               message: data.message
             });
-            this.listLinks();
+            this.listFriendLinks();
           } else {
             this.$notify.error({
               title: "失败",
@@ -354,7 +402,7 @@ export default {
             title: "成功",
             message: data.message
           });
-          this.listLinks();
+          this.listFriendLinks();
         } else {
           this.$notify.error({
             title: "失败",
@@ -378,7 +426,7 @@ export default {
             title: "成功",
             message: data.message
           });
-          this.listArticles();
+          this.listFriendLinks();
         } else {
           this.$notify.error({
             title: "失败",
@@ -387,6 +435,14 @@ export default {
         }
         this.editStatus = false;
       });
+    }
+  },
+  watch: {
+    userId() {
+      this.listFriendLinks();
+    },
+    deletedFlag() {
+      this.listFriendLinks();
     }
   }
 };

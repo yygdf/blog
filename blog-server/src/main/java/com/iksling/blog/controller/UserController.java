@@ -16,7 +16,7 @@ public class UserController {
 
     @ApiOperation(value = "查看所有的用户名")
     @GetMapping("/back/user/username")
-    public Result listBackAllUsername() {
-        return Result.success().message("查询成功").data(userAuthService.getAllUsername());
+    public Result listBackAllUsername(String keywords) {
+        return Result.success().message("查询成功").data(userAuthService.getAllUsername(keywords));
     }
 }

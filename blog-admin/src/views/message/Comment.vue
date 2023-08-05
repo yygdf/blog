@@ -24,19 +24,35 @@
       </el-button>
       <div style="margin-left:auto">
         <el-select
-          v-if="checkWeight(300)"
+          v-if="checkWeight(400)"
           v-model="userId"
           size="small"
           style="margin-right:1rem"
           placeholder="请选择用户"
+          remote
           clearable
           filterable
+          :remote-method="listAllUsername"
         >
           <el-option
             v-for="item in usernameList"
             :key="item.userId"
             :value="item.userId"
             :label="item.username"
+          />
+        </el-select>
+        <el-select
+          v-if="checkWeight(200)"
+          v-model="draftFlag"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择来源"
+        >
+          <el-option
+            v-for="item in source"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
           />
         </el-select>
         <el-select
@@ -54,6 +70,7 @@
         </el-select>
         <el-input
           v-model="keywords"
+          :disabled="draftFlag"
           size="small"
           style="width:200px"
           prefix-icon="el-icon-search"
@@ -62,6 +79,7 @@
           @keyup.enter.native="listComments"
         />
         <el-button
+          :disabled="draftFlag"
           type="primary"
           size="small"
           icon="el-icon-search"
@@ -79,6 +97,13 @@
       @selection-change="selectionChange"
     >
       <el-table-column type="selection" align="center" width="40" />
+      <el-table-column
+        v-if="checkWeight(400)"
+        prop="username"
+        label="用户"
+        align="center"
+        width="120"
+      />
       <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
           <img :src="scope.row.avatar" width="40" height="40" />
@@ -141,12 +166,6 @@
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.createTime | dateTime }}
-        </template>
-      </el-table-column>
-      <el-table-column label="来源" align="center" width="80">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.articleTitle">文章</el-tag>
-          <el-tag v-else type="warning">友链</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
@@ -232,9 +251,7 @@
 <script>
 export default {
   created() {
-    this.userId = this.$store.state.userId;
     this.listComments();
-    this.listAllUsername();
     if (this.checkWeight(100)) {
       this.options[2] = {
         value: '{"recycleFlag":true,"deletedFlag":true}',
@@ -244,6 +261,16 @@ export default {
   },
   data: function() {
     return {
+      source: [
+        {
+          value: false,
+          label: "文章"
+        },
+        {
+          value: true,
+          label: "友链"
+        }
+      ],
       options: [
         {
           value: '{"recycleFlag":false,"deletedFlag":false}',
@@ -263,6 +290,7 @@ export default {
       loading: true,
       editStatus: false,
       removeStatus: false,
+      draftFlag: false,
       recycleFlag: false,
       deletedFlag: false,
       size: 10,
@@ -297,6 +325,7 @@ export default {
             userId: this.userId,
             current: this.current,
             keywords: this.keywords,
+            draftFlag: this.draftFlag,
             recycleFlag: this.recycleFlag,
             deletedFlag: this.deletedFlag
           }
@@ -307,12 +336,15 @@ export default {
           this.loading = false;
         });
     },
-    listAllUsername() {
-      if (this.checkWeight()) {
-        this.axios.get("/api/back/user/username").then(({ data }) => {
+    listAllUsername(keywords) {
+      if (keywords.trim() === "") {
+        return;
+      }
+      this.axios
+        .get("/api/back/user/username", { params: { keywords } })
+        .then(({ data }) => {
           this.usernameList = data.data;
         });
-      }
     },
     deleteComments(id) {
       let param = {};
@@ -383,10 +415,11 @@ export default {
       }
       this.listComments();
     },
-    userId(newVal, oldVal) {
-      if (oldVal != null) {
-        this.listComments();
-      }
+    userId() {
+      this.listComments();
+    },
+    draftFlag() {
+      this.listComments();
     }
   }
 };

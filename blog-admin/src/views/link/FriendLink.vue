@@ -132,6 +132,7 @@
           <el-popconfirm
             v-if="deletedFlag"
             title="确定彻底删除吗？"
+            style="margin-left:10px"
             @confirm="deleteFriendLinks(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">
@@ -141,6 +142,7 @@
           <el-popconfirm
             v-else
             title="确定删除吗？"
+            style="margin-left:10px"
             @confirm="updateFriendLinksStatus(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">

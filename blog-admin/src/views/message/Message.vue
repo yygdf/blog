@@ -99,11 +99,21 @@
           {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="80">
+      <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
           <el-popconfirm
             v-if="deletedFlag"
+            title="确定恢复吗？"
+            @confirm="updateMessagesStatus(scope.row.id)"
+          >
+            <el-button type="success" size="mini" slot="reference">
+              恢复
+            </el-button>
+          </el-popconfirm>
+          <el-popconfirm
+            v-if="deletedFlag"
             title="确定彻底删除吗？"
+            style="margin-left:10px"
             @confirm="deleteMessages(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">
@@ -260,7 +270,7 @@ export default {
             title: "成功",
             message: data.message
           });
-          this.listArticles();
+          this.listMessages();
         } else {
           this.$notify.error({
             title: "失败",

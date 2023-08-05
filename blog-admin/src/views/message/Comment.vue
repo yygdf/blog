@@ -191,6 +191,7 @@
           <el-popconfirm
             v-if="optionIndex !== 2"
             title="确定删除吗？"
+            style="margin-left:10px"
             @confirm="updateCommentsStatus(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">

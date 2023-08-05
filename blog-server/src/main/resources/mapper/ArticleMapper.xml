@@ -95,17 +95,17 @@
                     AND article_title like concat('%', #{condition.keywords}, '%')
                 </if>
                 <if test="condition.tagIdList != null and condition.tagIdList.size() != 0">
-                    AND a.id in
+                    AND id in
                         (
                         SELECT
-                        ata.article_id
+                            ata.article_id
                         FROM
-                        tb_article_tag ata
+                            tb_article_tag ata
                         WHERE
-                        ata.tag_id in
-                        <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
-                            #{tagId}
-                        </foreach>
+                            ata.tag_id in
+                            <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
+                                #{tagId}
+                            </foreach>
                         )
                 </if>
             </where>

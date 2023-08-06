@@ -53,6 +53,11 @@ export default {
             whitespace: true,
             message: "用户名不能为空",
             trigger: "blur"
+          },
+          {
+            max: 50,
+            message: "用户名最长50位",
+            trigger: "blur"
           }
         ],
         password: [
@@ -65,6 +70,11 @@ export default {
           {
             min: 6,
             message: "密码至少6位",
+            trigger: "blur"
+          },
+          {
+            max: 50,
+            message: "密码最长50位",
             trigger: "blur"
           }
         ]

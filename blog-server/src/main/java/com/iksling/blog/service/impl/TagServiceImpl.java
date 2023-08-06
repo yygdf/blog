@@ -86,6 +86,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     }
 
     @Override
+    @Transactional
     public void saveOrUpdateTagBackVO(TagBackVO tagBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         tagBackVO.setTagName(tagBackVO.getTagName().trim());

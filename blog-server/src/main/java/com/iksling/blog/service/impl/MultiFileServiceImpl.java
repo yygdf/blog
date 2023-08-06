@@ -17,6 +17,7 @@ import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.MultiFileArticleBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
@@ -35,6 +36,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     private ArticleMapper articleMapper;
 
     @Override
+    @Transactional
     public String saveMultiFileArticleBackVO(MultiFileArticleBackVO multiFileArticleBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer articleUserId = multiFileArticleBackVO.getUserId();
@@ -84,6 +86,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     }
 
     @Override
+    @Transactional
     public void deleteArticleImageByUrl(String url) {
         LoginUser loginUser = UserUtil.getLoginUser();
         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()

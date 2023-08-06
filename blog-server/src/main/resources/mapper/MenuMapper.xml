@@ -48,6 +48,33 @@
                 AND m.hidden_flag = 0
             </if>
         ORDER BY
-            m.rank ASC
+            m.rank ASC,
+            m.id ASC
+    </select>
+
+    <select id="listMenusByKeywords" resultType="com.iksling.blog.entity.Menu">
+        SELECT
+            m.id,m.user_id,m.parent_id,
+            m.icon,m.rank,m.path,
+            m.name,m.component,m.hide_flag,
+            m.hidden_flag,m.disabled_flag,m.deletable_flag,
+            m.create_time,m.update_time
+        FROM
+            tb_menu m
+            <if test="keywords != null">
+                WHERE
+                    m.name like concat('%', #{keywords}, '%')
+                OR id IN (
+                    SELECT
+                        parent_id id
+                    FROM
+                        tb_menu
+                    WHERE
+                        name like concat('%', #{keywords}, '%')
+                )
+            </if>
+        ORDER BY
+            m.rank ASC,
+            m.id ASC
     </select>
 </mapper>

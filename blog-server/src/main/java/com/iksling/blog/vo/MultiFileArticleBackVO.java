@@ -7,11 +7,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 
 @Data
 @ApiModel(description = "文章文件后台VO")
-public class MultiFileArticleBackVO implements Serializable {
+public class MultiFileArticleBackVO  {
     /**
      * 文件
      */

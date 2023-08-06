@@ -4,7 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.vo.ArticleBackVO;
-import com.iksling.blog.vo.ArticleStatusVO;
+import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.ConditionVO;
 import io.swagger.annotations.Api;
@@ -74,10 +74,10 @@ public class ArticleController {
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "修改文章状态")
-    @ApiImplicitParam(name = "articleStatusVO", value = "文章状态VO", required = true, dataType = "ArticleStatusVO")
+    @ApiImplicitParam(name = "commonStatusVO", value = "通用状态VO", required = true, dataType = "CommonStatusVO")
     @PutMapping("/back/article/status")
-    public Result updateArticleStatus(@Valid @RequestBody ArticleStatusVO articleStatusVO) {
-        articleService.updateArticleStatusVO(articleStatusVO);
+    public Result updateArticleStatus(@Valid @RequestBody CommonStatusVO commonStatusVO) {
+        articleService.updateArticleStatusVO(commonStatusVO);
         return Result.success().message("操作成功");
     }
 }

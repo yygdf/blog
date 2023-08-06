@@ -2,14 +2,12 @@ package com.iksling.blog.vo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 
 @Data
-@Builder
 @ApiModel(description = "标签后台VO")
 public class TagBackVO {
     /**

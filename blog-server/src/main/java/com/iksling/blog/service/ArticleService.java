@@ -7,7 +7,7 @@ import com.iksling.blog.dto.ArticlesBackDTO;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.entity.Article;
 import com.iksling.blog.vo.ArticleBackVO;
-import com.iksling.blog.vo.ArticleStatusVO;
+import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.ConditionVO;
 
@@ -30,5 +30,5 @@ public interface ArticleService extends IService<Article> {
 
     void deleteArticleIdList(List<Integer> articleIdList);
 
-    void updateArticleStatusVO(ArticleStatusVO articleStatusVO);
+    void updateArticleStatusVO(CommonStatusVO commonStatusVO);
 }

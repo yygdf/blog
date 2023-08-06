@@ -2,7 +2,6 @@ package com.iksling.blog.vo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Max;
@@ -10,7 +9,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-@Builder
 @ApiModel(description = "分类后台VO")
 public class CategoryBackVO {
     /**

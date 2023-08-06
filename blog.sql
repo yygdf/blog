@@ -11,12 +11,7 @@
  Target Server Version : 50731
  File Encoding         : 65001
 
-<<<<<<< HEAD
- Date: 01/08/2023 08:24:17
- Date: 06/08/2023 19:44:21
-=======
- Date: 06/08/2023 19:56:16
->>>>>>> main_ks
+ Date: 06/08/2023 20:00:37
 */
 
 SET NAMES utf8mb4;

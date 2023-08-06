@@ -4,7 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.CategoryService;
 import com.iksling.blog.vo.CategoryBackVO;
-import com.iksling.blog.vo.CategoryStatusVO;
+import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -32,10 +32,10 @@ public class CategoryController {
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "修改分类状态")
-    @ApiImplicitParam(name = "categoryStatusVO", value = "分类状态VO", required = true, dataType = "CategoryStatusVO")
+    @ApiImplicitParam(name = "commonStatusVO", value = "通用状态VO", required = true, dataType = "CommonStatusVO")
     @PutMapping("/back/category/status")
-    public Result updateCategoryStatus(@Valid @RequestBody CategoryStatusVO categoryStatusVO) {
-        categoryService.updateCategoryStatusVO(categoryStatusVO);
+    public Result updateCategoryStatus(@Valid @RequestBody CommonStatusVO commonStatusVO) {
+        categoryService.updateCategoryStatusVO(commonStatusVO);
         return Result.success().message("操作成功");
     }
 

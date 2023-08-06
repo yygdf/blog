@@ -36,21 +36,21 @@
       row-key="id"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
-      <el-table-column prop="name" label="菜单名称" width="160" />
-      <el-table-column prop="icon" label="菜单图标" align="center" width="120">
+      <el-table-column prop="name" label="菜单名称" width="120" />
+      <el-table-column prop="icon" label="菜单图标" align="center" width="80">
         <template slot-scope="scope">
           <i :class="scope.row.icon" />
         </template>
       </el-table-column>
-      <el-table-column prop="rank" label="排序" align="center" width="40" />
+      <el-table-column prop="rank" label="排序指标" align="center" width="80" />
       <el-table-column prop="path" label="菜单路径" />
       <el-table-column prop="component" label="菜单组件" />
       <el-table-column prop="hideFlag" label="隐藏" align="center" width="80">
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hideFlag"
-            :active-value="1"
-            :inactive-value="0"
+            :active-value="true"
+            :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
             @change="changeMenuStatus(scope.row)"
@@ -61,8 +61,8 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hiddenFlag"
-            :active-value="1"
-            :inactive-value="0"
+            :active-value="true"
+            :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
             @change="changeMenuStatus(scope.row)"
@@ -78,10 +78,10 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.disabledFlag"
+            :active-value="true"
+            :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            :active-value="1"
-            :inactive-value="0"
             @change="changeMenuStatus(scope.row)"
           />
         </template>
@@ -115,7 +115,7 @@
             type="primary"
             size="mini"
             class="smallerBtn"
-            @click="openModel(scope.row)"
+            @click="openModel(scope.row, true)"
           >
             <i class="el-icon-plus" /> 新增
           </el-button>
@@ -133,6 +133,7 @@
             @confirm="deleteMenu(scope.row.id)"
           >
             <el-button
+              :disabled="!scope.row.deletableFlag"
               size="mini"
               type="danger"
               class="smallerBtn"
@@ -147,6 +148,21 @@
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="menuTitle" />
       <el-form :model="menu" size="medium" label-width="80">
+        <el-form-item v-if="menu.parentId" label="父菜单名">
+          <el-select
+            v-model="menu.parentId"
+            size="small"
+            style="width: 200px"
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in menuList"
+              :key="item.id"
+              :value="item.id"
+              :label="item.name"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="菜单名称">
           <el-input v-model="menu.name" style="width:200px" />
         </el-form-item>
@@ -174,7 +190,7 @@
         <el-form-item label="菜单组件">
           <el-input v-model="menu.component" style="width:200px" />
         </el-form-item>
-        <el-form-item label="显示排序">
+        <el-form-item label="排序指标">
           <el-input-number
             v-model="menu.rank"
             :min="1"
@@ -182,21 +198,6 @@
             value="1"
             controls-position="right"
           />
-        </el-form-item>
-        <el-form-item label="父菜单" v-if="isEdit">
-          <el-select
-            v-model="menu.parentId"
-            size="small"
-            style="margin-right:1rem"
-            placeholder="请选择"
-          >
-            <el-option
-              v-for="item in menuList"
-              :key="item.id"
-              :value="item.id"
-              :label="item.name"
-            />
-          </el-select>
         </el-form-item>
         <el-form
           :model="menu"
@@ -276,7 +277,6 @@ export default {
       },
       menuList: [],
       keywords: null,
-      isEdit: false,
       loading: true,
       showIcon: false,
       addOrEditStatus: false
@@ -287,16 +287,22 @@ export default {
       this.menu.icon = icon;
       this.showIcon = false;
     },
-    openModel(menu) {
+    openModel(menu, flag = false) {
       if (menu == null) {
         this.menu = {
+          name: "",
+          icon: "",
+          path: "",
           rank: 127,
           component: "Layout"
         };
         this.$refs.menuTitle.innerHTML = "添加菜单";
       } else {
-        if (menu.parentId == null) {
-          if (menu.id == null) {
+        if (menu.children == null && menu.parentId !== -1) {
+          this.menu = JSON.parse(JSON.stringify(menu));
+          this.$refs.menuTitle.innerHTML = "修改子菜单";
+        } else {
+          if (flag) {
             this.menu = {
               rank: 127,
               parentId: menu.id
@@ -304,11 +310,9 @@ export default {
             this.$refs.menuTitle.innerHTML = "添加子菜单";
           } else {
             this.menu = JSON.parse(JSON.stringify(menu));
+            this.menu.parentId = null;
             this.$refs.menuTitle.innerHTML = "修改菜单";
           }
-        } else {
-          this.menu = JSON.parse(JSON.stringify(menu));
-          this.$refs.menuTitle.innerHTML = "修改子菜单";
         }
       }
       this.addOrEditStatus = true;
@@ -326,8 +330,8 @@ export default {
         });
     },
     deleteMenu(id) {
-      let param = { data: [id] };
-      this.axios.delete("/api/back/menus", param).then(({ data }) => {
+      let param = { data: id };
+      this.axios.delete("/api/back/menu", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -359,7 +363,7 @@ export default {
         this.$message.error("菜单名称不能为空");
         return false;
       }
-      this.axios.post("/api/back/menus", this.menu).then(({ data }) => {
+      this.axios.post("/api/back/menu", this.menu).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -378,9 +382,9 @@ export default {
     changeMenuStatus(menu) {
       let param = {
         id: menu.id,
-        hideFlag: menu.hideFlag,
+        topFlag: menu.hideFlag,
         hiddenFlag: menu.hiddenFlag,
-        disabledFlag: menu.disabledFlag
+        publicFlag: menu.disabledFlag
       };
       this.axios.put("/api/back/menu/status", param);
     }

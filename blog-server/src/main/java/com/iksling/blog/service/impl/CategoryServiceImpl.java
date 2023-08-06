@@ -21,7 +21,7 @@ import com.iksling.blog.service.CategoryService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.CategoryBackVO;
-import com.iksling.blog.vo.CategoryStatusVO;
+import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -78,12 +78,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
 
     @Override
     @Transactional
-    public void updateCategoryStatusVO(CategoryStatusVO categoryStatusVO) {
+    public void updateCategoryStatusVO(CommonStatusVO commonStatusVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         int count = categoryMapper.update(null, new LambdaUpdateWrapper<Category>()
-                .set(Category::getPublicFlag, categoryStatusVO.getPublicFlag())
-                .set(Category::getHiddenFlag, categoryStatusVO.getHiddenFlag())
-                .eq(Category::getId, categoryStatusVO.getId())
+                .set(Category::getPublicFlag, commonStatusVO.getPublicFlag())
+                .set(Category::getHiddenFlag, commonStatusVO.getHiddenFlag())
+                .eq(Category::getId, commonStatusVO.getId())
                 .eq(loginUser.getRoleWeight() > 300, Category::getUserId, loginUser.getUserId()));
         if (count != 1)
             throw new IllegalRequestException();
@@ -106,6 +106,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     }
 
     @Override
+    @Transactional
     public void saveOrUpdateCategoryBackVO(CategoryBackVO categoryBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         categoryBackVO.setCategoryName(categoryBackVO.getCategoryName().trim());

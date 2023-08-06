@@ -22,7 +22,7 @@ import com.iksling.blog.service.ArticleTagService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ArticleBackVO;
-import com.iksling.blog.vo.ArticleStatusVO;
+import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.ConditionVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -208,14 +208,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     @Transactional
-    public void updateArticleStatusVO(ArticleStatusVO articleStatusVO) {
+    public void updateArticleStatusVO(CommonStatusVO commonStatusVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         int count = articleMapper.update(null, new LambdaUpdateWrapper<Article>()
-                .set(Article::getTopFlag, articleStatusVO.getTopFlag())
-                .set(Article::getPublicFlag, articleStatusVO.getPublicFlag())
-                .set(Article::getHiddenFlag, articleStatusVO.getHiddenFlag())
-                .set(Article::getCommentableFlag, articleStatusVO.getCommentableFlag())
-                .eq(Article::getId, articleStatusVO.getId())
+                .set(Article::getTopFlag, Objects.isNull(commonStatusVO.getTopFlag()) ? false : commonStatusVO.getTopFlag())
+                .set(Article::getPublicFlag, commonStatusVO.getPublicFlag())
+                .set(Article::getHiddenFlag, commonStatusVO.getHiddenFlag())
+                .set(Article::getCommentableFlag, Objects.isNull(commonStatusVO.getCommentableFlag()) ? false : commonStatusVO.getCommentableFlag())
+                .eq(Article::getId, commonStatusVO.getId())
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
         if (count != 1)
             throw new IllegalRequestException();

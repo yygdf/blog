@@ -2,10 +2,11 @@ package com.iksling.blog.dto;
 
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
-public class UserMenuDTO {
+public class MenusBackDTO {
     /**
      * 菜单id
      */
@@ -17,9 +18,19 @@ public class UserMenuDTO {
     private Integer userId;
 
     /**
+     * 父菜单id
+     */
+    private Integer parentId;
+
+    /**
      * 菜单图标
      */
     private String icon;
+
+    /**
+     * 排序指标
+     */
+    private Integer rank;
 
     /**
      * 菜单路径
@@ -52,7 +63,22 @@ public class UserMenuDTO {
     private Boolean disabledFlag;
 
     /**
+     * 0不可删除，1可删除
+     */
+    private Boolean deletableFlag;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
+
+    /**
      * 子菜单列表
      */
-    private List<UserMenuDTO> children;
+    private List<MenusBackDTO> children;
 }

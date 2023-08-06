@@ -7,20 +7,19 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 
 @Data
-@ApiModel(description = "文章状态VO")
-public class ArticleStatusVO {
+@ApiModel(description = "通用状态VO")
+public class CommonStatusVO {
     /**
-     * 文章id
+     * id
      */
-    @NotNull(message = "文章id不能为null")
-    @ApiModelProperty(name = "id", value = "文章id", required = true, dataType = "Integer")
+    @NotNull(message = "id不能为null")
+    @ApiModelProperty(name = "id", value = "id", required = true, dataType = "Integer")
     private Integer id;
 
     /**
      * 0未置顶，1已置顶
      */
-    @NotNull(message = "置顶标志不能为null")
-    @ApiModelProperty(name = "topFlag", value = "0未置顶，1已置顶", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "topFlag", value = "0未置顶，1已置顶", dataType = "Boolean")
     private Boolean topFlag;
 
     /**
@@ -40,7 +39,6 @@ public class ArticleStatusVO {
     /**
      * 0不可评论，1可评论
      */
-    @NotNull(message = "评论标志不能为null")
-    @ApiModelProperty(name = "commentableFlag", value = "0不可评论，1可评论", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "commentableFlag", value = "0不可评论，1可评论", dataType = "Boolean")
     private Boolean commentableFlag;
 }

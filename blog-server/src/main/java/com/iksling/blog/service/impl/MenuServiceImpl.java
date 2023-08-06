@@ -69,8 +69,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     public void deleteMenuById(String id) {
         try {
             int count = menuMapper.delete(new LambdaQueryWrapper<Menu>()
-                    .eq(Menu::getId, Integer.parseInt(id))
-                    .eq(Menu::getDeletableFlag, true));
+                    .eq(Menu::getDeletableFlag, true)
+                    .and(q -> q.eq(Menu::getId, Integer.parseInt(id)).or().eq(Menu::getParentId, Integer.parseInt(id))));
             if (count != 1)
                 throw new IllegalRequestException();
         } catch (NumberFormatException e) {
@@ -81,10 +81,12 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     @Override
     @Transactional
     public void saveOrUpdateMenuBackVO(MenuBackVO menuBackVO) {
+        if (Objects.nonNull(menuBackVO.getParentId()) && menuBackVO.getParentId() == 1)
+            throw new IllegalRequestException();
         LoginUser loginUser = UserUtil.getLoginUser();
         Menu menu = Menu.builder()
                 .id(menuBackVO.getId())
-                .parentId(menuBackVO.getParentId())
+                .parentId(Objects.isNull(menuBackVO.getParentId()) ? -1 : menuBackVO.getParentId())
                 .icon(menuBackVO.getIcon().trim())
                 .rank(menuBackVO.getRank())
                 .path(menuBackVO.getPath().trim())

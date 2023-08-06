@@ -111,7 +111,7 @@
       <el-table-column label="操作" align="center" width="200">
         <template slot-scope="scope">
           <el-button
-            :disabled="!scope.row.children"
+            :disabled="scope.row.parentId !== -1 || scope.row.id === 1"
             type="primary"
             size="mini"
             class="smallerBtn"
@@ -120,6 +120,7 @@
             <i class="el-icon-plus" /> 新增
           </el-button>
           <el-button
+            :disabled="!checkWeight(100) && !scope.row.deletableFlag"
             type="warning"
             size="mini"
             class="smallerBtn"
@@ -133,7 +134,11 @@
             @confirm="deleteMenu(scope.row.id)"
           >
             <el-button
-              :disabled="!scope.row.deletableFlag"
+              :disabled="
+                !scope.row.deletableFlag ||
+                  (scope.row.children != null &&
+                    scope.row.children.length !== 0)
+              "
               size="mini"
               type="danger"
               class="smallerBtn"
@@ -156,7 +161,7 @@
             placeholder="请选择"
           >
             <el-option
-              v-for="item in menuList"
+              v-for="item in menuList.filter(e => e.id !== 1)"
               :key="item.id"
               :value="item.id"
               :label="item.name"
@@ -293,8 +298,8 @@ export default {
           name: "",
           icon: "",
           path: "",
-          rank: 127,
-          component: "Layout"
+          component: "Layout",
+          rank: 127
         };
         this.$refs.menuTitle.innerHTML = "添加菜单";
       } else {
@@ -304,6 +309,10 @@ export default {
         } else {
           if (flag) {
             this.menu = {
+              name: "",
+              icon: "",
+              path: "",
+              component: "",
               rank: 127,
               parentId: menu.id
             };
@@ -316,6 +325,9 @@ export default {
         }
       }
       this.addOrEditStatus = true;
+    },
+    checkWeight(weight = 200) {
+      return this.$store.state.weight <= weight;
     },
     listMenus() {
       this.axios

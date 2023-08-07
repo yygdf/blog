@@ -172,18 +172,22 @@
           <el-input v-model="menu.name" style="width:200px" />
         </el-form-item>
         <el-form-item label="菜单图标">
-          <div @click="showIcon = true">
-            <el-input
-              v-model="menu.icon"
-              :prefix-icon="menu.icon"
-              style="width:200px"
-            />
-          </div>
-          <div class="menu-container" v-show="showIcon">
+          <el-input
+            v-model="menu.icon"
+            :prefix-icon="menu.icon"
+            style="width:200px"
+            @focus="showIcon = true"
+            @blur="showIcon = false"
+          />
+          <div
+            v-show="showIcon"
+            class="menu-container"
+            style="width: 200px;margin-left: 67px"
+          >
             <div
               v-for="(item, index) of iconList"
               :key="index"
-              @click="checkIcon(item)"
+              @mousedown="checkIcon(item)"
             >
               <i :class="item" /> {{ item }}
             </div>
@@ -289,8 +293,10 @@ export default {
   },
   methods: {
     checkIcon(icon) {
-      this.menu.icon = icon;
-      this.showIcon = false;
+      setTimeout(() => {
+        this.menu.icon = icon;
+        this.showIcon = false;
+      }, 0);
     },
     openModel(menu, flag = false) {
       if (menu == null) {

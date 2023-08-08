@@ -141,8 +141,8 @@
               "
               size="mini"
               type="danger"
-              class="smallerBtn"
               slot="reference"
+              class="smallerBtn"
             >
               <i class="el-icon-delete" /> 删除
             </el-button>
@@ -208,40 +208,35 @@
             controls-position="right"
           />
         </el-form-item>
-        <el-form
-          :model="menu"
-          :inline="true"
-          size="medium"
-          label-width="80"
-        >
-          <el-form-item label="隐藏">
-            <el-switch
-              v-model="menu.hideFlag"
-              :active-value="true"
-              :inactive-value="false"
-              active-color="#13ce66"
-              inactive-color="#F4F4F5"
-            />
-          </el-form-item>
-          <el-form-item label="隐藏">
-            <el-switch
-              v-model="menu.hiddenFlag"
-              :active-value="true"
-              :inactive-value="false"
-              active-color="#13ce66"
-              inactive-color="#F4F4F5"
-            />
-          </el-form-item>
-          <el-form-item label="禁用">
-            <el-switch
-              v-model="menu.disabledFlag"
-              :active-value="true"
-              :inactive-value="false"
-              active-color="#13ce66"
-              inactive-color="#F4F4F5"
-            />
-          </el-form-item>
-        </el-form>
+      </el-form>
+      <el-form :model="menu" :inline="true" size="medium" label-width="80">
+        <el-form-item label="隐藏">
+          <el-switch
+            v-model="menu.hideFlag"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+          />
+        </el-form-item>
+        <el-form-item label="隐藏">
+          <el-switch
+            v-model="menu.hiddenFlag"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+          />
+        </el-form-item>
+        <el-form-item label="禁用">
+          <el-switch
+            v-model="menu.disabledFlag"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+          />
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>

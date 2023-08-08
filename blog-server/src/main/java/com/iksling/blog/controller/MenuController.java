@@ -28,7 +28,7 @@ public class MenuController {
     }
 
     @ApiOperation(value = "查看后台菜单列表")
-    @ApiImplicitParam(name = "keywords", value = "菜单名关键字", dataType = "String")
+    @ApiImplicitParam(name = "keywords", value = "菜单名称关键字", dataType = "String")
     @GetMapping("/back/menus")
     public Result listBackMenus(String keywords) {
         return Result.success().message("查询成功").data(menuService.getMenusBackDTO(keywords));

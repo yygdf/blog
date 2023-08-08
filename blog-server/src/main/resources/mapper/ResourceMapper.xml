@@ -52,4 +52,28 @@
         WHERE
             re.parent_id != -1
     </select>
+
+    <select id="listResourcesByKeywords" resultType="com.iksling.blog.entity.Resource">
+        SELECT
+            r.id,r.user_id,r.parent_id,
+            r.resource_uri,r.resource_name,r.resource_request_method,
+            r.disabled_flag,r.deletable_flag,r.anonymous_flag,
+            r.create_time,r.update_time
+        FROM
+            tb_resource r
+            <if test="keywords != null">
+                WHERE
+                    r.resource_name like concat('%', #{keywords}, '%')
+                OR id IN (
+                    SELECT
+                        parent_id id
+                    FROM
+                        tb_resource
+                    WHERE
+                        resource_name like concat('%', #{keywords}, '%')
+                )
+            </if>
+        ORDER BY
+            r.id ASC
+    </select>
 </mapper>

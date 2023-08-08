@@ -26,7 +26,6 @@ public class ResourceBackVO {
     /**
      * 资源路径
      */
-    @NotBlank(message = "资源路径不能为空")
     @Max(message = "资源路径最大长度", value = 50)
     @ApiModelProperty(name = "resourceUri", value = "资源路径", required = true, dataType = "String")
     private String resourceUri;
@@ -42,7 +41,6 @@ public class ResourceBackVO {
     /**
      * 请求方式
      */
-    @NotBlank(message = "请求方式不能为空")
     @Max(message = "请求方式最大长度", value = 50)
     @ApiModelProperty(name = "resourceRequestMethod", value = "请求方式", required = true, dataType = "String")
     private String resourceRequestMethod;

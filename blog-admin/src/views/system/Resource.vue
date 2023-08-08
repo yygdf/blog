@@ -168,10 +168,10 @@
         <el-form-item label="资源名称">
           <el-input v-model="resource.resourceName" style="width:200px" />
         </el-form-item>
-        <el-form-item label="资源路径">
+        <el-form-item v-if="resource.parentId" label="资源路径">
           <el-input v-model="resource.resourceUri" style="width:200px" />
         </el-form-item>
-        <el-form-item label="请求方式">
+        <el-form-item v-if="resource.parentId" label="请求方式">
           <el-radio-group v-model="resource.resourceRequestMethod">
             <el-radio :label="'GET'">GET</el-radio>
             <el-radio :label="'POST'">POST</el-radio>
@@ -264,18 +264,19 @@ export default {
       return this.$store.state.weight <= weight;
     },
     listResources() {
-      this.axios.get("/api/back/resources").then(({ data }) => {
-        this.resourceList = data.data;
-        this.loading = false;
-      });
+      this.axios
+        .get("/api/back/resources", {
+          params: {
+            keywords: this.keywords
+          }
+        })
+        .then(({ data }) => {
+          this.resourceList = data.data;
+          this.loading = false;
+        });
     },
     deleteResource(id) {
-      let param = {};
-      if (id != null) {
-        param = { data: [id] };
-      } else {
-        param = { data: this.resourceIdList };
-      }
+      let param = { data: id };
       this.axios.delete("/api/back/resource", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
@@ -291,7 +292,8 @@ export default {
         }
       });
     },
-    addOrEditResource(flag = false) {
+    addOrEditResource() {
+      let flag = this.resource.parentId === undefined;
       if (this.resource.resourceName.trim() === "") {
         if (flag) {
           this.$message.error("模块名称不能为空");
@@ -300,15 +302,15 @@ export default {
         this.$message.error("资源名称不能为空");
         return false;
       }
-      if (this.resource.resourceUri.trim() === "" && !flag) {
+      if (!flag && this.resource.resourceUri.trim() === "") {
         this.$message.error("资源路径不能为空");
         return false;
       }
-      if (this.resource.resourceRequestMethod.trim() === "" && !flag) {
+      if (!flag && this.resource.resourceRequestMethod.trim() === "") {
         this.$message.error("请求方式不能为空");
         return false;
       }
-      this.axios.post("/api/admin/resource", this.resource).then(({ data }) => {
+      this.axios.post("/api/back/resource", this.resource).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -321,23 +323,16 @@ export default {
             message: data.message
           });
         }
+        this.addOrEditStatus = false;
       });
     },
     changeResourceStatus(resource) {
-      this.axios.post("/api/back/resources", resource).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: "成功",
-            message: data.message
-          });
-          this.listResources();
-        } else {
-          this.$notify.error({
-            title: "失败",
-            message: data.message
-          });
-        }
-      });
+      let param = {
+        id: resource.id,
+        hiddenFlag: resource.disabledFlag,
+        publicFlag: resource.anonymousFlag
+      };
+      this.axios.put("/api/back/resource/status", param);
     }
   },
   computed: {

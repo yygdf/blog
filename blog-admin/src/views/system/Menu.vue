@@ -293,7 +293,7 @@ export default {
         };
         this.$refs.menuTitle.innerHTML = "添加菜单";
       } else {
-        if (menu.children == null && menu.parentId !== -1) {
+        if (menu.parentId !== -1) {
           this.menu = JSON.parse(JSON.stringify(menu));
           this.$refs.menuTitle.innerHTML = "修改子菜单";
         } else {

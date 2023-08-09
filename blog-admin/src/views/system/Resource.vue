@@ -154,7 +154,7 @@
           <el-select
             v-model="resource.parentId"
             size="small"
-            style="margin-right:1rem"
+            style="margin-right:1rem;width: 200px"
             placeholder="请选择"
           >
             <el-option
@@ -217,15 +217,7 @@ export default {
   },
   data() {
     return {
-      resource: {
-        id: null,
-        parentId: null,
-        resourceUri: "",
-        resourceName: "",
-        resourceRequestMethod: "GET",
-        disabledFlag: false,
-        anonymousFlag: false
-      },
+      resource: {},
       resourceList: [],
       keywords: null,
       loading: true,
@@ -236,16 +228,18 @@ export default {
     openModel(resource, flag = false) {
       if (resource == null) {
         this.resource = {
+          parentId: null,
           resourceName: ""
         };
         this.$refs.resourceTitle.innerHTML = "添加模块";
       } else {
-        if (resource.children == null && resource.parentId !== -1) {
+        if (resource.parentId !== -1) {
           this.resource = JSON.parse(JSON.stringify(resource));
           this.$refs.resourceTitle.innerHTML = "修改资源";
         } else {
           if (flag) {
             this.resource = {
+              parentId: resource.id,
               resourceUri: "",
               resourceName: "",
               resourceRequestMethod: "GET"
@@ -293,7 +287,7 @@ export default {
       });
     },
     addOrEditResource() {
-      let flag = this.resource.parentId === undefined;
+      let flag = this.resource.parentId == null;
       if (this.resource.resourceName.trim() === "") {
         if (flag) {
           this.$message.error("模块名称不能为空");
@@ -340,9 +334,9 @@ export default {
       return function(type) {
         switch (type) {
           case "GET":
-            return "";
-          case "POST":
             return "success";
+          case "POST":
+            return "";
           case "PUT":
             return "warning";
           case "DELETE":

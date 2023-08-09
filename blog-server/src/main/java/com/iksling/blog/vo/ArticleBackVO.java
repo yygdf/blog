@@ -48,7 +48,6 @@ public class ArticleBackVO {
     /**
      * 0未置顶，1已置顶
      */
-    @NotNull(message = "置顶标志不能为null")
     @ApiModelProperty(name = "isTop", value = "0未置顶，1已置顶", dataType = "Boolean")
     private Boolean topFlag;
 
@@ -69,7 +68,6 @@ public class ArticleBackVO {
     /**
      * 0未隐藏，1已隐藏
      */
-    @NotNull(message = "隐藏标志不能为null")
     @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏", dataType = "Boolean")
     private Boolean hiddenFlag;
 
@@ -83,7 +81,6 @@ public class ArticleBackVO {
     /**
      * 标签id集合
      */
-    @NotNull(message = "标签id集合不能为null")
     @ApiModelProperty(name = "tagIdList", value = "标签id集合", dataType = "List<Integer>")
     private List<Integer> tagIdList;
 }

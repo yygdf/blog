@@ -110,8 +110,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         Article article = BeanCopyUtil.copyObject(articleBackVO, Article.class);
         if (Objects.isNull(article.getId())) {
             article.setUserId(loginUser.getUserId());
-            article.setRecycleFlag(false);
-            article.setDeletedFlag(false);
             article.setIpSource(loginUser.getIpSource());
             article.setIpAddress(loginUser.getIpAddress());
             article.setCreateUser(loginUser.getUserId());
@@ -154,7 +152,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             article.setUserId(article2.getUserId());
         }
         this.saveOrUpdate(article);
-        if (!articleBackVO.getTagIdList().isEmpty()) {
+        if (Objects.nonNull(articleBackVO.getTagIdList()) && articleBackVO.getTagIdList().size() != 0) {
             List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
                     .select(Tag::getId)
                     .eq(Tag::getUserId, article.getUserId()));

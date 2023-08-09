@@ -139,8 +139,8 @@
           </el-button>
           <el-popconfirm
             title="确定删除吗？"
-            style="margin-left:1rem"
-            @confirm="deleteCategory(scope.row.id)"
+            style="margin-left:10px"
+            @confirm="deleteCategories(scope.row.id)"
           >
             <el-button
               :disabled="scope.row.articleCount !== 0"
@@ -172,7 +172,7 @@
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
         <el-button @click="removeStatus = false">取 消</el-button>
-        <el-button type="primary" @click="deleteCategory(null)">
+        <el-button type="primary" @click="deleteCategories(null)">
           确 定
         </el-button>
       </div>
@@ -226,12 +226,7 @@ export default {
   },
   data: function() {
     return {
-      category: {
-        id: null,
-        categoryName: "",
-        publicFlag: true,
-        hiddenFlag: false
-      },
+      category: {},
       usernameList: [],
       categoryList: [],
       categoryIdList: [],
@@ -251,10 +246,10 @@ export default {
         this.category = JSON.parse(JSON.stringify(category));
         this.$refs.categoryTitle.innerHTML = "修改分类";
       } else {
-        this.category.id = null;
-        this.category.categoryName = "";
-        this.category.publicFlag = true;
-        this.category.hiddenFlag = false;
+        this.category = {
+          categoryName: "",
+          publicFlag: true
+        };
         this.$refs.categoryTitle.innerHTML = "添加分类";
       }
       this.addOrEditStatus = true;
@@ -305,7 +300,7 @@ export default {
           this.usernameList = data.data;
         });
     },
-    deleteCategory(id) {
+    deleteCategories(id) {
       let param = {};
       if (id == null) {
         param = { data: this.categoryIdList };

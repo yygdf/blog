@@ -264,14 +264,7 @@ export default {
           label: "已删除"
         }
       ],
-      friendLink: {
-        id: null,
-        userId: null,
-        linkUrl: "",
-        linkDesc: "",
-        linkLogo: "",
-        linkName: ""
-      },
+      friendLink: {},
       usernameList: [],
       usernameListAdd: [],
       friendLinkList: [],
@@ -294,12 +287,12 @@ export default {
         this.friendLink = JSON.parse(JSON.stringify(friendLink));
         this.$refs.friendLinkTitle.innerHTML = "修改友链";
       } else {
-        this.friendLink.id = null;
-        this.friendLink.userId = null;
-        this.friendLink.linkUrl = "";
-        this.friendLink.linkDesc = "";
-        this.friendLink.linkLogo = "";
-        this.friendLink.linkName = "";
+        this.friendLink = {
+          linkUrl: "",
+          linkDesc: "",
+          linkLogo: "",
+          linkName: ""
+        };
         this.$refs.friendLinkTitle.innerHTML = "添加友链";
       }
       this.addOrEditStatus = true;
@@ -353,7 +346,7 @@ export default {
         });
     },
     addOrEditCategory() {
-      if (this.friendLink.userId == null) {
+      if (this.friendLink.userId == null || this.friendLink.userId === "") {
         this.$message.error("所属用户不能为空");
         return false;
       }

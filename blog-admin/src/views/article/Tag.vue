@@ -108,8 +108,8 @@
           </el-button>
           <el-popconfirm
             title="确定删除吗？"
-            style="margin-left:1rem"
-            @confirm="deleteTag(scope.row.id)"
+            style="margin-left:10px"
+            @confirm="deleteTags(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">
               删除
@@ -136,7 +136,7 @@
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
         <el-button @click="removeStatus = false">取 消</el-button>
-        <el-button type="primary" @click="deleteTag(null)">
+        <el-button type="primary" @click="deleteTags(null)">
           确 定
         </el-button>
       </div>
@@ -165,10 +165,7 @@ export default {
   },
   data: function() {
     return {
-      tag: {
-        id: null,
-        tagName: ""
-      },
+      tag: {},
       tagList: [],
       tagIdList: [],
       usernameList: [],
@@ -188,8 +185,9 @@ export default {
         this.tag = JSON.parse(JSON.stringify(tag));
         this.$refs.tagTitle.innerHTML = "修改标签";
       } else {
-        this.tag.id = null;
-        this.tag.tagName = "";
+        this.tag = {
+          tagName: ""
+        };
         this.$refs.tagTitle.innerHTML = "添加标签";
       }
       this.addOrEditStatus = true;
@@ -237,7 +235,7 @@ export default {
           this.usernameList = data.data;
         });
     },
-    deleteTag(id) {
+    deleteTags(id) {
       let param = {};
       if (id == null) {
         param = { data: this.tagIdList };

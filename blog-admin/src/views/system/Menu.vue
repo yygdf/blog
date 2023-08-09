@@ -267,18 +267,7 @@ export default {
         "el-icon-ice-drink",
         "el-icon-milk-tea"
       ],
-      menu: {
-        id: null,
-        parentId: null,
-        name: "",
-        icon: "",
-        path: "",
-        component: "",
-        rank: 127,
-        hideFlag: false,
-        hiddenFlag: false,
-        disabledFlag: false
-      },
+      menu: {},
       menuList: [],
       keywords: null,
       loading: true,

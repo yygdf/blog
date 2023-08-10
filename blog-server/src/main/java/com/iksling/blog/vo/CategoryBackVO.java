@@ -28,14 +28,12 @@ public class CategoryBackVO {
     /**
      * 0未公开，1已公开
      */
-    @NotNull(message = "公开标志不能为null")
     @ApiModelProperty(name = "publicFlag", value = "0未公开，1已公开", required = true, dataType = "Boolean")
     private Boolean publicFlag;
 
     /**
      * 0未隐藏，1已隐藏
      */
-    @NotNull(message = "隐藏标志不能为null")
     @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏", required = true, dataType = "Boolean")
     private Boolean hiddenFlag;
 }

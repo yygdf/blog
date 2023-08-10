@@ -304,21 +304,40 @@ export default {
         this.$message.error("请求方式不能为空");
         return false;
       }
-      this.axios.post("/api/back/resource", this.resource).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: "成功",
-            message: data.message
-          });
-          this.listResources();
-        } else {
-          this.$notify.error({
-            title: "失败",
-            message: data.message
-          });
-        }
-        this.addOrEditStatus = false;
-      });
+      const {
+        id,
+        parentId,
+        resourceUri,
+        resourceName,
+        resourceRequestMethod,
+        disabledFlag,
+        anonymousFlag
+      } = this.resource;
+      this.axios
+        .post("/api/back/resource", {
+          id,
+          parentId,
+          resourceUri,
+          resourceName,
+          resourceRequestMethod,
+          disabledFlag,
+          anonymousFlag
+        })
+        .then(({ data }) => {
+          if (data.flag) {
+            this.$notify.success({
+              title: "成功",
+              message: data.message
+            });
+            this.listResources();
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: data.message
+            });
+          }
+          this.addOrEditStatus = false;
+        });
     },
     changeResourceStatus(resource) {
       let param = {

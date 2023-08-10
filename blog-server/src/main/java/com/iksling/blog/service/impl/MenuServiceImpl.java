@@ -86,7 +86,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
         LoginUser loginUser = UserUtil.getLoginUser();
         Menu menu = Menu.builder()
                 .id(menuBackVO.getId())
-                .parentId(Objects.isNull(menuBackVO.getParentId()) ? -1 : menuBackVO.getParentId())
+                .parentId(menuBackVO.getParentId())
                 .icon(menuBackVO.getIcon().trim())
                 .rank(menuBackVO.getRank())
                 .path(menuBackVO.getPath().trim())

@@ -263,7 +263,8 @@ export default {
         this.$message.error("标签名不能为空");
         return false;
       }
-      this.axios.post("/api/back/tag", this.tag).then(({ data }) => {
+      const { id, tagName } = this.tag;
+      this.axios.post("/api/back/tag", { id, tagName }).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",

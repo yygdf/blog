@@ -68,21 +68,18 @@ public class MenuBackVO {
     /**
      * 0未隐藏，1已隐藏
      */
-    @NotNull(message = "隐藏标志不能为null")
     @ApiModelProperty(name = "hideFlag", value = "0未隐藏，1已隐藏", required = true, dataType = "Boolean")
     private Boolean hideFlag;
 
     /**
      * 0未隐藏，1已隐藏
      */
-    @NotNull(message = "隐藏标志不能为null")
     @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏", required = true, dataType = "Boolean")
     private Boolean hiddenFlag;
 
     /**
      * 0未禁用，1已禁用
      */
-    @NotNull(message = "禁用标志不能为null")
     @ApiModelProperty(name = "disabledFlag", value = "0未禁用，1已禁用", required = true, dataType = "Boolean")
     private Boolean disabledFlag;
 }

@@ -346,7 +346,7 @@ export default {
         });
     },
     addOrEditCategory() {
-      if (this.friendLink.userId == null || this.friendLink.userId === "") {
+      if (!this.friendLink.userId) {
         this.$message.error("所属用户不能为空");
         return false;
       }
@@ -366,8 +366,23 @@ export default {
         this.$message.error("友链地址不能为空");
         return false;
       }
+      const {
+        id,
+        userId,
+        linkUrl,
+        linkDesc,
+        linkLogo,
+        linkName
+      } = this.friendLink;
       this.axios
-        .post("/api/back/friendLink", this.friendLink)
+        .post("/api/back/friendLink", {
+          id,
+          userId,
+          linkUrl,
+          linkDesc,
+          linkLogo,
+          linkName
+        })
         .then(({ data }) => {
           if (data.flag) {
             this.$notify.success({

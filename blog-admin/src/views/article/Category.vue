@@ -78,7 +78,12 @@
         width="120"
       />
       <el-table-column prop="categoryName" label="分类名" align="center" />
-      <el-table-column prop="articleCount" label="文章数" align="center" width="80">
+      <el-table-column
+        prop="articleCount"
+        label="文章数"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <span v-if="scope.row.articleCount">
             {{ scope.row.articleCount }}
@@ -86,24 +91,29 @@
           <span v-else>0</span>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" align="center" width="120">
+      <el-table-column
+        prop="createTime"
+        label="创建时间"
+        align="center"
+        width="120"
+      >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.createTime | date }}
         </template>
       </el-table-column>
-      <el-table-column prop="updateTime" label="更新时间" align="center" width="120">
+      <el-table-column
+        prop="updateTime"
+        label="更新时间"
+        align="center"
+        width="120"
+      >
         <template slot-scope="scope" v-if="scope.row.updateTime">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
-      <el-table-column
-        prop="hiddenFlag"
-        label="隐藏"
-        align="center"
-        width="80"
-      >
+      <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hiddenFlag"
@@ -115,12 +125,7 @@
           />
         </template>
       </el-table-column>
-      <el-table-column
-        prop="publicFlag"
-        label="公开"
-        align="center"
-        width="80"
-      >
+      <el-table-column prop="publicFlag" label="公开" align="center" width="80">
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.publicFlag"
@@ -181,15 +186,14 @@
       <div class="dialog-title-container" slot="title" ref="categoryTitle" />
       <el-form :model="category" size="medium" label-width="80">
         <el-form-item label="分类名">
-          <el-input v-model="category.categoryName" style="width:200px" :maxLength="50" />
+          <el-input
+            v-model="category.categoryName"
+            style="width:200px"
+            :maxLength="50"
+          />
         </el-form-item>
       </el-form>
-      <el-form
-        :model="category"
-        :inline="true"
-        size="medium"
-        label-width="80"
-      >
+      <el-form :model="category" :inline="true" size="medium" label-width="80">
         <el-form-item label="隐藏">
           <el-switch
             v-model="category.hiddenFlag"
@@ -328,21 +332,29 @@ export default {
         this.$message.error("分类名不能为空");
         return false;
       }
-      this.axios.post("/api/back/category", this.category).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: "成功",
-            message: data.message
-          });
-          this.listCategories();
-        } else {
-          this.$notify.error({
-            title: "失败",
-            message: data.message
-          });
-        }
-        this.addOrEditStatus = false;
-      });
+      const { id, categoryName, publicFlag, hiddenFlag } = this.category;
+      this.axios
+        .post("/api/back/category", {
+          id,
+          categoryName,
+          publicFlag,
+          hiddenFlag
+        })
+        .then(({ data }) => {
+          if (data.flag) {
+            this.$notify.success({
+              title: "成功",
+              message: data.message
+            });
+            this.listCategories();
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: data.message
+            });
+          }
+          this.addOrEditStatus = false;
+        });
     },
     changeCategoryStatus(category) {
       let param = {

@@ -48,14 +48,12 @@ public class ResourceBackVO {
     /**
      * 0未禁用，1已禁用
      */
-    @NotNull(message = "禁用标志不能为null")
     @ApiModelProperty(name = "disabledFlag", value = "0未禁用，1已禁用", required = true, dataType = "Boolean")
     private Boolean disabledFlag;
 
     /**
      * 0未匿名，1已匿名
      */
-    @NotNull(message = "匿名标志不能为null")
     @ApiModelProperty(name = "anonymousFlag", value = "0未匿名，1已匿名", required = true, dataType = "Boolean")
     private Boolean anonymousFlag;
 }

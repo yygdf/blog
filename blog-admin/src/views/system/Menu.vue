@@ -365,21 +365,46 @@ export default {
         this.$message.error("菜单名称不能为空");
         return false;
       }
-      this.axios.post("/api/back/menu", this.menu).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: "成功",
-            message: data.message
-          });
-          this.listMenus();
-        } else {
-          this.$notify.error({
-            title: "失败",
-            message: data.message
-          });
-        }
-        this.addOrEditStatus = false;
-      });
+      const {
+        id,
+        parentId,
+        icon,
+        rank,
+        path,
+        name,
+        component,
+        hideFlag,
+        hiddenFlag,
+        disabledFlag
+      } = this.menu;
+      this.axios
+        .post("/api/back/menu", {
+          id,
+          parentId,
+          icon,
+          rank,
+          path,
+          name,
+          component,
+          hideFlag,
+          hiddenFlag,
+          disabledFlag
+        })
+        .then(({ data }) => {
+          if (data.flag) {
+            this.$notify.success({
+              title: "成功",
+              message: data.message
+            });
+            this.listMenus();
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: data.message
+            });
+          }
+          this.addOrEditStatus = false;
+        });
     },
     changeMenuStatus(menu) {
       let param = {

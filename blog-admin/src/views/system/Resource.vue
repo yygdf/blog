@@ -58,6 +58,7 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.disabledFlag"
+            :disabled="!checkWeight(100) && !scope.row.deletableFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -75,6 +76,7 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.anonymousFlag"
+            :disabled="!checkWeight(100) && !scope.row.deletableFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"

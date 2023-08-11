@@ -49,6 +49,7 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hideFlag"
+            :disabled="!checkWeight(100) && !scope.row.deletableFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -61,6 +62,7 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hiddenFlag"
+            :disabled="!checkWeight(100) && !scope.row.deletableFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -78,6 +80,7 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.disabledFlag"
+            :disabled="!checkWeight(100) && !scope.row.deletableFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"

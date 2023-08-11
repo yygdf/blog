@@ -55,7 +55,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     @Transactional
     public void updateMenuStatusVO(CommonStatusVO commonStatusVO) {
         int count = menuMapper.update(null, new LambdaUpdateWrapper<Menu>()
-                .set(Menu::getHideFlag, Objects.isNull(commonStatusVO.getTopFlag()) ? false : commonStatusVO.getTopFlag())
+                .set(Menu::getHideFlag, commonStatusVO.getTopFlag())
                 .set(Menu::getHiddenFlag, commonStatusVO.getHiddenFlag())
                 .set(Menu::getDisabledFlag, commonStatusVO.getPublicFlag())
                 .eq(Menu::getId, commonStatusVO.getId())

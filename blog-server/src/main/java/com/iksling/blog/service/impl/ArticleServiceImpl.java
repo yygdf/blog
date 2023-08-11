@@ -209,10 +209,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     public void updateArticleStatusVO(CommonStatusVO commonStatusVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         int count = articleMapper.update(null, new LambdaUpdateWrapper<Article>()
-                .set(Article::getTopFlag, Objects.isNull(commonStatusVO.getTopFlag()) ? false : commonStatusVO.getTopFlag())
+                .set(Article::getTopFlag, commonStatusVO.getTopFlag())
                 .set(Article::getPublicFlag, commonStatusVO.getPublicFlag())
                 .set(Article::getHiddenFlag, commonStatusVO.getHiddenFlag())
-                .set(Article::getCommentableFlag, Objects.isNull(commonStatusVO.getCommentableFlag()) ? false : commonStatusVO.getCommentableFlag())
+                .set(Article::getCommentableFlag, commonStatusVO.getCommentableFlag())
                 .eq(Article::getId, commonStatusVO.getId())
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
         if (count != 1)

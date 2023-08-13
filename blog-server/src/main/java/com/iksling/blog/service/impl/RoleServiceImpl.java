@@ -104,7 +104,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     @Transactional
     public void saveOrUpdateRoleBackVO(RoleBackVO roleBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100 && roleBackVO.getRoleWeight() <= 100)
+        if (loginUser.getRoleWeight() > 100 && (roleBackVO.getRoleWeight() <= 100 || (Objects.nonNull(roleBackVO.getId()) && roleBackVO.getId() == 1)))
             throw new IllegalRequestException();
         roleBackVO.setRoleName(roleBackVO.getRoleName().trim());
         Integer count = roleMapper.selectCount(new LambdaQueryWrapper<Role>()
@@ -126,9 +126,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
         } else {
             role.setUpdateTime(new Date());
             role.setUpdateUser(loginUser.getUserId());
-            count = roleMapper.update(role, new LambdaUpdateWrapper<Role>()
-                    .eq(Role::getId, role.getId())
-                    .eq(loginUser.getRoleWeight() > 100, Role::getDeletableFlag, true));
+            count = roleMapper.updateById(role);
             if (count != 1)
                 throw new IllegalRequestException();
         }

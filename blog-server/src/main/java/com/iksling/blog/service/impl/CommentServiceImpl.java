@@ -1,5 +1,6 @@
 package com.iksling.blog.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.CommentsBackDTO;
 import com.iksling.blog.entity.Comment;
@@ -41,7 +42,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
             throw new IllegalRequestException();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<CommentsBackDTO> commentsBackDTOList = commentMapper.listCommentsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (commentsBackDTOList.size() == 0)
+        if (CollectionUtils.isEmpty(commentsBackDTOList))
             return new PagePojo<>();
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
         commentsBackDTOList.forEach(item -> {
@@ -60,9 +61,11 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     @Override
     @Transactional
     public void deleteCommentIdList(List<Integer> commentIdList) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100 || commentIdList.size() == 0)
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 || CollectionUtils.isEmpty(commentIdList))
             throw new IllegalRequestException();
-        commentMapper.deleteBatchIds(commentIdList);
+        int count = commentMapper.deleteBatchIds(commentIdList);
+        if (count != commentIdList.size())
+            throw new IllegalRequestException();
     }
 }
 

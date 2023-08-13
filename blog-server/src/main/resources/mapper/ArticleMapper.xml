@@ -42,6 +42,7 @@
         <result column="category_name" property="categoryName"/>
         <collection property="tagDTOList" ofType="com.iksling.blog.dto.TagDTO">
             <id column="tag_id" property="id"/>
+            <result column="user_id" property="userId"/>
             <result column="tag_name" property="tagName"/>
         </collection>
     </resultMap>

@@ -2,6 +2,7 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -92,7 +93,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     @Override
     @Transactional
     public void deleteCategoryIdList(List<Integer> categoryIdList) {
-        if (categoryIdList.size() == 0)
+        if (CollectionUtils.isEmpty(categoryIdList))
             throw new IllegalRequestException();
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()

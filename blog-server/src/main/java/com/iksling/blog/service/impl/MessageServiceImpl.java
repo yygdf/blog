@@ -1,6 +1,7 @@
 package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -56,7 +57,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     @Override
     @Transactional
     public void deleteMessageIdList(List<Integer> messageIdList) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100 || messageIdList.size() == 0)
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 || CollectionUtils.isEmpty(messageIdList))
             throw new IllegalRequestException();
         int count = messageMapper.deleteBatchIds(messageIdList);
         if (count != messageIdList.size())

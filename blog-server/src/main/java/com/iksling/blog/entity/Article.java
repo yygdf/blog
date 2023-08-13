@@ -29,7 +29,7 @@ public class Article implements Serializable {
     private Integer id;
 
     /**
-     * 作者id
+     * 用户id
      */
     private Integer userId;
 

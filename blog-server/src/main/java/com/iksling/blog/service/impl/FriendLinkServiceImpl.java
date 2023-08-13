@@ -1,5 +1,6 @@
 package com.iksling.blog.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.FriendLinksBackDTO;
 import com.iksling.blog.entity.FriendLink;
@@ -36,7 +37,7 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
             throw new IllegalRequestException();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<FriendLinksBackDTO> friendLinksBackDTOList = friendLinkMapper.listFriendLinksBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (friendLinksBackDTOList.size() == 0)
+        if (CollectionUtils.isEmpty(friendLinksBackDTOList))
             return new PagePojo<>();
         return new PagePojo<>(friendLinksBackDTOList.size(), friendLinksBackDTOList);
     }
@@ -52,7 +53,7 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     @Override
     @Transactional
     public void deleteFriendLinkIdList(List<Integer> friendLinkIdList) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100 || friendLinkIdList.size() == 0)
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 || CollectionUtils.isEmpty(friendLinkIdList))
             throw new IllegalRequestException();
         int count = friendLinkMapper.deleteBatchIds(friendLinkIdList);
         if (count != friendLinkIdList.size())

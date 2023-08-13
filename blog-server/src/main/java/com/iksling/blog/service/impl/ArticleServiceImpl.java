@@ -2,6 +2,7 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.*;
@@ -152,7 +153,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             article.setUserId(article2.getUserId());
         }
         this.saveOrUpdate(article);
-        if (Objects.nonNull(articleBackVO.getTagIdList()) && articleBackVO.getTagIdList().size() != 0) {
+        if (CollectionUtils.isNotEmpty(articleBackVO.getTagIdList())) {
             List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
                     .select(Tag::getId)
                     .eq(Tag::getUserId, article.getUserId()));
@@ -174,7 +175,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             throw new IllegalRequestException();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<ArticlesBackDTO> articlesBackDTOList = articleMapper.listArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (articlesBackDTOList.size() == 0)
+        if (CollectionUtils.isEmpty(articlesBackDTOList))
             return new PagePojo<>();
         Map<String, Integer> viewCountMap = redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).entries();
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).entries();
@@ -197,7 +198,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     @Transactional
     public void deleteArticleIdList(List<Integer> articleIdList) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100 || articleIdList.size() == 0)
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 || CollectionUtils.isEmpty(articleIdList))
             throw new IllegalRequestException();
         int count = articleMapper.deleteBatchIds(articleIdList);
         if (count != articleIdList.size())

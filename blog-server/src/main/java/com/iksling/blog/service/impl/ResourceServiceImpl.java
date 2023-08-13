@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.ResourcesBackDTO;
+import com.iksling.blog.dto.RoleOptionsDTO;
 import com.iksling.blog.entity.Resource;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.ResourceMapper;
@@ -80,7 +81,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
         }
         if (Objects.isNull(resource.getId())) {
             resource.setUserId(loginUser.getUserId());
-            resource.setDeletableFlag(true);
             resource.setCreateUser(loginUser.getUserId());
             resource.setCreateTime(new Date());
             resourceMapper.insert(resource);
@@ -93,6 +93,16 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
             if (count != 1)
                 throw new IllegalRequestException();
         }
+    }
+
+    @Override
+    public List<RoleOptionsDTO> getResourcesDTO() {
+        List<Resource> resourceList = resourceMapper.selectList(new LambdaQueryWrapper<Resource>()
+                .select(Resource::getId, Resource::getUserId, Resource::getParentId, Resource::getResourceName)
+                .orderByAsc(Resource::getId));
+        List<Resource> parentResourceList = getParentResourceList(resourceList);
+        Map<Integer, List<Resource>> childrenResourceMap = getChildrenResourceMap(resourceList);
+        return convertResourcesDTOList(parentResourceList, childrenResourceMap);
     }
 
     private List<Resource> getParentResourceList(List<Resource> resourceList) {
@@ -115,6 +125,28 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                     if (CollectionUtils.isNotEmpty(childrenResourceList))
                         resourcesBackDTO.setChildren(BeanCopyUtil.copyList(childrenResourceList, ResourcesBackDTO.class));
                     return resourcesBackDTO;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<RoleOptionsDTO> convertResourcesDTOList(List<Resource> parentResourceList, Map<Integer, List<Resource>> childrenResourceMap) {
+        return parentResourceList.stream()
+                .map(parentResource -> {
+                    RoleOptionsDTO roleOptionsDTO = RoleOptionsDTO.builder()
+                            .id(parentResource.getId())
+                            .userId(parentResource.getUserId())
+                            .label(parentResource.getResourceName())
+                            .build();
+                    List<Resource> childrenResourceList = childrenResourceMap.get(parentResource.getId());
+                    if (CollectionUtils.isNotEmpty(childrenResourceList)) {
+                        List<RoleOptionsDTO> roleOptionsDTOList = childrenResourceList.stream().map(childrenResource -> RoleOptionsDTO.builder()
+                                .id(childrenResource.getId())
+                                .userId(childrenResource.getUserId())
+                                .label(childrenResource.getResourceName())
+                                .build()).collect(Collectors.toList());
+                        roleOptionsDTO.setChildren(roleOptionsDTOList);
+                    }
+                    return roleOptionsDTO;
                 })
                 .collect(Collectors.toList());
     }

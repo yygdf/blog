@@ -95,6 +95,7 @@
         </el-select>
         <el-input
           v-model="keywords"
+          ref="input"
           size="small"
           style="width:200px"
           prefix-icon="el-icon-search"
@@ -356,6 +357,9 @@ export default {
         label: "已删除"
       };
     }
+    this.$nextTick(() => {
+      this.$refs.input.focus();
+    });
   },
   data: function() {
     return {
@@ -459,7 +463,7 @@ export default {
     },
     listArticleOptions() {
       this.axios
-        .get("/api/back/article/options", {
+        .get("/api/back/article/option", {
           params: { userId: this.userId }
         })
         .then(({ data }) => {
@@ -555,11 +559,16 @@ export default {
       this.listArticles();
       this.listArticleOptions();
     },
-    tagIdList() {
-      this.listArticles();
-    },
     categoryId() {
       this.listArticles();
+    },
+    tagIdList: {
+      handler(newVal, oldVal) {
+        if (newVal.length !== oldVal.length) {
+          this.listArticles();
+        }
+      },
+      deep: true
     }
   }
 };

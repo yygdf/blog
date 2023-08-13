@@ -5,6 +5,11 @@ import lombok.Data;
 @Data
 public class LoginRole {
     /**
+     * 用户id
+     */
+    private Integer userId;
+
+    /**
      * 角色名称
      */
     private String roleName;

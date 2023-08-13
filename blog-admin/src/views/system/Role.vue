@@ -1,0 +1,368 @@
+<template>
+  <el-card class="main-card">
+    <div class="title">{{ this.$route.name }}</div>
+    <div class="operation-container">
+      <el-button
+        type="primary"
+        size="small"
+        icon="el-icon-plus"
+        @click="openModel(null)"
+      >
+        新增
+      </el-button>
+      <div style="margin-left:auto">
+        <el-input
+          v-model="keywords"
+          ref="input"
+          size="small"
+          style="width:200px"
+          prefix-icon="el-icon-search"
+          placeholder="请输入角色名"
+          @keyup.enter.native="listRoles"
+        />
+        <el-button
+          type="primary"
+          size="small"
+          icon="el-icon-search"
+          style="margin-left:1rem"
+          @click="listRoles"
+        >
+          搜索
+        </el-button>
+      </div>
+    </div>
+    <el-table border :data="roleList" v-loading="loading">
+      <el-table-column prop="roleName" label="角色名称" align="center" />
+      <el-table-column prop="roleDesc" label="角色描述" align="center" />
+      <el-table-column prop="roleWeight" label="角色权重" align="center" width="120"/>
+      <el-table-column prop="userCount" label="用户数" align="center" width="80" />
+      <el-table-column
+        prop="disabledFlag"
+        label="禁用"
+        align="center"
+        width="80"
+      >
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.disabledFlag"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            @change="changeRoleStatus(scope.row)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="createTime"
+        label="创建时间"
+        align="center"
+        width="160"
+      >
+        <template slot-scope="scope">
+          <i class="el-icon-time" style="margin-right:5px" />
+          {{ scope.row.createTime | date }}
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" align="center" width="400">
+        <template slot-scope="scope">
+          <el-button :disabled="!checkWeight(100) && scope.row.id === 1" type="info" size="mini" @click="openMenuModel(scope.row)">
+            <i class="el-icon-folder-opened" /> 菜单权限
+          </el-button>
+          <el-button :disabled="!checkWeight(100) && scope.row.id === 1" type="info" size="mini" @click="openResourceModel(scope.row)">
+            <i class="el-icon-folder-opened" /> 资源权限
+          </el-button>
+          <el-button :disabled="!checkWeight(100) && scope.row.id === 1" type="primary" size="mini" @click="openModel(scope.row)">
+            <i class="el-icon-edit" /> 修改
+          </el-button>
+          <el-popconfirm
+            title="确定删除吗？"
+            style="margin-left:10px"
+            @confirm="deleteRole(scope.row.id)"
+          >
+            <el-button :disabled="!scope.row.deletableFlag || scope.row.userCount !== 0" type="danger" size="mini" slot="reference">
+              <i class="el-icon-delete" /> 删除
+            </el-button>
+          </el-popconfirm>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-dialog :visible.sync="addOrEditStatus" width="30%">
+      <div class="dialog-title-container" slot="title" ref="roleTitle" />
+      <el-form :model="role" size="medium" label-width="80">
+        <el-form-item label="角色名称">
+          <el-input v-model="role.roleName" ref="input" style="width:200px" />
+        </el-form-item>
+        <el-form-item label="角色描述">
+          <el-input v-model="role.roleDesc" style="width:200px" />
+        </el-form-item>
+        <el-form-item label="角色权重">
+          <el-input-number
+            v-model="role.roleWeight"
+            :min="checkWeight(100) ? 1 : 100"
+            :max="1000"
+            value="1"
+            controls-position="right"
+          />
+        </el-form-item>
+        <el-form-item label="禁用">
+          <el-switch
+            v-model="role.disabledFlag"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="addOrEditStatus = false">取 消</el-button>
+        <el-button type="primary" @click="addOrEditRole">
+          确 定
+        </el-button>
+      </div>
+    </el-dialog>
+    <el-dialog :visible.sync="editRoleMenuStatus" width="30%">
+      <div class="dialog-title-container" slot="title">修改菜单权限</div>
+      <el-form :model="role" size="medium" label-width="80px">
+        <el-form-item label="角色名称">
+          <el-input v-model="role.roleName" style="width:200px" disabled />
+        </el-form-item>
+        <el-form-item label="菜单权限">
+          <el-tree
+            :data="menuList"
+            :default-checked-keys="role.menuIdList"
+            ref="menuTree"
+            node-key="id"
+            show-checkbox
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="editRoleMenuStatus = false">取 消</el-button>
+        <el-button type="primary" @click="editRoleMenu">
+          确 定
+        </el-button>
+      </div>
+    </el-dialog>
+    <el-dialog :visible.sync="editRoleResourceStatus" width="30%">
+      <div class="dialog-title-container" slot="title">修改资源权限</div>
+      <el-form :model="role" size="medium" label-width="80px">
+        <el-form-item label="角色名称">
+          <el-input v-model="role.roleName" style="width:200px" disabled />
+        </el-form-item>
+        <el-form-item label="资源权限">
+          <el-tree
+            :data="resourceList"
+            :default-checked-keys="role.resourceIdList"
+            ref="resourceTree"
+            node-key="id"
+            show-checkbox
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="editRoleResourceStatus = false">取 消</el-button>
+        <el-button type="primary" @click="editRoleResource">
+          确 定
+        </el-button>
+      </div>
+    </el-dialog>
+  </el-card>
+</template>
+
+<script>
+export default {
+  created() {
+    this.listRoles();
+    this.listRoleOptions();
+    this.$nextTick(() => {
+      this.$refs.input.focus();
+    });
+  },
+  data: function() {
+    return {
+      role: {},
+      roleList: [],
+      menuList: [],
+      resourceList: [],
+      keywords: null,
+      loading: true,
+      addOrEditStatus: false,
+      editRoleMenuStatus: false,
+      editRoleResourceStatus: false
+    };
+  },
+  methods: {
+    openModel(role) {
+      if (role == null) {
+        this.role = {
+          roleName: "",
+          roleDesc: "",
+          roleWeight: 1000
+        };
+        this.$refs.roleTitle.innerHTML = "新增角色";
+      } else {
+        this.role = JSON.parse(JSON.stringify(role));
+        this.$refs.roleTitle.innerHTML = "修改角色";
+      }
+      this.$nextTick(() => {
+        this.$refs.input.focus();
+      });
+      this.addOrEditStatus = true;
+    },
+    checkWeight(weight = 200) {
+      return this.$store.state.weight <= weight;
+    },
+    openMenuModel(role) {
+      this.$nextTick(function() {
+        this.$refs.menuTree.setCheckedKeys([]);
+      });
+      this.role.id = role.id;
+      this.role.roleName = role.roleName;
+      this.role.menuIdList =
+        role.menuIdList == null ? null : role.menuIdList.split(",");
+      this.editRoleMenuStatus = true;
+    },
+    openResourceModel(role) {
+      this.$nextTick(function() {
+        this.$refs.resourceTree.setCheckedKeys([]);
+      });
+      this.role.id = role.id;
+      this.role.roleName = role.roleName;
+      this.role.resourceIdList =
+        role.resourceIdList == null ? null : role.resourceIdList.split(",");
+      this.editRoleResourceStatus = true;
+    },
+    listRoles() {
+      this.axios
+        .get("/api/back/roles", {
+          params: {
+            keywords: this.keywords
+          }
+        })
+        .then(({ data }) => {
+          this.roleList = data.data;
+          this.loading = false;
+        });
+    },
+    listRoleOptions() {
+      this.axios.get("/api/back/role/option").then(({ data }) => {
+        this.menuList = data.data.menusDTOList;
+        this.resourceList = data.data.resourcesDTOList;
+      });
+    },
+    deleteRole(id) {
+      let param = { data: id };
+      this.axios.delete("/api/back/role", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listRoles();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.isDelete = false;
+      });
+    },
+    editRoleMenu() {
+      let id = this.role.id;
+      let menuIdList = this.$refs.menuTree
+        .getCheckedKeys()
+        .concat(this.$refs.menuTree.getHalfCheckedKeys());
+      this.axios
+        .put("/api/back/role/option", {
+          id,
+          menuIdList
+        })
+        .then(({ data }) => {
+          if (data.flag) {
+            this.$notify.success({
+              title: "成功",
+              message: data.message
+            });
+            this.listRoles();
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: data.message
+            });
+          }
+          this.editRoleMenuStatus = false;
+        });
+    },
+    addOrEditRole() {
+      if (this.role.roleName.trim() === "") {
+        this.$message.error("角色名称不能为空");
+        return false;
+      }
+      if (this.role.roleDesc.trim() === "") {
+        this.$message.error("权限标签不能为空");
+        return false;
+      }
+      const { id, roleDesc, roleName, roleWeight, disabledFlag } = this.role;
+      this.axios
+        .post("/api/back/role", {
+          id,
+          roleDesc,
+          roleName,
+          roleWeight,
+          disabledFlag
+        })
+        .then(({ data }) => {
+          if (data.flag) {
+            this.$notify.success({
+              title: "成功",
+              message: data.message
+            });
+            this.listRoles();
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: data.message
+            });
+          }
+          this.addOrEditStatus = false;
+        });
+    },
+    changeRoleStatus(role) {
+      let param = {
+        id: role.id,
+        publicFlag: role.disabledFlag
+      };
+      this.axios.put("/api/back/role/status", param);
+    },
+    editRoleResource() {
+      let id = this.role.id;
+      let resourceIdList = this.$refs.resourceTree
+        .getCheckedKeys()
+        .concat(this.$refs.resourceTree.getHalfCheckedKeys());
+      this.axios
+        .put("/api/back/role/option", {
+          id,
+          resourceIdList
+        })
+        .then(({ data }) => {
+          if (data.flag) {
+            this.$notify.success({
+              title: "成功",
+              message: data.message
+            });
+            this.listRoles();
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: data.message
+            });
+          }
+          this.editRoleResourceStatus = false;
+        });
+    }
+  }
+};
+</script>

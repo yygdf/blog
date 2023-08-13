@@ -32,8 +32,7 @@ public class CommonStatusVO {
     /**
      * 0未隐藏，1已隐藏
      */
-    @NotNull(message = "隐藏标志不能为null")
-    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏", dataType = "Boolean")
     private Boolean hiddenFlag;
 
     /**

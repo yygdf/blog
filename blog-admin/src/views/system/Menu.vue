@@ -13,6 +13,7 @@
       <div style="margin-left:auto">
         <el-input
           v-model="keywords"
+          ref="input"
           size="small"
           style="width:200px"
           prefix-icon="el-icon-search"
@@ -172,7 +173,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="菜单名称">
-          <el-input v-model="menu.name" style="width:200px" />
+          <el-input v-model="menu.name" ref="input" style="width:200px" />
         </el-form-item>
         <el-form-item label="菜单图标">
           <el-input
@@ -255,6 +256,9 @@
 export default {
   created() {
     this.listMenus();
+    this.$nextTick(() => {
+      this.$refs.input.focus();
+    });
   },
   data() {
     return {
@@ -317,6 +321,9 @@ export default {
           }
         }
       }
+      this.$nextTick(() => {
+        this.$refs.input.focus();
+      });
       this.addOrEditStatus = true;
     },
     checkWeight(weight = 200) {

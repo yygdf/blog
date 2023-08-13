@@ -40,6 +40,7 @@
         </el-select>
         <el-input
           v-model="keywords"
+          ref="input"
           size="small"
           style="width:200px"
           placeholder="请输入标签名"
@@ -145,7 +146,7 @@
       <div class="dialog-title-container" slot="title" ref="tagTitle" />
       <el-form :model="tag" size="medium" label-width="80">
         <el-form-item label="标签名">
-          <el-input v-model="tag.tagName" style="width:200px" :maxLength="50" />
+          <el-input v-model="tag.tagName" ref="input" style="width:200px" :maxLength="50" />
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -162,6 +163,9 @@
 export default {
   created() {
     this.listTags();
+    this.$nextTick(() => {
+      this.$refs.input.focus();
+    });
   },
   data: function() {
     return {
@@ -190,6 +194,9 @@ export default {
         };
         this.$refs.tagTitle.innerHTML = "添加标签";
       }
+      this.$nextTick(() => {
+        this.$refs.input.focus();
+      });
       this.addOrEditStatus = true;
     },
     sizeChange(size) {

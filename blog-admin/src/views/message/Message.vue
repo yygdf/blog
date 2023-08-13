@@ -39,6 +39,7 @@
         </el-select>
         <el-input
           v-model="keywords"
+          ref="input"
           size="small"
           style="width:200px"
           prefix-icon="el-icon-search"
@@ -174,6 +175,9 @@
 export default {
   created() {
     this.listMessages();
+    this.$nextTick(() => {
+      this.$refs.input.focus();
+    });
   },
   data: function() {
     return {

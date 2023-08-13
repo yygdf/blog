@@ -45,7 +45,7 @@ public class MenuController {
 
     @OptLog(optType = REMOVE)
     @ApiOperation(value = "删除菜单")
-    @ApiImplicitParam(name = "id", value = "菜单id", required = true, dataType = "Integer")
+    @ApiImplicitParam(name = "id", value = "菜单id", required = true, dataType = "String")
     @DeleteMapping("/back/menu")
     public Result deleteBackMenu(@RequestBody String id) {
         menuService.deleteMenuById(id);

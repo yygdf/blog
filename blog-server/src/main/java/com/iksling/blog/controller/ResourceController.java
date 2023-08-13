@@ -39,7 +39,7 @@ public class ResourceController {
 
     @OptLog(optType = REMOVE)
     @ApiOperation(value = "删除资源")
-    @ApiImplicitParam(name = "id", value = "资源id", required = true, dataType = "Integer")
+    @ApiImplicitParam(name = "id", value = "资源id", required = true, dataType = "String")
     @DeleteMapping("/back/resource")
     public Result deleteBackResource(@RequestBody String id) {
         resourceService.deleteResourceById(id);

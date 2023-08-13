@@ -55,14 +55,14 @@ public class ArticleBackVO {
      * 0是草稿，1不是草稿
      */
     @NotNull(message = "草稿标志不能为null")
-    @ApiModelProperty(name = "draftFlag", value = "0不是草稿，1是草稿", dataType = "Boolean")
+    @ApiModelProperty(name = "draftFlag", value = "0不是草稿，1是草稿", required = true, dataType = "Boolean")
     private Boolean draftFlag;
 
     /**
      * 0未公开，1已公开
      */
     @NotNull(message = "公开标志不能为null")
-    @ApiModelProperty(name = "publicFlag", value = "0未公开，1已公开", dataType = "Boolean")
+    @ApiModelProperty(name = "publicFlag", value = "0未公开，1已公开", required = true, dataType = "Boolean")
     private Boolean publicFlag;
 
     /**
@@ -75,7 +75,7 @@ public class ArticleBackVO {
      * 0不可评论，1可评论
      */
     @NotNull(message = "评论标志不能为null")
-    @ApiModelProperty(name = "commentableFlag", value = "0不可评论，1可评论", dataType = "Boolean")
+    @ApiModelProperty(name = "commentableFlag", value = "0不可评论，1可评论", required = true, dataType = "Boolean")
     private Boolean commentableFlag;
 
     /**

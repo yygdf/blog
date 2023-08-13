@@ -64,6 +64,7 @@
         </el-select>
         <el-input
           v-model="keywords"
+          ref="input"
           size="small"
           style="width:200px"
           prefix-icon="el-icon-search"
@@ -193,6 +194,7 @@
         <el-form-item label="所属用户" v-if="!friendLink.id">
           <el-select
             v-model="friendLink.userId"
+            ref="input"
             style="width:250px"
             placeholder="请选择用户"
             remote
@@ -211,6 +213,7 @@
         <el-form-item label="友链名称">
           <el-input
             v-model="friendLink.linkName"
+            :ref="friendLink.id ? 'input' : ''"
             style="width:250px"
             :maxLength="50"
           />
@@ -251,6 +254,9 @@
 export default {
   created() {
     this.listFriendLinks();
+    this.$nextTick(() => {
+      this.$refs.input.focus();
+    });
   },
   data: function() {
     return {
@@ -295,6 +301,9 @@ export default {
         };
         this.$refs.friendLinkTitle.innerHTML = "添加友链";
       }
+      this.$nextTick(() => {
+        this.$refs.input.focus();
+      });
       this.addOrEditStatus = true;
     },
     sizeChange(size) {

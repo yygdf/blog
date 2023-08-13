@@ -18,6 +18,28 @@
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
+    <resultMap id="RolesBackDTOMap" type="com.iksling.blog.dto.RolesBackDTO">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="role_desc" property="roleDesc"/>
+        <result column="role_name" property="roleName"/>
+        <result column="role_weight" property="roleWeight"/>
+        <result column="disabled_flag" property="disabledFlag"/>
+        <result column="deletable_flag" property="deletableFlag"/>
+        <result column="create_time" property="createTime"/>
+        <result column="user_count" property="userCount"/>
+        <collection property="menuIdList" ofType="java.lang.Integer">
+            <constructor>
+                <arg column="menu_id"/>
+            </constructor>
+        </collection>
+        <collection property="resourceIdList" ofType="java.lang.Integer">
+            <constructor>
+                <arg column="resource_id"/>
+            </constructor>
+        </collection>
+    </resultMap>
+
     <sql id="Base_Column_List">
         id,user_id,role_desc,
         role_name,role_weight,disabled_flag,
@@ -27,7 +49,7 @@
 
     <select id="listLoginRoleByUserId" resultType="com.iksling.blog.pojo.LoginRole">
         SELECT
-            r.role_name,r.role_weight
+            ur.user_id,r.role_name,r.role_weight
         FROM
             tb_user_role ur,
             tb_role r
@@ -37,5 +59,31 @@
             AND r.disabled_flag = 0
         ORDER BY
             r.role_weight ASC
+    </select>
+
+    <select id="listRolesBackDTO" resultType="com.iksling.blog.dto.RolesBackDTO">
+        SELECT
+            r.id,r.user_id,r.role_desc,
+            r.role_name,r.role_weight,r.disabled_flag,
+            r.deletable_flag,r.create_time,COALESCE(uc.user_count, 0) user_count,
+            rm.menu_id menuIdList,rr.resource_id resourceIdList
+        FROM
+            (
+                SELECT
+                    id,user_id,role_desc,
+                    role_name,role_weight,disabled_flag,
+                    deletable_flag,create_time
+                FROM
+                    tb_role
+                    <where>
+                        <if test="keywords != null ">
+                            role_name like concat('%', #{condition.keywords}, '%')
+                        </if>
+                    </where>
+             ) r
+        LEFT JOIN (SELECT role_id, GROUP_CONCAT(menu_id) menu_id FROM tb_role_menu GROUP BY role_id) rm ON r.id = rm.role_id
+        LEFT JOIN (SELECT role_id, GROUP_CONCAT(resource_id) resource_id FROM tb_role_resource GROUP BY role_id) rr ON r.id = rr.role_id
+        LEFT JOIN (SELECT role_id, count( role_id ) user_count FROM tb_user_role GROUP BY role_id ) uc ON r.id = uc.role_id
+        ORDER BY r.id ASC
     </select>
 </mapper>

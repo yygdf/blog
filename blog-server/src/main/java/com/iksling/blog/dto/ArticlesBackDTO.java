@@ -79,7 +79,7 @@ public class ArticlesBackDTO {
     private String categoryName;
 
     /**
-     * 文章标签
+     * 文章标签集合
      */
     private List<TagDTO> tagDTOList;
 }

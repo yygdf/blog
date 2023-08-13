@@ -2,6 +2,7 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -69,7 +70,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     @Override
     @Transactional
     public void deleteTagIdList(List<Integer> tagIdList) {
-        if (tagIdList.size() == 0)
+        if (CollectionUtils.isEmpty(tagIdList))
             throw new IllegalRequestException();
         LoginUser loginUser = UserUtil.getLoginUser();
         if (loginUser.getRoleWeight() > 300) {

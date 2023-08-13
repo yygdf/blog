@@ -71,6 +71,7 @@
         <el-input
           v-model="keywords"
           :disabled="draftFlag"
+          ref="input"
           size="small"
           style="width:200px"
           prefix-icon="el-icon-search"
@@ -259,6 +260,9 @@ export default {
         label: "已删除"
       };
     }
+    this.$nextTick(() => {
+      this.$refs.input.focus();
+    });
   },
   data: function() {
     return {

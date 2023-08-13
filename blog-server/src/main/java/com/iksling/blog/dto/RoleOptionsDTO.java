@@ -11,19 +11,24 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArticleOptionDTO {
+public class RoleOptionsDTO {
+    /**
+     * 标签id
+     */
+    private Integer id;
+
     /**
      * 用户id
      */
     private Integer userId;
 
     /**
-     * 文章标签集合
+     * 标签名称
      */
-    private List<TagDTO> tagDTOList;
+    private String label;
 
     /**
-     * 文章分类集合
+     * 子标签集合
      */
-    private List<CategoryDTO> categoryDTOList;
+    private List<RoleOptionsDTO> children;
 }

@@ -12,7 +12,7 @@ public class ArticleBackDTO {
     private Integer id;
 
     /**
-     * 作者id
+     * 用户id
      */
     private Integer userId;
 

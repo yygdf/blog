@@ -40,6 +40,7 @@
         </el-select>
         <el-input
           v-model="keywords"
+          ref="input"
           size="small"
           style="width:200px"
           prefix-icon="el-icon-search"
@@ -78,19 +79,7 @@
         width="120"
       />
       <el-table-column prop="categoryName" label="分类名" align="center" />
-      <el-table-column
-        prop="articleCount"
-        label="文章数"
-        align="center"
-        width="80"
-      >
-        <template slot-scope="scope">
-          <span v-if="scope.row.articleCount">
-            {{ scope.row.articleCount }}
-          </span>
-          <span v-else>0</span>
-        </template>
-      </el-table-column>
+      <el-table-column prop="articleCount" label="文章数" align="center" width="80" />
       <el-table-column
         prop="createTime"
         label="创建时间"
@@ -188,6 +177,7 @@
         <el-form-item label="分类名">
           <el-input
             v-model="category.categoryName"
+            ref="input"
             style="width:200px"
             :maxLength="50"
           />
@@ -227,6 +217,9 @@
 export default {
   created() {
     this.listCategories();
+    this.$nextTick(() => {
+      this.$refs.input.focus();
+    });
   },
   data: function() {
     return {
@@ -256,6 +249,9 @@ export default {
         };
         this.$refs.categoryTitle.innerHTML = "添加分类";
       }
+      this.$nextTick(() => {
+        this.$refs.input.focus();
+      });
       this.addOrEditStatus = true;
     },
     sizeChange(size) {

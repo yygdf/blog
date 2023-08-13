@@ -52,7 +52,7 @@ public class UserMenusDTO {
     private Boolean disabledFlag;
 
     /**
-     * 子菜单列表
+     * 子菜单集合
      */
     private List<UserMenusDTO> children;
 }

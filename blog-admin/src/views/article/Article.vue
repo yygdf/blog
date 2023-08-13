@@ -51,8 +51,9 @@
         <el-form-item label="文章标签">
           <el-select
             v-model="article.tagIdList"
-            multiple
             placeholder="请选择标签"
+            multiple
+            clearable
           >
             <el-option
               v-for="item in tagList"
@@ -195,7 +196,7 @@ export default {
     },
     listArticleOptions() {
       this.axios
-        .get("/api/back/article/options", {
+        .get("/api/back/article/option", {
           params: { userId: this.$store.state.articleUserId }
         })
         .then(({ data }) => {

@@ -23,9 +23,12 @@ import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.RoleBackVO;
 import com.iksling.blog.vo.RoleOptionVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +42,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     implements RoleService{
     @Autowired
     private RoleMapper roleMapper;
-
     @Autowired
     private UserRoleMapper userRoleMapper;
 
@@ -52,6 +54,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     @Autowired
     private RoleResourceService roleResourceService;
 
+    @Autowired
+    private SessionRegistry sessionRegistry;
     @Autowired
     private FilterInvocationSecurityMetadataSourceImpl filterInvocationSecurityMetadataSource;
 
@@ -74,12 +78,19 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     @Override
     @Transactional
     public void updateRoleStatusVO(CommonStatusVO commonStatusVO) {
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 && commonStatusVO.getId() == 1)
+            throw new IllegalRequestException();
         int count = roleMapper.update(null, new LambdaUpdateWrapper<Role>()
                 .set(Role::getDisabledFlag, commonStatusVO.getPublicFlag())
-                .eq(Role::getId, commonStatusVO.getId())
-                .eq(UserUtil.getLoginUser().getRoleWeight() > 100, Role::getDeletableFlag, true));
+                .eq(Role::getId, commonStatusVO.getId()));
         if (count != 1)
             throw new IllegalRequestException();
+        if (commonStatusVO.getPublicFlag()) {
+            Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>()
+                    .select(Role::getRoleName)
+                    .eq(Role::getId, commonStatusVO.getId()));
+            disabledRole(role.getRoleName());
+        }
     }
 
     @Override
@@ -106,19 +117,18 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
         LoginUser loginUser = UserUtil.getLoginUser();
         if (loginUser.getRoleWeight() > 100 && (roleBackVO.getRoleWeight() <= 100 || (Objects.nonNull(roleBackVO.getId()) && roleBackVO.getId() == 1)))
             throw new IllegalRequestException();
-        roleBackVO.setRoleName(roleBackVO.getRoleName().trim());
-        Integer count = roleMapper.selectCount(new LambdaQueryWrapper<Role>()
-                .eq(Role::getRoleName, roleBackVO.getRoleName()));
-        if (count > 0)
-            throw new OperationStatusException("角色名已存在!");
         Role role = Role.builder()
                 .id(roleBackVO.getId())
                 .roleDesc(roleBackVO.getRoleDesc().trim())
-                .roleName(roleBackVO.getRoleName())
                 .roleWeight(roleBackVO.getRoleWeight())
                 .disabledFlag(roleBackVO.getDisabledFlag())
                 .build();
         if (Objects.isNull(role.getId())) {
+            Integer count = roleMapper.selectCount(new LambdaQueryWrapper<Role>()
+                    .eq(Role::getRoleName, roleBackVO.getRoleName()));
+            if (count > 0)
+                throw new OperationStatusException("角色名已存在!");
+            role.setRoleName(roleBackVO.getRoleName().trim());
             role.setUserId(loginUser.getUserId());
             role.setCreateTime(new Date());
             role.setCreateUser(loginUser.getUserId());
@@ -126,9 +136,11 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
         } else {
             role.setUpdateTime(new Date());
             role.setUpdateUser(loginUser.getUserId());
-            count = roleMapper.updateById(role);
+            int count = roleMapper.updateById(role);
             if (count != 1)
                 throw new IllegalRequestException();
+            if (Objects.nonNull(role.getDisabledFlag()) && role.getDisabledFlag())
+                disabledRole(role.getRoleName());
         }
     }
 
@@ -158,6 +170,16 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
                         .collect(Collectors.toList()));
             filterInvocationSecurityMetadataSource.clearResourceRoleList();
         }
+    }
+
+    private void disabledRole(String roleName) {
+        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(item -> {
+            LoginUser loginUser = (LoginUser) item;
+            return loginUser.getRoleList().contains(roleName);
+        }).collect(Collectors.toList());
+        List<SessionInformation> allSessions = new ArrayList<>();
+        loginUserList.forEach(item -> allSessions.addAll(sessionRegistry.getAllSessions(item, false)));
+        allSessions.forEach(SessionInformation::expireNow);
     }
 }
 

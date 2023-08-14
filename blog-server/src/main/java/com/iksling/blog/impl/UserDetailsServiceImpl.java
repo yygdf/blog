@@ -1,6 +1,7 @@
 package com.iksling.blog.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.mapper.RoleMapper;
@@ -50,6 +51,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (userAuth.getDisabledFlag())
             throw new DisabledException("您的账户已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         List<LoginRole> roleList = roleMapper.listLoginRoleByUserId(userAuth.getUserId());
+        if (CollectionUtils.isEmpty(roleList))
+            throw new DisabledException("您的角色已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         UserAgent userAgent = UserAgent.parseUserAgentString(request.getHeader("User-Agent"));
         String ipAddress = IpUtil.getIpAddress(request);
         String ipSource = IpUtil.getIpSource(ipAddress);

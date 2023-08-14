@@ -44,7 +44,7 @@
       >
         <template slot-scope="scope">
           <el-switch
-            v-model="scope.row.disabledFlag"
+            :value="scope.row.disabledFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -91,15 +91,15 @@
       <div class="dialog-title-container" slot="title" ref="roleTitle" />
       <el-form :model="role" size="medium" label-width="80">
         <el-form-item label="角色名称">
-          <el-input v-model="role.roleName" ref="input" style="width:200px" />
+          <el-input v-model="role.roleName" :disabled="role.id != null" :ref="role.id ? '' : 'input'" style="width:200px" />
         </el-form-item>
         <el-form-item label="角色描述">
-          <el-input v-model="role.roleDesc" style="width:200px" />
+          <el-input v-model="role.roleDesc" :ref="role.id ? 'input' : ''" style="width:200px" />
         </el-form-item>
         <el-form-item label="角色权重">
           <el-input-number
             v-model="role.roleWeight"
-            :min="checkWeight(100) ? 1 : 100"
+            :min="checkWeight(100) ? 1 : 101"
             :max="1000"
             value="1"
             controls-position="right"
@@ -203,7 +203,13 @@ export default {
         };
         this.$refs.roleTitle.innerHTML = "新增角色";
       } else {
-        this.role = JSON.parse(JSON.stringify(role));
+        this.role = {
+          id: role.id,
+          roleName: role.roleName,
+          roleDesc: role.roleDesc,
+          roleWeight: role.roleWeight,
+          disabledFlag: role.disabledFlag
+        };
         this.$refs.roleTitle.innerHTML = "修改角色";
       }
       this.$nextTick(() => {
@@ -302,7 +308,7 @@ export default {
         return false;
       }
       if (this.role.roleDesc.trim() === "") {
-        this.$message.error("权限标签不能为空");
+        this.$message.error("角色描述不能为空");
         return false;
       }
       const { id, roleDesc, roleName, roleWeight, disabledFlag } = this.role;
@@ -331,11 +337,21 @@ export default {
         });
     },
     changeRoleStatus(role) {
-      let param = {
-        id: role.id,
-        publicFlag: role.disabledFlag
-      };
-      this.axios.put("/api/back/role/status", param);
+      let disabledFlag = role.disabledFlag;
+      let text = disabledFlag ? "启用" : "禁用";
+      this.$confirm("是否" + text + "该角色?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          role.disabledFlag = !disabledFlag;
+          this.axios.put("/api/back/role/status", {
+            id: role.id,
+            publicFlag: !disabledFlag
+          });
+        })
+        .catch(() => {});
     },
     editRoleResource() {
       let id = this.role.id;

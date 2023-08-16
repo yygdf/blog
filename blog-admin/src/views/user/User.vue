@@ -1,16 +1,42 @@
 <template>
   <el-card class="main-card">
     <div class="title">{{ this.$route.name }}</div>
-    <!-- 表格操作 -->
     <div class="operation-container">
-      <!-- 条件筛选 -->
+      <el-button
+        type="primary"
+        size="small"
+        icon="el-icon-plus"
+        @click="openModel(null)"
+      >
+        新增
+      </el-button>
+      <el-button
+        v-if="deletedFlag"
+        :disabled="userIdList.length === 0"
+        type="danger"
+        size="small"
+        icon="el-icon-minus"
+        @click="removeStatus = true"
+      >
+        批量删除
+      </el-button>
+      <el-button
+        v-else
+        :disabled="userIdList.length === 0"
+        type="danger"
+        size="small"
+        icon="el-icon-minus"
+        @click="editStatus = true"
+      >
+        批量删除
+      </el-button>
       <div style="margin-left:auto">
         <el-input
           v-model="keywords"
-          prefix-icon="el-icon-search"
           size="small"
-          placeholder="请输入昵称"
           style="width:200px"
+          prefix-icon="el-icon-search"
+          placeholder="请输入用户名或昵称"
           @keyup.enter.native="listUsers"
         />
         <el-button
@@ -24,14 +50,24 @@
         </el-button>
       </div>
     </div>
-    <!-- 表格展示 -->
-    <el-table border :data="userList" v-loading="loading">
-      <!-- 表格列 -->
+    <el-table
+      v-loading="loading"
+      :data="userList"
+      border
+      @selection-change="selectionChange"
+    >
+      <el-table-column type="selection" align="center" width="40" />
       <el-table-column
-        prop="linkAvatar"
+        prop="username"
+        label="用户"
+        align="center"
+        width="120"
+      />
+      <el-table-column
+        prop="avatar"
         label="头像"
         align="center"
-        width="100"
+        width="120"
       >
         <template slot-scope="scope">
           <img :src="scope.row.avatar" width="40" height="40" />
@@ -41,17 +77,22 @@
         prop="nickname"
         label="昵称"
         align="center"
-        width="140"
+        width="120"
       />
       <el-table-column
         prop="loginType"
         label="登录方式"
         align="center"
-        width="80"
+        width="120"
       >
         <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.loginType == 0">邮箱</el-tag>
-          <el-tag v-if="scope.row.loginType == 1">QQ</el-tag>
+          <el-tag
+            v-for="(item, index) of scope.row.loginTypeList"
+            :key="index"
+            style="margin-right:4px;margin-top:4px"
+          >
+            {{ item.loginTypeName }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="roleList" label="用户角色" align="center">
@@ -65,34 +106,34 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="isDisable" label="禁用" align="center" width="100">
+      <el-table-column prop="disabledFlag" label="禁用" align="center" width="80">
         <template slot-scope="scope">
           <el-switch
-            v-model="scope.row.isDisable"
+            v-model="scope.row.disabledFlag"
+            :active-value="true"
+            :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            :active-value="1"
-            :inactive-value="0"
-            @change="changeDisable(scope.row)"
+            @change="changeUserStatus(scope.row)"
           />
         </template>
       </el-table-column>
       <el-table-column
-        prop="ipAddr"
+        prop="ipAddress"
         label="登录ip"
         align="center"
-        width="140"
+        width="120"
       />
       <el-table-column
         prop="ipSource"
         label="登录地址"
         align="center"
-        width="140"
+        width="120"
       />
       <el-table-column
         prop="createTime"
         label="创建时间"
-        width="130"
+        width="120"
         align="center"
       >
         <template slot-scope="scope">
@@ -101,54 +142,93 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="lastLoginTime"
+        prop="loginTime"
         label="上次登录时间"
-        width="130"
+        width="160"
         align="center"
       >
-        <template slot-scope="scope" v-if="scope.row.lastLoginTime">
+        <template slot-scope="scope" v-if="scope.row.loginTime">
           <i class="el-icon-time" style="margin-right:5px" />
-          {{ scope.row.lastLoginTime | date }}
+          {{ scope.row.loginTime | dateTime }}
         </template>
       </el-table-column>
-      <!-- 列操作 -->
-      <el-table-column label="操作" align="center" width="100">
+      <el-table-column label="操作" align="center" width="120">
         <template slot-scope="scope">
           <el-button
             type="primary"
             size="mini"
-            @click="openEditModel(scope.row)"
+            @click="openModel(scope.row)"
           >
             编辑
           </el-button>
+          <el-popconfirm
+            v-if="deletedFlag"
+            title="确定彻底删除吗？"
+            style="margin-left:10px"
+            @confirm="deleteUsers(scope.row.id)"
+          >
+            <el-button type="danger" size="mini" slot="reference">
+              删除
+            </el-button>
+          </el-popconfirm>
+          <el-popconfirm
+            v-else
+            title="确定删除吗？"
+            style="margin-left:10px"
+            @confirm="updateUsersStatus(scope.row.id)"
+          >
+            <el-button type="danger" size="mini" slot="reference">
+              删除
+            </el-button>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
-    <!-- 分页 -->
     <el-pagination
+      :total="count"
+      :page-size="size"
+      :current-page="current"
+      :page-sizes="[10, 20]"
       class="pagination-container"
+      layout="total, sizes, prev, pager, next, jumper"
       background
       @size-change="sizeChange"
       @current-change="currentChange"
-      :current-page="current"
-      :page-size="size"
-      :total="count"
-      :page-sizes="[10, 20]"
-      layout="total, sizes, prev, pager, next, jumper"
     />
-    <!-- 修改对话框 -->
-    <el-dialog :visible.sync="isEdit" width="30%">
+    <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        修改用户
+        <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
-      <el-form label-width="60px" size="medium" :model="userForm">
+      <div style="font-size:1rem">是否删除选中项？</div>
+      <div slot="footer">
+        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button type="primary" @click="updateUsersStatus(null)">
+          确 定
+        </el-button>
+      </div>
+    </el-dialog>
+    <el-dialog :visible.sync="removeStatus" width="30%">
+      <div class="dialog-title-container" slot="title">
+        <i class="el-icon-warning" style="color:#ff9900" />提示
+      </div>
+      <div style="font-size:1rem">是否彻底删除选中项？</div>
+      <div slot="footer">
+        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button type="primary" @click="deleteUsers(null)">
+          确 定
+        </el-button>
+      </div>
+    </el-dialog>
+    <el-dialog :visible.sync="addOrEditStatus" width="30%">
+      <div class="dialog-title-container" slot="title" ref="userTitle" />
+      <el-form :model="user" size="medium" label-width="60">
         <el-form-item label="昵称">
-          <el-input v-model="userForm.nickname" style="width:220px" />
+          <el-input v-model="user.nickname" style="width:200px" />
         </el-form-item>
         <el-form-item label="角色">
           <el-checkbox-group v-model="roleIdList">
             <el-checkbox
-              v-for="item of userRoleList"
+              v-for="item of roleList"
               :key="item.id"
               :label="item.id"
             >
@@ -158,8 +238,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="isEdit = false">取 消</el-button>
-        <el-button type="primary" @click="editUserRole">
+        <el-button @click="addOrEditStatus = false">取 消</el-button>
+        <el-button type="primary" @click="addOrEditUser">
           确 定
         </el-button>
       </div>
@@ -174,22 +254,48 @@ export default {
   },
   data: function() {
     return {
-      loading: true,
-      isEdit: false,
-      userForm: {
-        userInfoId: null,
-        nickname: ""
-      },
-      userRoleList: [],
-      roleIdList: [],
+      options: [
+        {
+          value: false,
+          label: "可使用"
+        },
+        {
+          value: true,
+          label: "已删除"
+        }
+      ],
+      user: {},
+      roleList: [],
       userList: [],
+      roleIdList: [],
+      userIdList: [],
+      ipSourceList: [],
+      loginTypeList: [],
       keywords: null,
-      current: 1,
+      loading: true,
+      editStatus: false,
+      deletedFlag: false,
+      removeStatus: false,
+      addOrEditStatus: false,
       size: 10,
-      count: 0
+      count: 0,
+      current: 1
     };
   },
   methods: {
+    openModel(user) {
+      if (user != null) {
+        this.user = JSON.parse(JSON.stringify(user));
+        this.$refs.categoryTitle.innerHTML = "修改用户";
+      } else {
+        this.user = {};
+        this.$refs.categoryTitle.innerHTML = "添加用户";
+      }
+      this.$nextTick(() => {
+        this.$refs.input.focus();
+      });
+      this.addOrEditStatus = true;
+    },
     sizeChange(size) {
       this.size = size;
       this.listUsers();
@@ -198,56 +304,103 @@ export default {
       this.current = current;
       this.listUsers();
     },
-    changeDisable(user) {
-      let param = new URLSearchParams();
-      param.append("isDisable", user.isDisable);
-      this.axios.put("/api/admin/users/disable/" + user.userInfoId, param);
-    },
-    openEditModel(user) {
-      this.roleIdList = [];
-      this.userForm = JSON.parse(JSON.stringify(user));
-      this.userForm.roleList.forEach(item => {
-        this.roleIdList.push(item.id);
+    selectionChange(userList) {
+      this.userIdList = [];
+      userList.forEach(item => {
+        this.userIdList.push(item.id);
       });
-      this.isEdit = true;
-    },
-    editUserRole() {
-      this.userForm.roleIdList = this.roleIdList;
-      this.axios
-        .put("/api/admin/users/role", this.userForm)
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: "成功",
-              message: data.message
-            });
-            this.listUsers();
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: data.message
-            });
-          }
-          this.isEdit = false;
-        });
     },
     listUsers() {
       this.axios
-        .get("/api/admin/users", {
+        .get("/api/back/users", {
           params: {
-            current: this.current,
             size: this.size,
+            current: this.current,
             keywords: this.keywords
           }
         })
         .then(({ data }) => {
-          this.userList = data.data.recordList;
           this.count = data.data.count;
+          this.userList = data.data.pageList;
           this.loading = false;
         });
-      this.axios.get("/api/admin/users/role").then(({ data }) => {
-        this.userRoleList = data.data;
+    },
+    deleteUsers(id) {
+      let param = {};
+      if (id == null) {
+        param = { data: this.userIdList };
+      } else {
+        param = { data: [id] };
+      }
+      this.axios.delete("/api/back/users", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listUsers();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.removeStatus = false;
       });
+    },
+    addOrEditUser() {
+      this.user.roleIdList = this.roleIdList;
+      this.axios.put("/api/back/user", this.user).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listUsers();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.addOrEditStatus = false;
+      });
+    },
+    changeUserStatus(user) {
+      let param = {
+        id: user.id,
+        publicFlag: user.disabledFlag
+      };
+      this.axios.put("/api/back/user/status", param);
+    },
+    updateUsersStatus(id) {
+      let param = new URLSearchParams();
+      if (id != null) {
+        param.append("idList", [id]);
+      } else {
+        param.append("idList", this.userIdList);
+      }
+      param.append("deletedFlag", !this.deletedFlag);
+      this.axios.put("/api/back/users", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listUsers();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.editStatus = false;
+      });
+    }
+  },
+  watch: {
+    deletedFlag() {
+      this.listUsers();
     }
   }
 };

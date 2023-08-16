@@ -196,8 +196,8 @@ export default {
       keywords: null,
       loading: true,
       editStatus: false,
-      removeStatus: false,
       deletedFlag: false,
+      removeStatus: false,
       size: 10,
       count: 0,
       current: 1

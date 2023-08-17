@@ -11,7 +11,9 @@
             <result property="password" column="password" jdbcType="VARCHAR"/>
             <result property="loginTime" column="login_time" jdbcType="TIMESTAMP"/>
             <result property="loginDevice" column="login_device" jdbcType="VARCHAR"/>
+            <result property="loginMethod" column="login_method" jdbcType="INTEGER"/>
             <result property="lockedFlag" column="locked_flag" jdbcType="BOOLEAN"/>
+            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
             <result property="disabledFlag" column="disabled_flag" jdbcType="BOOLEAN"/>
             <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>
             <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
@@ -24,8 +26,9 @@
     <sql id="Base_Column_List">
         id,user_id,username,
         password,login_time,login_device,
-        locked_flag,disabled_flag,ip_source,
-        ip_address,create_user,create_time,
-        update_user,update_time
+        login_method,locked_flag,deleted_flag,
+        disabled_flag,ip_source,ip_address,
+        create_user,create_time,update_user,
+        update_time
     </sql>
 </mapper>

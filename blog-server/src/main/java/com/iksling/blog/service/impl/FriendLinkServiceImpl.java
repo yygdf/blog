@@ -36,7 +36,7 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
         if (loginUser.getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        List<FriendLinksBackDTO> friendLinksBackDTOList = friendLinkMapper.listFriendLinksBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        List<FriendLinksBackDTO> friendLinksBackDTOList = friendLinkMapper.listFriendLinksBackDTO(condition, loginUser.getUserId());
         if (CollectionUtils.isEmpty(friendLinksBackDTOList))
             return new PagePojo<>();
         return new PagePojo<>(friendLinksBackDTOList.size(), friendLinksBackDTOList);

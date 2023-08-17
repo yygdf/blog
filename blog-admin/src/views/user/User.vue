@@ -67,7 +67,7 @@
         prop="avatar"
         label="头像"
         align="center"
-        width="120"
+        width="80"
       >
         <template slot-scope="scope">
           <img :src="scope.row.avatar" width="40" height="40" />
@@ -80,10 +80,15 @@
         width="120"
       />
       <el-table-column
+        prop="email"
+        label="邮箱"
+        align="center"
+        width="120"
+      />
+      <el-table-column
         prop="loginType"
         label="登录方式"
         align="center"
-        width="120"
       >
         <template slot-scope="scope">
           <el-tag
@@ -144,7 +149,7 @@
       <el-table-column
         prop="loginTime"
         label="上次登录时间"
-        width="160"
+        width="200"
         align="center"
       >
         <template slot-scope="scope" v-if="scope.row.loginTime">
@@ -152,7 +157,7 @@
           {{ scope.row.loginTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="120">
+      <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
           <el-button
             type="primary"
@@ -316,7 +321,8 @@ export default {
           params: {
             size: this.size,
             current: this.current,
-            keywords: this.keywords
+            keywords: this.keywords,
+            deletedFlag: this.deletedFlag
           }
         })
         .then(({ data }) => {

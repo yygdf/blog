@@ -237,7 +237,7 @@ export default {
         return;
       }
       this.axios
-        .get("/api/back/user/username", { params: { keywords } })
+        .get("/api/back/userAuth/username", { params: { keywords } })
         .then(({ data }) => {
           this.usernameList = data.data;
         });

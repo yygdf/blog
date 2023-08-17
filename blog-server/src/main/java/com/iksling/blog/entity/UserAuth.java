@@ -54,6 +54,11 @@ public class UserAuth implements Serializable {
     private String loginDevice;
 
     /**
+     * 登录方式
+     */
+    private Integer loginMethod;
+
+    /**
      * 0未锁定，1已锁定
      */
     private Boolean lockedFlag;
@@ -62,6 +67,11 @@ public class UserAuth implements Serializable {
      * 0未禁用，1已禁用
      */
     private Boolean disabledFlag;
+
+    /**
+     * 0未删除，1已删除
+     */
+    private Boolean deletedFlag;
 
     /**
      * ip来源

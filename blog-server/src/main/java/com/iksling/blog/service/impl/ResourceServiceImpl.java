@@ -8,6 +8,7 @@ import com.iksling.blog.dto.ResourcesBackDTO;
 import com.iksling.blog.dto.RoleOptionsDTO;
 import com.iksling.blog.entity.Resource;
 import com.iksling.blog.exception.IllegalRequestException;
+import com.iksling.blog.handler.FilterInvocationSecurityMetadataSourceImpl;
 import com.iksling.blog.mapper.ResourceMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.ResourceService;
@@ -17,6 +18,7 @@ import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ResourceBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -33,6 +35,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     @Autowired
     private ResourceMapper resourceMapper;
 
+    @Autowired
+    private FilterInvocationSecurityMetadataSourceImpl filterInvocationSecurityMetadataSource;
+
     @Override
     public List<ResourcesBackDTO> getResourcesBackDTO(String keywords) {
         List<Resource> resourceList = resourceMapper.listResourcesByKeywords(keywords);
@@ -42,6 +47,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     }
 
     @Override
+    @Transactional
     public void updateResourceStatusVO(CommonStatusVO commonStatusVO) {
         int count = resourceMapper.update(null, new LambdaUpdateWrapper<Resource>()
                 .set(Resource::getDisabledFlag, commonStatusVO.getHiddenFlag())
@@ -50,9 +56,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                 .eq(UserUtil.getLoginUser().getRoleWeight() > 100, Resource::getDeletableFlag, true));
         if (count != 1)
             throw new IllegalRequestException();
+        filterInvocationSecurityMetadataSource.clearResourceRoleList();
     }
 
     @Override
+    @Transactional
     public void deleteResourceById(String id) {
         try {
             int count = resourceMapper.delete(new LambdaQueryWrapper<Resource>()
@@ -60,12 +68,14 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                     .and(q -> q.eq(Resource::getId, Integer.parseInt(id)).or().eq(Resource::getParentId, Integer.parseInt(id))));
             if (count != 1)
                 throw new IllegalRequestException();
+            filterInvocationSecurityMetadataSource.clearResourceRoleList();
         } catch (NumberFormatException e) {
             throw new IllegalRequestException();
         }
     }
 
     @Override
+    @Transactional
     public void saveOrUpdateResourceBackVO(ResourceBackVO resourceBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Resource resource = Resource.builder()
@@ -93,6 +103,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
             if (count != 1)
                 throw new IllegalRequestException();
         }
+        filterInvocationSecurityMetadataSource.clearResourceRoleList();
     }
 
     @Override

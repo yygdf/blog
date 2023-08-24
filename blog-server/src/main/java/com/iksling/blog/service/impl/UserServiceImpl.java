@@ -10,7 +10,6 @@ import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.UserService;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionVO;
-import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,12 +36,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (CollectionUtils.isEmpty(usersBackDTOList))
             return new PagePojo<>();
         return new PagePojo<>(usersBackDTOList.size(), usersBackDTOList);
-    }
-
-    @Override
-    @Transactional
-    public void updateUsersStatus(UpdateBatchVO updateBatchVO) {
-
     }
 
     @Override

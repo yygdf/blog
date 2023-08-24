@@ -52,7 +52,7 @@ public class CategoryController {
     @ApiOperation(value = "添加或修改分类")
     @ApiImplicitParam(name = "categoryBackVO", value = "分类后台VO", required = true, dataType = "CategoryBackVO")
     @PostMapping("/back/category")
-    public Result saveBackCategory(@Valid @RequestBody CategoryBackVO categoryBackVO) {
+    public Result saveOrUpdateBackCategory(@Valid @RequestBody CategoryBackVO categoryBackVO) {
         categoryService.saveOrUpdateCategoryBackVO(categoryBackVO);
         return Result.success().message("操作成功");
     }

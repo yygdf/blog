@@ -87,15 +87,17 @@
         UPDATE
             tb_comment
         SET
-            recycle_flag = #{updateBatch.recycleFlag},
             deleted_flag = #{updateBatch.deletedFlag}
+            <if test="updateBatch.recycleFlag != null">
+                , recycle_flag = #{updateBatch.recycleFlag}
+            </if>
         WHERE
             (
                 id in
                 <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
                     #{id}
                 </foreach>
-                <if test="updateBatch.recycleFlag">
+                <if test="updateBatch.recycleFlag != null and updateBatch.recycleFlag">
                     or parent_id in
                     <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
                         #{id}

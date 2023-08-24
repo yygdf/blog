@@ -31,4 +31,16 @@
         create_user,create_time,update_user,
         update_time
     </sql>
+
+    <update id="updateUserAuthSStatus">
+        UPDATE
+            tb_user_auth
+        SET
+            deleted_flag = #{updateBatch.deletedFlag}
+        WHERE
+            id in
+            <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </update>
 </mapper>

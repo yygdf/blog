@@ -43,7 +43,7 @@ public class TagController {
     @ApiOperation(value = "添加或修改标签")
     @ApiImplicitParam(name = "tagBackVO", value = "标签后台VO", required = true, dataType = "TagBackVO")
     @PostMapping("/back/tag")
-    public Result saveBackTag(@Valid @RequestBody TagBackVO tagBackVO) {
+    public Result saveOrUpdateBackTag(@Valid @RequestBody TagBackVO tagBackVO) {
         tagService.saveOrUpdateTagBackVO(tagBackVO);
         return Result.success().message("操作成功");
     }

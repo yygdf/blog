@@ -4,7 +4,6 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserService;
 import com.iksling.blog.vo.ConditionVO;
-import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -15,7 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.iksling.blog.constant.OptLogConst.*;
+import static com.iksling.blog.constant.OptLogConst.REMOVE;
+import static com.iksling.blog.constant.OptLogConst.SAVE_OR_UPDATE;
 
 @RestController
 @Api(tags = "用户模块")
@@ -28,15 +28,6 @@ public class UserController {
     @GetMapping("/back/users")
     public Result listBackUsers(@Valid ConditionVO condition) {
         return Result.success().message("查询成功").data(userService.getPageUsersBackDTO(condition));
-    }
-
-    @OptLog(optType = UPDATE)
-    @ApiOperation(value = "批量更新用户状态")
-    @ApiImplicitParam(name = "updateBatchVO", value = "批量更新VO", required = true, dataType = "UpdateBatchVO")
-    @PutMapping("/back/users")
-    public Result updateUsersStatus(@Valid UpdateBatchVO updateBatchVO) {
-        userService.updateUsersStatus(updateBatchVO);
-        return Result.success().message("操作成功");
     }
 
     @OptLog(optType = REMOVE)
@@ -52,7 +43,7 @@ public class UserController {
     @ApiOperation(value = "添加或修改用户")
     @ApiImplicitParam(name = "userBackVO", value = "用户后台VO", required = true, dataType = "UserBackVO")
     @PostMapping("/back/user")
-    public Result saveBackUser(@Valid @RequestBody UserBackVO userBackVO) {
+    public Result saveOrUpdateBackUser(@Valid @RequestBody UserBackVO userBackVO) {
         userService.saveOrUpdateUserBackVO(userBackVO);
         return Result.success().message("操作成功");
     }

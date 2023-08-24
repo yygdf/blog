@@ -135,10 +135,12 @@
         UPDATE
             tb_article
         SET
-            recycle_flag = #{updateBatch.recycleFlag},
             deleted_flag = #{updateBatch.deletedFlag}
-            <if test="updateBatch.recycleFlag">
-                , draft_flag = 1
+            <if test="updateBatch.recycleFlag != null">
+                , recycle_flag = #{updateBatch.recycleFlag},
+                <if test="updateBatch.recycleFlag">
+                    , draft_flag = 1
+                </if>
             </if>
         WHERE
             id in

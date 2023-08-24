@@ -56,7 +56,7 @@ public class MenuController {
     @ApiOperation(value = "添加或修改菜单")
     @ApiImplicitParam(name = "menuBackVO", value = "菜单后台VO", required = true, dataType = "MenuBackVO")
     @PostMapping("/back/menu")
-    public Result saveBackMenu(@Valid @RequestBody MenuBackVO menuBackVO) {
+    public Result saveOrUpdateBackMenu(@Valid @RequestBody MenuBackVO menuBackVO) {
         menuService.saveOrUpdateMenuBackVO(menuBackVO);
         return Result.success().message("操作成功");
     }

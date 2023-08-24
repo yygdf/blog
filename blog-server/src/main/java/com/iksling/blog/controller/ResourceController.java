@@ -50,7 +50,7 @@ public class ResourceController {
     @ApiOperation(value = "添加或修改资源")
     @ApiImplicitParam(name = "resourceBackVO", value = "资源后台VO", required = true, dataType = "ResourceBackVO")
     @PostMapping("/back/resource")
-    public Result saveBackResource(@Valid @RequestBody ResourceBackVO resourceBackVO) {
+    public Result saveOrUpdateBackResource(@Valid @RequestBody ResourceBackVO resourceBackVO) {
         resourceService.saveOrUpdateResourceBackVO(resourceBackVO);
         return Result.success().message("操作成功");
     }

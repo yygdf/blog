@@ -52,7 +52,7 @@ public class FriendLinkController {
     @ApiOperation(value = "添加或修改友链")
     @ApiImplicitParam(name = "friendLinkBackVO", value = "友链后台VO", required = true, dataType = "FriendLinkBackVO")
     @PostMapping("/back/friendLink")
-    public Result saveBackFriendLink(@Valid @RequestBody FriendLinkBackVO friendLinkBackVO) {
+    public Result saveOrUpdateBackFriendLink(@Valid @RequestBody FriendLinkBackVO friendLinkBackVO) {
         friendLinkService.saveOrUpdateFriendLinkBackVO(friendLinkBackVO);
         return Result.success().message("操作成功");
     }

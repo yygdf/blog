@@ -155,7 +155,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeUserStatus(scope.row)"
+            @change="changeUserAuthStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -167,7 +167,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeUserStatus(scope.row)"
+            @change="changeUserAuthStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -235,7 +235,7 @@
             v-else
             title="确定删除吗？"
             style="margin-left:10px"
-            @confirm="updateUsersStatus(scope.row.id)"
+            @confirm="updateUserAuthSStatus(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">
               删除
@@ -262,7 +262,7 @@
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
         <el-button @click="editStatus = false">取 消</el-button>
-        <el-button type="primary" @click="updateUsersStatus(null)">
+        <el-button type="primary" @click="updateUserAuthSStatus(null)">
           确 定
         </el-button>
       </div>
@@ -460,15 +460,15 @@ export default {
         this.addOrEditStatus = false;
       });
     },
-    changeUserStatus(user) {
+    changeUserAuthStatus(user) {
       let param = {
         id: user.id,
         topFlag: user.lockedFlag,
         publicFlag: user.disabledFlag
       };
-      this.axios.put("/api/back/user/status", param);
+      this.axios.put("/api/back/userAuth/status", param);
     },
-    updateUsersStatus(id) {
+    updateUserAuthSStatus(id) {
       let param = new URLSearchParams();
       if (id != null) {
         param.append("idList", [id]);
@@ -476,7 +476,7 @@ export default {
         param.append("idList", this.userIdList);
       }
       param.append("deletedFlag", !this.deletedFlag);
-      this.axios.put("/api/back/users", param).then(({ data }) => {
+      this.axios.put("/api/back/userAuthS", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",

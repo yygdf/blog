@@ -57,7 +57,7 @@ public class RoleController {
     @ApiOperation(value = "添加或修改角色")
     @ApiImplicitParam(name = "roleBackVO", value = "角色后台VO", required = true, dataType = "RoleBackVO")
     @PostMapping("/back/role")
-    public Result saveBackRole(@Valid @RequestBody RoleBackVO roleBackVO) {
+    public Result saveOrUpdateBackRole(@Valid @RequestBody RoleBackVO roleBackVO) {
         roleService.saveOrUpdateRoleBackVO(roleBackVO);
         return Result.success().message("操作成功");
     }
@@ -66,7 +66,7 @@ public class RoleController {
     @ApiOperation(value = "修改角色选项")
     @ApiImplicitParam(name = "roleOptionVO", value = "角色选项VO", required = true, dataType = "RoleOptionVO")
     @PutMapping("/back/role/option")
-    public Result saveBackRole(@Valid @RequestBody RoleOptionVO roleOptionVO) {
+    public Result updateBackRole(@Valid @RequestBody RoleOptionVO roleOptionVO) {
         roleService.updateRoleOptionVO(roleOptionVO);
         return Result.success().message("操作成功");
     }

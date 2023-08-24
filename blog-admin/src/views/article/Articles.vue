@@ -208,7 +208,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="updateArticleStatus(scope.row)"
+            @change="changeArticleStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -221,7 +221,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="updateArticleStatus(scope.row)"
+            @change="changeArticleStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -234,7 +234,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="updateArticleStatus(scope.row)"
+            @change="changeArticleStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -252,7 +252,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="updateArticleStatus(scope.row)"
+            @change="changeArticleStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -496,7 +496,7 @@ export default {
         this.removeStatus = false;
       });
     },
-    updateArticleStatus(article) {
+    changeArticleStatus(article) {
       let param = {
         id: article.id,
         topFlag: article.topFlag,

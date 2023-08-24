@@ -44,7 +44,9 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     @Override
     @Transactional
     public void updateFriendLinksStatus(UpdateBatchVO updateBatchVO) {
-        Integer count = friendLinkMapper.updateFriendLinksStatus(updateBatchVO, UserUtil.getLoginUser().getRoleWeight());
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 && !updateBatchVO.getDeletedFlag())
+            throw new IllegalRequestException();
+        Integer count = friendLinkMapper.updateFriendLinksStatus(updateBatchVO);
         if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();
     }

@@ -16,7 +16,7 @@ public interface FriendLinkMapper extends BaseMapper<FriendLink> {
 
     List<FriendLinksBackDTO> listFriendLinksBackDTO(@Param("condition") ConditionVO condition);
 
-    Integer updateFriendLinksStatus(@Param("updateBatch") UpdateBatchVO updateBatch, Integer roleWeight);
+    Integer updateFriendLinksStatus(@Param("updateBatch") UpdateBatchVO updateBatch);
 }
 
 

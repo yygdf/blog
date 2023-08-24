@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleOptionsDTO {
+public class LabelsDTO {
     /**
      * 标签id
      */
@@ -23,12 +23,12 @@ public class RoleOptionsDTO {
     private Integer userId;
 
     /**
-     * 标签名称
+     * 标签名
      */
     private String label;
 
     /**
      * 子标签集合
      */
-    private List<RoleOptionsDTO> children;
+    private List<LabelsDTO> children;
 }

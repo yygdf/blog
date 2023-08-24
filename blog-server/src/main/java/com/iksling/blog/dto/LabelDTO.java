@@ -5,25 +5,23 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleOptionDTO {
+public class LabelDTO {
+    /**
+     * 标签id
+     */
+    private Integer id;
+
     /**
      * 用户id
      */
     private Integer userId;
 
     /**
-     * 角色菜单集合
+     * 标签名
      */
-    private List<LabelsDTO> menusDTOList;
-
-    /**
-     * 角色资源集合
-     */
-    private List<LabelsDTO> resourcesDTOList;
+    private String label;
 }

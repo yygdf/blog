@@ -43,7 +43,7 @@ public class ExceptionAdvice {
                     .set(UserAuth::getLockedFlag, true)
                     .set(UserAuth::getDisabledFlag, true)
                     .eq(UserAuth::getUserId, userId));
-            return Result.failure().code(ACCOUNT_LOCKED).message("账户[" + username + "]已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+            return Result.failure().code(ACCOUNT_LOCKED).message("账号[" + username + "]已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         }
         return Result.failure().code(ILLEGAL_REQUEST).message(e.getMessage());
     }

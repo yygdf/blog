@@ -43,12 +43,12 @@ public class StatusConst {
     public static final int ILLEGAL_REQUEST = 50001;
 
     /**
-     * 账户被锁定
+     * 账号被锁定
      */
     public static final int ACCOUNT_LOCKED = 50002;
 
     /**
-     * 账户被禁用
+     * 账号被禁用
      */
     public static final int ACCOUNT_DISABLED = 50003;
 

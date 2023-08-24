@@ -44,7 +44,7 @@
               v-for="item in categoryList"
               :key="item.id"
               :value="item.id"
-              :label="item.categoryName"
+              :label="item.label"
             />
           </el-select>
         </el-form-item>
@@ -59,7 +59,7 @@
               v-for="item in tagList"
               :key="item.id"
               :value="item.id"
-              :label="item.tagName"
+              :label="item.label"
             />
           </el-select>
         </el-form-item>

@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.ResourcesBackDTO;
-import com.iksling.blog.dto.RoleOptionsDTO;
+import com.iksling.blog.dto.LabelsDTO;
 import com.iksling.blog.entity.Resource;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.handler.FilterInvocationSecurityMetadataSourceImpl;
@@ -107,7 +107,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     }
 
     @Override
-    public List<RoleOptionsDTO> getResourcesDTO() {
+    public List<LabelsDTO> getResourcesDTO() {
         List<Resource> resourceList = resourceMapper.selectList(new LambdaQueryWrapper<Resource>()
                 .select(Resource::getId, Resource::getUserId, Resource::getParentId, Resource::getResourceName)
                 .orderByAsc(Resource::getId));
@@ -140,24 +140,24 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                 .collect(Collectors.toList());
     }
 
-    private List<RoleOptionsDTO> convertResourcesDTOList(List<Resource> parentResourceList, Map<Integer, List<Resource>> childrenResourceMap) {
+    private List<LabelsDTO> convertResourcesDTOList(List<Resource> parentResourceList, Map<Integer, List<Resource>> childrenResourceMap) {
         return parentResourceList.stream()
                 .map(parentResource -> {
-                    RoleOptionsDTO roleOptionsDTO = RoleOptionsDTO.builder()
+                    LabelsDTO labelsDTO = LabelsDTO.builder()
                             .id(parentResource.getId())
                             .userId(parentResource.getUserId())
                             .label(parentResource.getResourceName())
                             .build();
                     List<Resource> childrenResourceList = childrenResourceMap.get(parentResource.getId());
                     if (CollectionUtils.isNotEmpty(childrenResourceList)) {
-                        List<RoleOptionsDTO> roleOptionsDTOList = childrenResourceList.stream().map(childrenResource -> RoleOptionsDTO.builder()
+                        List<LabelsDTO> labelsDTOList = childrenResourceList.stream().map(childrenResource -> LabelsDTO.builder()
                                 .id(childrenResource.getId())
                                 .userId(childrenResource.getUserId())
                                 .label(childrenResource.getResourceName())
                                 .build()).collect(Collectors.toList());
-                        roleOptionsDTO.setChildren(roleOptionsDTOList);
+                        labelsDTO.setChildren(labelsDTOList);
                     }
-                    return roleOptionsDTO;
+                    return labelsDTO;
                 })
                 .collect(Collectors.toList());
     }

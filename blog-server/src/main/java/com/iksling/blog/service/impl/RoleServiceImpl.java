@@ -4,9 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.dto.RoleOptionDTO;
-import com.iksling.blog.dto.RoleOptionsDTO;
-import com.iksling.blog.dto.RolesBackDTO;
+import com.iksling.blog.dto.*;
 import com.iksling.blog.entity.Role;
 import com.iksling.blog.entity.RoleMenu;
 import com.iksling.blog.entity.RoleResource;
@@ -66,8 +64,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
 
     @Override
     public RoleOptionDTO getRoleOptionDTO() {
-        List<RoleOptionsDTO> menusDTOList = menuService.getMenusDTO();
-        List<RoleOptionsDTO> resourcesDTOList = resourceService.getResourcesDTO();
+        List<LabelsDTO> menusDTOList = menuService.getMenusDTO();
+        List<LabelsDTO> resourcesDTOList = resourceService.getResourcesDTO();
         return RoleOptionDTO.builder()
                 .userId(UserUtil.getLoginUser().getUserId())
                 .menusDTOList(menusDTOList)
@@ -170,6 +168,18 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
                         .collect(Collectors.toList()));
             filterInvocationSecurityMetadataSource.clearResourceRoleList();
         }
+    }
+
+    @Override
+    public List<LabelDTO> getAllRoleName() {
+        List<Role> roleList = roleMapper.selectList(new LambdaQueryWrapper<Role>().select(Role::getId, Role::getUserId, Role::getRoleName));
+        return roleList.stream()
+                .map(e -> LabelDTO.builder()
+                        .id(e.getId())
+                        .userId(e.getUserId())
+                        .label(e.getRoleName())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     private void disabledRole(String roleName) {

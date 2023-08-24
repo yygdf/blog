@@ -53,6 +53,11 @@ public class UsersBackDTO {
     private Integer loginMethod;
 
     /**
+     * 0未锁定，1已锁定
+     */
+    private Boolean lockedFlag;
+
+    /**
      * 0未禁用，1已禁用
      */
     private Boolean disabledFlag;
@@ -70,5 +75,5 @@ public class UsersBackDTO {
     /**
      * 用户角色
      */
-    private List<RoleDTO> roleList;
+    private List<LabelDTO> roleDTOList;
 }

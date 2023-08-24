@@ -124,7 +124,7 @@ public class LogAspect {
             illegalLog.setExceptionStackTrace(null);
             Email email = Email.builder()
                     .email(ADMIN_EMAIL)
-                    .subject("用户非法操作")
+                    .subject("用户非法操作拦截成功")
                     .content(JSON.toJSONString(illegalLog))
                     .build();
             rabbitTemplate.convertAndSend(EMAIL_EXCHANGE, "*", new Message(JSON.toJSONBytes(email), new MessageProperties()));

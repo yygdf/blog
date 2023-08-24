@@ -90,12 +90,24 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .select(Tag::getId, Tag::getUserId, Tag::getTagName)
                 .eq(Objects.isNull(userId), Tag::getUserId, loginUser.getUserId())
                 .eq(Objects.nonNull(userId), Tag::getUserId, userId));
-        List<TagDTO> tagDTOList = BeanCopyUtil.copyList(tagList, TagDTO.class);
+        List<LabelDTO> tagDTOList = tagList.stream()
+                .map(e -> LabelDTO.builder()
+                        .id(e.getId())
+                        .userId(e.getUserId())
+                        .label(e.getTagName())
+                        .build())
+                .collect(Collectors.toList());
         List<Category> categoryList = categoryMapper.selectList(new LambdaQueryWrapper<Category>()
                 .select(Category::getId, Category::getUserId, Category::getCategoryName)
                 .eq(Objects.isNull(userId), Category::getUserId, loginUser.getUserId())
                 .eq(Objects.nonNull(userId), Category::getUserId, userId));
-        List<CategoryDTO> categoryDTOList = BeanCopyUtil.copyList(categoryList, CategoryDTO.class);
+        List<LabelDTO> categoryDTOList = categoryList.stream()
+                .map(e -> LabelDTO.builder()
+                        .id(e.getId())
+                        .userId(e.getUserId())
+                        .label(e.getCategoryName())
+                        .build())
+                .collect(Collectors.toList());
         return ArticleOptionDTO.builder()
                 .userId(loginUser.getUserId())
                 .tagDTOList(tagDTOList)

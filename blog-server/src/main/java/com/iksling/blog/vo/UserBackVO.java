@@ -1,72 +1,53 @@
 package com.iksling.blog.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.io.Serializable;
-import java.util.Date;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotBlank;
 
-/**
- * 
- * @TableName tb_user
- */
-@TableName(value ="tb_user")
 @Data
-public class UserBackVO implements Serializable {
+@ApiModel(description = "用户后台VO")
+public class UserBackVO {
     /**
      * 用户id
      */
-    @TableId(type = IdType.AUTO)
+    @ApiModelProperty(name = "id", value = "用户id", dataType = "Integer")
     private Integer id;
 
     /**
      * 用户介绍
      */
+    @NotBlank(message = "用户介绍不能为空")
+    @Max(message = "用户介绍最大长度", value = 50)
     private String intro;
 
     /**
      * 用户邮箱
      */
+    @NotBlank(message = "用户邮箱不能为空")
+    @Max(message = "用户邮箱最大长度", value = 50)
     private String email;
 
     /**
      * 用户头像
      */
+    @NotBlank(message = "用户头像不能为空")
+    @Max(message = "用户头像最大长度", value = 255)
     private String avatar;
 
     /**
      * 用户网站
      */
+    @NotBlank(message = "用户网站不能为空")
+    @Max(message = "用户网站最大长度", value = 255)
     private String website;
 
     /**
      * 用户昵称
      */
+    @NotBlank(message = "用户昵称不能为空")
+    @Max(message = "用户昵称最大长度", value = 50)
     private String nickname;
-
-    /**
-     * 创建人
-     */
-    private Integer createUser;
-
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-
-    /**
-     * 更新人
-     */
-    private Integer updateUser;
-
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
-
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
 }

@@ -1,6 +1,7 @@
 package com.iksling.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.iksling.blog.dto.LabelDTO;
 import com.iksling.blog.dto.RoleOptionDTO;
 import com.iksling.blog.dto.RolesBackDTO;
 import com.iksling.blog.entity.Role;
@@ -26,4 +27,6 @@ public interface RoleService extends IService<Role> {
     void saveOrUpdateRoleBackVO(RoleBackVO roleBackVO);
 
     void updateRoleOptionVO(RoleOptionVO roleOptionVO);
+
+    List<LabelDTO> getAllRoleName();
 }

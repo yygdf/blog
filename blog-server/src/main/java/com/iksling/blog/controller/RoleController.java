@@ -70,4 +70,10 @@ public class RoleController {
         roleService.updateRoleOptionVO(roleOptionVO);
         return Result.success().message("操作成功");
     }
+
+    @ApiOperation(value = "查看所有的角色名")
+    @GetMapping("/back/role/roleName")
+    public Result listBackAllRoleName() {
+        return Result.success().message("查询成功").data(roleService.getAllRoleName());
+    }
 }

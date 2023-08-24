@@ -46,7 +46,7 @@
             v-for="item in usernameList"
             :key="item.userId"
             :value="item.userId"
-            :label="item.username"
+            :label="item.label"
           />
         </el-select>
         <el-select
@@ -61,7 +61,7 @@
             v-for="item in categoryList"
             :key="item.id"
             :value="item.id"
-            :label="item.categoryName"
+            :label="item.label"
           />
         </el-select>
         <el-select
@@ -77,7 +77,7 @@
             v-for="item in tagList"
             :key="item.id"
             :value="item.id"
-            :label="item.tagName"
+            :label="item.label"
           />
         </el-select>
         <el-select

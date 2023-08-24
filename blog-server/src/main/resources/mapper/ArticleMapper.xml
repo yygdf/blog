@@ -40,10 +40,10 @@
         <result column="publish_time" property="publishTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="category_name" property="categoryName"/>
-        <collection property="tagDTOList" ofType="com.iksling.blog.dto.TagDTO">
+        <collection property="tagDTOList" ofType="com.iksling.blog.dto.LabelDTO">
             <id column="tag_id" property="id"/>
             <result column="user_id" property="userId"/>
-            <result column="tag_name" property="tagName"/>
+            <result column="tag_name" property="label"/>
         </collection>
     </resultMap>
 

@@ -27,12 +27,14 @@
         <result column="create_time" property="createTime"/>
         <result column="login_time" property="loginTime"/>
         <result column="login_method" property="loginMethod"/>
+        <result column="locked_flag" property="lockedFlag"/>
         <result column="disabled_flag" property="disabledFlag"/>
         <result column="ip_source" property="ipSource"/>
         <result column="ip_address" property="ipAddress"/>
-        <collection property="roleList" ofType="com.iksling.blog.dto.RoleDTO">
+        <collection property="roleDTOList" ofType="com.iksling.blog.dto.LabelDTO">
             <id column="role_id" property="id"/>
-            <id column="role_name" property="roleName"/>
+            <result column="user_id" property="userId"/>
+            <result column="role_name" property="label"/>
         </collection>
     </resultMap>
 
@@ -48,8 +50,8 @@
             u.id,ua.user_id,ua.username,
             u.email,u.avatar,u.nickname,
             u.create_time,ua.login_time,ua.login_method,
-            ua.disabled_flag,ua.ip_source,ua.ip_address,
-            r.id role_id,r.role_name
+            ua.locked_flag,ua.disabled_flag,ua.ip_source,
+            ua.ip_address,r.id role_id,r.role_name
         FROM
             tb_user u
         LEFT JOIN tb_user_auth ua ON u.id = ua.user_id

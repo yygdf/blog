@@ -31,6 +31,60 @@
         批量删除
       </el-button>
       <div style="margin-left:auto">
+        <el-select
+          v-model="roleId"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择角色"
+          clearable
+          filterable
+        >
+          <el-option
+            v-for="item in roleNameList"
+            :key="item.id"
+            :value="item.id"
+            :label="item.label"
+          />
+        </el-select>
+        <el-select
+          v-model="disabledFlag"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择"
+        >
+          <el-option
+            v-for="item in options3"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
+          />
+        </el-select>
+        <el-select
+          v-model="lockedFlag"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择"
+        >
+          <el-option
+            v-for="item in options2"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
+          />
+        </el-select>
+        <el-select
+          v-model="deletedFlag"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择"
+        >
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
+          />
+        </el-select>
         <el-input
           v-model="keywords"
           size="small"
@@ -63,55 +117,35 @@
         align="center"
         width="120"
       />
-      <el-table-column
-        prop="avatar"
-        label="头像"
-        align="center"
-        width="80"
-      >
+      <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
           <img :src="scope.row.avatar" width="40" height="40" />
         </template>
       </el-table-column>
+      <el-table-column prop="nickname" label="昵称" align="center" />
+      <el-table-column prop="email" label="邮箱" align="center" width="120" />
       <el-table-column
-        prop="nickname"
-        label="昵称"
+        prop="roleList"
+        label="用户角色"
         align="center"
         width="120"
-      />
-      <el-table-column
-        prop="email"
-        label="邮箱"
-        align="center"
-        width="120"
-      />
-      <el-table-column
-        prop="loginType"
-        label="登录方式"
-        align="center"
       >
-        <template slot-scope="scope">
-          <el-tag
-            v-for="(item, index) of scope.row.loginTypeList"
-            :key="index"
-            style="margin-right:4px;margin-top:4px"
-          >
-            {{ item.loginTypeName }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="roleList" label="用户角色" align="center">
         <template slot-scope="scope">
           <el-tag
             v-for="(item, index) of scope.row.roleList"
             :key="index"
             style="margin-right:4px;margin-top:4px"
           >
-            {{ item.roleName }}
+            {{ item.label }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="disabledFlag" label="禁用" align="center" width="80">
+      <el-table-column
+        prop="disabledFlag"
+        label="禁用"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.disabledFlag"
@@ -121,6 +155,29 @@
             inactive-color="#F4F4F5"
             @change="changeUserStatus(scope.row)"
           />
+        </template>
+      </el-table-column>
+      <el-table-column prop="lockedFlag" label="锁定" align="center" width="80">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.lockedFlag"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            @change="changeUserStatus(scope.row)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column prop="loginType" label="登录方式" align="center">
+        <template slot-scope="scope">
+          <el-tag
+            v-for="(item, index) of scope.row.loginMethod"
+            :key="index"
+            style="margin-right:4px;margin-top:4px"
+          >
+            {{ item.loginMethodName }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -159,11 +216,7 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
-          <el-button
-            type="primary"
-            size="mini"
-            @click="openModel(scope.row)"
-          >
+          <el-button type="primary" size="mini" @click="openModel(scope.row)">
             编辑
           </el-button>
           <el-popconfirm
@@ -233,11 +286,11 @@
         <el-form-item label="角色">
           <el-checkbox-group v-model="roleIdList">
             <el-checkbox
-              v-for="item of roleList"
+              v-for="item of roleNameList"
               :key="item.id"
               :label="item.id"
             >
-              {{ item.roleName }}
+              {{ item.label }}
             </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
@@ -256,30 +309,52 @@
 export default {
   created() {
     this.listUsers();
+    this.listAllRoleName();
   },
   data: function() {
     return {
       options: [
         {
           value: false,
-          label: "可使用"
+          label: "未删除"
         },
         {
           value: true,
           label: "已删除"
         }
       ],
+      options2: [
+        {
+          value: false,
+          label: "未锁定"
+        },
+        {
+          value: true,
+          label: "已锁定"
+        }
+      ],
+      options3: [
+        {
+          value: false,
+          label: "未禁用"
+        },
+        {
+          value: true,
+          label: "已禁用"
+        }
+      ],
       user: {},
-      roleList: [],
       userList: [],
       roleIdList: [],
       userIdList: [],
-      ipSourceList: [],
-      loginTypeList: [],
+      roleNameList: [],
+      roleId: null,
       keywords: null,
       loading: true,
       editStatus: false,
+      lockedFlag: false,
       deletedFlag: false,
+      disabledFlag: false,
       removeStatus: false,
       addOrEditStatus: false,
       size: 10,
@@ -291,10 +366,10 @@ export default {
     openModel(user) {
       if (user != null) {
         this.user = JSON.parse(JSON.stringify(user));
-        this.$refs.categoryTitle.innerHTML = "修改用户";
+        this.$refs.userTitle.innerHTML = "修改用户";
       } else {
         this.user = {};
-        this.$refs.categoryTitle.innerHTML = "添加用户";
+        this.$refs.userTitle.innerHTML = "添加用户";
       }
       this.$nextTick(() => {
         this.$refs.input.focus();
@@ -322,7 +397,10 @@ export default {
             size: this.size,
             current: this.current,
             keywords: this.keywords,
-            deletedFlag: this.deletedFlag
+            draftFlag: this.lockedFlag,
+            categoryId: this.roleId,
+            deletedFlag: this.deletedFlag,
+            recycleFlag: this.disabledFlag
           }
         })
         .then(({ data }) => {
@@ -330,6 +408,11 @@ export default {
           this.userList = data.data.pageList;
           this.loading = false;
         });
+    },
+    listAllRoleName() {
+      this.axios.get("/api/back/role/roleName").then(({ data }) => {
+        this.roleNameList = data.data;
+      });
     },
     deleteUsers(id) {
       let param = {};
@@ -375,6 +458,7 @@ export default {
     changeUserStatus(user) {
       let param = {
         id: user.id,
+        topFlag: user.lockedFlag,
         publicFlag: user.disabledFlag
       };
       this.axios.put("/api/back/user/status", param);

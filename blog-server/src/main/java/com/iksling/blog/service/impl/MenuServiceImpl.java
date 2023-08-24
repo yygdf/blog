@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.MenusBackDTO;
-import com.iksling.blog.dto.RoleOptionsDTO;
+import com.iksling.blog.dto.LabelsDTO;
 import com.iksling.blog.dto.UserMenusDTO;
 import com.iksling.blog.entity.Menu;
 import com.iksling.blog.exception.IllegalRequestException;
@@ -114,7 +114,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     }
 
     @Override
-    public List<RoleOptionsDTO> getMenusDTO() {
+    public List<LabelsDTO> getMenusDTO() {
         List<Menu> menuList = menuMapper.selectList(new LambdaQueryWrapper<Menu>()
                 .select(Menu::getId, Menu::getUserId, Menu::getParentId, Menu::getName)
                 .orderByAsc(Menu::getId));
@@ -159,24 +159,24 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                 .collect(Collectors.toList());
     }
 
-    private List<RoleOptionsDTO> convertMenusDTOList(List<Menu> parentMenuList, Map<Integer, List<Menu>> childrenMenuMap) {
+    private List<LabelsDTO> convertMenusDTOList(List<Menu> parentMenuList, Map<Integer, List<Menu>> childrenMenuMap) {
         return parentMenuList.stream()
                 .map(parentMenu -> {
-                    RoleOptionsDTO roleOptionsDTO = RoleOptionsDTO.builder()
+                    LabelsDTO labelsDTO = LabelsDTO.builder()
                             .id(parentMenu.getId())
                             .userId(parentMenu.getUserId())
                             .label(parentMenu.getName())
                             .build();
                     List<Menu> childrenMenuList = childrenMenuMap.get(parentMenu.getId());
                     if (CollectionUtils.isNotEmpty(childrenMenuList)) {
-                        List<RoleOptionsDTO> roleOptionsDTOList = childrenMenuList.stream().map(childrenMenu -> RoleOptionsDTO.builder()
+                        List<LabelsDTO> labelsDTOList = childrenMenuList.stream().map(childrenMenu -> LabelsDTO.builder()
                                 .id(childrenMenu.getId())
                                 .userId(childrenMenu.getUserId())
                                 .label(childrenMenu.getName())
                                 .build()).collect(Collectors.toList());
-                        roleOptionsDTO.setChildren(roleOptionsDTOList);
+                        labelsDTO.setChildren(labelsDTOList);
                     }
-                    return roleOptionsDTO;
+                    return labelsDTO;
                 })
                 .collect(Collectors.toList());
     }

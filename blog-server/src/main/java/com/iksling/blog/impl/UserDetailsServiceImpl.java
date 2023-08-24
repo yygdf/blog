@@ -43,13 +43,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("用户名为空!");
         UserAuth userAuth = userAuthMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
             .select(UserAuth::getId, UserAuth::getUserId, UserAuth::getUsername, UserAuth::getPassword, UserAuth::getLockedFlag, UserAuth::getDisabledFlag)
-            .eq(UserAuth::getUsername, username));
+            .eq(UserAuth::getUsername, username)
+            .eq(UserAuth::getDeletedFlag, false));
         if (Objects.isNull(userAuth))
             throw new UsernameNotFoundException("用户名不存在!");
         if (userAuth.getLockedFlag())
-            throw new LockedException("您的账户已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+            throw new LockedException("您的账号已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         if (userAuth.getDisabledFlag())
-            throw new DisabledException("您的账户已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+            throw new DisabledException("您的账号已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         List<LoginRole> roleList = roleMapper.listLoginRoleByUserId(userAuth.getUserId());
         if (CollectionUtils.isEmpty(roleList))
             throw new DisabledException("您的角色已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
@@ -67,7 +68,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .ipAddress(ipAddress)
                 .ipSource(ipSource)
                 .roleWeight(roleList.get(0).getRoleWeight())
-                .roleList(roleList.stream().map(LoginRole::getRoleName).collect(Collectors.toList()))
+                .roleList(roleList.stream()
+                        .map(LoginRole::getRoleName)
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

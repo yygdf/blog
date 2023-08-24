@@ -20,10 +20,10 @@ public class ArticleOptionDTO {
     /**
      * 文章标签集合
      */
-    private List<TagDTO> tagDTOList;
+    private List<LabelDTO> tagDTOList;
 
     /**
      * 文章分类集合
      */
-    private List<CategoryDTO> categoryDTOList;
+    private List<LabelDTO> categoryDTOList;
 }

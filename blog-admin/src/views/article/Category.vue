@@ -35,7 +35,7 @@
             v-for="item in usernameList"
             :key="item.userId"
             :value="item.userId"
-            :label="item.username"
+            :label="item.label"
           />
         </el-select>
         <el-input

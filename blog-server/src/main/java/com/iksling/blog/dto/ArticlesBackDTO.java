@@ -81,5 +81,5 @@ public class ArticlesBackDTO {
     /**
      * 文章标签集合
      */
-    private List<TagDTO> tagDTOList;
+    private List<LabelDTO> tagDTOList;
 }

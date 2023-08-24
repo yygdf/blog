@@ -5,10 +5,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.exception.IllegalRequestException;
-import com.iksling.blog.pojo.LoginUser;
+import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.UserService;
-import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.UpdateBatchVO;
@@ -31,11 +30,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public PagePojo<UsersBackDTO> getPageUsersBackDTO(ConditionVO condition) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        List<UsersBackDTO> usersBackDTOList = userMapper.listUsersBackDTO(condition, loginUser.getUserId());
+        List<UsersBackDTO> usersBackDTOList = userMapper.listUsersBackDTO(condition);
         if (CollectionUtils.isEmpty(usersBackDTOList))
             return new PagePojo<>();
         return new PagePojo<>(usersBackDTOList.size(), usersBackDTOList);

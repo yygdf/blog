@@ -87,10 +87,12 @@
         </el-select>
         <el-input
           v-model="keywords"
+          ref="input"
           size="small"
           style="width:200px"
           prefix-icon="el-icon-search"
           placeholder="请输入用户名或昵称"
+          clearable
           @keyup.enter.native="listUsers"
         />
         <el-button
@@ -132,7 +134,7 @@
       >
         <template slot-scope="scope">
           <el-tag
-            v-for="(item, index) of scope.row.roleList"
+            v-for="(item, index) of scope.row.roleDTOList"
             :key="index"
             style="margin-right:4px;margin-top:4px"
           >
@@ -310,6 +312,9 @@ export default {
   created() {
     this.listUsers();
     this.listAllRoleName();
+    this.$nextTick(() => {
+      this.$refs.input.focus();
+    });
   },
   data: function() {
     return {
@@ -489,7 +494,16 @@ export default {
     }
   },
   watch: {
+    roleId() {
+      this.listUsers();
+    },
+    lockedFlag() {
+      this.listUsers();
+    },
     deletedFlag() {
+      this.listUsers();
+    },
+    disabledFlag() {
       this.listUsers();
     }
   }

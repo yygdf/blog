@@ -147,7 +147,7 @@
             :key="item.tagId"
             style="margin-right:0.2rem;margin-top:0.2rem"
           >
-            {{ item.tagName }}
+            {{ item.label }}
           </el-tag>
         </template>
       </el-table-column>

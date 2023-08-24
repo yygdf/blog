@@ -74,8 +74,13 @@
             FROM
                 tb_article
             <where>
-                recycle_flag = #{condition.recycleFlag}
-                AND deleted_flag = #{condition.deletedFlag}
+                1 = 1
+                <if test="condition.recycleFlag != null">
+                    AND recycle_flag = #{condition.recycleFlag}
+                </if>
+                <if test="condition.deletedFlag != null">
+                    AND deleted_flag = #{condition.deletedFlag}
+                </if>
                 <choose>
                     <when test="roleWeight > 300">
                         AND user_id = #{userId}

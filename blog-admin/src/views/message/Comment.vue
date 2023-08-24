@@ -43,7 +43,7 @@
         </el-select>
         <el-select
           v-if="checkWeight(200)"
-          v-model="draftFlag"
+          v-model="sourceFlag"
           size="small"
           style="margin-right:1rem"
           placeholder="请选择来源"
@@ -70,7 +70,7 @@
         </el-select>
         <el-input
           v-model="keywords"
-          :disabled="draftFlag"
+          :disabled="sourceFlag"
           ref="input"
           size="small"
           style="width:200px"
@@ -80,7 +80,7 @@
           @keyup.enter.native="listComments"
         />
         <el-button
-          :disabled="draftFlag"
+          :disabled="sourceFlag"
           type="primary"
           size="small"
           icon="el-icon-search"
@@ -293,7 +293,7 @@ export default {
       userId: null,
       keywords: null,
       loading: true,
-      draftFlag: false,
+      sourceFlag: false,
       editStatus: false,
       recycleFlag: false,
       deletedFlag: false,
@@ -330,7 +330,7 @@ export default {
             userId: this.userId,
             current: this.current,
             keywords: this.keywords,
-            draftFlag: this.draftFlag,
+            draftFlag: this.sourceFlag,
             recycleFlag: this.recycleFlag,
             deletedFlag: this.deletedFlag
           }
@@ -423,7 +423,7 @@ export default {
     userId() {
       this.listComments();
     },
-    draftFlag() {
+    sourceFlag() {
       this.listComments();
     }
   }

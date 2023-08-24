@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface FriendLinkMapper extends BaseMapper<FriendLink> {
 
-    List<FriendLinksBackDTO> listFriendLinksBackDTO(@Param("condition") ConditionVO condition, Integer userId);
+    List<FriendLinksBackDTO> listFriendLinksBackDTO(@Param("condition") ConditionVO condition);
 
     Integer updateFriendLinksStatus(@Param("updateBatch") UpdateBatchVO updateBatch, Integer roleWeight);
 }

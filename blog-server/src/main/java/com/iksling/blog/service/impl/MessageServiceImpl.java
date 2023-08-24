@@ -38,7 +38,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
         Page<Message> page = new Page<>(condition.getCurrent(), condition.getSize());
         Page<Message> messagePage = messageMapper.selectPage(page, new LambdaQueryWrapper<Message>()
                 .select(Message::getId, Message::getUserId, Message::getAvatar, Message::getNickname, Message::getMessageSpeed, Message::getMessageContent, Message::getIpSource, Message::getIpAddress, Message::getCreateTime)
-                .eq(Message::getDeletedFlag, condition.getDeletedFlag())
+                .eq(Objects.nonNull(condition.getDeletedFlag()), Message::getDeletedFlag, condition.getDeletedFlag())
                 .like(StringUtils.isNotBlank(condition.getKeywords()), Message::getNickname, condition.getKeywords())
                 .orderByDesc(Message::getCreateTime));
         if (messagePage.getTotal() == 0)

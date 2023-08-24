@@ -18,6 +18,7 @@
           style="width:200px"
           prefix-icon="el-icon-search"
           placeholder="请输入资源名"
+          clearable
           @keyup.enter.native="listResources"
         />
         <el-button

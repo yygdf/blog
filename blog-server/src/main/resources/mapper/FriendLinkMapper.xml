@@ -34,7 +34,10 @@
             tb_friend_link fl
         LEFT JOIN tb_user_auth ua ON fl.user_id = ua.user_id
         <where>
-            fl.deleted_flag = #{condition.deletedFlag}
+            1 = 1
+            <if test="condition.deletedFlag != null">
+                AND fl.deleted_flag = #{condition.deletedFlag}
+            </if>
             <if test="condition.userId != null">
                 AND fl.user_id = #{condition.userId}
             </if>

@@ -4,6 +4,7 @@ import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iksling.blog.vo.ConditionVO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
  */
 public interface UserMapper extends BaseMapper<User> {
 
-    List<UsersBackDTO> listUsersBackDTO(ConditionVO condition, Integer userId);
+    List<UsersBackDTO> listUsersBackDTO(@Param("condition") ConditionVO condition);
 }
 
 

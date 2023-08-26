@@ -119,12 +119,7 @@
         align="center"
         width="120"
       />
-      <el-table-column
-        prop="roleList"
-        label="角色"
-        align="center"
-        width="120"
-      >
+      <el-table-column prop="roleList" label="角色" align="center" width="120">
         <template slot-scope="scope">
           <el-tag
             v-for="(item, index) of scope.row.roleDTOList"

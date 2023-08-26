@@ -83,7 +83,12 @@
           <img :src="scope.row.avatar" width="40" height="40" />
         </template>
       </el-table-column>
-      <el-table-column prop="nickname" label="昵称" align="center" width="120" />
+      <el-table-column
+        prop="nickname"
+        label="昵称"
+        align="center"
+        width="120"
+      />
       <el-table-column prop="intro" label="介绍" align="center" />
       <el-table-column prop="email" label="邮箱" align="center" width="120" />
       <el-table-column prop="website" label="网站" align="center" />

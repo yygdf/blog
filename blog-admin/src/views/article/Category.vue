@@ -79,7 +79,12 @@
         width="120"
       />
       <el-table-column prop="categoryName" label="分类名" align="center" />
-      <el-table-column prop="articleCount" label="文章数" align="center" width="80" />
+      <el-table-column
+        prop="articleCount"
+        label="文章数"
+        align="center"
+        width="80"
+      />
       <el-table-column
         prop="createTime"
         label="创建时间"

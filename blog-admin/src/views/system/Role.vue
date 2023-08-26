@@ -35,8 +35,18 @@
     <el-table border :data="roleList" v-loading="loading">
       <el-table-column prop="roleName" label="角色名称" align="center" />
       <el-table-column prop="roleDesc" label="角色描述" align="center" />
-      <el-table-column prop="roleWeight" label="角色权重" align="center" width="120"/>
-      <el-table-column prop="userCount" label="用户数" align="center" width="80" />
+      <el-table-column
+        prop="roleWeight"
+        label="角色权重"
+        align="center"
+        width="120"
+      />
+      <el-table-column
+        prop="userCount"
+        label="用户数"
+        align="center"
+        width="80"
+      />
       <el-table-column
         prop="disabledFlag"
         label="禁用"
@@ -67,10 +77,20 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="400">
         <template slot-scope="scope">
-          <el-button :disabled="!checkWeight(100) && scope.row.id === 1" type="info" size="mini" @click="openMenuModel(scope.row)">
+          <el-button
+            :disabled="!checkWeight(100) && scope.row.id === 1"
+            type="info"
+            size="mini"
+            @click="openMenuModel(scope.row)"
+          >
             <i class="el-icon-folder-opened" /> 菜单权限
           </el-button>
-          <el-button :disabled="!checkWeight(100) && scope.row.id === 1" type="info" size="mini" @click="openResourceModel(scope.row)">
+          <el-button
+            :disabled="!checkWeight(100) && scope.row.id === 1"
+            type="info"
+            size="mini"
+            @click="openResourceModel(scope.row)"
+          >
             <i class="el-icon-folder-opened" /> 资源权限
           </el-button>
           <el-button :disabled="!checkWeight(100) && scope.row.id === 1" type="primary" size="mini" @click="openModel(scope.row)">
@@ -92,10 +112,19 @@
       <div class="dialog-title-container" slot="title" ref="roleTitle" />
       <el-form :model="role" size="medium" label-width="80">
         <el-form-item label="角色名称">
-          <el-input v-model="role.roleName" :disabled="role.id != null" :ref="role.id ? '' : 'input'" style="width:200px" />
+          <el-input
+            v-model="role.roleName"
+            :disabled="role.id != null"
+            :ref="role.id ? '' : 'input'"
+            style="width:200px"
+          />
         </el-form-item>
         <el-form-item label="角色描述">
-          <el-input v-model="role.roleDesc" :ref="role.id ? 'input' : ''" style="width:200px" />
+          <el-input
+            v-model="role.roleDesc"
+            :ref="role.id ? 'input' : ''"
+            style="width:200px"
+          />
         </el-form-item>
         <el-form-item label="角色权重">
           <el-input-number

@@ -3,7 +3,6 @@ package com.iksling.blog.dto;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
 public class UsersBackDTO {
@@ -23,6 +22,11 @@ public class UsersBackDTO {
     private String username;
 
     /**
+     * 用户介绍
+     */
+    private String intro;
+
+    /**
      * 用户邮箱
      */
     private String email;
@@ -31,6 +35,11 @@ public class UsersBackDTO {
      * 用户头像
      */
     private String avatar;
+
+    /**
+     * 用户网站
+     */
+    private String website;
 
     /**
      * 用户昵称
@@ -43,37 +52,7 @@ public class UsersBackDTO {
     private Date createTime;
 
     /**
-     * 登录时间
+     * 更新时间
      */
-    private Date loginTime;
-
-    /**
-     * 登录方式
-     */
-    private Integer loginMethod;
-
-    /**
-     * 0未锁定，1已锁定
-     */
-    private Boolean lockedFlag;
-
-    /**
-     * 0未禁用，1已禁用
-     */
-    private Boolean disabledFlag;
-
-    /**
-     * ip来源
-     */
-    private String ipSource;
-
-    /**
-     * ip地址
-     */
-    private String ipAddress;
-
-    /**
-     * 用户角色
-     */
-    private List<LabelDTO> roleDTOList;
+    private Date updateTime;
 }

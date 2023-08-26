@@ -72,8 +72,8 @@ public class RoleController {
     }
 
     @ApiOperation(value = "查看所有的角色名")
-    @GetMapping("/back/role/roleName")
-    public Result listBackAllRoleName() {
-        return Result.success().message("查询成功").data(roleService.getAllRoleName());
+    @GetMapping("/back/role/roleNames")
+    public Result listBackRoleNames() {
+        return Result.success().message("查询成功").data(roleService.getBackRoleNames());
     }
 }

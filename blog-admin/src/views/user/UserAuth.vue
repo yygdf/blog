@@ -32,6 +32,47 @@
       </el-button>
       <div style="margin-left:auto">
         <el-select
+          v-model="roleId"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择角色"
+          clearable
+          filterable
+        >
+          <el-option
+            v-for="item in roleNameList"
+            :key="item.id"
+            :value="item.id"
+            :label="item.label"
+          />
+        </el-select>
+        <el-select
+          v-model="disabledFlag"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择"
+        >
+          <el-option
+            v-for="item in options3"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
+          />
+        </el-select>
+        <el-select
+          v-model="lockedFlag"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择"
+        >
+          <el-option
+            v-for="item in options2"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
+          />
+        </el-select>
+        <el-select
           v-model="deletedFlag"
           size="small"
           style="margin-right:1rem"
@@ -50,16 +91,16 @@
           size="small"
           style="width:200px"
           prefix-icon="el-icon-search"
-          placeholder="请输入用户名或昵称"
+          placeholder="请输入用户名"
           clearable
-          @keyup.enter.native="listUsers"
+          @keyup.enter.native="listUserAuths"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listUsers"
+          @click="listUserAuths"
         >
           搜索
         </el-button>
@@ -67,7 +108,7 @@
     </div>
     <el-table
       v-loading="loading"
-      :data="userList"
+      :data="userAuthList"
       border
       @selection-change="selectionChange"
     >
@@ -78,35 +119,94 @@
         align="center"
         width="120"
       />
-      <el-table-column prop="avatar" label="头像" align="center" width="80">
-        <template slot-scope="scope">
-          <img :src="scope.row.avatar" width="40" height="40" />
-        </template>
-      </el-table-column>
-      <el-table-column prop="nickname" label="昵称" align="center" width="120" />
-      <el-table-column prop="intro" label="介绍" align="center" />
-      <el-table-column prop="email" label="邮箱" align="center" width="120" />
-      <el-table-column prop="website" label="网站" align="center" />
       <el-table-column
-        prop="createTime"
-        label="创建时间"
-        width="200"
+        prop="roleList"
+        label="角色"
         align="center"
+        width="120"
       >
         <template slot-scope="scope">
-          <i class="el-icon-time" style="margin-right:5px" />
-          {{ scope.row.createTime | dateTime }}
+          <el-tag
+            v-for="(item, index) of scope.row.roleDTOList"
+            :key="index"
+            style="margin-right:4px;margin-top:4px"
+          >
+            {{ item.label }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column
-        prop="updateTime"
-        label="更新时间"
+        prop="disabledFlag"
+        label="禁用"
+        align="center"
+        width="80"
+      >
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.disabledFlag"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            @change="changeUserAuthStatus(scope.row)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column prop="lockedFlag" label="锁定" align="center" width="80">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.lockedFlag"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            @change="changeUserAuthStatus(scope.row)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column prop="loginDevice" label="登录设备" align="center">
+        <template slot-scope="scope">
+          <el-tag
+            v-for="(item, index) of scope.row.loginDevice"
+            :key="index"
+            style="margin-right:4px;margin-top:4px"
+          >
+            {{ item.label }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="loginMethod" label="登录方式" align="center">
+        <template slot-scope="scope">
+          <el-tag
+            v-for="(item, index) of scope.row.loginMethod"
+            :key="index"
+            style="margin-right:4px;margin-top:4px"
+          >
+            {{ item.label }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="ipAddress"
+        label="登录ip"
+        align="center"
+        width="120"
+      />
+      <el-table-column
+        prop="ipSource"
+        label="登录地址"
+        align="center"
+        width="120"
+      />
+      <el-table-column
+        prop="loginTime"
+        label="上次登录时间"
         width="200"
         align="center"
       >
-        <template slot-scope="scope" v-if="scope.row.updateTime">
+        <template slot-scope="scope" v-if="scope.row.loginTime">
           <i class="el-icon-time" style="margin-right:5px" />
-          {{ scope.row.updateTime | dateTime }}
+          {{ scope.row.loginTime | dateTime }}
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
@@ -118,7 +218,7 @@
             v-if="deletedFlag"
             title="确定彻底删除吗？"
             style="margin-left:10px"
-            @confirm="deleteUsers(scope.row.id)"
+            @confirm="deleteUserAuths(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">
               删除
@@ -128,7 +228,7 @@
             v-else
             title="确定删除吗？"
             style="margin-left:10px"
-            @confirm="updateUsersStatus(scope.row.id)"
+            @confirm="updateUserAuthsStatus(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">
               删除
@@ -155,7 +255,7 @@
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
         <el-button @click="editStatus = false">取 消</el-button>
-        <el-button type="primary" @click="updateUsersStatus(null)">
+        <el-button type="primary" @click="updateUserAuthsStatus(null)">
           确 定
         </el-button>
       </div>
@@ -167,21 +267,21 @@
       <div style="font-size:1rem">是否彻底删除选中项？</div>
       <div slot="footer">
         <el-button @click="removeStatus = false">取 消</el-button>
-        <el-button type="primary" @click="deleteUsers(null)">
+        <el-button type="primary" @click="deleteUserAuths(null)">
           确 定
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
-      <div class="dialog-title-container" slot="title" ref="userTitle" />
-      <el-form :model="user" size="medium" label-width="60">
+      <div class="dialog-title-container" slot="title" ref="userAuthTitle" />
+      <el-form :model="userAuth" size="medium" label-width="60">
         <el-form-item label="昵称">
-          <el-input v-model="user.nickname" style="width:200px" />
+          <el-input v-model="userAuth.nickname" style="width:200px" />
         </el-form-item>
       </el-form>
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
-        <el-button type="primary" @click="addOrEditUser">
+        <el-button type="primary" @click="addOrEditUserAuth">
           确 定
         </el-button>
       </div>
@@ -192,7 +292,8 @@
 <script>
 export default {
   created() {
-    this.listUsers();
+    this.listUserAuths();
+    this.listAllRoleName();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -209,13 +310,38 @@ export default {
           label: "已删除"
         }
       ],
-      user: {},
-      userList: [],
+      options2: [
+        {
+          value: false,
+          label: "未锁定"
+        },
+        {
+          value: true,
+          label: "已锁定"
+        }
+      ],
+      options3: [
+        {
+          value: false,
+          label: "未禁用"
+        },
+        {
+          value: true,
+          label: "已禁用"
+        }
+      ],
+      userAuth: {},
+      userAuthList: [],
+      roleIdList: [],
       userIdList: [],
+      roleNameList: [],
+      roleId: null,
       keywords: null,
       loading: true,
       editStatus: false,
+      lockedFlag: false,
       deletedFlag: false,
+      disabledFlag: false,
       removeStatus: false,
       addOrEditStatus: false,
       size: 10,
@@ -224,13 +350,13 @@ export default {
     };
   },
   methods: {
-    openModel(user) {
-      if (user != null) {
-        this.user = JSON.parse(JSON.stringify(user));
-        this.$refs.userTitle.innerHTML = "修改用户";
+    openModel(userAuth) {
+      if (userAuth != null) {
+        this.userAuth = JSON.parse(JSON.stringify(userAuth));
+        this.$refs.userAuthTitle.innerHTML = "修改用户";
       } else {
-        this.user = {};
-        this.$refs.userTitle.innerHTML = "添加用户";
+        this.userAuth = {};
+        this.$refs.userAuthTitle.innerHTML = "添加用户";
       }
       this.$nextTick(() => {
         this.$refs.input.focus();
@@ -239,48 +365,56 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listUsers();
+      this.listUserAuths();
     },
     currentChange(current) {
       this.current = current;
-      this.listUsers();
+      this.listUserAuths();
     },
-    selectionChange(userList) {
+    selectionChange(userAuthList) {
       this.userIdList = [];
-      userList.forEach(item => {
+      userAuthList.forEach(item => {
         this.userIdList.push(item.id);
       });
     },
-    listUsers() {
+    listUserAuths() {
       this.axios
-        .get("/api/back/users", {
+        .get("/api/back/userAuths", {
           params: {
             size: this.size,
             current: this.current,
             keywords: this.keywords,
+            draftFlag: this.lockedFlag,
+            categoryId: this.roleId,
+            recycleFlag: this.disabledFlag,
             deletedFlag: this.deletedFlag
           }
         })
         .then(({ data }) => {
           this.count = data.data.count;
-          this.userList = data.data.pageList;
+          this.userAuthList = data.data.pageList;
           this.loading = false;
         });
     },
-    deleteUsers(id) {
+    listAllRoleName() {
+      this.axios.get("/api/back/role/roleNames").then(({ data }) => {
+        this.roleNameList = data.data;
+      });
+    },
+    deleteUserAuths(id) {
       let param = {};
       if (id == null) {
         param = { data: this.userIdList };
       } else {
         param = { data: [id] };
       }
-      this.axios.delete("/api/back/users", param).then(({ data }) => {
+      this.axios.delete("/api/back/userAuths", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listUsers();
+          this.listUserAuths();
         } else {
           this.$notify.error({
             title: "失败",
@@ -290,14 +424,14 @@ export default {
         this.removeStatus = false;
       });
     },
-    addOrEditUser() {
-      this.axios.put("/api/back/user", this.user).then(({ data }) => {
+    addOrEditUserAuth() {
+      this.axios.put("/api/back/userAuth", this.userAuth).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listUsers();
+          this.listUserAuths();
         } else {
           this.$notify.error({
             title: "失败",
@@ -307,7 +441,15 @@ export default {
         this.addOrEditStatus = false;
       });
     },
-    updateUsersStatus(id) {
+    changeUserAuthStatus(userAuth) {
+      let param = {
+        id: userAuth.id,
+        topFlag: userAuth.lockedFlag,
+        publicFlag: userAuth.disabledFlag
+      };
+      this.axios.put("/api/back/userAuth/status", param);
+    },
+    updateUserAuthsStatus(id) {
       let param = new URLSearchParams();
       if (id != null) {
         param.append("idList", [id]);
@@ -315,13 +457,13 @@ export default {
         param.append("idList", this.userIdList);
       }
       param.append("deletedFlag", !this.deletedFlag);
-      this.axios.put("/api/back/users", param).then(({ data }) => {
+      this.axios.put("/api/back/userAuths", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listUsers();
+          this.listUserAuths();
         } else {
           this.$notify.error({
             title: "失败",
@@ -333,8 +475,17 @@ export default {
     }
   },
   watch: {
+    roleId() {
+      this.listUserAuths();
+    },
+    lockedFlag() {
+      this.listUserAuths();
+    },
     deletedFlag() {
-      this.listUsers();
+      this.listUserAuths();
+    },
+    disabledFlag() {
+      this.listUserAuths();
     }
   }
 };

@@ -28,5 +28,5 @@ public interface RoleService extends IService<Role> {
 
     void updateRoleOptionVO(RoleOptionVO roleOptionVO);
 
-    List<LabelDTO> getAllRoleName();
+    List<LabelDTO> getBackRoleNames();
 }

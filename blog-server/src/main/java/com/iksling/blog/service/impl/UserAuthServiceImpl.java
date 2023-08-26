@@ -2,16 +2,20 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.LabelDTO;
+import com.iksling.blog.dto.UserAuthsBackDTO;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.pojo.LoginUser;
+import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.UserAuthService;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.CommonStatusVO;
+import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,7 +35,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     private UserAuthMapper userAuthMapper;
 
     @Override
-    public List<LabelDTO> getAllUsername(String keywords) {
+    public List<LabelDTO> getBackUsernames(String keywords) {
         List<UserAuth> userAuthList = userAuthMapper.selectList(new LambdaQueryWrapper<UserAuth>()
                 .select(UserAuth::getId, UserAuth::getUserId, UserAuth::getUsername)
                 .likeRight(StringUtils.isNotBlank(keywords), UserAuth::getUsername, keywords.trim()));
@@ -42,6 +46,17 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                         .label(e.getUsername())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PagePojo<UserAuthsBackDTO> getPageUserAuthsBackDTO(ConditionVO condition) {
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
+            throw new IllegalRequestException();
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
+        List<UserAuthsBackDTO> userAuthsBackDTOList = userAuthMapper.listUserAuthsBackDTO(condition);
+        if (CollectionUtils.isEmpty(userAuthsBackDTOList))
+            return new PagePojo<>();
+        return new PagePojo<>(userAuthsBackDTOList.size(), userAuthsBackDTOList);
     }
 
     @Override
@@ -61,10 +76,10 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
 
     @Override
     @Transactional
-    public void updateUserAuthSStatus(UpdateBatchVO updateBatchVO) {
+    public void updateUserAuthsStatus(UpdateBatchVO updateBatchVO) {
         if (UserUtil.getLoginUser().getRoleWeight() > 100 && !updateBatchVO.getDeletedFlag())
             throw new IllegalRequestException();
-        Integer count = userAuthMapper.updateUserAuthSStatus(updateBatchVO);
+        Integer count = userAuthMapper.updateUserAuthsStatus(updateBatchVO);
         if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();
     }

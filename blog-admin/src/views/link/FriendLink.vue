@@ -345,7 +345,7 @@ export default {
         return;
       }
       this.axios
-        .get("/api/back/userAuth/username", { params: { keywords } })
+        .get("/api/back/userAuth/usernames", { params: { keywords } })
         .then(({ data }) => {
           if (flag) {
             this.usernameList = data.data;

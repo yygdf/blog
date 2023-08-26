@@ -11,65 +11,33 @@
             <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
             <result property="website" column="website" jdbcType="VARCHAR"/>
             <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-    <resultMap id="UsersBackResultMap" type="com.iksling.blog.dto.UsersBackDTO">
-        <id column="id" property="id"/>
-        <result column="user_id" property="userId"/>
-        <result column="username" property="username"/>
-        <result column="email" property="email"/>
-        <result column="avatar" property="avatar"/>
-        <result column="nickname" property="nickname"/>
-        <result column="create_time" property="createTime"/>
-        <result column="login_time" property="loginTime"/>
-        <result column="login_method" property="loginMethod"/>
-        <result column="locked_flag" property="lockedFlag"/>
-        <result column="disabled_flag" property="disabledFlag"/>
-        <result column="ip_source" property="ipSource"/>
-        <result column="ip_address" property="ipAddress"/>
-        <collection property="roleDTOList" ofType="com.iksling.blog.dto.LabelDTO">
-            <id column="role_id" property="id"/>
-            <result column="user_id" property="userId"/>
-            <result column="role_name" property="label"/>
-        </collection>
-    </resultMap>
-
     <sql id="Base_Column_List">
         id,intro,email,
         avatar,website,nickname,
-        create_user,create_time,update_user,
-        update_time
+        deleted_flag,create_user,create_time,
+        update_user,update_time
     </sql>
 
-    <select id="listUsersBackDTO" resultMap="UsersBackResultMap">
+    <select id="listUsersBackDTO" resultType="com.iksling.blog.dto.UsersBackDTO">
         SELECT
             u.id,ua.user_id,ua.username,
-            u.email,u.avatar,u.nickname,
-            u.create_time,ua.login_time,ua.login_method,
-            ua.locked_flag,ua.disabled_flag,ua.ip_source,
-            ua.ip_address,r.id role_id,r.role_name
+            u.intro,u.email,u.avatar,
+            u.website,u.nickname,u.create_time,
+            u.update_time
         FROM
             tb_user u
         LEFT JOIN tb_user_auth ua ON u.id = ua.user_id
-        LEFT JOIN tb_user_role ur ON ua.user_id = ur.user_id
-        LEFT JOIN tb_role r ON ur.role_id = r.id
         <where>
             1 = 1
-            <if test="condition.draftFlag != null">
-                AND ua.locked_flag = #{condition.draftFlag}
-            </if>
             <if test="condition.deletedFlag != null">
                 AND ua.deleted_flag = #{condition.deletedFlag}
-            </if>
-            <if test="condition.recycleFlag != null">
-                AND ua.disabled_flag = #{condition.recycleFlag}
-            </if>
-            <if test="condition.categoryId != null">
-                AND ur.role_id = #{condition.categoryId}
             </if>
             <if test="condition.keywords != null">
                 AND (

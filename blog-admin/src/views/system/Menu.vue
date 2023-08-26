@@ -174,7 +174,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="菜单名称">
-          <el-input v-model="menu.name" ref="input" style="width:200px" />
+          <el-input
+            v-model="menu.name"
+            :maxlength="50"
+            ref="input"
+            style="width:200px"
+          />
         </el-form-item>
         <el-form-item label="菜单图标">
           <el-input
@@ -199,10 +204,14 @@
           </div>
         </el-form-item>
         <el-form-item label="菜单路径">
-          <el-input v-model="menu.path" style="width:200px" />
+          <el-input v-model="menu.path" :maxlength="50" style="width:200px" />
         </el-form-item>
         <el-form-item label="菜单组件">
-          <el-input v-model="menu.component" style="width:200px" />
+          <el-input
+            v-model="menu.component"
+            :maxlength="50"
+            style="width:200px"
+          />
         </el-form-item>
         <el-form-item label="排序指标">
           <el-input-number

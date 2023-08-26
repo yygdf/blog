@@ -172,12 +172,17 @@
         <el-form-item label="资源名称">
           <el-input
             v-model="resource.resourceName"
+            :maxlength="50"
             ref="input"
             style="width:200px"
           />
         </el-form-item>
         <el-form-item v-if="resource.parentId" label="资源路径">
-          <el-input v-model="resource.resourceUri" style="width:200px" />
+          <el-input
+            v-model="resource.resourceUri"
+            :maxlength="50"
+            style="width:200px"
+          />
         </el-form-item>
         <el-form-item v-if="resource.parentId" label="请求方式">
           <el-radio-group v-model="resource.resourceRequestMethod">

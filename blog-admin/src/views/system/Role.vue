@@ -116,6 +116,7 @@
             v-model="role.roleName"
             :disabled="role.id != null"
             :ref="role.id ? '' : 'input'"
+            :maxlength="50"
             style="width:200px"
           />
         </el-form-item>
@@ -123,6 +124,7 @@
           <el-input
             v-model="role.roleDesc"
             :ref="role.id ? 'input' : ''"
+            :maxlength="50"
             style="width:200px"
           />
         </el-form-item>

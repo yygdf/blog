@@ -72,8 +72,8 @@
             :on-remove="deleteCover"
             :http-request="uploadCover"
           >
-            <i class="el-icon-upload" v-if="article.articleCover === ''" />
-            <div class="el-upload__text" v-if="article.articleCover === ''">
+            <i class="el-icon-upload" v-if="!article.articleCover" />
+            <div class="el-upload__text" v-if="!article.articleCover">
               将文件拖到此处，或<em>点击上传</em>
             </div>
             <img

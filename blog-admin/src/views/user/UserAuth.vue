@@ -2,34 +2,6 @@
   <el-card class="main-card">
     <div class="title">{{ this.$route.name }}</div>
     <div class="operation-container">
-      <el-button
-        type="primary"
-        size="small"
-        icon="el-icon-plus"
-        @click="openModel(null)"
-      >
-        新增
-      </el-button>
-      <el-button
-        v-if="deletedFlag"
-        :disabled="userIdList.length === 0"
-        type="danger"
-        size="small"
-        icon="el-icon-minus"
-        @click="removeStatus = true"
-      >
-        批量删除
-      </el-button>
-      <el-button
-        v-else
-        :disabled="userIdList.length === 0"
-        type="danger"
-        size="small"
-        icon="el-icon-minus"
-        @click="editStatus = true"
-      >
-        批量删除
-      </el-button>
       <div style="margin-left:auto">
         <el-select
           v-model="roleId"
@@ -108,20 +80,19 @@
         </el-button>
       </div>
     </div>
-    <el-table
-      v-loading="loading"
-      :data="userAuthList"
-      border
-      @selection-change="selectionChange"
-    >
-      <el-table-column type="selection" align="center" width="40" />
+    <el-table v-loading="loading" :data="userAuthList" border>
       <el-table-column
         prop="username"
         label="用户"
         align="center"
         width="120"
       />
-      <el-table-column prop="roleDTOList" label="角色" align="center" width="120">
+      <el-table-column
+        prop="roleDTOList"
+        label="角色"
+        align="center"
+        width="120"
+      >
         <template slot-scope="scope">
           <el-tag
             v-for="(item, index) of scope.row.roleDTOList"
@@ -206,31 +177,11 @@
           {{ scope.row.loginTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="160">
+      <el-table-column label="操作" align="center" width="80">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="openModel(scope.row)">
             编辑
           </el-button>
-          <el-popconfirm
-            v-if="deletedFlag"
-            title="确定彻底删除吗？"
-            style="margin-left:10px"
-            @confirm="deleteUserAuths(scope.row.id)"
-          >
-            <el-button type="danger" size="mini" slot="reference">
-              删除
-            </el-button>
-          </el-popconfirm>
-          <el-popconfirm
-            v-else
-            title="确定删除吗？"
-            style="margin-left:10px"
-            @confirm="updateUserAuthsStatus(scope.row.id)"
-          >
-            <el-button type="danger" size="mini" slot="reference">
-              删除
-            </el-button>
-          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -246,39 +197,18 @@
       @current-change="currentChange"
     />
     <el-dialog :visible.sync="editStatus" width="30%">
-      <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
-      </div>
-      <div style="font-size:1rem">是否删除选中项？</div>
-      <div slot="footer">
-        <el-button @click="editStatus = false">取 消</el-button>
-        <el-button type="primary" @click="updateUserAuthsStatus(null)">
-          确 定
-        </el-button>
-      </div>
-    </el-dialog>
-    <el-dialog :visible.sync="removeStatus" width="30%">
-      <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
-      </div>
-      <div style="font-size:1rem">是否彻底删除选中项？</div>
-      <div slot="footer">
-        <el-button @click="removeStatus = false">取 消</el-button>
-        <el-button type="primary" @click="deleteUserAuths(null)">
-          确 定
-        </el-button>
-      </div>
-    </el-dialog>
-    <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="userAuthTitle" />
       <el-form :model="userAuth" size="medium" label-width="60">
-        <el-form-item label="昵称">
-          <el-input v-model="userAuth.nickname" style="width:200px" />
+        <el-form-item label="账号">
+          <el-input v-model="userAuth.username" style="width:200px" disabled />
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="userAuth.password" ref="input" style="width:200px" />
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="addOrEditStatus = false">取 消</el-button>
-        <el-button type="primary" @click="addOrEditUserAuth">
+        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button type="primary" @click="editUserAuth">
           确 定
         </el-button>
       </div>
@@ -329,18 +259,14 @@ export default {
       ],
       userAuth: {},
       userAuthList: [],
-      roleIdList: [],
-      userIdList: [],
       roleNameList: [],
       roleId: null,
       keywords: null,
+      lockedFlag: null,
+      disabledFlag: null,
       loading: true,
       editStatus: false,
-      lockedFlag: null,
       deletedFlag: false,
-      disabledFlag: null,
-      removeStatus: false,
-      addOrEditStatus: false,
       size: 10,
       count: 0,
       current: 1
@@ -348,17 +274,12 @@ export default {
   },
   methods: {
     openModel(userAuth) {
-      if (userAuth != null) {
-        this.userAuth = JSON.parse(JSON.stringify(userAuth));
-        this.$refs.userAuthTitle.innerHTML = "修改用户";
-      } else {
-        this.userAuth = {};
-        this.$refs.userAuthTitle.innerHTML = "添加用户";
-      }
+      this.userAuth = JSON.parse(JSON.stringify(userAuth));
+      this.$refs.userAuthTitle.innerHTML = "修改账号";
       this.$nextTick(() => {
         this.$refs.input.focus();
       });
-      this.addOrEditStatus = true;
+      this.editStatus = true;
     },
     sizeChange(size) {
       this.size = size;
@@ -367,12 +288,6 @@ export default {
     currentChange(current) {
       this.current = current;
       this.listUserAuths();
-    },
-    selectionChange(userAuthList) {
-      this.userIdList = [];
-      userAuthList.forEach(item => {
-        this.userIdList.push(item.id);
-      });
     },
     parseLoginMethod(loginMethod) {
       let loginMethods = [];
@@ -415,63 +330,8 @@ export default {
         this.roleNameList = data.data;
       });
     },
-    deleteUserAuths(id) {
-      let param = {};
-      if (id == null) {
-        param = { data: this.userIdList };
-      } else {
-        param = { data: [id] };
-      }
-      this.axios.delete("/api/back/userAuths", param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: "成功",
-            message: data.message
-          });
-          this.listUserAuths();
-        } else {
-          this.$notify.error({
-            title: "失败",
-            message: data.message
-          });
-        }
-        this.removeStatus = false;
-      });
-    },
-    addOrEditUserAuth() {
+    editUserAuth() {
       this.axios.put("/api/back/userAuth", this.userAuth).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: "成功",
-            message: data.message
-          });
-          this.listUserAuths();
-        } else {
-          this.$notify.error({
-            title: "失败",
-            message: data.message
-          });
-        }
-        this.addOrEditStatus = false;
-      });
-    },
-    changeUserAuthStatus(userAuth) {
-      let param = {
-        id: userAuth.id,
-        topFlag: userAuth.lockedFlag,
-        publicFlag: userAuth.disabledFlag
-      };
-      this.axios.put("/api/back/userAuth/status", param);
-    },
-    updateUserAuthsStatus(id) {
-      let param = new URLSearchParams();
-      if (id != null) {
-        param.append("idList", [id]);
-      } else {
-        param.append("idList", this.userIdList);
-      }
-      param.append("deletedFlag", !this.deletedFlag);
-      this.axios.put("/api/back/userAuths", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -486,6 +346,14 @@ export default {
         }
         this.editStatus = false;
       });
+    },
+    changeUserAuthStatus(userAuth) {
+      let param = {
+        id: userAuth.id,
+        topFlag: userAuth.lockedFlag,
+        publicFlag: userAuth.disabledFlag
+      };
+      this.axios.put("/api/back/userAuth/status", param);
     }
   },
   watch: {

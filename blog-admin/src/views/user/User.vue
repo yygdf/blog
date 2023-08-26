@@ -89,8 +89,8 @@
         align="center"
         width="120"
       />
-      <el-table-column prop="intro" label="介绍" align="center" />
       <el-table-column prop="email" label="邮箱" align="center" width="120" />
+      <el-table-column prop="intro" label="介绍" align="center" />
       <el-table-column prop="website" label="网站" align="center" />
       <el-table-column
         prop="createTime"
@@ -180,8 +180,48 @@
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="userTitle" />
       <el-form :model="user" size="medium" label-width="60">
+        <el-form-item label="账号" v-if="!user.id">
+          <el-input
+            v-model="user.username"
+            ref="input"
+            style="width:200px"
+          />&nbsp;
+          <span v-if="existFlag" class="el-icon-error" style="color: red;">
+            该账号已存在!</span
+          >
+          <span v-else class="el-icon-success" style="color: green;"></span>
+        </el-form-item>
         <el-form-item label="昵称">
-          <el-input v-model="user.nickname" style="width:200px" />
+          <el-input
+            v-model="user.nickname"
+            :ref="user.id ? 'input' : ''"
+            style="width:200px"
+          />
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="user.email" style="width:200px" />
+        </el-form-item>
+        <el-form-item label="介绍">
+          <el-input v-model="user.intro" style="width:200px" />
+        </el-form-item>
+        <el-form-item label="网站">
+          <el-input v-model="user.website" style="width:200px" />
+        </el-form-item>
+        <el-form-item label="头像">
+          <el-upload
+            :limit="1"
+            action=""
+            class="upload-cover"
+            drag
+            :on-remove="deleteAvatar"
+            :http-request="uploadAvatar"
+          >
+            <i class="el-icon-upload" v-if="!user.avatar" />
+            <div class="el-upload__text" v-if="!user.avatar">
+              将文件拖到此处，或<em>点击上传</em>
+            </div>
+            <img v-else :src="user.avatar" width="200" height="200" />
+          </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -219,6 +259,7 @@ export default {
       userIdList: [],
       keywords: null,
       loading: true,
+      existFlag: true,
       editStatus: false,
       deletedFlag: false,
       removeStatus: false,
@@ -344,3 +385,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+/deep/ .el-upload .el-upload-dragger {
+  width: 200px;
+  height: 200px;
+}
+</style>

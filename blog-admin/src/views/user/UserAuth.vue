@@ -50,7 +50,8 @@
           v-model="disabledFlag"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择"
+          placeholder="请选择禁用状态"
+          clearable
         >
           <el-option
             v-for="item in options3"
@@ -63,7 +64,8 @@
           v-model="lockedFlag"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择"
+          placeholder="请选择锁定状态"
+          clearable
         >
           <el-option
             v-for="item in options2"
@@ -119,7 +121,7 @@
         align="center"
         width="120"
       />
-      <el-table-column prop="roleList" label="角色" align="center" width="120">
+      <el-table-column prop="roleDTOList" label="角色" align="center" width="120">
         <template slot-scope="scope">
           <el-tag
             v-for="(item, index) of scope.row.roleDTOList"
@@ -160,24 +162,24 @@
         </template>
       </el-table-column>
       <el-table-column prop="loginDevice" label="登录设备" align="center">
-        <template slot-scope="scope">
+        <template slot-scope="scope" v-if="scope.row.loginDevice">
           <el-tag
-            v-for="(item, index) of scope.row.loginDevice"
+            v-for="(item, index) of scope.row.loginDevice.split(',')"
             :key="index"
             style="margin-right:4px;margin-top:4px"
           >
-            {{ item.label }}
+            {{ item }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="loginMethod" label="登录方式" align="center">
-        <template slot-scope="scope">
+        <template slot-scope="scope" v-if="scope.row.loginMethod">
           <el-tag
-            v-for="(item, index) of scope.row.loginMethod"
+            v-for="(item, index) of parseLoginMethod(scope.row.loginMethod)"
             :key="index"
             style="margin-right:4px;margin-top:4px"
           >
-            {{ item.label }}
+            {{ item }}
           </el-tag>
         </template>
       </el-table-column>
@@ -334,9 +336,9 @@ export default {
       keywords: null,
       loading: true,
       editStatus: false,
-      lockedFlag: false,
+      lockedFlag: null,
       deletedFlag: false,
-      disabledFlag: false,
+      disabledFlag: null,
       removeStatus: false,
       addOrEditStatus: false,
       size: 10,
@@ -371,6 +373,23 @@ export default {
       userAuthList.forEach(item => {
         this.userIdList.push(item.id);
       });
+    },
+    parseLoginMethod(loginMethod) {
+      let loginMethods = [];
+      loginMethod = parseInt(loginMethod, 2);
+      if (loginMethod & 1) {
+        loginMethods.push("邮箱");
+      }
+      if (loginMethod & 2) {
+        loginMethods.push("QQ");
+      }
+      if (loginMethod & 4) {
+        loginMethods.push("微信");
+      }
+      if (loginMethod & 8) {
+        loginMethods.push("手机号");
+      }
+      return loginMethods;
     },
     listUserAuths() {
       this.axios

@@ -263,7 +263,7 @@ export default {
       options: [
         {
           value: false,
-          label: "已展示"
+          label: "未删除"
         },
         {
           value: true,

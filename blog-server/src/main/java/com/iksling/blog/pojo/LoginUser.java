@@ -44,14 +44,14 @@ public class LoginUser implements UserDetails {
     private Date loginTime;
 
     /**
-     * 登录类型
-     */
-    private Integer loginType;
-
-    /**
      * 登录设备
      */
     private String loginDevice;
+
+    /**
+     * 登录方式
+     */
+    private Integer loginMethod;
 
     /**
      * ip来源

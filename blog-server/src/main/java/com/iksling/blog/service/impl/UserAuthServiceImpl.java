@@ -18,9 +18,12 @@ import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -33,6 +36,9 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     implements UserAuthService{
     @Autowired
     private UserAuthMapper userAuthMapper;
+
+    @Autowired
+    private SessionRegistry sessionRegistry;
 
     @Override
     public List<LabelDTO> getBackUsernames(String keywords) {
@@ -72,6 +78,11 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 .eq(loginUser.getRoleWeight() > 100, UserAuth::getDeletedFlag, false));
         if (count != 1)
             throw new IllegalRequestException();
+        if (commonStatusVO.getPublicFlag() || (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag())) {
+            List<Integer> idList = new ArrayList<>();
+            idList.add(commonStatusVO.getId());
+            disabledOrLockedOrDeletedUserAuth(idList);
+        }
     }
 
     @Override
@@ -82,6 +93,18 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         Integer count = userAuthMapper.updateUserAuthsStatus(updateBatchVO);
         if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();
+        if (updateBatchVO.getDeletedFlag())
+            disabledOrLockedOrDeletedUserAuth(updateBatchVO.getIdList());
+    }
+
+    private void disabledOrLockedOrDeletedUserAuth(List<Integer> idList) {
+        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(item -> {
+            LoginUser loginUser = (LoginUser) item;
+            return idList.contains(loginUser.getId());
+        }).collect(Collectors.toList());
+        List<SessionInformation> allSessions = new ArrayList<>();
+        loginUserList.forEach(item -> allSessions.addAll(sessionRegistry.getAllSessions(item, false)));
+        allSessions.forEach(SessionInformation::expireNow);
     }
 }
 

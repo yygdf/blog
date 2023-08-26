@@ -7,7 +7,7 @@
     <resultMap id="BaseResultMap" type="com.iksling.blog.entity.LoginLog">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="userId" column="user_id" jdbcType="INTEGER"/>
-            <result property="loginType" column="login_type" jdbcType="INTEGER"/>
+            <result property="loginMethod" column="login_method" jdbcType="INTEGER"/>
             <result property="loginTime" column="login_time" jdbcType="TIMESTAMP"/>
             <result property="loginDevice" column="login_device" jdbcType="VARCHAR"/>
             <result property="loginSystem" column="login_system" jdbcType="VARCHAR"/>

@@ -2,6 +2,7 @@ package com.iksling.blog.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.iksling.blog.dto.LoginUserDTO;
 import com.iksling.blog.entity.LoginLog;
 import com.iksling.blog.entity.User;
@@ -23,6 +24,8 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import static com.iksling.blog.constant.RedisConst.ARTICLE_USER_LIKE;
@@ -67,10 +70,18 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
 
     @Async
     public void updateUserAuth(LoginUser loginUser) {
+        UserAuth userAuth = userAuthMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
+                .select(UserAuth::getId, UserAuth::getLoginDevice)
+                .eq(UserAuth::getId, loginUser.getId()));
+        String loginDevice;
+        if (StringUtils.isBlank(userAuth.getLoginDevice()))
+            loginDevice = loginUser.getLoginDevice();
+        else
+            loginDevice = Arrays.asList(userAuth.getLoginDevice().split(",")).contains(loginUser.getLoginDevice()) ? null : userAuth.getLoginDevice() + "," + loginUser.getLoginDevice();
         userAuthMapper.updateById(UserAuth.builder()
                 .id(loginUser.getId())
                 .loginTime(loginUser.getLoginTime())
-                .loginDevice(loginUser.getLoginDevice())
+                .loginDevice(loginDevice)
                 .ipSource(loginUser.getIpSource())
                 .ipAddress(loginUser.getIpAddress())
                 .build());
@@ -81,9 +92,9 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         UserAgent userAgent = UserAgent.parseUserAgentString(request.getHeader("User-Agent"));
         loginLogMapper.insert(LoginLog.builder()
                 .userId(loginUser.getUserId())
-                .loginType(loginUser.getLoginType())
                 .loginTime(loginUser.getLoginTime())
                 .loginDevice(loginUser.getLoginDevice())
+                .loginMethod(loginUser.getLoginMethod())
                 .loginBrowser(userAgent.getBrowser().getName())
                 .loginSystem(userAgent.getOperatingSystem().getName())
                 .ipSource(loginUser.getIpSource())

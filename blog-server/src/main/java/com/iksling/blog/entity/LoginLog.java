@@ -30,11 +30,6 @@ public class LoginLog implements Serializable {
     private Integer userId;
 
     /**
-     * 登录类型
-     */
-    private Integer loginType;
-
-    /**
      * 登录时间
      */
     private Date loginTime;
@@ -43,6 +38,11 @@ public class LoginLog implements Serializable {
      * 登录设备
      */
     private String loginDevice;
+
+    /**
+     * 登录方式
+     */
+    private Integer loginMethod;
 
     /**
      * 操作系统类型

@@ -173,11 +173,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     @Override
     public List<LabelDTO> getBackRoleNames() {
         List<Role> roleList = roleMapper.selectList(new LambdaQueryWrapper<Role>()
-                .select(Role::getId, Role::getUserId, Role::getRoleName));
+                .select(Role::getId, Role::getRoleName));
         return roleList.stream()
                 .map(e -> LabelDTO.builder()
                         .id(e.getId())
-                        .userId(e.getUserId())
                         .label(e.getRoleName())
                         .build())
                 .collect(Collectors.toList());

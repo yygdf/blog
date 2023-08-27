@@ -44,7 +44,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     public List<LabelDTO> getBackUsernames(String keywords) {
         List<UserAuth> userAuthList = userAuthMapper.selectList(new LambdaQueryWrapper<UserAuth>()
                 .select(UserAuth::getId, UserAuth::getUserId, UserAuth::getUsername)
-                .likeRight(StringUtils.isNotBlank(keywords), UserAuth::getUsername, keywords.trim()));
+                .likeRight(StringUtils.isNotBlank(keywords.trim()), UserAuth::getUsername, keywords.trim()));
         return userAuthList.stream()
                 .map(e -> LabelDTO.builder()
                         .id(e.getId())
@@ -63,6 +63,14 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         if (CollectionUtils.isEmpty(userAuthsBackDTOList))
             return new PagePojo<>();
         return new PagePojo<>(userAuthsBackDTOList.size(), userAuthsBackDTOList);
+    }
+
+    @Override
+    public boolean getBackUserAuthExistFlag(String keywords) {
+        if (StringUtils.isBlank(keywords.trim()))
+            return false;
+        return userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
+                .eq(UserAuth::getUsername, keywords.trim())) != 0;
     }
 
     @Override

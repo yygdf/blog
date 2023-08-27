@@ -82,7 +82,7 @@
       </el-table-column>
       <el-table-column
         prop="createTime"
-        label="创建时间"
+        label="创建日期"
         align="center"
         width="120"
       >
@@ -93,7 +93,7 @@
       </el-table-column>
       <el-table-column
         prop="updateTime"
-        label="更新时间"
+        label="更新日期"
         align="center"
         width="120"
       >
@@ -147,6 +147,7 @@
       <el-form :model="tag" size="medium" label-width="80">
         <el-form-item label="标签名">
           <el-input v-model="tag.tagName" ref="input" style="width:200px" :maxLength="50" />
+          <span style="color: red;"> *</span>
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -186,7 +187,7 @@ export default {
   methods: {
     openModel(tag) {
       if (tag != null) {
-        this.tag = JSON.parse(JSON.stringify(tag));
+        this.tag = { id: tag.id, tagName: tag.tagName };
         this.$refs.tagTitle.innerHTML = "修改标签";
       } else {
         this.tag = {
@@ -270,8 +271,7 @@ export default {
         this.$message.error("标签名不能为空");
         return false;
       }
-      const { id, tagName } = this.tag;
-      this.axios.post("/api/back/tag", { id, tagName }).then(({ data }) => {
+      this.axios.post("/api/back/tag", this.tag).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",

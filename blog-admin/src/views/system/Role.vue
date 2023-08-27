@@ -66,7 +66,7 @@
       </el-table-column>
       <el-table-column
         prop="createTime"
-        label="创建时间"
+        label="创建日期"
         align="center"
         width="160"
       >
@@ -119,6 +119,7 @@
             :maxlength="50"
             style="width:200px"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="角色描述">
           <el-input
@@ -127,6 +128,7 @@
             :maxlength="50"
             style="width:200px"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="角色权重">
           <el-input-number
@@ -343,30 +345,21 @@ export default {
         this.$message.error("角色描述不能为空");
         return false;
       }
-      const { id, roleDesc, roleName, roleWeight, disabledFlag } = this.role;
-      this.axios
-        .post("/api/back/role", {
-          id,
-          roleDesc,
-          roleName,
-          roleWeight,
-          disabledFlag
-        })
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: "成功",
-              message: data.message
-            });
-            this.listRoles();
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: data.message
-            });
-          }
-          this.addOrEditStatus = false;
-        });
+      this.axios.post("/api/back/role", this.role).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listRoles();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.addOrEditStatus = false;
+      });
     },
     changeRoleStatus(role) {
       let disabledFlag = role.disabledFlag;

@@ -87,24 +87,22 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (Objects.nonNull(userId) && loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(userId))
             throw new IllegalRequestException();
             List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
-                .select(Tag::getId, Tag::getUserId, Tag::getTagName)
+                .select(Tag::getId, Tag::getTagName)
                 .eq(Objects.isNull(userId), Tag::getUserId, loginUser.getUserId())
                 .eq(Objects.nonNull(userId), Tag::getUserId, userId));
         List<LabelDTO> tagDTOList = tagList.stream()
                 .map(e -> LabelDTO.builder()
                         .id(e.getId())
-                        .userId(e.getUserId())
                         .label(e.getTagName())
                         .build())
                 .collect(Collectors.toList());
         List<Category> categoryList = categoryMapper.selectList(new LambdaQueryWrapper<Category>()
-                .select(Category::getId, Category::getUserId, Category::getCategoryName)
+                .select(Category::getId, Category::getCategoryName)
                 .eq(Objects.isNull(userId), Category::getUserId, loginUser.getUserId())
                 .eq(Objects.nonNull(userId), Category::getUserId, userId));
         List<LabelDTO> categoryDTOList = categoryList.stream()
                 .map(e -> LabelDTO.builder()
                         .id(e.getId())
-                        .userId(e.getUserId())
                         .label(e.getCategoryName())
                         .build())
                 .collect(Collectors.toList());

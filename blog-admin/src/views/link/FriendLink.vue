@@ -116,7 +116,7 @@
       <el-table-column prop="linkDesc" label="友链描述" align="center" />
       <el-table-column
         prop="createTime"
-        label="创建时间"
+        label="创建日期"
         align="center"
         width="120"
       >
@@ -290,7 +290,13 @@ export default {
   methods: {
     openModel(friendLink) {
       if (friendLink != null) {
-        this.friendLink = JSON.parse(JSON.stringify(friendLink));
+        this.friendLink = {
+          id: friendLink.id,
+          linkUrl: friendLink.linkUrl,
+          linkDesc: friendLink.linkDesc,
+          linkLogo: friendLink.linkLogo,
+          linkName: friendLink.linkName
+        };
         this.$refs.friendLinkTitle.innerHTML = "修改友链";
       } else {
         this.friendLink = {
@@ -355,7 +361,7 @@ export default {
         });
     },
     addOrEditCategory() {
-      if (!this.friendLink.userId) {
+      if (!this.friendLink.userId && !this.friendLink.id) {
         this.$message.error("所属用户不能为空");
         return false;
       }
@@ -375,23 +381,8 @@ export default {
         this.$message.error("友链地址不能为空");
         return false;
       }
-      const {
-        id,
-        userId,
-        linkUrl,
-        linkDesc,
-        linkLogo,
-        linkName
-      } = this.friendLink;
       this.axios
-        .post("/api/back/friendLink", {
-          id,
-          userId,
-          linkUrl,
-          linkDesc,
-          linkLogo,
-          linkName
-        })
+        .post("/api/back/friendLink", this.friendLink)
         .then(({ data }) => {
           if (data.flag) {
             this.$notify.success({

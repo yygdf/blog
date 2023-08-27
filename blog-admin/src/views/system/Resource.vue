@@ -89,7 +89,7 @@
       </el-table-column>
       <el-table-column
         prop="createTime"
-        label="创建时间"
+        label="创建日期"
         align="center"
         width="120"
       >
@@ -100,7 +100,7 @@
       </el-table-column>
       <el-table-column
         prop="updateTime"
-        label="更新时间"
+        label="更新日期"
         align="center"
         width="120"
       >
@@ -176,6 +176,7 @@
             ref="input"
             style="width:200px"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item v-if="resource.parentId" label="资源路径">
           <el-input
@@ -183,6 +184,7 @@
             :maxlength="50"
             style="width:200px"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item v-if="resource.parentId" label="请求方式">
           <el-radio-group v-model="resource.resourceRequestMethod">
@@ -250,7 +252,15 @@ export default {
         this.$refs.resourceTitle.innerHTML = "添加模块";
       } else {
         if (resource.parentId !== -1) {
-          this.resource = JSON.parse(JSON.stringify(resource));
+          this.resource = {
+            id: resource.id,
+            parentId: resource.parentId,
+            resourceUri: resource.resourceUri,
+            resourceName: resource.resourceName,
+            resourceRequestMethod: resource.resourceRequestMethod,
+            disabledFlag: resource.disabledFlag,
+            anonymousFlag: resource.anonymousFlag
+          };
           this.$refs.resourceTitle.innerHTML = "修改资源";
         } else {
           if (flag) {
@@ -262,7 +272,13 @@ export default {
             };
             this.$refs.resourceTitle.innerHTML = "添加资源";
           } else {
-            this.resource = JSON.parse(JSON.stringify(resource));
+            this.resource = {
+              id: resource.id,
+              parentId: null,
+              resourceName: resource.resourceName,
+              disabledFlag: resource.disabledFlag,
+              anonymousFlag: resource.anonymousFlag
+            };
             this.resource.parentId = null;
             this.$refs.resourceTitle.innerHTML = "修改模块";
           }
@@ -319,44 +335,21 @@ export default {
         this.$message.error("资源路径不能为空");
         return false;
       }
-      if (!flag && this.resource.resourceRequestMethod.trim() === "") {
-        this.$message.error("请求方式不能为空");
-        return false;
-      }
-      const {
-        id,
-        parentId,
-        resourceUri,
-        resourceName,
-        resourceRequestMethod,
-        disabledFlag,
-        anonymousFlag
-      } = this.resource;
-      this.axios
-        .post("/api/back/resource", {
-          id,
-          parentId,
-          resourceUri,
-          resourceName,
-          resourceRequestMethod,
-          disabledFlag,
-          anonymousFlag
-        })
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: "成功",
-              message: data.message
-            });
-            this.listResources();
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: data.message
-            });
-          }
-          this.addOrEditStatus = false;
-        });
+      this.axios.post("/api/back/resource", this.resource).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listResources();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.addOrEditStatus = false;
+      });
     },
     changeResourceStatus(resource) {
       let param = {

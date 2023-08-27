@@ -103,7 +103,13 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
             tag.setCreateTime(new Date());
             tagMapper.insert(tag);
         } else {
-            int count = tagMapper.update(null, new LambdaUpdateWrapper<Tag>()
+            Integer count = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
+                    .eq(Tag::getTagName, tagBackVO.getTagName())
+                    .eq(Tag::getUserId, loginUser.getUserId())
+                    .ne(Tag::getId, tagBackVO.getId()));
+            if (count > 0)
+                throw new OperationStatusException("标签名已存在!");
+            count = tagMapper.update(null, new LambdaUpdateWrapper<Tag>()
                     .set(Tag::getTagName, tagBackVO.getTagName())
                     .set(Tag::getUpdateUser, loginUser.getUserId())
                     .set(Tag::getUpdateTime, new Date())

@@ -10,10 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -26,6 +23,7 @@ public class UserAuthController {
     private UserAuthService userAuthService;
 
     @ApiOperation(value = "查看所有的用户名")
+    @ApiImplicitParam(name = "keywords", value = "用户名关键字", required = true, dataType = "String")
     @GetMapping("/back/userAuth/usernames")
     public Result listBackUsernames(String keywords) {
         return Result.success().message("查询成功").data(userAuthService.getBackUsernames(keywords));
@@ -54,5 +52,12 @@ public class UserAuthController {
     public Result updateUserAuthsStatus(@Valid UpdateBatchVO updateBatchVO) {
         userAuthService.updateUserAuthsStatus(updateBatchVO);
         return Result.success().message("操作成功");
+    }
+
+    @ApiOperation(value = "查看账号是否存在")
+    @ApiImplicitParam(name = "keywords", value = "用户名关键字", required = true, dataType = "String")
+    @GetMapping("/back/userAuth/exist")
+    public Result getBackUserAuthExistFlag(String keywords) {
+        return Result.success().message("查询成功").data(userAuthService.getBackUserAuthExistFlag(keywords));
     }
 }

@@ -46,7 +46,7 @@
             </if>
         </where>
         ORDER BY
-            fl.create_time DESC
+            fl.id DESC
         LIMIT
             #{condition.current}, #{condition.size}
     </select>

@@ -74,7 +74,6 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
                 .linkName(friendLinkBackVO.getLinkName().trim())
                 .build();
         if (Objects.isNull(friendLinkBackVO.getId())) {
-            friendLink.setUserId(loginUser.getUserId());
             friendLink.setCreateUser(loginUser.getUserId());
             friendLink.setCreateTime(new Date());
         } else {

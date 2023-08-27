@@ -40,7 +40,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
                 .select(Message::getId, Message::getUserId, Message::getAvatar, Message::getNickname, Message::getMessageSpeed, Message::getMessageContent, Message::getIpSource, Message::getIpAddress, Message::getCreateTime)
                 .eq(Objects.nonNull(condition.getDeletedFlag()), Message::getDeletedFlag, condition.getDeletedFlag())
                 .like(StringUtils.isNotBlank(condition.getKeywords()), Message::getNickname, condition.getKeywords())
-                .orderByDesc(Message::getCreateTime));
+                .orderByDesc(Message::getId));
         if (messagePage.getTotal() == 0)
             return new PagePojo<>();
         return new PagePojo<>((int) messagePage.getTotal(), BeanCopyUtil.copyList(messagePage.getRecords(), MessagesBackDTO.class));

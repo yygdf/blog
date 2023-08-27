@@ -6,7 +6,6 @@ import lombok.Data;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
 @ApiModel(description = "资源后台VO")
@@ -27,7 +26,7 @@ public class ResourceBackVO {
      * 资源路径
      */
     @Max(message = "资源路径最大长度", value = 50)
-    @ApiModelProperty(name = "resourceUri", value = "资源路径", required = true, dataType = "String")
+    @ApiModelProperty(name = "resourceUri", value = "资源路径", dataType = "String")
     private String resourceUri;
 
     /**
@@ -42,18 +41,18 @@ public class ResourceBackVO {
      * 请求方式
      */
     @Max(message = "请求方式最大长度", value = 50)
-    @ApiModelProperty(name = "resourceRequestMethod", value = "请求方式", required = true, dataType = "String")
+    @ApiModelProperty(name = "resourceRequestMethod", value = "请求方式", dataType = "String")
     private String resourceRequestMethod;
 
     /**
      * 0未禁用，1已禁用
      */
-    @ApiModelProperty(name = "disabledFlag", value = "0未禁用，1已禁用", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "disabledFlag", value = "0未禁用，1已禁用", dataType = "Boolean")
     private Boolean disabledFlag;
 
     /**
      * 0未匿名，1已匿名
      */
-    @ApiModelProperty(name = "anonymousFlag", value = "0未匿名，1已匿名", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "anonymousFlag", value = "0未匿名，1已匿名", dataType = "Boolean")
     private Boolean anonymousFlag;
 }

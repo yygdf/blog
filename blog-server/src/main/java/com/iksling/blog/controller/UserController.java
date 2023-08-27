@@ -47,4 +47,11 @@ public class UserController {
         userService.saveOrUpdateUserBackVO(userBackVO);
         return Result.success().message("操作成功");
     }
+
+    @ApiOperation(value = "查看用户是否存在")
+    @ApiImplicitParam(name = "keywords", value = "邮箱关键字", required = true, dataType = "String")
+    @GetMapping("/back/user/exist")
+    public Result getBackUserExistFlag(String keywords) {
+        return Result.success().message("查询成功").data(userService.getBackUserExistFlag(keywords));
+    }
 }

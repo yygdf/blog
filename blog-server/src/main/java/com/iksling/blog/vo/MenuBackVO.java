@@ -68,18 +68,18 @@ public class MenuBackVO {
     /**
      * 0未隐藏，1已隐藏
      */
-    @ApiModelProperty(name = "hideFlag", value = "0未隐藏，1已隐藏", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "hideFlag", value = "0未隐藏，1已隐藏", dataType = "Boolean")
     private Boolean hideFlag;
 
     /**
      * 0未隐藏，1已隐藏
      */
-    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏", dataType = "Boolean")
     private Boolean hiddenFlag;
 
     /**
      * 0未禁用，1已禁用
      */
-    @ApiModelProperty(name = "disabledFlag", value = "0未禁用，1已禁用", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "disabledFlag", value = "0未禁用，1已禁用", dataType = "Boolean")
     private Boolean disabledFlag;
 }

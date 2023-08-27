@@ -179,7 +179,7 @@
       </el-table-column>
       <el-table-column
         prop="publishTime"
-        label="发表时间"
+        label="发表日期"
         align="center"
         width="120"
       >
@@ -190,7 +190,7 @@
       </el-table-column>
       <el-table-column
         prop="updateTime"
-        label="更新时间"
+        label="更新日期"
         align="center"
         width="120"
       >

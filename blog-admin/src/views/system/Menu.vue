@@ -93,7 +93,7 @@
       </el-table-column>
       <el-table-column
         prop="createTime"
-        label="创建时间"
+        label="创建日期"
         align="center"
         width="120"
       >
@@ -104,7 +104,7 @@
       </el-table-column>
       <el-table-column
         prop="updateTime"
-        label="更新时间"
+        label="更新日期"
         align="center"
         width="120"
       >
@@ -180,6 +180,7 @@
             ref="input"
             style="width:200px"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="菜单图标">
           <el-input
@@ -189,6 +190,7 @@
             @focus="showIcon = true"
             @blur="showIcon = false"
           />
+          <span style="color: red;"> *</span>
           <div
             v-show="showIcon"
             class="menu-container"
@@ -205,6 +207,7 @@
         </el-form-item>
         <el-form-item label="菜单路径">
           <el-input v-model="menu.path" :maxlength="50" style="width:200px" />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="菜单组件">
           <el-input
@@ -212,6 +215,7 @@
             :maxlength="50"
             style="width:200px"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="排序指标">
           <el-input-number
@@ -311,7 +315,18 @@ export default {
         this.$refs.menuTitle.innerHTML = "添加菜单";
       } else {
         if (menu.parentId !== -1) {
-          this.menu = JSON.parse(JSON.stringify(menu));
+          this.menu = {
+            id: menu.id,
+            parentId: menu.parentId,
+            icon: menu.icon,
+            rank: menu.rank,
+            path: menu.path,
+            name: menu.name,
+            component: menu.component,
+            hideFlag: menu.hideFlag,
+            hiddenFlag: menu.hiddenFlag,
+            disabledFlag: menu.disabledFlag
+          };
           this.$refs.menuTitle.innerHTML = "修改子菜单";
         } else {
           if (flag) {
@@ -325,8 +340,18 @@ export default {
             };
             this.$refs.menuTitle.innerHTML = "添加子菜单";
           } else {
-            this.menu = JSON.parse(JSON.stringify(menu));
-            this.menu.parentId = null;
+            this.menu = {
+              id: menu.id,
+              parentId: null,
+              icon: menu.icon,
+              rank: menu.rank,
+              path: menu.path,
+              name: menu.name,
+              component: menu.component,
+              hideFlag: menu.hideFlag,
+              hiddenFlag: menu.hiddenFlag,
+              disabledFlag: menu.disabledFlag
+            };
             this.$refs.menuTitle.innerHTML = "修改菜单";
           }
         }
@@ -382,49 +407,24 @@ export default {
         return false;
       }
       if (this.menu.component.trim() === "") {
-        this.$message.error("菜单名称不能为空");
+        this.$message.error("菜单组件不能为空");
         return false;
       }
-      const {
-        id,
-        parentId,
-        icon,
-        rank,
-        path,
-        name,
-        component,
-        hideFlag,
-        hiddenFlag,
-        disabledFlag
-      } = this.menu;
-      this.axios
-        .post("/api/back/menu", {
-          id,
-          parentId,
-          icon,
-          rank,
-          path,
-          name,
-          component,
-          hideFlag,
-          hiddenFlag,
-          disabledFlag
-        })
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: "成功",
-              message: data.message
-            });
-            this.listMenus();
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: data.message
-            });
-          }
-          this.addOrEditStatus = false;
-        });
+      this.axios.post("/api/back/menu", this.menu).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listMenus();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.addOrEditStatus = false;
+      });
     },
     changeMenuStatus(menu) {
       let param = {

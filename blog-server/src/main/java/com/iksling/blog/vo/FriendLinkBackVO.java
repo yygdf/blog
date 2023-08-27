@@ -6,7 +6,6 @@ import lombok.Data;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
 @ApiModel(description = "友链后台VO")
@@ -20,7 +19,6 @@ public class FriendLinkBackVO {
     /**
      * 用户id
      */
-    @NotNull(message = "用户id不能为null")
     @ApiModelProperty(name = "userId", value = "用户id", dataType = "Integer")
     private Integer userId;
 

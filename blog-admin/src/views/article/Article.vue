@@ -47,6 +47,7 @@
               :label="item.label"
             />
           </el-select>
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="文章标签">
           <el-select
@@ -69,7 +70,7 @@
             action=""
             class="upload-cover"
             drag
-            :on-remove="deleteCover"
+            :on-remove="updateCover"
             :http-request="uploadCover"
           >
             <i class="el-icon-upload" v-if="!article.articleCover" />
@@ -204,9 +205,9 @@ export default {
           this.categoryList = data.data.categoryDTOList;
         });
     },
-    deleteImg(url) {
+    updateImg(url) {
       let param = { data: url };
-      this.axios.delete("/api/back/article/image", param);
+      this.axios.put("/api/back/article/image", param);
     },
     uploadImg(pos, file) {
       if (this.article.id == null) {
@@ -222,7 +223,7 @@ export default {
         this.axios.post("/api/back/article", this.article).then(({ data }) => {
           if (data.flag) {
             this.article.id = data.data;
-            var formData = new FormData();
+            let formData = new FormData();
             formData.append("file", file);
             formData.append("userId", this.checkArticleUserIdIsNull());
             formData.append("fileSubDir", this.article.id);
@@ -258,13 +259,13 @@ export default {
           });
       }
     },
-    deleteCover() {
-      this.deleteImg(this.article.articleCover);
+    updateCover() {
+      this.updateImg(this.article.articleCover);
       this.article.articleCover = "";
     },
     uploadCover(form) {
       if (this.article.articleCover !== "") {
-        this.deleteImg(this.article.articleCover);
+        this.updateImg(this.article.articleCover);
       }
       this.uploadImg(null, form.file);
     },
@@ -295,7 +296,7 @@ export default {
       this.uploadImg(pos, file);
     },
     deleteArticleImg(pos) {
-      this.deleteImg(pos[0]);
+      this.updateImg(pos[0]);
     },
     saveArticleDraft() {
       if (this.article.articleTitle.trim() === "") {

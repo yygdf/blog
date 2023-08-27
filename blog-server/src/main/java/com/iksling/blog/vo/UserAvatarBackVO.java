@@ -5,12 +5,11 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-@ApiModel(description = "文章文件后台VO")
-public class MultiFileArticleBackVO  {
+@ApiModel(description = "用户头像后台VO")
+public class UserAvatarBackVO {
     /**
      * 文件
      */
@@ -21,13 +20,7 @@ public class MultiFileArticleBackVO  {
     /**
      * 用户id
      */
-    @ApiModelProperty(name = "userId", value = "用户id", dataType = "Integer")
+    @NotNull(message = "用户id不能为ull")
+    @ApiModelProperty(name = "userId", value = "用户id", required = true, dataType = "Integer")
     private Integer userId;
-
-    /**
-     * 文件子目录
-     */
-    @NotBlank(message = "文件子目录不能为空")
-    @ApiModelProperty(name = "fileSubDir", value = "文件子目录", required = true, dataType = "String")
-    private String fileSubDir;
 }

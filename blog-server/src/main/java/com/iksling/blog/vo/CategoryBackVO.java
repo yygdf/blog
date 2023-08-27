@@ -6,7 +6,6 @@ import lombok.Data;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
 @ApiModel(description = "分类后台VO")
@@ -28,12 +27,12 @@ public class CategoryBackVO {
     /**
      * 0未公开，1已公开
      */
-    @ApiModelProperty(name = "publicFlag", value = "0未公开，1已公开", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "publicFlag", value = "0未公开，1已公开", dataType = "Boolean")
     private Boolean publicFlag;
 
     /**
      * 0未隐藏，1已隐藏
      */
-    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏", dataType = "Boolean")
     private Boolean hiddenFlag;
 }

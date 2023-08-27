@@ -80,7 +80,7 @@
       />
       <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
-          <img :src="scope.row.avatar" width="40" height="40" />
+          <img :src="scope.row.avatar" width="40" height="40" ref="avatar" />
         </template>
       </el-table-column>
       <el-table-column
@@ -180,40 +180,82 @@
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="userTitle" />
       <el-form :model="user" size="medium" label-width="60">
-        <el-form-item label="账号" v-if="!user.id">
+        <el-form-item label="账号" v-if="!user.id && user.id !== 0">
           <el-input
             v-model="user.username"
+            :maxlength="50"
             ref="input"
             style="width:200px"
+            @keyup.native="usernameInputChange($event)"
+            @keyup.enter.native="getUsernameExistFlag"
           />&nbsp;
-          <span v-if="existFlag" class="el-icon-error" style="color: red;">
+          <span
+            v-if="usernameExistStatus === 1"
+            class="el-icon-error"
+            style="color: red;"
+          >
             该账号已存在!</span
           >
-          <span v-else class="el-icon-success" style="color: green;"></span>
+          <span
+            v-if="usernameExistStatus === 2"
+            class="el-icon-success"
+            style="color: green;"
+          ></span>
         </el-form-item>
         <el-form-item label="昵称">
           <el-input
             v-model="user.nickname"
-            :ref="user.id ? 'input' : ''"
+            :maxlength="50"
+            :ref="(user.id || user.id === 0) ? 'input' : ''"
+            style="width:200px"
+          />
+          <span style="color: red;"> *</span>
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input
+            v-model="user.email"
+            :maxlength="50"
+            style="width:200px"
+            @keyup.native="emailInputChange($event)"
+            @keyup.enter.native="getEmailExistFlag"
+          />&nbsp;
+          <span
+            v-if="emailExistStatus === -1"
+            class="el-icon-error"
+            style="color: red;"
+          >
+            该邮箱不合法!</span
+          >
+          <span
+            v-if="emailExistStatus === 1"
+            class="el-icon-error"
+            style="color: red;"
+          >
+            该邮箱已存在!</span
+          >
+          <span
+            v-if="emailExistStatus === 2"
+            class="el-icon-success"
+            style="color: green;"
+          ></span>
+        </el-form-item>
+        <el-form-item label="介绍">
+          <el-input v-model="user.intro" :maxlength="50" style="width:200px" />
+        </el-form-item>
+        <el-form-item label="网站">
+          <el-input
+            v-model="user.website"
+            :maxlength="255"
             style="width:200px"
           />
         </el-form-item>
-        <el-form-item label="邮箱">
-          <el-input v-model="user.email" style="width:200px" />
-        </el-form-item>
-        <el-form-item label="介绍">
-          <el-input v-model="user.intro" style="width:200px" />
-        </el-form-item>
-        <el-form-item label="网站">
-          <el-input v-model="user.website" style="width:200px" />
-        </el-form-item>
-        <el-form-item label="头像">
+        <el-form-item label="头像" v-if="user.id || user.id === 0">
           <el-upload
             :limit="1"
             action=""
             class="upload-cover"
             drag
-            :on-remove="deleteAvatar"
+            :on-remove="updateAvatar"
             :http-request="uploadAvatar"
           >
             <i class="el-icon-upload" v-if="!user.avatar" />
@@ -226,7 +268,14 @@
       </el-form>
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
-        <el-button type="primary" @click="addOrEditUser">
+        <el-button
+          type="primary"
+          :disabled="
+            (usernameExistStatus !== 2 && user.id === undefined) ||
+              emailExistStatus !== 2
+          "
+          @click="addOrEditUser"
+        >
           确 定
         </el-button>
       </div>
@@ -258,24 +307,42 @@ export default {
       userList: [],
       userIdList: [],
       keywords: null,
+      oldEmail: null,
       loading: true,
-      existFlag: true,
       editStatus: false,
       deletedFlag: false,
       removeStatus: false,
       addOrEditStatus: false,
       size: 10,
       count: 0,
-      current: 1
+      current: 1,
+      lastTimeStamp: 0,
+      emailExistStatus: 0,
+      usernameExistStatus: 0
     };
   },
   methods: {
     openModel(user) {
       if (user != null) {
-        this.user = JSON.parse(JSON.stringify(user));
+        this.user = {
+          id: user.id,
+          intro: user.intro,
+          email: user.email,
+          avatar: user.avatar,
+          website: user.website,
+          nickname: user.nickname
+        };
+        this.oldEmail = user.email;
+        this.emailExistStatus = 2;
         this.$refs.userTitle.innerHTML = "修改用户";
       } else {
-        this.user = {};
+        this.user = {
+          email: "",
+          username: "",
+          nickname: ""
+        };
+        this.emailExistStatus = 0;
+        this.usernameExistStatus = 0;
         this.$refs.userTitle.innerHTML = "添加用户";
       }
       this.$nextTick(() => {
@@ -286,6 +353,44 @@ export default {
     sizeChange(size) {
       this.size = size;
       this.listUsers();
+    },
+    emailInputChange(event) {
+      if (this.user.email.trim() === this.oldEmail && this.user.id) {
+        this.lastTimeStamp = 0;
+        this.emailExistStatus = 2;
+      } else {
+        if (event.key !== "Enter") {
+          this.lastTimeStamp = event.timeStamp;
+          setTimeout(() => {
+            if (this.lastTimeStamp === event.timeStamp) {
+              const emailRegex = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+              if (emailRegex.test(this.user.email.trim())) {
+                this.getEmailExistFlag();
+              } else {
+                this.emailExistStatus = -1;
+              }
+            }
+          }, 1000);
+        } else {
+          this.lastTimeStamp = 0;
+        }
+      }
+    },
+    usernameInputChange(event) {
+      if (this.user.username.trim() === "") {
+        this.usernameExistStatus = 0;
+      } else {
+        if (event.key !== "Enter") {
+          this.lastTimeStamp = event.timeStamp;
+          setTimeout(() => {
+            if (this.lastTimeStamp === event.timeStamp) {
+              this.getUsernameExistFlag();
+            }
+          }, 1000);
+        } else {
+          this.lastTimeStamp = 0;
+        }
+      }
     },
     currentChange(current) {
       this.current = current;
@@ -311,6 +416,47 @@ export default {
           this.count = data.data.count;
           this.userList = data.data.pageList;
           this.loading = false;
+          this.$nextTick(() => {
+            const imgList = this.$refs.avatar.getElementsByTagName("img");
+            for (var i = 0; i < imgList.length; i++) {
+              this.imgList.push(imgList[i].src);
+              imgList[i].addEventListener("click", function(e) {
+                that.previewImg(
+                        e.target.currentSrc
+                );
+              });
+            }
+          });
+        });
+    },
+    getEmailExistFlag() {
+      const keywords = this.user.email.trim();
+      if (keywords === "" || keywords === this.oldEmail) {
+        return;
+      }
+      this.axios
+        .get("/api/back/user/exist", { params: { keywords } })
+        .then(({ data }) => {
+          if (data.data) {
+            this.emailExistStatus = 1;
+          } else {
+            this.emailExistStatus = 2;
+          }
+        });
+    },
+    getUsernameExistFlag() {
+      const keywords = this.user.username.trim();
+      if (keywords === "") {
+        return;
+      }
+      this.axios
+        .get("/api/back/userAuth/exist", { params: { keywords } })
+        .then(({ data }) => {
+          if (data.data) {
+            this.usernameExistStatus = 1;
+          } else {
+            this.usernameExistStatus = 2;
+          }
         });
     },
     deleteUsers(id) {
@@ -336,8 +482,29 @@ export default {
         this.removeStatus = false;
       });
     },
+    updateAvatar() {
+      const url = this.user.avatar;
+      this.user.avatar = "";
+      let param = { data: url };
+      this.axios.put("/api/back/user/avatar", param);
+    },
+    uploadAvatar(form) {
+      if (this.user.avatar !== "") {
+        this.updateAvatar();
+      }
+      let formData = new FormData();
+      formData.append("file", form.file);
+      formData.append("userId", this.user.id);
+      this.axios.post("/api/back/user/avatar", formData).then(({ data }) => {
+        this.user.avatar = data.data;
+      });
+    },
     addOrEditUser() {
-      this.axios.put("/api/back/user", this.user).then(({ data }) => {
+      if (this.user.nickname.trim() === "") {
+        this.$message.error("昵称不能为空");
+        return false;
+      }
+      this.axios.post("/api/back/user", this.user).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",

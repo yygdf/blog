@@ -16,7 +16,7 @@ public class LabelDTO {
     private Integer id;
 
     /**
-     * 用户id
+     * 标签id
      */
     private Integer userId;
 

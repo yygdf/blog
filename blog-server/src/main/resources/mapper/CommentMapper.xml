@@ -78,7 +78,7 @@
             </choose>
         </where>
         ORDER BY
-            c.create_time DESC
+            c.id DESC
         LIMIT
             #{condition.current}, #{condition.size}
     </select>

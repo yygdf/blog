@@ -23,4 +23,6 @@ public interface UserAuthService extends IService<UserAuth> {
     void updateUserAuthsStatus(UpdateBatchVO updateBatchVO);
 
     PagePojo<UserAuthsBackDTO> getPageUserAuthsBackDTO(ConditionVO condition);
+
+    boolean getBackUserAuthExistFlag(String keywords);
 }

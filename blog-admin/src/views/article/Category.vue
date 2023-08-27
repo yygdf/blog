@@ -87,7 +87,7 @@
       />
       <el-table-column
         prop="createTime"
-        label="创建时间"
+        label="创建日期"
         align="center"
         width="120"
       >
@@ -98,7 +98,7 @@
       </el-table-column>
       <el-table-column
         prop="updateTime"
-        label="更新时间"
+        label="更新日期"
         align="center"
         width="120"
       >
@@ -186,6 +186,7 @@
             style="width:200px"
             :maxLength="50"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
       </el-form>
       <el-form :model="category" :inline="true" size="medium" label-width="80">
@@ -245,7 +246,12 @@ export default {
   methods: {
     openModel(category) {
       if (category != null) {
-        this.category = JSON.parse(JSON.stringify(category));
+        this.category = {
+          id: category.id,
+          categoryName: category.categoryName,
+          publicFlag: category.publicFlag,
+          hiddenFlag: category.hiddenFlag
+        };
         this.$refs.categoryTitle.innerHTML = "修改分类";
       } else {
         this.category = {
@@ -333,29 +339,21 @@ export default {
         this.$message.error("分类名不能为空");
         return false;
       }
-      const { id, categoryName, publicFlag, hiddenFlag } = this.category;
-      this.axios
-        .post("/api/back/category", {
-          id,
-          categoryName,
-          publicFlag,
-          hiddenFlag
-        })
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: "成功",
-              message: data.message
-            });
-            this.listCategories();
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: data.message
-            });
-          }
-          this.addOrEditStatus = false;
-        });
+      this.axios.post("/api/back/category", this.category).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listCategories();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.addOrEditStatus = false;
+      });
     },
     changeCategoryStatus(category) {
       let param = {

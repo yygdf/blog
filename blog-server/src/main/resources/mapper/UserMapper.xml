@@ -46,7 +46,7 @@
             </if>
         </where>
         ORDER BY
-            u.create_time ASC
+            u.id ASC
         LIMIT
             #{condition.current}, #{condition.size}
     </select>

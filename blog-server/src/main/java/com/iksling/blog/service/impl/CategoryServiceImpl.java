@@ -123,7 +123,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
             category.setCreateTime(new Date());
             categoryMapper.insert(category);
         } else {
-            int count = categoryMapper.update(null, new LambdaUpdateWrapper<Category>()
+            Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
+                    .eq(Category::getCategoryName, categoryBackVO.getCategoryName())
+                    .eq(Category::getUserId, loginUser.getUserId())
+                    .ne(Category::getId, categoryBackVO.getId()));
+            if (count > 0)
+                throw new OperationStatusException("分类名已存在!");
+            count = categoryMapper.update(null, new LambdaUpdateWrapper<Category>()
                     .set(Category::getCategoryName, categoryBackVO.getCategoryName())
                     .set(Category::getPublicFlag, categoryBackVO.getPublicFlag())
                     .set(Category::getHiddenFlag, categoryBackVO.getHiddenFlag())

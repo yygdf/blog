@@ -19,4 +19,6 @@ public interface UserService extends IService<User> {
     void deleteUserIdList(List<Integer> userIdList);
 
     void saveOrUpdateUserBackVO(UserBackVO userBackVO);
+
+    boolean getBackUserExistFlag(String keywords);
 }

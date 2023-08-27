@@ -80,7 +80,12 @@
       />
       <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
-          <img :src="scope.row.avatar" width="40" height="40" ref="avatar" />
+          <el-image
+            :src="scope.row.avatar"
+            width="40"
+            height="40"
+            :preview-src-list="[scope.row.avatar]"
+          />
         </template>
       </el-table-column>
       <el-table-column
@@ -416,17 +421,6 @@ export default {
           this.count = data.data.count;
           this.userList = data.data.pageList;
           this.loading = false;
-          this.$nextTick(() => {
-            const imgList = this.$refs.avatar.getElementsByTagName("img");
-            for (var i = 0; i < imgList.length; i++) {
-              this.imgList.push(imgList[i].src);
-              imgList[i].addEventListener("click", function(e) {
-                that.previewImg(
-                        e.target.currentSrc
-                );
-              });
-            }
-          });
         });
     },
     getEmailExistFlag() {

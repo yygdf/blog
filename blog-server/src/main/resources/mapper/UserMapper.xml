@@ -11,7 +11,6 @@
             <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
             <result property="website" column="website" jdbcType="VARCHAR"/>
             <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
-            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
@@ -21,8 +20,8 @@
     <sql id="Base_Column_List">
         id,intro,email,
         avatar,website,nickname,
-        deleted_flag,create_user,create_time,
-        update_user,update_time
+        create_user,create_time,update_user,
+        update_time
     </sql>
 
     <select id="listUsersBackDTO" resultType="com.iksling.blog.dto.UsersBackDTO">

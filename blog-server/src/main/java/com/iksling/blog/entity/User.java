@@ -54,11 +54,6 @@ public class User implements Serializable {
     private String nickname;
 
     /**
-     * 0未删除，1已删除
-     */
-    private Boolean deletedFlag;
-
-    /**
      * 创建人
      */
     private Integer createUser;

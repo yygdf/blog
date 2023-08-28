@@ -25,8 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static com.iksling.blog.constant.CommonConst.DEFAULT_AVATAR;
-import static com.iksling.blog.constant.CommonConst.DEFAULT_PASSWORD;
+import static com.iksling.blog.constant.CommonConst.*;
 
 /**
  *
@@ -54,7 +53,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     @Transactional
     public void deleteUserIdList(List<Integer> userIdList) {
-
+        try {
+        } catch (NumberFormatException e) {
+            throw new IllegalRequestException();
+        }
     }
 
     @Override
@@ -66,6 +68,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .email(userBackVO.getEmail().trim())
                 .nickname(userBackVO.getNickname().trim())
                 .build();
+        if (loginUser.getRoleWeight() > 100 && ROOT_USER_ID.contains(userBackVO.getId()))
+            throw new IllegalRequestException();
         if (StringUtils.isBlank(userBackVO.getAvatar()))
             user.setAvatar(DEFAULT_AVATAR);
         else

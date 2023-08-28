@@ -24,9 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 
 /**
  *
@@ -96,7 +99,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Override
     @Transactional
     public void updateUserAuthsStatus(UpdateBatchVO updateBatchVO) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100 && !updateBatchVO.getDeletedFlag())
+        if ((UserUtil.getLoginUser().getRoleWeight() > 100 && !updateBatchVO.getDeletedFlag()) || !Collections.disjoint(ROOT_USER_ID, updateBatchVO.getIdList()))
             throw new IllegalRequestException();
         Integer count = userAuthMapper.updateUserAuthsStatus(updateBatchVO);
         if (count != updateBatchVO.getIdList().size())

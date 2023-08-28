@@ -67,7 +67,11 @@
       <el-table-column type="selection" align="center" width="40" />
       <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
-          <img :src="scope.row.avatar" width="40" height="40" />
+          <el-image
+            :src="scope.row.avatar"
+            style="width: 40px;height: 40px;"
+            :preview-src-list="[scope.row.avatar]"
+          />
         </template>
       </el-table-column>
       <el-table-column

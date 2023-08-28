@@ -103,7 +103,11 @@
         width="120"
       >
         <template slot-scope="scope">
-          <img :src="scope.row.linkLogo" width="40" height="40" />
+          <el-image
+            :src="scope.row.linkLogo"
+            style="width: 40px;height: 40px;"
+            :preview-src-list="[scope.row.linkLogo]"
+          />
         </template>
       </el-table-column>
       <el-table-column

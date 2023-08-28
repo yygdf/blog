@@ -89,8 +89,11 @@
             tb_user_auth
         SET
             deleted_flag = #{updateBatch.deletedFlag}
+            <if test="!updateBatch.deletedFlag">
+                , disabled_flag = 1
+            </if>
         WHERE
-            id in
+            user_id in
             <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
                 #{id}
             </foreach>

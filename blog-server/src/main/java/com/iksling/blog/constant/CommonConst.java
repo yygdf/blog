@@ -1,5 +1,8 @@
 package com.iksling.blog.constant;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class CommonConst {
     /**
      * 网站管理员联系方式
@@ -25,4 +28,9 @@ public class CommonConst {
      * 静态资源根路径
      */
     public static final String STATIC_RESOURCE_URL = "http://192.168.203.130/static/";
+
+    /**
+     * 系统核心用户id
+     */
+    public static final List<Integer> ROOT_USER_ID = Arrays.asList(0, 1, 2);
 }

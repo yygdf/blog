@@ -32,6 +32,7 @@
       </el-button>
       <div style="margin-left:auto">
         <el-select
+          v-if="checkWeight(100)"
           v-model="deletedFlag"
           size="small"
           style="margin-right:1rem"
@@ -71,7 +72,12 @@
       border
       @selection-change="selectionChange"
     >
-      <el-table-column type="selection" align="center" width="40" />
+      <el-table-column
+        type="selection"
+        align="center"
+        width="40"
+        :selectable="checkSelectable"
+      />
       <el-table-column
         prop="username"
         label="用户"
@@ -82,8 +88,7 @@
         <template slot-scope="scope">
           <el-image
             :src="scope.row.avatar"
-            width="40"
-            height="40"
+            style="width: 40px;height: 40px;"
             :preview-src-list="[scope.row.avatar]"
           />
         </template>
@@ -121,7 +126,23 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="openModel(scope.row)">
+          <el-popconfirm
+            v-if="deletedFlag"
+            title="确定恢复吗？"
+            style="margin-left:10px"
+            @confirm="updateUsersStatus(scope.row.id)"
+          >
+            <el-button type="success" size="mini" slot="reference">
+              恢复
+            </el-button>
+          </el-popconfirm>
+          <el-button
+            v-else
+            :disabled="checkRoot(scope.row.id, true)"
+            type="primary"
+            size="mini"
+            @click="openModel(scope.row)"
+          >
             编辑
           </el-button>
           <el-popconfirm
@@ -140,7 +161,12 @@
             style="margin-left:10px"
             @confirm="updateUsersStatus(scope.row.id)"
           >
-            <el-button type="danger" size="mini" slot="reference">
+            <el-button
+              :disabled="checkRoot(scope.row.id)"
+              type="danger"
+              size="mini"
+              slot="reference"
+            >
               删除
             </el-button>
           </el-popconfirm>
@@ -211,7 +237,7 @@
           <el-input
             v-model="user.nickname"
             :maxlength="50"
-            :ref="(user.id || user.id === 0) ? 'input' : ''"
+            :ref="user.id || user.id === 0 ? 'input' : ''"
             style="width:200px"
           />
           <span style="color: red;"> *</span>
@@ -355,9 +381,33 @@ export default {
       });
       this.addOrEditStatus = true;
     },
+    checkRoot(id, flag = false) {
+      const rootFlag = id === 0 || id === 1 || id === 2;
+      if (flag) {
+        return rootFlag && !this.checkWeight(100);
+      } else {
+        return rootFlag;
+      }
+    },
     sizeChange(size) {
       this.size = size;
       this.listUsers();
+    },
+    checkWeight(weight = 200) {
+      return this.$store.state.weight <= weight;
+    },
+    currentChange(current) {
+      this.current = current;
+      this.listUsers();
+    },
+    checkSelectable(row) {
+      return !this.checkRoot(row.id);
+    },
+    selectionChange(userList) {
+      this.userIdList = [];
+      userList.forEach(item => {
+        this.userIdList.push(item.id);
+      });
     },
     emailInputChange(event) {
       if (this.user.email.trim() === this.oldEmail && this.user.id) {
@@ -381,6 +431,21 @@ export default {
         }
       }
     },
+    getEmailExistFlag() {
+      const keywords = this.user.email.trim();
+      if (keywords === "" || keywords === this.oldEmail) {
+        return;
+      }
+      this.axios
+        .get("/api/back/user/exist", { params: { keywords } })
+        .then(({ data }) => {
+          if (data.data) {
+            this.emailExistStatus = 1;
+          } else {
+            this.emailExistStatus = 2;
+          }
+        });
+    },
     usernameInputChange(event) {
       if (this.user.username.trim() === "") {
         this.usernameExistStatus = 0;
@@ -397,15 +462,20 @@ export default {
         }
       }
     },
-    currentChange(current) {
-      this.current = current;
-      this.listUsers();
-    },
-    selectionChange(userList) {
-      this.userIdList = [];
-      userList.forEach(item => {
-        this.userIdList.push(item.id);
-      });
+    getUsernameExistFlag() {
+      const keywords = this.user.username.trim();
+      if (keywords === "") {
+        return;
+      }
+      this.axios
+        .get("/api/back/userAuth/exist", { params: { keywords } })
+        .then(({ data }) => {
+          if (data.data) {
+            this.usernameExistStatus = 1;
+          } else {
+            this.usernameExistStatus = 2;
+          }
+        });
     },
     listUsers() {
       this.axios
@@ -421,36 +491,6 @@ export default {
           this.count = data.data.count;
           this.userList = data.data.pageList;
           this.loading = false;
-        });
-    },
-    getEmailExistFlag() {
-      const keywords = this.user.email.trim();
-      if (keywords === "" || keywords === this.oldEmail) {
-        return;
-      }
-      this.axios
-        .get("/api/back/user/exist", { params: { keywords } })
-        .then(({ data }) => {
-          if (data.data) {
-            this.emailExistStatus = 1;
-          } else {
-            this.emailExistStatus = 2;
-          }
-        });
-    },
-    getUsernameExistFlag() {
-      const keywords = this.user.username.trim();
-      if (keywords === "") {
-        return;
-      }
-      this.axios
-        .get("/api/back/userAuth/exist", { params: { keywords } })
-        .then(({ data }) => {
-          if (data.data) {
-            this.usernameExistStatus = 1;
-          } else {
-            this.usernameExistStatus = 2;
-          }
         });
     },
     deleteUsers(id) {
@@ -522,7 +562,7 @@ export default {
         param.append("idList", this.userIdList);
       }
       param.append("deletedFlag", !this.deletedFlag);
-      this.axios.put("/api/back/users", param).then(({ data }) => {
+      this.axios.put("/api/back/userAuths", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",

@@ -47,6 +47,7 @@
           />
         </el-select>
         <el-select
+          v-if="checkWeight(100)"
           v-model="deletedFlag"
           size="small"
           style="margin-right:1rem"
@@ -111,24 +112,25 @@
       >
         <template slot-scope="scope">
           <el-switch
-            v-model="scope.row.disabledFlag"
+            :value="scope.row.disabledFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeUserAuthStatus(scope.row)"
+            @change="changeUserAuthDisabledStatus(scope.row)"
           />
         </template>
       </el-table-column>
       <el-table-column prop="lockedFlag" label="锁定" align="center" width="80">
         <template slot-scope="scope">
           <el-switch
-            v-model="scope.row.lockedFlag"
+            :value="scope.row.lockedFlag"
+            :disabled="!scope.row.lockedFlag && !checkWeight(100)"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeUserAuthStatus(scope.row)"
+            @change="changeUserAuthLockedStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -198,17 +200,80 @@
     />
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="userAuthTitle" />
-      <el-form :model="userAuth" size="medium" label-width="60">
+      <el-form :model="userAuth" size="medium" label-width="80">
         <el-form-item label="账号">
           <el-input v-model="userAuth.username" style="width:200px" disabled />
         </el-form-item>
         <el-form-item label="密码">
-          <el-input v-model="userAuth.password" ref="input" style="width:200px" />
+          <el-input
+            v-model="userAuth.password"
+            ref="input"
+            style="width:200px"
+            show-password
+            @keyup.native="passwordInputChange(true)"
+          />&nbsp;
+          <span
+            v-if="passwordStatus === 1"
+            class="el-icon-error"
+            style="color: red;"
+          >
+            密码长度至少6位!</span
+          >
+          <span
+            v-if="passwordStatus === 2"
+            class="el-icon-success"
+            style="color: green;"
+          ></span>
+        </el-form-item>
+        <el-form-item label="确认">
+          <el-input
+            v-model="userAuth.confirmPassword"
+            style="width:200px"
+            show-password
+            @keyup.native="passwordInputChange()"
+          />&nbsp;
+          <span
+            v-if="confirmPasswordStatus === 2"
+            class="el-icon-success"
+            style="color: green;"
+          ></span>
+          <span
+            v-if="confirmPasswordStatus === 1"
+            class="el-icon-error"
+            style="color: red;"
+          >
+            前后密码不一致!</span
+          >
+        </el-form-item>
+      </el-form>
+      <el-form :model="userAuth" :inline="true" size="medium" label-width="80">
+        <el-form-item label="禁用">
+          <el-switch
+            v-model="userAuth.disabledFlag"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+          />
+        </el-form-item>
+        <el-form-item label="锁定">
+          <el-switch
+            v-model="userAuth.lockedFlag"
+            :disabled="!checkWeight(100) && !userAuth.lockedFlag"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+          />
         </el-form-item>
       </el-form>
       <div slot="footer">
         <el-button @click="editStatus = false">取 消</el-button>
-        <el-button type="primary" @click="editUserAuth">
+        <el-button
+          type="primary"
+          :disabled="passwordStatus === 1 || confirmPasswordStatus === 1"
+          @click="editUserAuth"
+        >
           确 定
         </el-button>
       </div>
@@ -217,6 +282,7 @@
 </template>
 
 <script>
+import md5 from "js-md5";
 export default {
   created() {
     this.listUserAuths();
@@ -269,12 +335,21 @@ export default {
       deletedFlag: false,
       size: 10,
       count: 0,
-      current: 1
+      current: 1,
+      passwordStatus: 0,
+      confirmPasswordStatus: 0
     };
   },
   methods: {
     openModel(userAuth) {
-      this.userAuth = JSON.parse(JSON.stringify(userAuth));
+      this.userAuth = {
+        id: userAuth.id,
+        username: userAuth.username,
+        lockedFlag: userAuth.lockedFlag,
+        disabledFlag: userAuth.disabledFlag,
+        password: "",
+        confirmPassword: ""
+      };
       this.$refs.userAuthTitle.innerHTML = "修改账号";
       this.$nextTick(() => {
         this.$refs.input.focus();
@@ -284,6 +359,9 @@ export default {
     sizeChange(size) {
       this.size = size;
       this.listUserAuths();
+    },
+    checkWeight(weight = 200) {
+      return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
@@ -305,6 +383,30 @@ export default {
         loginMethods.push("手机号");
       }
       return loginMethods;
+    },
+    passwordInputChange(flag = false) {
+      if (
+        this.userAuth.password.trim() === "" &&
+        this.userAuth.confirmPassword.trim() === ""
+      ) {
+        this.passwordStatus = 0;
+        this.confirmPasswordStatus = 0;
+        return;
+      }
+      if (flag) {
+        if (this.userAuth.password.trim().length < 6) {
+          this.passwordStatus = 1;
+          return;
+        }
+        this.passwordStatus = 2;
+      }
+      if (
+        this.userAuth.password.trim() !== this.userAuth.confirmPassword.trim()
+      ) {
+        this.confirmPasswordStatus = 1;
+        return;
+      }
+      this.confirmPasswordStatus = 2;
     },
     listUserAuths() {
       this.axios
@@ -331,7 +433,15 @@ export default {
       });
     },
     editUserAuth() {
-      this.axios.put("/api/back/userAuth", this.userAuth).then(({ data }) => {
+      let data = {
+        id: this.userAuth.id,
+        lockedFlag: this.userAuth.lockedFlag,
+        disabledFlag: this.userAuth.disabledFlag
+      };
+      if (this.userAuth.password.trim() !== "") {
+        data.password = md5(this.userAuth.password);
+      }
+      this.axios.put("/api/back/userAuth", data).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -347,13 +457,40 @@ export default {
         this.editStatus = false;
       });
     },
-    changeUserAuthStatus(userAuth) {
-      let param = {
-        id: userAuth.id,
-        topFlag: userAuth.lockedFlag,
-        publicFlag: userAuth.disabledFlag
-      };
-      this.axios.put("/api/back/userAuth/status", param);
+    changeUserAuthLockedStatus(userAuth) {
+      let lockedFlag = userAuth.lockedFlag;
+      let text = lockedFlag ? "解锁" : "锁定";
+      this.$confirm("是否" + text + "该用户?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          userAuth.lockedFlag = !lockedFlag;
+          this.axios.put("/api/back/userAuth/status", {
+            id: userAuth.id,
+            topFlag: !lockedFlag,
+            publicFlag: userAuth.disabledFlag
+          });
+        })
+        .catch(() => {});
+    },
+    changeUserAuthDisabledStatus(userAuth) {
+      let disabledFlag = userAuth.disabledFlag;
+      let text = disabledFlag ? "启用" : "禁用";
+      this.$confirm("是否" + text + "该用户?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          userAuth.disabledFlag = !disabledFlag;
+          this.axios.put("/api/back/userAuth/status", {
+            id: userAuth.id,
+            publicFlag: !disabledFlag
+          });
+        })
+        .catch(() => {});
     }
   },
   watch: {

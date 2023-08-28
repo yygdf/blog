@@ -17,6 +17,7 @@ import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.UpdateBatchVO;
+import com.iksling.blog.vo.UserAuthBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -74,6 +75,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
             return false;
         return userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
                 .eq(UserAuth::getUsername, keywords.trim())) != 0;
+    }
+
+    @Override
+    @Transactional
+    public void updateUserAuthBackVO(UserAuthBackVO userAuthBackVO) {
+
     }
 
     @Override

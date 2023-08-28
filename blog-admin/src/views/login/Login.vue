@@ -22,8 +22,8 @@
           <el-input
             v-model="loginForm.password"
             prefix-icon="el-icon-lock"
-            show-password
             placeholder="密码"
+            show-password
             @keyup.enter.native="validLogin"
           />
         </el-form-item>

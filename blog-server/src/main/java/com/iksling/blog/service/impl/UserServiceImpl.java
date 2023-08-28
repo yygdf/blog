@@ -53,10 +53,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     @Transactional
     public void deleteUserIdList(List<Integer> userIdList) {
-        try {
-        } catch (NumberFormatException e) {
-            throw new IllegalRequestException();
-        }
     }
 
     @Override

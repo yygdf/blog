@@ -210,7 +210,7 @@
     </el-dialog>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="userTitle" />
-      <el-form :model="user" size="medium" label-width="60">
+      <el-form :model="user" size="medium" label-width="80">
         <el-form-item label="账号" v-if="!user.id && user.id !== 0">
           <el-input
             v-model="user.username"

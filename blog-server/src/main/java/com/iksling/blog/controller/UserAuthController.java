@@ -6,11 +6,15 @@ import com.iksling.blog.service.UserAuthService;
 import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.UpdateBatchVO;
+import com.iksling.blog.vo.UserAuthBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
@@ -59,5 +63,14 @@ public class UserAuthController {
     @GetMapping("/back/userAuth/exist")
     public Result getBackUserAuthExistFlag(String keywords) {
         return Result.success().message("查询成功").data(userAuthService.getBackUserAuthExistFlag(keywords));
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "修改账号信息")
+    @ApiImplicitParam(name = "userAuthBackVO", value = "账号后台VO", required = true, dataType = "UserAuthBackVO")
+    @PutMapping("/back/userAuth")
+    public Result updateBackUserAuth(@Valid @RequestBody UserAuthBackVO userAuthBackVO) {
+        userAuthService.updateUserAuthBackVO(userAuthBackVO);
+        return Result.success().message("操作成功");
     }
 }

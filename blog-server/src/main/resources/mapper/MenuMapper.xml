@@ -63,14 +63,14 @@
             tb_menu m
             <if test="keywords != null">
                 WHERE
-                    m.name like concat('%', #{keywords}, '%')
+                    m.name like concat('%', #{keywords.trim()}, '%')
                 OR id IN (
                     SELECT
                         parent_id id
                     FROM
                         tb_menu
                     WHERE
-                        name like concat('%', #{keywords}, '%')
+                        name like concat('%', #{keywords.trim()}, '%')
                 )
             </if>
         ORDER BY

@@ -63,14 +63,14 @@
             tb_resource r
             <if test="keywords != null">
                 WHERE
-                    r.resource_name like concat('%', #{keywords}, '%')
+                    r.resource_name like concat('%', #{keywords.trim()}, '%')
                 OR id IN (
                     SELECT
                         parent_id id
                     FROM
                         tb_resource
                     WHERE
-                        resource_name like concat('%', #{keywords}, '%')
+                        resource_name like concat('%', #{keywords.trim()}, '%')
                 )
             </if>
         ORDER BY

@@ -75,7 +75,7 @@
                 AND ur.role_id = #{condition.categoryId}
             </if>
             <if test="condition.keywords != null">
-                AND ua.username like concat('%', #{condition.keywords}, '%')
+                AND ua.username like concat('%', #{condition.keywords.trim()}, '%')
             </if>
         </where>
         ORDER BY

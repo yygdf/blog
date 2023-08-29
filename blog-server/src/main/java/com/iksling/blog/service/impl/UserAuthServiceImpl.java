@@ -21,16 +21,14 @@ import com.iksling.blog.vo.UserAuthBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_AUTH_ID;
 
 /**
  *
@@ -44,11 +42,16 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Autowired
     private SessionRegistry sessionRegistry;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public List<LabelDTO> getBackUsernames(String keywords) {
+        if (StringUtils.isNotBlank(keywords))
+            keywords = keywords.trim();
         List<UserAuth> userAuthList = userAuthMapper.selectList(new LambdaQueryWrapper<UserAuth>()
                 .select(UserAuth::getId, UserAuth::getUserId, UserAuth::getUsername)
-                .likeRight(StringUtils.isNotBlank(keywords.trim()), UserAuth::getUsername, keywords.trim()));
+                .likeRight(StringUtils.isNotBlank(keywords), UserAuth::getUsername, keywords));
         return userAuthList.stream()
                 .map(e -> LabelDTO.builder()
                         .id(e.getId())
@@ -71,7 +74,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
 
     @Override
     public boolean getBackUserAuthExistFlag(String keywords) {
-        if (StringUtils.isBlank(keywords.trim()))
+        if (StringUtils.isBlank(keywords))
             return false;
         return userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
                 .eq(UserAuth::getUsername, keywords.trim())) != 0;
@@ -80,7 +83,23 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Override
     @Transactional
     public void updateUserAuthBackVO(UserAuthBackVO userAuthBackVO) {
-
+        LoginUser loginUser = UserUtil.getLoginUser();
+        if (loginUser.getRoleWeight() > 100 && (userAuthBackVO.getLockedFlag() || ROOT_USER_AUTH_ID.contains(userAuthBackVO.getId())))
+            throw new IllegalRequestException();
+        if (StringUtils.isNotBlank(userAuthBackVO.getPassword()))
+            userAuthBackVO.setPassword(passwordEncoder.encode(userAuthBackVO.getPassword().trim()));
+        int count = userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
+                .set(StringUtils.isNotBlank(userAuthBackVO.getPassword()), UserAuth::getPassword, userAuthBackVO.getPassword())
+                .set(UserAuth::getLockedFlag, userAuthBackVO.getLockedFlag())
+                .set(UserAuth::getDisabledFlag, userAuthBackVO.getDisabledFlag())
+                .set(UserAuth::getUpdateUser, loginUser.getUserId())
+                .set(UserAuth::getUpdateTime, new Date())
+                .eq(UserAuth::getId, userAuthBackVO.getId())
+                .eq(loginUser.getRoleWeight() > 100, UserAuth::getDeletedFlag, false));
+        if (count != 1)
+            throw new IllegalRequestException();
+        if (userAuthBackVO.getLockedFlag() || userAuthBackVO.getDisabledFlag() || StringUtils.isNotBlank(userAuthBackVO.getPassword()))
+            disabledOrLockedOrDeletedUserAuth(Collections.singletonList(userAuthBackVO.getId()));
     }
 
     @Override
@@ -92,21 +111,18 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         int count = userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                 .set(Objects.nonNull(commonStatusVO.getTopFlag()), UserAuth::getLockedFlag, commonStatusVO.getTopFlag())
                 .set(UserAuth::getDisabledFlag, commonStatusVO.getPublicFlag())
-                .eq(UserAuth::getUserId, commonStatusVO.getId())
+                .eq(UserAuth::getId, commonStatusVO.getId())
                 .eq(loginUser.getRoleWeight() > 100, UserAuth::getDeletedFlag, false));
         if (count != 1)
             throw new IllegalRequestException();
-        if (commonStatusVO.getPublicFlag() || (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag())) {
-            List<Integer> idList = new ArrayList<>();
-            idList.add(commonStatusVO.getId());
-            disabledOrLockedOrDeletedUserAuth(idList);
-        }
+        if (commonStatusVO.getPublicFlag() || (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag()))
+            disabledOrLockedOrDeletedUserAuth(Collections.singletonList(commonStatusVO.getId()));
     }
 
     @Override
     @Transactional
     public void updateUserAuthsStatus(UpdateBatchVO updateBatchVO) {
-        if ((UserUtil.getLoginUser().getRoleWeight() > 100 && !updateBatchVO.getDeletedFlag()) || !Collections.disjoint(ROOT_USER_ID, updateBatchVO.getIdList()))
+        if ((UserUtil.getLoginUser().getRoleWeight() > 100 && !updateBatchVO.getDeletedFlag()) || !Collections.disjoint(ROOT_USER_AUTH_ID, updateBatchVO.getIdList()))
             throw new IllegalRequestException();
         Integer count = userAuthMapper.updateUserAuthsStatus(updateBatchVO);
         if (count != updateBatchVO.getIdList().size())

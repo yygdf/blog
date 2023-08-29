@@ -77,7 +77,7 @@
                     tb_role
                     <where>
                         <if test="keywords != null ">
-                            role_name like concat('%', #{condition.keywords}, '%')
+                            role_name like concat('%', #{keywords.trim()}, '%')
                         </if>
                     </where>
              ) r

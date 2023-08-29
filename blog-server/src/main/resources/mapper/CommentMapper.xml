@@ -69,7 +69,7 @@
                 <when test="condition.draftFlag == null || !condition.draftFlag">
                     AND a.article_title IS NOT NULL
                     <if test="condition.keywords != null">
-                        AND a.article_title like concat('%', #{condition.keywords}, '%')
+                        AND a.article_title like concat('%', #{condition.keywords.trim()}, '%')
                     </if>
                 </when>
                 <otherwise>

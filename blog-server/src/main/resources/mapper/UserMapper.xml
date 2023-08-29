@@ -40,7 +40,7 @@
             </if>
             <if test="condition.keywords != null">
                 AND (
-                        u.nickname like concat('%', #{condition.keywords}, '%') OR ua.username like concat('%', #{condition.keywords}, '%')
+                        u.nickname like concat('%', #{condition.keywords.trim()}, '%') OR ua.username like concat('%', #{condition.keywords.trim()}, '%')
                     )
             </if>
         </where>

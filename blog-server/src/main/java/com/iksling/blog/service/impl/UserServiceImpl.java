@@ -64,7 +64,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .email(userBackVO.getEmail().trim())
                 .nickname(userBackVO.getNickname().trim())
                 .build();
-        if (loginUser.getRoleWeight() > 100 && ROOT_USER_ID.contains(userBackVO.getId()))
+        if (loginUser.getRoleWeight() > 100 && ROOT_USER_AUTH_ID.contains(userBackVO.getId()))
             throw new IllegalRequestException();
         if (StringUtils.isBlank(userBackVO.getAvatar()))
             user.setAvatar(DEFAULT_AVATAR);
@@ -109,7 +109,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public boolean getBackUserExistFlag(String keywords) {
-        if (StringUtils.isBlank(keywords.trim()))
+        if (StringUtils.isBlank(keywords))
             return false;
         return userMapper.selectCount(new LambdaQueryWrapper<User>()
                 .eq(User::getEmail, keywords.trim())) != 0;

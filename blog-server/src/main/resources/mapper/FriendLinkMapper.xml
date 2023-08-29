@@ -42,7 +42,7 @@
                 AND fl.user_id = #{condition.userId}
             </if>
             <if test="condition.keywords != null">
-                AND fl.link_name like concat('%', #{condition.keywords}, '%')
+                AND fl.link_name like concat('%', #{condition.keywords.trim()}, '%')
             </if>
         </where>
         ORDER BY

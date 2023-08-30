@@ -10,6 +10,7 @@ import com.iksling.blog.entity.Resource;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.handler.FilterInvocationSecurityMetadataSourceImpl;
 import com.iksling.blog.mapper.ResourceMapper;
+import com.iksling.blog.mapper.RoleResourceMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.ResourceService;
 import com.iksling.blog.util.BeanCopyUtil;
@@ -20,10 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +32,8 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     implements ResourceService{
     @Autowired
     private ResourceMapper resourceMapper;
+    @Autowired
+    private RoleResourceMapper roleResourceMapper;
 
     @Autowired
     private FilterInvocationSecurityMetadataSourceImpl filterInvocationSecurityMetadataSource;
@@ -68,6 +68,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                     .and(q -> q.eq(Resource::getId, Integer.parseInt(id)).or().eq(Resource::getParentId, Integer.parseInt(id))));
             if (count != 1)
                 throw new IllegalRequestException();
+            roleResourceMapper.deleteByMap(Collections.singletonMap("resource_id", id));
             filterInvocationSecurityMetadataSource.clearResourceRoleList();
         } catch (NumberFormatException e) {
             throw new IllegalRequestException();

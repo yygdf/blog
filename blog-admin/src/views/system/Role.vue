@@ -251,6 +251,26 @@ export default {
       });
       this.addOrEditStatus = true;
     },
+    checkedKeys(dataList, idArray, idList) {
+      dataList.forEach(item => {
+        if (item.children == null) {
+          if (idArray.some(id => id == item.id)) {
+            idList.push(item.id);
+          }
+        } else {
+          let count = 0;
+          item.children.forEach(item => {
+            if (idArray.some(id => id == item.id)) {
+              idList.push(item.id);
+              count++;
+            }
+          });
+          if (count === item.children.length) {
+            idList.push(item.id);
+          }
+        }
+      });
+    },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
     },
@@ -258,20 +278,32 @@ export default {
       this.$nextTick(function() {
         this.$refs.menuTree.setCheckedKeys([]);
       });
-      this.role.id = role.id;
-      this.role.roleName = role.roleName;
-      this.role.menuIdList =
-        role.menuIdList == null ? null : role.menuIdList.split(",");
+      let menuIdList = [];
+      if (role.menuIdList != null) {
+        const idArray = role.menuIdList.split(",");
+        this.checkedKeys(this.menuList, idArray, menuIdList);
+      }
+      this.role = {
+        id: role.id,
+        roleName: role.roleName,
+        menuIdList: menuIdList
+      };
       this.editRoleMenuStatus = true;
     },
     openResourceModel(role) {
       this.$nextTick(function() {
         this.$refs.resourceTree.setCheckedKeys([]);
       });
-      this.role.id = role.id;
-      this.role.roleName = role.roleName;
-      this.role.resourceIdList =
-        role.resourceIdList == null ? null : role.resourceIdList.split(",");
+      let resourceIdList = [];
+      if (role.resourceIdList != null) {
+        const idArray = role.resourceIdList.split(",");
+        this.checkedKeys(this.resourceList, idArray, resourceIdList);
+      }
+      this.role = {
+        id: role.id,
+        roleName: role.roleName,
+        resourceIdList: resourceIdList
+      };
       this.editRoleResourceStatus = true;
     },
     listRoles() {

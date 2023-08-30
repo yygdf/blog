@@ -10,6 +10,7 @@ import com.iksling.blog.dto.UserMenusDTO;
 import com.iksling.blog.entity.Menu;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.MenuMapper;
+import com.iksling.blog.mapper.RoleMenuMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MenuService;
 import com.iksling.blog.util.BeanCopyUtil;
@@ -20,10 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +32,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     implements MenuService{
     @Autowired
     private MenuMapper menuMapper;
+    @Autowired
+    private RoleMenuMapper roleMenuMapper;
 
     @Override
     public List<UserMenusDTO> getUserMenusDTO() {
@@ -74,6 +74,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                     .and(q -> q.eq(Menu::getId, Integer.parseInt(id)).or().eq(Menu::getParentId, Integer.parseInt(id))));
             if (count != 1)
                 throw new IllegalRequestException();
+            roleMenuMapper.deleteByMap(Collections.singletonMap("menu_id", id));
         } catch (NumberFormatException e) {
             throw new IllegalRequestException();
         }

@@ -106,7 +106,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Transactional
     public void updateUserAuthStatusVO(CommonStatusVO commonStatusVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100 && Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag())
+        if (loginUser.getRoleWeight() > 100 && (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag() || ROOT_USER_AUTH_ID.contains(commonStatusVO.getId())))
             throw new IllegalRequestException();
         int count = userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                 .set(Objects.nonNull(commonStatusVO.getTopFlag()), UserAuth::getLockedFlag, commonStatusVO.getTopFlag())

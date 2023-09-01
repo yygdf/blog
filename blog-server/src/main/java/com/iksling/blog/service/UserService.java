@@ -1,6 +1,7 @@
 package com.iksling.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.pojo.PagePojo;
@@ -21,4 +22,6 @@ public interface UserService extends IService<User> {
     void saveOrUpdateUserBackVO(UserBackVO userBackVO);
 
     boolean getBackUserExistFlag(String keywords);
+
+    PagePojo<UserOnlinesBackDTO> getPageUserOnlinesBackDTO(ConditionVO condition);
 }

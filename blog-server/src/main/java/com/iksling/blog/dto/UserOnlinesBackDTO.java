@@ -3,10 +3,9 @@ package com.iksling.blog.dto;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
-public class UserAuthsBackDTO {
+public class UserOnlinesBackDTO {
     /**
      * 账号id
      */
@@ -16,6 +15,16 @@ public class UserAuthsBackDTO {
      * 用户id
      */
     private Integer userId;
+
+    /**
+     * 用户头像
+     */
+    private String avatar;
+
+    /**
+     * 用户昵称
+     */
+    private String nickname;
 
     /**
      * 用户名
@@ -38,16 +47,6 @@ public class UserAuthsBackDTO {
     private Integer loginMethod;
 
     /**
-     * 0未锁定，1已锁定
-     */
-    private Boolean lockedFlag;
-
-    /**
-     * 0未禁用，1已禁用
-     */
-    private Boolean disabledFlag;
-
-    /**
      * ip来源
      */
     private String ipSource;
@@ -56,9 +55,4 @@ public class UserAuthsBackDTO {
      * ip地址
      */
     private String ipAddress;
-
-    /**
-     * 用户角色
-     */
-    private List<LabelDTO> roleDTOList;
 }

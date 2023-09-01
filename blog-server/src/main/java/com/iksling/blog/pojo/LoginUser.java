@@ -1,9 +1,6 @@
 package com.iksling.blog.pojo;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +16,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class LoginUser implements UserDetails {
     /**
-     * id
+     * 账号id
      */
     private Integer id;
 
@@ -27,6 +24,21 @@ public class LoginUser implements UserDetails {
      * 用户id
      */
     private Integer userId;
+
+    /**
+     * 用户邮箱
+     */
+    private String email;
+
+    /**
+     * 用户头像
+     */
+    private String avatar;
+
+    /**
+     * 用户昵称
+     */
+    private String nickname;
 
     /**
      * 用户名

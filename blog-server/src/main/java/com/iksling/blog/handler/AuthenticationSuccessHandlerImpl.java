@@ -2,6 +2,7 @@ package com.iksling.blog.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.iksling.blog.dto.LoginUserDTO;
 import com.iksling.blog.entity.LoginLog;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.iksling.blog.constant.RedisConst.ARTICLE_USER_LIKE;
@@ -64,20 +66,24 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
                 .articleLikeSet(articleLikeSet)
                 .commentLikeSet(commentLikeSet)
                 .build();
+        loginUser.setEmail(user.getEmail());
+        loginUser.setAvatar(user.getAvatar());
+        loginUser.setNickname(user.getNickname());
         httpServletResponse.setContentType("application/json;charset=UTF-8");
         httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message("登录成功!").data(loginUserDTO)));
     }
 
     @Async
     public void updateUserAuth(LoginUser loginUser) {
-        UserAuth userAuth = userAuthMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
-                .select(UserAuth::getId, UserAuth::getLoginDevice)
-                .eq(UserAuth::getId, loginUser.getId()));
+        List<Map<String, Object>> mapList = userAuthMapper.selectMaps(new QueryWrapper<UserAuth>()
+                .select("login_device")
+                .eq("id", loginUser.getId()));
         String loginDevice;
-        if (StringUtils.isBlank(userAuth.getLoginDevice()))
+        String hisLoginDevice = mapList.get(0).get("login_device").toString();
+        if (StringUtils.isBlank(hisLoginDevice))
             loginDevice = loginUser.getLoginDevice();
         else
-            loginDevice = Arrays.asList(userAuth.getLoginDevice().split(",")).contains(loginUser.getLoginDevice()) ? null : userAuth.getLoginDevice() + "," + loginUser.getLoginDevice();
+            loginDevice = Arrays.asList(hisLoginDevice.split(",")).contains(loginUser.getLoginDevice()) ? null : hisLoginDevice + "," + loginUser.getLoginDevice();
         userAuthMapper.updateById(UserAuth.builder()
                 .id(loginUser.getId())
                 .loginTime(loginUser.getLoginTime())

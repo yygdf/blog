@@ -1,9 +1,11 @@
 package com.iksling.blog.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.entity.UserAuth;
@@ -18,12 +20,15 @@ import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.UserBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.*;
 
@@ -38,6 +43,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Autowired
     private UserAuthMapper userAuthMapper;
+
+    @Autowired
+    private SessionRegistry sessionRegistry;
 
     @Override
     public PagePojo<UsersBackDTO> getPageUsersBackDTO(ConditionVO condition) {
@@ -113,6 +121,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return false;
         return userMapper.selectCount(new LambdaQueryWrapper<User>()
                 .eq(User::getEmail, keywords.trim())) != 0;
+    }
+
+    @Override
+    public PagePojo<UserOnlinesBackDTO> getPageUserOnlinesBackDTO(ConditionVO condition) {
+        List<UserOnlinesBackDTO> userOnlinesBackDTOList = sessionRegistry.getAllPrincipals().stream()
+                .filter(item -> sessionRegistry.getAllSessions(item, false).size() > 0)
+                .map(item -> JSON.parseObject(JSON.toJSONString(item), UserOnlinesBackDTO.class))
+                .filter(item -> StringUtils.isBlank(condition.getKeywords()) || item.getUsername().contains(condition.getKeywords()) || item.getNickname().contains(condition.getKeywords()))
+                .sorted(Comparator.comparing(UserOnlinesBackDTO::getLoginTime).reversed())
+                .collect(Collectors.toList());
+        int current = (condition.getCurrent() - 1) * condition.getSize();
+        int size = userOnlinesBackDTOList.size() > condition.getSize() ? current + condition.getSize() : userOnlinesBackDTOList.size();
+        userOnlinesBackDTOList = userOnlinesBackDTOList.subList((condition.getCurrent() - 1) * condition.getSize(), size);
+        return new PagePojo<>(userOnlinesBackDTOList.size(), userOnlinesBackDTOList);
     }
 }
 

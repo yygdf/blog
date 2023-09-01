@@ -55,4 +55,11 @@ public class UserController {
     public Result getBackUserExistFlag(String keywords) {
         return Result.success().message("查询成功").data(userService.getBackUserExistFlag(keywords));
     }
+
+    @ApiOperation(value = "查看后台在线用户列表")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
+    @GetMapping("/back/user/onlines")
+    public Result listBackUserOnlines(@Valid ConditionVO condition) {
+        return Result.success().message("查询成功").data(userService.getPageUserOnlinesBackDTO(condition));
+    }
 }

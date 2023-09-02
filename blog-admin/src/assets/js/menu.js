@@ -3,8 +3,8 @@ import router from "../../router";
 import store from "../../store";
 import axios from "axios";
 
-export function generaMenu() {
-  axios.get("/api/back/user/menus").then(({ data }) => {
+export async function generaMenu() {
+  await axios.get("/api/back/user/menus").then(({ data }) => {
     if (data.flag) {
       let userMenuList = data.data;
       userMenuList.forEach(item => {
@@ -26,6 +26,7 @@ export function generaMenu() {
       store.commit("saveUserMenuList", userMenuList);
       router.addRoutes(userMenuList);
     }
+    return Promise;
   });
 }
 

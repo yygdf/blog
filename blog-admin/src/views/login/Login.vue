@@ -112,10 +112,11 @@ export default {
       that.axios.post("/api/login", param).then(({ data }) => {
         if (data.flag) {
           that.$store.commit("login", data.data);
-          generaMenu();
-          that.$message.success("登录成功");
-          that.$router.push({
-            path: that.$route.query.url ? that.$route.query.url : "/"
+          generaMenu().then(() => {
+            that.$message.success("登录成功");
+            that.$router.push({
+              path: that.$route.query.url ? that.$route.query.url : "/"
+            });
           });
         } else {
           that.$message.error(data.message);

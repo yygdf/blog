@@ -62,4 +62,13 @@ public class UserController {
     public Result listBackUserOnlines(@Valid ConditionVO condition) {
         return Result.success().message("查询成功").data(userService.getPageUserOnlinesBackDTO(condition));
     }
+
+    @OptLog(optType = REMOVE)
+    @ApiOperation(value = "批量下线用户")
+    @ApiImplicitParam(name = "userOnlineIdList", value = "用户账号idList", required = true, dataType = "List<Integer>")
+    @DeleteMapping("/back/user/onlines")
+    public Result deleteBackUserOnlines(@RequestBody List<Integer> userOnlineIdList) {
+        userService.deleteUserOnlineIdList(userOnlineIdList);
+        return Result.success().message("操作成功");
+    }
 }

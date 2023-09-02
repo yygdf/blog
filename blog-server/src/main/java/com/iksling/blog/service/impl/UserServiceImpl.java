@@ -1,6 +1,5 @@
 package com.iksling.blog.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -15,19 +14,18 @@ import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.UserService;
+import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.RegexUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.UserBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.*;
@@ -127,7 +125,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public PagePojo<UserOnlinesBackDTO> getPageUserOnlinesBackDTO(ConditionVO condition) {
         List<UserOnlinesBackDTO> userOnlinesBackDTOList = sessionRegistry.getAllPrincipals().stream()
                 .filter(item -> sessionRegistry.getAllSessions(item, false).size() > 0)
-                .map(item -> JSON.parseObject(JSON.toJSONString(item), UserOnlinesBackDTO.class))
+                .map(item -> BeanCopyUtil.copyObject(item, UserOnlinesBackDTO.class))
                 .filter(item -> StringUtils.isBlank(condition.getKeywords()) || item.getUsername().contains(condition.getKeywords()) || item.getNickname().contains(condition.getKeywords()))
                 .sorted(Comparator.comparing(UserOnlinesBackDTO::getLoginTime).reversed())
                 .collect(Collectors.toList());
@@ -135,6 +133,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         int size = userOnlinesBackDTOList.size() > condition.getSize() ? current + condition.getSize() : userOnlinesBackDTOList.size();
         userOnlinesBackDTOList = userOnlinesBackDTOList.subList((condition.getCurrent() - 1) * condition.getSize(), size);
         return new PagePojo<>(userOnlinesBackDTOList.size(), userOnlinesBackDTOList);
+    }
+
+    @Override
+    public void deleteUserOnlineIdList(List<Integer> userOnlineIdList) {
+        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(item -> {
+            LoginUser loginUser = (LoginUser) item;
+            return userOnlineIdList.contains(loginUser.getId());
+        }).collect(Collectors.toList());
+        List<SessionInformation> allSessions = new ArrayList<>();
+        loginUserList.forEach(item -> allSessions.addAll(sessionRegistry.getAllSessions(item, false)));
+        allSessions.forEach(SessionInformation::expireNow);
     }
 }
 

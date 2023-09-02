@@ -32,13 +32,18 @@
         </el-button>
       </div>
     </div>
-    <el-table v-loading="loading" :data="userOnlineList" border>
+    <el-table
+      v-loading="loading"
+      :data="userOnlineList"
+      border
+      @selection-change="selectionChange"
+    >
       <el-table-column type="selection" width="40" align="center" />
       <el-table-column
         prop="username"
         label="用户"
         align="center"
-        width="120"
+        width="160"
       />
       <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
@@ -49,35 +54,42 @@
           />
         </template>
       </el-table-column>
-      <el-table-column
-        prop="nickname"
-        label="昵称"
-        align="center"
-        width="120"
-      />
+      <el-table-column prop="nickname" label="昵称" align="center" />
       <el-table-column
         prop="loginDevice"
         label="登陆设备"
         align="center"
-        width="120"
-      />
+        width="160"
+      >
+        <template slot-scope="scope">
+          <el-tag style="margin-right:4px;margin-top:4px">
+            {{ scope.row.loginDevice }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="loginMethod"
         label="登录方式"
         align="center"
-        width="120"
-      />
+        width="160"
+      >
+        <template slot-scope="scope">
+          <el-tag style="margin-right:4px;margin-top:4px">
+            {{ loginMethod(scope.row.loginMethod) }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="ipAddress"
         label="ip地址"
         align="center"
-        width="120"
+        width="160"
       />
       <el-table-column
         prop="ipSource"
         label="ip来源"
         align="center"
-        width="120"
+        width="160"
       />
       <el-table-column
         prop="loginTime"
@@ -90,12 +102,11 @@
           {{ scope.row.loginTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="150">
+      <el-table-column label="操作" align="center" width="120">
         <template slot-scope="scope">
           <el-popconfirm
-            title="确定下线吗？"
-            style="margin-left:10px"
-            @confirm="removeOnlineUser(scope.row)"
+            title="确定强制下线该用户吗？"
+            @confirm="deleteUserOnlines(scope.row.id)"
           >
             <el-button size="mini" type="danger" slot="reference">
               下线
@@ -122,7 +133,7 @@
       <div style="font-size:1rem">是否强制下线选中用户？</div>
       <div slot="footer">
         <el-button @click="removeStatus = false">取 消</el-button>
-        <el-button type="primary" @click="removeOnlineUser(null)">
+        <el-button type="primary" @click="deleteUserOnlines(null)">
           确 定
         </el-button>
       </div>
@@ -159,6 +170,12 @@ export default {
       this.current = current;
       this.listUserOnlines();
     },
+    selectionChange(userOnlineList) {
+      this.userOnlineIdList = [];
+      userOnlineList.forEach(item => {
+        this.userOnlineIdList.push(item.id);
+      });
+    },
     listUserOnlines() {
       this.axios
         .get("/api/back/user/onlines", {
@@ -174,23 +191,43 @@ export default {
           this.loading = false;
         });
     },
-    removeOnlineUser(userOnline) {
-      this.axios
-        .delete("/api/admin/user/online/" + userOnline.id)
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: "成功",
-              message: data.message
-            });
-            this.listUserOnlines();
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: data.message
-            });
-          }
-        });
+    deleteUserOnlines(id) {
+      let param = {};
+      if (id == null) {
+        param = { data: this.userOnlineIdList };
+      } else {
+        param = { data: [id] };
+      }
+      this.axios.delete("/api/back/user/onlines", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listUserOnlines();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+      });
+    }
+  },
+  computed: {
+    loginMethod() {
+      return function(method) {
+        switch (method) {
+          case 1:
+            return "邮箱";
+          case 2:
+            return "QQ";
+          case 3:
+            return "微信";
+          case 4:
+            return "手机号";
+        }
+      };
     }
   }
 };

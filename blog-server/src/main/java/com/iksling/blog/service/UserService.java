@@ -24,4 +24,6 @@ public interface UserService extends IService<User> {
     boolean getBackUserExistFlag(String keywords);
 
     PagePojo<UserOnlinesBackDTO> getPageUserOnlinesBackDTO(ConditionVO condition);
+
+    void deleteUserOnlineIdList(List<Integer> userOnlineIdList);
 }

@@ -10,11 +10,11 @@ import lombok.Data;
 
 /**
  * 
- * @TableName tb_base_config
+ * @TableName tb_user_config
  */
-@TableName(value ="tb_base_config")
+@TableName(value ="tb_user_config")
 @Data
-public class BaseConfig implements Serializable {
+public class UserConfig implements Serializable {
     /**
      * 配置id
      */
@@ -40,11 +40,6 @@ public class BaseConfig implements Serializable {
      * 配置名
      */
     private String configName;
-
-    /**
-     * 0未删除，1已删除
-     */
-    private Boolean deletedFlag;
 
     /**
      * 0不可删除，1可删除

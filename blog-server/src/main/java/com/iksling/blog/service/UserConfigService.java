@@ -1,11 +1,11 @@
 package com.iksling.blog.service;
 
-import com.iksling.blog.entity.BaseConfig;
+import com.iksling.blog.entity.UserConfig;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  *
  */
-public interface BaseConfigService extends IService<BaseConfig> {
+public interface UserConfigService extends IService<UserConfig> {
 
 }

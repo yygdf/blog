@@ -246,7 +246,7 @@
       </el-form>
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
-        <el-button type="primary" @click="addOrEditCategory">
+        <el-button type="primary" @click="addOrEditFriendLink">
           确 定
         </el-button>
       </div>
@@ -364,7 +364,7 @@ export default {
           }
         });
     },
-    addOrEditCategory() {
+    addOrEditFriendLink() {
       if (!this.friendLink.userId && !this.friendLink.id) {
         this.$message.error("所属用户不能为空");
         return false;

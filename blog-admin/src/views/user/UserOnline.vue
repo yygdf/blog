@@ -12,6 +12,19 @@
         批量下线
       </el-button>
       <div style="margin-left:auto">
+        <el-select
+          v-model="deletedFlag"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择"
+        >
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
+          />
+        </el-select>
         <el-input
           v-model="keywords"
           ref="input"
@@ -76,6 +89,18 @@
         <template slot-scope="scope">
           <el-tag style="margin-right:4px;margin-top:4px">
             {{ loginMethod(scope.row.loginMethod) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="loginPlatform"
+        label="登录平台"
+        align="center"
+        width="160"
+      >
+        <template slot-scope="scope">
+          <el-tag style="margin-right:4px;margin-top:4px">
+            {{ scope.row.loginPlatform ? "后台" : "前台" }}
           </el-tag>
         </template>
       </el-table-column>
@@ -151,9 +176,24 @@ export default {
   },
   data() {
     return {
+      options: [
+        {
+          value: null,
+          label: ""
+        },
+        {
+          value: false,
+          label: "前台"
+        },
+        {
+          value: true,
+          label: "后台"
+        }
+      ],
       userOnlineList: [],
       userOnlineIdList: [],
       keywords: null,
+      deletedFlag: null,
       loading: true,
       removeStatus: false,
       size: 10,
@@ -182,7 +222,8 @@ export default {
           params: {
             size: this.size,
             current: this.current,
-            keywords: this.keywords
+            keywords: this.keywords,
+            deletedFlag: this.deletedFlag
           }
         })
         .then(({ data }) => {
@@ -228,6 +269,11 @@ export default {
             return "手机号";
         }
       };
+    }
+  },
+  watch: {
+    deletedFlag() {
+      this.listUserOnlines();
     }
   }
 };

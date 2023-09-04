@@ -67,6 +67,11 @@ public class LoginUser implements UserDetails {
     private Integer loginMethod;
 
     /**
+     * 登录平台
+     */
+    private Boolean loginPlatform;
+
+    /**
      * ip来源
      */
     private String ipSource;

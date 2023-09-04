@@ -10,6 +10,7 @@
             <result property="loginMethod" column="login_method" jdbcType="INTEGER"/>
             <result property="loginTime" column="login_time" jdbcType="TIMESTAMP"/>
             <result property="loginDevice" column="login_device" jdbcType="VARCHAR"/>
+            <result property="loginPlatform" column="login_platform" jdbcType="BOOLEAN"/>
             <result property="loginSystem" column="login_system" jdbcType="VARCHAR"/>
             <result property="loginBrowser" column="login_browser" jdbcType="VARCHAR"/>
             <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>
@@ -18,7 +19,8 @@
 
     <sql id="Base_Column_List">
         id,user_id,login_type,
-        login_time,login_device,login_system,
-        login_browser,ip_source,ip_address
+        login_time,login_device,login_platform,
+        login_system,login_browser,ip_source,
+        ip_address
     </sql>
 </mapper>

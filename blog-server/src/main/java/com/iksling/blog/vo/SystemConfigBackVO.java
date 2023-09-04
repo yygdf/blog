@@ -1,4 +1,4 @@
-package com.iksling.blog.entity;
+package com.iksling.blog.vo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -11,11 +11,11 @@ import java.util.Date;
 
 /**
  * 
- * @TableName tb_user_config
+ * @TableName tb_system_config
  */
-@TableName(value ="tb_user_config")
+@TableName(value ="tb_system_config")
 @Data
-public class UserConfig implements Serializable {
+public class SystemConfigBackVO implements Serializable {
     /**
      * 配置id
      */
@@ -41,11 +41,6 @@ public class UserConfig implements Serializable {
      * 配置名
      */
     private String configName;
-
-    /**
-     * 0未删除，1已删除
-     */
-    private Boolean deletedFlag;
 
     /**
      * 0不可删除，1可删除

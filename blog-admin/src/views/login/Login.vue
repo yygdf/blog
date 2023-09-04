@@ -109,19 +109,25 @@ export default {
       let param = new URLSearchParams();
       param.append("username", that.loginForm.username);
       param.append("password", md5(that.loginForm.password));
-      that.axios.post("/api/login", param).then(({ data }) => {
-        if (data.flag) {
-          that.$store.commit("login", data.data);
-          generaMenu().then(() => {
-            that.$message.success("登录成功");
-            that.$router.push({
-              path: that.$route.query.url ? that.$route.query.url : "/"
+      that.axios
+        .post("/api/login", param, {
+          headers: {
+            "Login-Platform": "true"
+          }
+        })
+        .then(({ data }) => {
+          if (data.flag) {
+            that.$store.commit("login", data.data);
+            generaMenu().then(() => {
+              that.$message.success("登录成功");
+              that.$router.push({
+                path: that.$route.query.url ? that.$route.query.url : "/"
+              });
             });
-          });
-        } else {
-          that.$message.error(data.message);
-        }
-      });
+          } else {
+            that.$message.error(data.message);
+          }
+        });
     }
   }
 };

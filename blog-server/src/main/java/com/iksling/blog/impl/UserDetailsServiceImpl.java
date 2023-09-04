@@ -55,6 +55,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (CollectionUtils.isEmpty(roleList))
             throw new DisabledException("您的角色已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         UserAgent userAgent = UserAgent.parseUserAgentString(request.getHeader("User-Agent"));
+        String loginPlatform = request.getHeader("Login-Platform");
         String ipAddress = IpUtil.getIpAddress(request);
         String ipSource = IpUtil.getIpSource(ipAddress);
         return LoginUser.builder()
@@ -65,6 +66,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .loginTime(new Date())
                 .loginDevice(userAgent.getOperatingSystem().getDeviceType().getName())
                 .loginMethod(1)
+                .loginPlatform(Boolean.parseBoolean(loginPlatform))
                 .ipAddress(ipAddress)
                 .ipSource(ipSource)
                 .roleWeight(roleList.get(0).getRoleWeight())

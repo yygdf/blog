@@ -10,6 +10,7 @@
             <result property="configDesc" column="config_desc" jdbcType="VARCHAR"/>
             <result property="configValue" column="config_value" jdbcType="VARCHAR"/>
             <result property="configName" column="config_name" jdbcType="VARCHAR"/>
+            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
             <result property="deletableFlag" column="deletable_flag" jdbcType="BOOLEAN"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -19,8 +20,8 @@
 
     <sql id="Base_Column_List">
         id,user_id,config_desc,
-        config_value,config_name,deletable_flag,
-        create_user,create_time,update_user,
-        update_time
+        config_value,config_name,deleted_flag,
+        deletable_flag,create_user,create_time,
+        update_user,update_time
     </sql>
 </mapper>

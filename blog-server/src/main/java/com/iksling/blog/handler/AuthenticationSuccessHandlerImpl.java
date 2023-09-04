@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.iksling.blog.dto.LoginUserDTO;
+import com.iksling.blog.dto.LoginUserBackDTO;
 import com.iksling.blog.entity.LoginLog;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.entity.UserAuth;
@@ -47,21 +47,23 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .select(User::getId, User::getNickname, User::getAvatar, User::getIntro, User::getEmail, User::getWebsite)
                 .eq(User::getId, loginUser.getUserId()));
-        LoginUserDTO loginUserDTO = LoginUserDTO.builder()
-                .userId(user.getId())
-                .intro(user.getIntro())
-                .email(user.getEmail())
-                .avatar(user.getAvatar())
-                .weight(loginUser.getRoleWeight())
-                .website(user.getWebsite())
-                .nickname(user.getNickname())
-                .rootUserAuthId(ROOT_USER_AUTH_ID)
-                .build();
-        loginUser.setEmail(user.getEmail());
-        loginUser.setAvatar(user.getAvatar());
-        loginUser.setNickname(user.getNickname());
-        httpServletResponse.setContentType("application/json;charset=UTF-8");
-        httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message("登录成功!").data(loginUserDTO)));
+        if (loginUser.getLoginPlatform()) {
+            LoginUserBackDTO loginUserBackDTO = LoginUserBackDTO.builder()
+                    .userId(user.getId())
+                    .intro(user.getIntro())
+                    .email(user.getEmail())
+                    .avatar(user.getAvatar())
+                    .weight(loginUser.getRoleWeight())
+                    .website(user.getWebsite())
+                    .nickname(user.getNickname())
+                    .rootUserAuthId(ROOT_USER_AUTH_ID)
+                    .build();
+            loginUser.setEmail(user.getEmail());
+            loginUser.setAvatar(user.getAvatar());
+            loginUser.setNickname(user.getNickname());
+            httpServletResponse.setContentType("application/json;charset=UTF-8");
+            httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message("登录成功!").data(loginUserBackDTO)));
+        }
     }
 
     @Async
@@ -92,6 +94,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
                 .loginTime(loginUser.getLoginTime())
                 .loginDevice(loginUser.getLoginDevice())
                 .loginMethod(loginUser.getLoginMethod())
+                .loginPlatform(loginUser.getLoginPlatform())
                 .loginBrowser(userAgent.getBrowser().getName())
                 .loginSystem(userAgent.getOperatingSystem().getName())
                 .ipSource(loginUser.getIpSource())

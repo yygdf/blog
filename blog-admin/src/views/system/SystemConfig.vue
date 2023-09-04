@@ -255,14 +255,6 @@ export default {
         }
       });
     }
-  },
-  watch: {
-    userId() {
-      this.listSystemConfigs();
-    },
-    deletedFlag() {
-      this.listSystemConfigs();
-    }
   }
 };
 </script>

@@ -127,6 +127,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .filter(item -> sessionRegistry.getAllSessions(item, false).size() > 0)
                 .map(item -> BeanCopyUtil.copyObject(item, UserOnlinesBackDTO.class))
                 .filter(item -> StringUtils.isBlank(condition.getKeywords()) || item.getUsername().contains(condition.getKeywords()) || item.getNickname().contains(condition.getKeywords()))
+                .filter(item -> Objects.isNull(condition.getDeletedFlag()) || item.getLoginPlatform().equals(condition.getDeletedFlag()))
                 .sorted(Comparator.comparing(UserOnlinesBackDTO::getLoginTime).reversed())
                 .collect(Collectors.toList());
         int current = (condition.getCurrent() - 1) * condition.getSize();

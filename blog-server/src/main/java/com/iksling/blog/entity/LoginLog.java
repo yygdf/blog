@@ -45,6 +45,11 @@ public class LoginLog implements Serializable {
     private Integer loginMethod;
 
     /**
+     * 登录平台
+     */
+    private Boolean loginPlatform;
+
+    /**
      * 操作系统类型
      */
     private String loginSystem;

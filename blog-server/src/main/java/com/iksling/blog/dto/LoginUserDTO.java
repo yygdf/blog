@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Builder
@@ -48,12 +48,7 @@ public class LoginUserDTO {
     private String nickname;
 
     /**
-     * 点赞文章集合
+     * 系统核心用户账号idList
      */
-    private Set<Integer> articleLikeSet;
-
-    /**
-     * 点赞评论集合
-     */
-    private Set<Integer> commentLikeSet;
+    public List<Integer> rootUserAuthId;
 }

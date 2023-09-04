@@ -382,7 +382,7 @@ export default {
       this.addOrEditStatus = true;
     },
     checkRoot(id, flag = false) {
-      const rootFlag = id === 0 || id === 1 || id === 2;
+      const rootFlag = this.$store.state.rootUserAuthId.some(e => e === id);
       if (flag) {
         return rootFlag && !this.checkWeight(100);
       } else {

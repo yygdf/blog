@@ -16,7 +16,6 @@ import com.iksling.blog.pojo.Result;
 import com.iksling.blog.util.UserUtil;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -28,10 +27,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import static com.iksling.blog.constant.RedisConst.ARTICLE_USER_LIKE;
-import static com.iksling.blog.constant.RedisConst.COMMENT_USER_LIKE;
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_AUTH_ID;
 
 @Component
 public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHandler {
@@ -42,9 +39,6 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
     @Autowired
     private UserMapper userMapper;
 
-    @Autowired
-    private RedisTemplate redisTemplate;
-
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException {
         LoginUser loginUser = UserUtil.getLoginUser();
@@ -53,8 +47,6 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .select(User::getId, User::getNickname, User::getAvatar, User::getIntro, User::getEmail, User::getWebsite)
                 .eq(User::getId, loginUser.getUserId()));
-        Set<Integer> articleLikeSet = (Set<Integer>) redisTemplate.boundHashOps(ARTICLE_USER_LIKE).get(user.getId().toString());
-        Set<Integer> commentLikeSet = (Set<Integer>) redisTemplate.boundHashOps(COMMENT_USER_LIKE).get(user.getId().toString());
         LoginUserDTO loginUserDTO = LoginUserDTO.builder()
                 .userId(user.getId())
                 .intro(user.getIntro())
@@ -63,8 +55,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
                 .weight(loginUser.getRoleWeight())
                 .website(user.getWebsite())
                 .nickname(user.getNickname())
-                .articleLikeSet(articleLikeSet)
-                .commentLikeSet(commentLikeSet)
+                .rootUserAuthId(ROOT_USER_AUTH_ID)
                 .build();
         loginUser.setEmail(user.getEmail());
         loginUser.setAvatar(user.getAvatar());

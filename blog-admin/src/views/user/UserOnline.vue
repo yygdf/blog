@@ -30,7 +30,7 @@
           ref="input"
           size="small"
           prefix-icon="el-icon-search"
-          placeholder="请输入用户名或昵称"
+          placeholder="请输入用户名"
           style="width:200px"
           @keyup.enter.native="listUserOnlines"
         />

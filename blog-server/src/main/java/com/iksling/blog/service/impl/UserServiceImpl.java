@@ -123,16 +123,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public PagePojo<UserOnlinesBackDTO> getPageUserOnlinesBackDTO(ConditionVO condition) {
-        List<UserOnlinesBackDTO> userOnlinesBackDTOList = sessionRegistry.getAllPrincipals().stream()
+        List<Integer> onlineUserAuthIdList = sessionRegistry.getAllPrincipals().stream()
                 .filter(item -> sessionRegistry.getAllSessions(item, false).size() > 0)
-                .map(item -> BeanCopyUtil.copyObject(item, UserOnlinesBackDTO.class))
-                .filter(item -> StringUtils.isBlank(condition.getKeywords()) || item.getUsername().contains(condition.getKeywords()) || item.getNickname().contains(condition.getKeywords()))
+                .map(item -> BeanCopyUtil.copyObject(item, LoginUser.class))
+                .filter(item -> StringUtils.isBlank(condition.getKeywords()) || item.getUsername().contains(condition.getKeywords()))
                 .filter(item -> Objects.isNull(condition.getDeletedFlag()) || item.getLoginPlatform().equals(condition.getDeletedFlag()))
-                .sorted(Comparator.comparing(UserOnlinesBackDTO::getLoginTime).reversed())
+                .sorted(Comparator.comparing(LoginUser::getLoginTime).reversed())
+                .map(LoginUser::getId)
                 .collect(Collectors.toList());
+        if (onlineUserAuthIdList.isEmpty())
+            return new PagePojo<>();
         int current = (condition.getCurrent() - 1) * condition.getSize();
-        int size = userOnlinesBackDTOList.size() > condition.getSize() ? current + condition.getSize() : userOnlinesBackDTOList.size();
-        userOnlinesBackDTOList = userOnlinesBackDTOList.subList((condition.getCurrent() - 1) * condition.getSize(), size);
+        int size = onlineUserAuthIdList.size() > condition.getSize() ? current + condition.getSize() : onlineUserAuthIdList.size();
+        onlineUserAuthIdList = onlineUserAuthIdList.subList((condition.getCurrent() - 1) * condition.getSize(), size);
+        List<UserOnlinesBackDTO> userOnlinesBackDTOList = userAuthMapper.listUserOnlinesBackDTO(onlineUserAuthIdList);
         return new PagePojo<>(userOnlinesBackDTOList.size(), userOnlinesBackDTOList);
     }
 

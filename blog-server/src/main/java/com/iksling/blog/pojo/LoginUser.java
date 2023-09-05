@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -37,6 +38,17 @@ public class LoginUser implements UserDetails {
      * 用户密码
      */
     private String password;
+
+    /**
+     * 登录时间
+     */
+    private Date loginTime;
+
+    /**
+     * 登录平台
+     */
+    private Boolean loginPlatform;
+
     /**
      * 用户角色
      */

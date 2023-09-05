@@ -2,6 +2,7 @@ package com.iksling.blog.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iksling.blog.dto.UserAuthsBackDTO;
+import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.UpdateBatchVO;
@@ -17,6 +18,8 @@ public interface UserAuthMapper extends BaseMapper<UserAuth> {
     List<UserAuthsBackDTO> listUserAuthsBackDTO(@Param("condition") ConditionVO condition);
 
     Integer updateUserAuthsStatus(@Param("updateBatch") UpdateBatchVO updateBatchVO);
+
+    List<UserOnlinesBackDTO> listUserOnlinesBackDTO(@Param("onlineUserAuthIdList") List<Integer> onlineUserAuthIdList);
 }
 
 

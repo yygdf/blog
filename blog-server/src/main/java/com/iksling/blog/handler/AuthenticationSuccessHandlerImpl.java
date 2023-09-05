@@ -45,7 +45,10 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
                 .eq(User::getId, loginUser.getUserId()));
         Integer userId = loginUser.getUserId();
         Boolean loginPlatform = Boolean.parseBoolean(httpServletRequest.getHeader("Login-Platform"));
-        doOther(loginUser.getId(), userId, loginPlatform, httpServletRequest);
+        Date loginTime = new Date();
+        loginUser.setLoginTime(loginTime);
+        loginUser.setLoginPlatform(loginPlatform);
+        doOther(loginUser.getId(), userId, loginTime, loginPlatform, httpServletRequest);
         if (loginPlatform) {
             LoginUserBackDTO loginUserBackDTO = LoginUserBackDTO.builder()
                     .userId(userId)
@@ -63,13 +66,13 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
     }
 
     @Async
-    public void doOther(Integer id, Integer userId, Boolean loginPlatform, HttpServletRequest httpServletRequest) {
+    public void doOther(Integer id, Integer userId, Date loginTime, Boolean loginPlatform, HttpServletRequest httpServletRequest) {
         UserAgent userAgent = UserAgent.parseUserAgentString(httpServletRequest.getHeader("User-Agent"));
         String ipAddress = IpUtil.getIpAddress(httpServletRequest);
         String ipSource = IpUtil.getIpSource(ipAddress);
         LoginLog loginLog = LoginLog.builder()
                 .userId(userId)
-                .loginTime(new Date())
+                .loginTime(loginTime)
                 .loginDevice(userAgent.getOperatingSystem().getDeviceType().getName())
                 .loginMethod(1)
                 .loginPlatform(loginPlatform)

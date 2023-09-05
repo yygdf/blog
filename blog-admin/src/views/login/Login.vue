@@ -29,6 +29,18 @@
         </el-form-item>
       </el-form>
       <el-button type="primary" @click="validLogin">登录</el-button>
+      <div class="operation-container">
+        <el-checkbox
+          v-model="remember"
+          true-label="on"
+          false-label=""
+          style="color: rgba(255,255,255,0.8)"
+          disabled
+        >
+          记住我
+        </el-checkbox>
+        <el-link type="info" style="color: rgba(255,255,255,0.8);margin-left:auto">忘记账号或密码?点击此处!</el-link>
+      </div>
     </div>
   </div>
 </template>
@@ -42,6 +54,7 @@ export default {
   },
   data: function() {
     return {
+      remember: "",
       loginForm: {
         username: "",
         password: ""
@@ -109,6 +122,7 @@ export default {
       let param = new URLSearchParams();
       param.append("username", that.loginForm.username);
       param.append("password", md5(that.loginForm.password));
+      param.append("remember-me", this.remember);
       that.axios
         .post("/api/login", param, {
           headers: {
@@ -144,7 +158,7 @@ export default {
 }
 .login-card {
   position: absolute;
-  top: 50%;
+  top: 45%;
   left: 50%;
   margin-top: -185px;
   margin-left: -235px;

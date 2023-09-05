@@ -13,6 +13,7 @@ import com.iksling.blog.mapper.MultiFileMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.util.FileUploadUtil;
+import com.iksling.blog.util.IpUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ArticleImageBackVO;
 import com.iksling.blog.vo.UserAvatarBackVO;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Objects;
 
@@ -35,6 +38,9 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
 
     @Autowired
     private ArticleMapper articleMapper;
+
+    @Resource
+    private HttpServletRequest request;
 
     @Override
     @Transactional
@@ -69,6 +75,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         if (Objects.isNull(url))
             throw new FileStatusException("文件上传失败!");
         articleImageBackVO.setFile(null);
+        String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(articleUserId)
                 .multiDirId(FilePathEnum.ARTICLE.getId())
@@ -78,8 +85,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .fileSubDir(fireSubDir)
                 .hiddenFlag(false)
                 .deletedFlag(false)
-                .ipSource(loginUser.getIpSource())
-                .ipAddress(loginUser.getIpAddress())
+                .ipAddress(iPAddress)
+                .ipSource(IpUtil.getIpSource(iPAddress))
                 .createUser(loginUser.getUserId())
                 .createTime(new Date())
                 .build());
@@ -115,6 +122,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         if (Objects.isNull(url))
             throw new FileStatusException("文件上传失败!");
         userAvatarBackVO.setFile(null);
+        String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(userId)
                 .multiDirId(FilePathEnum.AVATAR.getId())
@@ -124,8 +132,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .fileSubDir(fireSubDir)
                 .hiddenFlag(false)
                 .deletedFlag(false)
-                .ipSource(loginUser.getIpSource())
-                .ipAddress(loginUser.getIpAddress())
+                .ipAddress(iPAddress)
+                .ipSource(IpUtil.getIpSource(iPAddress))
                 .createUser(loginUser.getUserId())
                 .createTime(new Date())
                 .build());

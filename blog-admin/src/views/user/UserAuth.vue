@@ -86,13 +86,13 @@
         prop="username"
         label="用户"
         align="center"
-        width="120"
+        width="160"
       />
       <el-table-column
         prop="roleDTOList"
         label="角色"
         align="center"
-        width="120"
+        width="160"
       >
         <template slot-scope="scope">
           <el-tag
@@ -135,17 +135,6 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="loginDevice" label="登录设备" align="center">
-        <template slot-scope="scope" v-if="scope.row.loginDevice">
-          <el-tag
-            v-for="(item, index) of scope.row.loginDevice.split(',')"
-            :key="index"
-            style="margin-right:4px;margin-top:4px"
-          >
-            {{ item }}
-          </el-tag>
-        </template>
-      </el-table-column>
       <el-table-column prop="loginMethod" label="登录方式" align="center">
         <template slot-scope="scope" v-if="scope.row.loginMethod">
           <el-tag
@@ -161,13 +150,13 @@
         prop="ipAddress"
         label="登录ip"
         align="center"
-        width="120"
+        width="160"
       />
       <el-table-column
         prop="ipSource"
         label="登录地址"
         align="center"
-        width="120"
+        width="160"
       />
       <el-table-column
         prop="loginTime"

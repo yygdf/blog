@@ -1,12 +1,14 @@
 package com.iksling.blog.pojo;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -27,21 +29,6 @@ public class LoginUser implements UserDetails {
     private Integer userId;
 
     /**
-     * 用户邮箱
-     */
-    private String email;
-
-    /**
-     * 用户头像
-     */
-    private String avatar;
-
-    /**
-     * 用户昵称
-     */
-    private String nickname;
-
-    /**
      * 用户名
      */
     private String username;
@@ -50,37 +37,6 @@ public class LoginUser implements UserDetails {
      * 用户密码
      */
     private String password;
-
-    /**
-     * 登录时间
-     */
-    private Date loginTime;
-
-    /**
-     * 登录设备
-     */
-    private String loginDevice;
-
-    /**
-     * 登录方式
-     */
-    private Integer loginMethod;
-
-    /**
-     * 登录平台
-     */
-    private Boolean loginPlatform;
-
-    /**
-     * ip来源
-     */
-    private String ipSource;
-
-    /**
-     * ip地址
-     */
-    private String ipAddress;
-
     /**
      * 用户角色
      */

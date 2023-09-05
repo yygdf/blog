@@ -28,11 +28,6 @@ public class UserAuthsBackDTO {
     private Date loginTime;
 
     /**
-     * 登录设备
-     */
-    private String loginDevice;
-
-    /**
      * 登录方式
      */
     private Integer loginMethod;

@@ -8,8 +8,6 @@ import com.iksling.blog.mapper.RoleMapper;
 import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.pojo.LoginRole;
 import com.iksling.blog.pojo.LoginUser;
-import com.iksling.blog.util.IpUtil;
-import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
@@ -18,9 +16,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -33,9 +28,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserAuthMapper userAuthMapper;
     @Autowired
     private RoleMapper roleMapper;
-
-    @Resource
-    private HttpServletRequest request;
 
     @Override
     public UserDetails loadUserByUsername(String username) {
@@ -54,21 +46,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         List<LoginRole> roleList = roleMapper.listLoginRoleByUserId(userAuth.getUserId());
         if (CollectionUtils.isEmpty(roleList))
             throw new DisabledException("您的角色已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
-        UserAgent userAgent = UserAgent.parseUserAgentString(request.getHeader("User-Agent"));
-        String loginPlatform = request.getHeader("Login-Platform");
-        String ipAddress = IpUtil.getIpAddress(request);
-        String ipSource = IpUtil.getIpSource(ipAddress);
         return LoginUser.builder()
                 .id(userAuth.getId())
                 .userId(userAuth.getUserId())
                 .username(userAuth.getUsername())
                 .password(userAuth.getPassword())
-                .loginTime(new Date())
-                .loginDevice(userAgent.getOperatingSystem().getDeviceType().getName())
-                .loginMethod(1)
-                .loginPlatform(Boolean.parseBoolean(loginPlatform))
-                .ipAddress(ipAddress)
-                .ipSource(ipSource)
                 .roleWeight(roleList.get(0).getRoleWeight())
                 .roleList(roleList.stream()
                         .map(LoginRole::getRoleName)

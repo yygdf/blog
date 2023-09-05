@@ -34,6 +34,11 @@ public class UserAuth implements Serializable {
     private Integer userId;
 
     /**
+     * 登录日志id
+     */
+    private Integer loginLogId;
+
+    /**
      * 用户名
      */
     private String username;
@@ -42,16 +47,6 @@ public class UserAuth implements Serializable {
      * 用户密码
      */
     private String password;
-
-    /**
-     * 登录时间
-     */
-    private Date loginTime;
-
-    /**
-     * 登录设备
-     */
-    private String loginDevice;
 
     /**
      * 登录方式
@@ -72,16 +67,6 @@ public class UserAuth implements Serializable {
      * 0未删除，1已删除
      */
     private Boolean deletedFlag;
-
-    /**
-     * ip来源
-     */
-    private String ipSource;
-
-    /**
-     * ip地址
-     */
-    private String ipAddress;
 
     /**
      * 创建人

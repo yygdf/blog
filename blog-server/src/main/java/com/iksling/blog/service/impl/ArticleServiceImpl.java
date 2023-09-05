@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.dto.*;
+import com.iksling.blog.dto.ArticleBackDTO;
+import com.iksling.blog.dto.ArticleOptionDTO;
+import com.iksling.blog.dto.ArticlesBackDTO;
+import com.iksling.blog.dto.LabelDTO;
 import com.iksling.blog.entity.Article;
 import com.iksling.blog.entity.ArticleTag;
 import com.iksling.blog.entity.Category;
@@ -21,16 +24,19 @@ import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.service.ArticleTagService;
 import com.iksling.blog.util.BeanCopyUtil;
+import com.iksling.blog.util.IpUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.CommonStatusVO;
-import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +67,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Autowired
     private RedisTemplate redisTemplate;
+    @Resource
+    private HttpServletRequest request;
 
     @Override
     public ArticleBackDTO getArticleBackDTOById(Integer articleId) {
@@ -121,8 +129,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         Article article = BeanCopyUtil.copyObject(articleBackVO, Article.class);
         if (Objects.isNull(article.getId())) {
             article.setUserId(loginUser.getUserId());
-            article.setIpSource(loginUser.getIpSource());
-            article.setIpAddress(loginUser.getIpAddress());
+            article.setIpAddress(IpUtil.getIpAddress(request));
+            article.setIpSource(IpUtil.getIpSource(article.getIpAddress()));
             article.setCreateUser(loginUser.getUserId());
             article.setCreateTime(new Date());
             if (!article.getDraftFlag()) {

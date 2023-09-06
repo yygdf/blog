@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.iksling.blog.constant.CommonConst;
 import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
@@ -70,7 +71,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .email(userBackVO.getEmail().trim())
                 .nickname(userBackVO.getNickname().trim())
                 .build();
-        if (loginUser.getRoleWeight() > 100 && ROOT_USER_AUTH_ID.contains(userBackVO.getId()))
+        if (loginUser.getRoleWeight() > 100 && CommonConst.ROOT_USER_ID.contains(userBackVO.getId()))
             throw new IllegalRequestException();
         if (StringUtils.isBlank(userBackVO.getAvatar()))
             user.setAvatar(DEFAULT_AVATAR);
@@ -91,14 +92,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .eq(User::getEmail, user.getEmail()));
             if (count > 0)
                 throw new IllegalRequestException();
-            user.setCreateUser(loginUser.getUserId());
+            user.setCreateUser(loginUser.getId());
             user.setCreateTime(new Date());
             userMapper.insert(user);
             userAuthMapper.insert(UserAuth.builder()
                     .userId(user.getId())
                     .username(userBackVO.getUsername().trim())
                     .password(DEFAULT_PASSWORD)
-                    .createUser(loginUser.getUserId())
+                    .createUser(loginUser.getId())
                     .createTime(new Date())
                     .build());
         } else {
@@ -107,7 +108,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .ne(User::getId, user.getId()));
             if (count > 0)
                 throw new IllegalRequestException();
-            user.setUpdateUser(loginUser.getUserId());
+            user.setUpdateUser(loginUser.getId());
             user.setUpdateTime(new Date());
             userMapper.updateById(user);
         }
@@ -123,7 +124,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public PagePojo<UserOnlinesBackDTO> getPageUserOnlinesBackDTO(ConditionVO condition) {
-        List<Integer> onlineUserAuthIdList = sessionRegistry.getAllPrincipals().stream()
+        List<Integer> onlineUserIdList = sessionRegistry.getAllPrincipals().stream()
                 .filter(item -> sessionRegistry.getAllSessions(item, false).size() > 0)
                 .map(item -> BeanCopyUtil.copyObject(item, LoginUser.class))
                 .filter(item -> StringUtils.isBlank(condition.getKeywords()) || item.getUsername().contains(condition.getKeywords()))
@@ -131,12 +132,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .sorted(Comparator.comparing(LoginUser::getLoginTime).reversed())
                 .map(LoginUser::getId)
                 .collect(Collectors.toList());
-        if (onlineUserAuthIdList.isEmpty())
+        if (onlineUserIdList.isEmpty())
             return new PagePojo<>();
         int current = (condition.getCurrent() - 1) * condition.getSize();
-        int size = onlineUserAuthIdList.size() > condition.getSize() ? current + condition.getSize() : onlineUserAuthIdList.size();
-        onlineUserAuthIdList = onlineUserAuthIdList.subList((condition.getCurrent() - 1) * condition.getSize(), size);
-        List<UserOnlinesBackDTO> userOnlinesBackDTOList = userAuthMapper.listUserOnlinesBackDTO(onlineUserAuthIdList);
+        int size = onlineUserIdList.size() > condition.getSize() ? current + condition.getSize() : onlineUserIdList.size();
+        onlineUserIdList = onlineUserIdList.subList((condition.getCurrent() - 1) * condition.getSize(), size);
+        List<UserOnlinesBackDTO> userOnlinesBackDTOList = userMapper.listUserOnlinesBackDTO(onlineUserIdList);
         return new PagePojo<>(userOnlinesBackDTOList.size(), userOnlinesBackDTOList);
     }
 

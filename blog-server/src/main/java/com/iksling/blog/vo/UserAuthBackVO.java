@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel(description = "账号后台VO")
 public class UserAuthBackVO {
     /**
-     * 账号id
+     * 用户id
      */
     @ApiModelProperty(name = "id", value = "用户id", dataType = "Integer")
     private Integer id;

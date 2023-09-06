@@ -49,4 +49,21 @@
         LIMIT
             #{condition.current}, #{condition.size}
     </select>
+
+    <select id="listUserOnlinesBackDTO" resultType="com.iksling.blog.dto.UserOnlinesBackDTO">
+        SELECT
+            u.id,u.avatar,u.nickname,
+            ua.username,ll.login_time,ll.login_device,
+            ll.login_method,ll.login_platform,ll.ip_source,
+            ll.ip_address
+        FROM
+            tb_user u
+        LEFT JOIN tb_user_auth ua ON u.id = ua.user_id
+        LEFT JOIN tb_login_log ll ON ua.login_log_id = ll.id
+        WHERE
+            u.id in
+            <foreach collection="onlineUserIdList" item="id" index="index" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </select>
 </mapper>

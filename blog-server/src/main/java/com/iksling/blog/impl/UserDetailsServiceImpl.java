@@ -47,8 +47,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (CollectionUtils.isEmpty(roleList))
             throw new DisabledException("您的角色已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         return LoginUser.builder()
-                .id(userAuth.getId())
-                .userId(userAuth.getUserId())
+                .id(userAuth.getUserId())
                 .username(userAuth.getUsername())
                 .password(userAuth.getPassword())
                 .roleWeight(roleList.get(0).getRoleWeight())

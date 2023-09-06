@@ -333,7 +333,7 @@ export default {
   methods: {
     openModel(userAuth) {
       this.userAuth = {
-        id: userAuth.id,
+        userId: userAuth.userId,
         username: userAuth.username,
         lockedFlag: userAuth.lockedFlag,
         disabledFlag: userAuth.disabledFlag,
@@ -347,7 +347,7 @@ export default {
       this.editStatus = true;
     },
     checkRoot(id, flag = false) {
-      const rootFlag = this.$store.state.rootUserAuthId.some(e => e === id);
+      const rootFlag = this.$store.state.rootUserId.some(e => e === id);
       if (flag) {
         return rootFlag && !this.checkWeight(100);
       } else {
@@ -432,7 +432,7 @@ export default {
     },
     editUserAuth() {
       let data = {
-        id: this.userAuth.id,
+        id: this.userAuth.userId,
         lockedFlag: this.userAuth.lockedFlag,
         disabledFlag: this.userAuth.disabledFlag
       };
@@ -466,7 +466,7 @@ export default {
         .then(() => {
           userAuth.lockedFlag = !lockedFlag;
           this.axios.put("/api/back/userAuth/status", {
-            id: userAuth.id,
+            id: userAuth.userId,
             topFlag: !lockedFlag,
             publicFlag: userAuth.disabledFlag
           });
@@ -484,7 +484,7 @@ export default {
         .then(() => {
           userAuth.disabledFlag = !disabledFlag;
           this.axios.put("/api/back/userAuth/status", {
-            id: userAuth.id,
+            id: userAuth.userId,
             publicFlag: !disabledFlag
           });
         })

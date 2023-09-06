@@ -54,13 +54,13 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
         if (!FileUploadUtil.checkFileSize(file.getSize(), FilePathEnum.ARTICLE.getSize(), FilePathEnum.ARTICLE.getUnit()))
             throw new FileStatusException("文件大小超出限制!文件最大为{" + FilePathEnum.ARTICLE.getSize() + FilePathEnum.ARTICLE.getUnit() + "}");
-        if (Objects.nonNull(articleUserId) && loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(articleUserId))
+        if (Objects.nonNull(articleUserId) && loginUser.getRoleWeight() > 300 && !loginUser.getId().equals(articleUserId))
             throw new IllegalRequestException();
         Integer count;
         try {
             count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
                     .eq(Article::getId, Integer.parseInt(articleImageBackVO.getFileSubDir()))
-                    .eq(Objects.isNull(articleUserId), Article::getUserId, loginUser.getUserId())
+                    .eq(Objects.isNull(articleUserId), Article::getUserId, loginUser.getId())
                     .eq(Objects.nonNull(articleUserId), Article::getUserId, articleUserId));
         } catch (NumberFormatException e) {
             throw new IllegalRequestException();
@@ -68,7 +68,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         if (count != 1)
             throw new IllegalRequestException();
         if (Objects.isNull(articleUserId))
-            articleUserId = loginUser.getUserId();
+            articleUserId = loginUser.getId();
         String fireSubDir = articleUserId + "/" + articleImageBackVO.getFileSubDir() + "/";
         String targetAddr = FilePathEnum.ARTICLE.getPath() + fireSubDir;
         String url = FileUploadUtil.upload(file, targetAddr);
@@ -87,7 +87,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .deletedFlag(false)
                 .ipAddress(iPAddress)
                 .ipSource(IpUtil.getIpSource(iPAddress))
-                .createUser(loginUser.getUserId())
+                .createUser(loginUser.getId())
                 .createTime(new Date())
                 .build());
         return url;
@@ -100,7 +100,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                 .set(MultiFile::getDeletedFlag, true)
                 .eq(MultiFile::getFileUrl, url)
-                .eq(loginUser.getRoleWeight() > 300, MultiFile::getUserId, loginUser.getUserId())
+                .eq(loginUser.getRoleWeight() > 300, MultiFile::getUserId, loginUser.getId())
                 .eq(loginUser.getRoleWeight() > 100, MultiFile::getDeletedFlag, false));
     }
 
@@ -134,7 +134,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .deletedFlag(false)
                 .ipAddress(iPAddress)
                 .ipSource(IpUtil.getIpSource(iPAddress))
-                .createUser(loginUser.getUserId())
+                .createUser(loginUser.getId())
                 .createTime(new Date())
                 .build());
         return url;

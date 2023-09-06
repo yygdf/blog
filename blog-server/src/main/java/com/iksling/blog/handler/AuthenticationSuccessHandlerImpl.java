@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 
-import static com.iksling.blog.constant.CommonConst.ROOT_USER_AUTH_ID;
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 
 @Component
 public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHandler {
@@ -40,15 +40,15 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException {
         LoginUser loginUser = UserUtil.getLoginUser();
+        Integer userId = loginUser.getId();
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .select(User::getId, User::getNickname, User::getAvatar, User::getIntro, User::getEmail, User::getWebsite)
-                .eq(User::getId, loginUser.getUserId()));
-        Integer userId = loginUser.getUserId();
+                .eq(User::getId, userId));
         Boolean loginPlatform = Boolean.parseBoolean(httpServletRequest.getHeader("Login-Platform"));
         Date loginTime = new Date();
         loginUser.setLoginTime(loginTime);
         loginUser.setLoginPlatform(loginPlatform);
-        doOther(loginUser.getId(), userId, loginTime, loginPlatform, httpServletRequest);
+        insertLoginLog(userId, loginTime, loginPlatform, httpServletRequest);
         if (loginPlatform) {
             LoginUserBackDTO loginUserBackDTO = LoginUserBackDTO.builder()
                     .userId(userId)
@@ -58,7 +58,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
                     .weight(loginUser.getRoleWeight())
                     .website(user.getWebsite())
                     .nickname(user.getNickname())
-                    .rootUserAuthId(ROOT_USER_AUTH_ID)
+                    .rootUserId(ROOT_USER_ID)
                     .build();
             httpServletResponse.setContentType("application/json;charset=UTF-8");
             httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message("登录成功!").data(loginUserBackDTO)));
@@ -66,7 +66,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
     }
 
     @Async
-    public void doOther(Integer id, Integer userId, Date loginTime, Boolean loginPlatform, HttpServletRequest httpServletRequest) {
+    public void insertLoginLog(Integer userId, Date loginTime, Boolean loginPlatform, HttpServletRequest httpServletRequest) {
         UserAgent userAgent = UserAgent.parseUserAgentString(httpServletRequest.getHeader("User-Agent"));
         String ipAddress = IpUtil.getIpAddress(httpServletRequest);
         String ipSource = IpUtil.getIpSource(ipAddress);
@@ -84,6 +84,6 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         loginLogMapper.insert(loginLog);
         userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                 .set(UserAuth::getLoginLogId, loginLog.getId())
-                .eq(UserAuth::getId, id));
+                .eq(UserAuth::getUserId, userId));
     }
 }

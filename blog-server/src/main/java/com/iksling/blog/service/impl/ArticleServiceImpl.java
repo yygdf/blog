@@ -77,7 +77,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .select(Article::getId, Article::getUserId, Article::getCategoryId, Article::getArticleTitle, Article::getArticleCover, Article::getArticleContent,
                         Article::getTopFlag, Article::getDraftFlag, Article::getPublicFlag, Article::getHiddenFlag, Article::getCommentableFlag)
                 .eq(Article::getId, articleId)
-                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
+                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getId())
                 .eq(Article::getRecycleFlag, 0)
                 .eq(Article::getDeletedFlag, 0));
         List<Integer> tagIdList = articleTagMapper.selectList(new LambdaQueryWrapper<ArticleTag>()
@@ -92,11 +92,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public ArticleOptionDTO getArticleOptionDTO(Integer userId) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (Objects.nonNull(userId) && loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(userId))
+        if (Objects.nonNull(userId) && loginUser.getRoleWeight() > 300 && !loginUser.getId().equals(userId))
             throw new IllegalRequestException();
             List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
                 .select(Tag::getId, Tag::getTagName)
-                .eq(Objects.isNull(userId), Tag::getUserId, loginUser.getUserId())
+                .eq(Objects.isNull(userId), Tag::getUserId, loginUser.getId())
                 .eq(Objects.nonNull(userId), Tag::getUserId, userId));
         List<LabelDTO> tagDTOList = tagList.stream()
                 .map(e -> LabelDTO.builder()
@@ -106,7 +106,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .collect(Collectors.toList());
         List<Category> categoryList = categoryMapper.selectList(new LambdaQueryWrapper<Category>()
                 .select(Category::getId, Category::getCategoryName)
-                .eq(Objects.isNull(userId), Category::getUserId, loginUser.getUserId())
+                .eq(Objects.isNull(userId), Category::getUserId, loginUser.getId())
                 .eq(Objects.nonNull(userId), Category::getUserId, userId));
         List<LabelDTO> categoryDTOList = categoryList.stream()
                 .map(e -> LabelDTO.builder()
@@ -115,7 +115,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         .build())
                 .collect(Collectors.toList());
         return ArticleOptionDTO.builder()
-                .userId(loginUser.getUserId())
+                .userId(loginUser.getId())
                 .tagDTOList(tagDTOList)
                 .categoryDTOList(categoryDTOList)
                 .build();
@@ -128,27 +128,27 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         articleBackVO.setArticleTitle(articleBackVO.getArticleTitle().trim());
         Article article = BeanCopyUtil.copyObject(articleBackVO, Article.class);
         if (Objects.isNull(article.getId())) {
-            article.setUserId(loginUser.getUserId());
+            article.setUserId(loginUser.getId());
             article.setIpAddress(IpUtil.getIpAddress(request));
             article.setIpSource(IpUtil.getIpSource(article.getIpAddress()));
-            article.setCreateUser(loginUser.getUserId());
+            article.setCreateUser(loginUser.getId());
             article.setCreateTime(new Date());
             if (!article.getDraftFlag()) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                         .eq(Category::getId, article.getCategoryId())
-                        .eq(Category::getUserId, loginUser.getUserId()));
+                        .eq(Category::getUserId, loginUser.getId()));
                 if (count != 1)
                     throw new IllegalRequestException();
-                article.setPublishUser(loginUser.getUserId());
+                article.setPublishUser(loginUser.getId());
                 article.setPublishTime(new Date());
                 if (StringUtils.isBlank(article.getArticleCover()))
-                    article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.ARTICLE.getPath() + loginUser.getUserId() + "/default/defaultCover.jpg");
+                    article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.ARTICLE.getPath() + loginUser.getId() + "/default/defaultCover.jpg");
             }
         } else {
             Article article2 = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
                     .select(Article::getId, Article::getUserId, Article::getPublishUser)
                     .eq(Article::getId, article.getId())
-                    .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
+                    .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getId()));
             if (Objects.isNull(article2.getId()))
                 throw new IllegalRequestException();
             if (!article.getDraftFlag()) {
@@ -157,10 +157,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         .eq(Category::getUserId, article2.getUserId()));
                 if (count != 1)
                     throw new IllegalRequestException();
-                article.setUpdateUser(loginUser.getUserId());
+                article.setUpdateUser(loginUser.getId());
                 article.setUpdateTime(new Date());
                 if (Objects.isNull(article2.getPublishUser())) {
-                    article.setPublishUser(loginUser.getUserId());
+                    article.setPublishUser(loginUser.getId());
                     article.setPublishTime(new Date());
                 }
                 if (StringUtils.isBlank(article.getArticleCover()))
@@ -192,7 +192,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (loginUser.getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        List<ArticlesBackDTO> articlesBackDTOList = articleMapper.listArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        List<ArticlesBackDTO> articlesBackDTOList = articleMapper.listArticlesBackDTO(condition, loginUser.getId(), loginUser.getRoleWeight());
         if (CollectionUtils.isEmpty(articlesBackDTOList))
             return new PagePojo<>();
         Map<String, Integer> viewCountMap = redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).entries();
@@ -208,7 +208,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Transactional
     public void updateArticlesStatus(UpdateBatchVO updateBatchVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        Integer count = articleMapper.updateArticlesStatus(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
+        Integer count = articleMapper.updateArticlesStatus(updateBatchVO, loginUser.getId(), loginUser.getRoleWeight());
         if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();
     }
@@ -233,7 +233,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .set(Article::getHiddenFlag, commonStatusVO.getHiddenFlag())
                 .set(Article::getCommentableFlag, commonStatusVO.getCommentableFlag())
                 .eq(Article::getId, commonStatusVO.getId())
-                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
+                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getId()));
         if (count != 1)
             throw new IllegalRequestException();
     }

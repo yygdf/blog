@@ -38,7 +38,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     @Override
     public List<UserMenusDTO> getUserMenusDTO() {
         LoginUser loginUser = UserUtil.getLoginUser();
-        List<Menu> menuList = menuMapper.listMenusByUserId(loginUser.getUserId(), loginUser.getRoleWeight());
+        List<Menu> menuList = menuMapper.listMenusByUserId(loginUser.getId(), loginUser.getRoleWeight());
         List<Menu> parentMenuList = getParentMenuList(menuList);
         Map<Integer, List<Menu>> childrenMenuMap = getChildrenMenuMap(menuList);
         return convertUserMenuDTOList(parentMenuList, childrenMenuMap);
@@ -99,12 +99,12 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                 .disabledFlag(menuBackVO.getDisabledFlag())
                 .build();
         if (Objects.isNull(menu.getId())) {
-            menu.setUserId(loginUser.getUserId());
-            menu.setCreateUser(loginUser.getUserId());
+            menu.setUserId(loginUser.getId());
+            menu.setCreateUser(loginUser.getId());
             menu.setCreateTime(new Date());
             menuMapper.insert(menu);
         } else {
-            menu.setUpdateUser(loginUser.getUserId());
+            menu.setUpdateUser(loginUser.getId());
             menu.setUpdateTime(new Date());
             int count = menuMapper.update(menu, new LambdaUpdateWrapper<Menu>()
                     .eq(Menu::getId, menu.getId())

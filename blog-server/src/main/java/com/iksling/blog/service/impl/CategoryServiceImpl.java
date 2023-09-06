@@ -53,7 +53,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                 .select(Category::getId, Category::getUserId, Category::getCategoryName, Category::getHiddenFlag, Category::getPublicFlag, Category::getCreateTime, Category::getUpdateTime)
                 .like(StringUtils.isNotBlank(condition.getKeywords()), Category::getCategoryName, condition.getKeywords())
                 .eq(Objects.nonNull(condition.getUserId()), Category::getUserId, condition.getUserId())
-                .eq(loginUser.getRoleWeight() > 300, Category::getUserId, loginUser.getUserId())
+                .eq(loginUser.getRoleWeight() > 300, Category::getUserId, loginUser.getId())
                 .orderByDesc(Category::getId));
         if (categoryPage.getTotal() == 0)
             return new PagePojo<>();
@@ -85,7 +85,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                 .set(Category::getPublicFlag, commonStatusVO.getPublicFlag())
                 .set(Category::getHiddenFlag, commonStatusVO.getHiddenFlag())
                 .eq(Category::getId, commonStatusVO.getId())
-                .eq(loginUser.getRoleWeight() > 300, Category::getUserId, loginUser.getUserId()));
+                .eq(loginUser.getRoleWeight() > 300, Category::getUserId, loginUser.getId()));
         if (count != 1)
             throw new IllegalRequestException();
     }
@@ -97,11 +97,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
             throw new IllegalRequestException();
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
-                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
+                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getId())
                 .in(Article::getCategoryId, categoryIdList));
         if (count > 0)
             throw new IllegalRequestException();
-        count = categoryMapper.deleteCategoryIdList(categoryIdList, loginUser.getUserId(), loginUser.getRoleWeight());
+        count = categoryMapper.deleteCategoryIdList(categoryIdList, loginUser.getId(), loginUser.getRoleWeight());
         if (count != categoryIdList.size())
             throw new IllegalRequestException();
     }
@@ -114,18 +114,18 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         if (Objects.isNull(categoryBackVO.getId())) {
             Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                     .eq(Category::getCategoryName, categoryBackVO.getCategoryName())
-                    .eq(Category::getUserId, loginUser.getUserId()));
+                    .eq(Category::getUserId, loginUser.getId()));
             if (count > 0)
                 throw new OperationStatusException("分类名已存在!");
             Category category = BeanCopyUtil.copyObject(categoryBackVO, Category.class);
-            category.setUserId(loginUser.getUserId());
-            category.setCreateUser(loginUser.getUserId());
+            category.setUserId(loginUser.getId());
+            category.setCreateUser(loginUser.getId());
             category.setCreateTime(new Date());
             categoryMapper.insert(category);
         } else {
             Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                     .eq(Category::getCategoryName, categoryBackVO.getCategoryName())
-                    .eq(Category::getUserId, loginUser.getUserId())
+                    .eq(Category::getUserId, loginUser.getId())
                     .ne(Category::getId, categoryBackVO.getId()));
             if (count > 0)
                 throw new OperationStatusException("分类名已存在!");
@@ -133,10 +133,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                     .set(Category::getCategoryName, categoryBackVO.getCategoryName())
                     .set(Category::getPublicFlag, categoryBackVO.getPublicFlag())
                     .set(Category::getHiddenFlag, categoryBackVO.getHiddenFlag())
-                    .set(Category::getUpdateUser, loginUser.getUserId())
+                    .set(Category::getUpdateUser, loginUser.getId())
                     .set(Category::getUpdateTime, new Date())
                     .eq(Category::getId, categoryBackVO.getId())
-                    .eq(loginUser.getRoleWeight() > 300, Category::getUserId, loginUser.getUserId()));
+                    .eq(loginUser.getRoleWeight() > 300, Category::getUserId, loginUser.getId()));
             if (count != 1)
                 throw new IllegalRequestException();
         }

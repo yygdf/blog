@@ -138,7 +138,7 @@
           </el-popconfirm>
           <el-button
             v-else
-            :disabled="checkRoot(scope.row.id, true)"
+            :disabled="checkRoot(scope.row.userId, true)"
             type="primary"
             size="mini"
             @click="openModel(scope.row)"
@@ -162,7 +162,7 @@
             @confirm="updateUsersStatus(scope.row.id)"
           >
             <el-button
-              :disabled="checkRoot(scope.row.id)"
+              :disabled="checkRoot(scope.row.userId)"
               type="danger"
               size="mini"
               slot="reference"
@@ -382,7 +382,7 @@ export default {
       this.addOrEditStatus = true;
     },
     checkRoot(id, flag = false) {
-      const rootFlag = this.$store.state.rootUserAuthId.some(e => e === id);
+      const rootFlag = this.$store.state.rootUserId.some(e => e === id);
       if (flag) {
         return rootFlag && !this.checkWeight(100);
       } else {
@@ -401,7 +401,7 @@ export default {
       this.listUsers();
     },
     checkSelectable(row) {
-      return !this.checkRoot(row.id);
+      return !this.checkRoot(row.userId);
     },
     selectionChange(userList) {
       this.userIdList = [];

@@ -67,7 +67,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
         List<LabelsDTO> menusDTOList = menuService.getMenusDTO();
         List<LabelsDTO> resourcesDTOList = resourceService.getResourcesDTO();
         return RoleOptionDTO.builder()
-                .userId(UserUtil.getLoginUser().getUserId())
+                .userId(UserUtil.getLoginUser().getId())
                 .menusDTOList(menusDTOList)
                 .resourcesDTOList(resourcesDTOList)
                 .build();
@@ -127,13 +127,13 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
             if (count > 0)
                 throw new OperationStatusException("角色名已存在!");
             role.setRoleName(roleBackVO.getRoleName().trim());
-            role.setUserId(loginUser.getUserId());
+            role.setUserId(loginUser.getId());
             role.setCreateTime(new Date());
-            role.setCreateUser(loginUser.getUserId());
+            role.setCreateUser(loginUser.getId());
             roleMapper.insert(role);
         } else {
             role.setUpdateTime(new Date());
-            role.setUpdateUser(loginUser.getUserId());
+            role.setUpdateUser(loginUser.getId());
             int count = roleMapper.updateById(role);
             if (count != 1)
                 throw new IllegalRequestException();

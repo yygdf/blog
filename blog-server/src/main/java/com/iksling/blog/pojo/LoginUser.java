@@ -20,14 +20,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class LoginUser implements UserDetails {
     /**
-     * 账号id
-     */
-    private Integer id;
-
-    /**
      * 用户id
      */
-    private Integer userId;
+    private Integer id;
 
     /**
      * 用户名
@@ -89,12 +84,11 @@ public class LoginUser implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LoginUser loginUser = (LoginUser) o;
-        return Objects.equals(id, loginUser.id) &&
-                Objects.equals(userId, loginUser.userId);
+        return Objects.equals(id, loginUser.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, userId);
+        return Objects.hash(id);
     }
 }

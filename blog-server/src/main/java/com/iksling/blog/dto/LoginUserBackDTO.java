@@ -48,7 +48,7 @@ public class LoginUserBackDTO {
     private String nickname;
 
     /**
-     * 系统核心用户账号idList
+     * 系统核心用户idList
      */
-    public List<Integer> rootUserAuthId;
+    public List<Integer> rootUserId;
 }

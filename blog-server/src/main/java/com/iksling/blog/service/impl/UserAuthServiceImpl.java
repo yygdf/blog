@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.ROOT_USER_AUTH_ID;
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 
 /**
  *
@@ -84,7 +84,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Transactional
     public void updateUserAuthBackVO(UserAuthBackVO userAuthBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100 && (userAuthBackVO.getLockedFlag() || ROOT_USER_AUTH_ID.contains(userAuthBackVO.getId())))
+        if (loginUser.getRoleWeight() > 100 && (userAuthBackVO.getLockedFlag() || ROOT_USER_ID.contains(userAuthBackVO.getId())))
             throw new IllegalRequestException();
         if (StringUtils.isNotBlank(userAuthBackVO.getPassword()))
             userAuthBackVO.setPassword(passwordEncoder.encode(userAuthBackVO.getPassword().trim()));
@@ -92,9 +92,9 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 .set(StringUtils.isNotBlank(userAuthBackVO.getPassword()), UserAuth::getPassword, userAuthBackVO.getPassword())
                 .set(UserAuth::getLockedFlag, userAuthBackVO.getLockedFlag())
                 .set(UserAuth::getDisabledFlag, userAuthBackVO.getDisabledFlag())
-                .set(UserAuth::getUpdateUser, loginUser.getUserId())
+                .set(UserAuth::getUpdateUser, loginUser.getId())
                 .set(UserAuth::getUpdateTime, new Date())
-                .eq(UserAuth::getId, userAuthBackVO.getId())
+                .eq(UserAuth::getUserId, userAuthBackVO.getId())
                 .eq(loginUser.getRoleWeight() > 100, UserAuth::getDeletedFlag, false));
         if (count != 1)
             throw new IllegalRequestException();
@@ -106,12 +106,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Transactional
     public void updateUserAuthStatusVO(CommonStatusVO commonStatusVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100 && (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag() || ROOT_USER_AUTH_ID.contains(commonStatusVO.getId())))
+        if (loginUser.getRoleWeight() > 100 && (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag() || ROOT_USER_ID.contains(commonStatusVO.getId())))
             throw new IllegalRequestException();
         int count = userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                 .set(Objects.nonNull(commonStatusVO.getTopFlag()), UserAuth::getLockedFlag, commonStatusVO.getTopFlag())
                 .set(UserAuth::getDisabledFlag, commonStatusVO.getPublicFlag())
-                .eq(UserAuth::getId, commonStatusVO.getId())
+                .eq(UserAuth::getUserId, commonStatusVO.getId())
                 .eq(loginUser.getRoleWeight() > 100, UserAuth::getDeletedFlag, false));
         if (count != 1)
             throw new IllegalRequestException();
@@ -122,7 +122,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Override
     @Transactional
     public void updateUserAuthsStatus(UpdateBatchVO updateBatchVO) {
-        if ((UserUtil.getLoginUser().getRoleWeight() > 100 && !updateBatchVO.getDeletedFlag()) || !Collections.disjoint(ROOT_USER_AUTH_ID, updateBatchVO.getIdList()))
+        if ((UserUtil.getLoginUser().getRoleWeight() > 100 && !updateBatchVO.getDeletedFlag()) || !Collections.disjoint(ROOT_USER_ID, updateBatchVO.getIdList()))
             throw new IllegalRequestException();
         Integer count = userAuthMapper.updateUserAuthsStatus(updateBatchVO);
         if (count != updateBatchVO.getIdList().size())

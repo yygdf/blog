@@ -7,14 +7,9 @@ import java.util.Date;
 @Data
 public class UserOnlinesBackDTO {
     /**
-     * 账号id
-     */
-    private Integer id;
-
-    /**
      * 用户id
      */
-    private Integer userId;
+    private Integer id;
 
     /**
      * 用户头像

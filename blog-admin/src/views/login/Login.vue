@@ -163,7 +163,7 @@ export default {
   margin-top: -185px;
   margin-left: -235px;
   background: rgba(0, 0, 0, 0.3);
-  padding: 50px 60px 100px;
+  padding: 50px 60px 20px;
   width: 350px;
   box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
   border-radius: 20px;

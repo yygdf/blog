@@ -43,7 +43,6 @@
         prop="configValue"
         label="配置值"
         align="center"
-        width="120"
       />
       <el-table-column prop="configDesc" label="配置描述" align="center" />
       <el-table-column
@@ -63,7 +62,7 @@
         align="center"
         width="120"
       >
-        <template slot-scope="scope">
+        <template slot-scope="scope" v-if="scope.row.updateTime">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.updateTime | date }}
         </template>
@@ -71,7 +70,7 @@
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
           <el-button
-            :disabled="!scope.role.deletableFlag && !checkWeight(100)"
+            :disabled="!scope.row.deletableFlag && !checkWeight(100)"
             type="primary"
             size="mini"
             @click="openModel(scope.row)"
@@ -107,19 +106,25 @@
       @current-change="currentChange"
     />
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
-      <div class="dialog-title-container" slot="title" ref="systemConfigTitle" />
+      <div
+        class="dialog-title-container"
+        slot="title"
+        ref="systemConfigTitle"
+      />
       <el-form :model="systemConfig" size="medium" label-width="80">
-        <el-form-item label="配置名">
+        <el-form-item label="配 置 名">
           <el-input
+            :disabled="systemConfig.id !== undefined"
             v-model="systemConfig.configName"
-            ref="input"
+            :ref="systemConfig.id ? '' : 'input'"
             style="width:250px"
             :maxLength="50"
           />
         </el-form-item>
-        <el-form-item label="配置值">
+        <el-form-item label="配 置 值">
           <el-input
             v-model="systemConfig.configValue"
+            :ref="systemConfig.id ? 'input' : ''"
             style="width:250px"
             :maxLength="255"
           />

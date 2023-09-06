@@ -4,7 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.SystemConfigService;
 import com.iksling.blog.vo.ConditionVO;
-import com.iksling.blog.vo.SystemConfigBackVO;
+import com.iksling.blog.vo.ConfigBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -35,8 +35,8 @@ public class SystemConfigController {
     @ApiOperation(value = "添加或修改系统配置")
     @ApiImplicitParam(name = "systemConfigBackVO", value = "系统配置后台VO", required = true, dataType = "SystemConfigBackVO")
     @PostMapping("/back/systemConfig")
-    public Result saveOrUpdateBackSystemConfig(@Valid @RequestBody SystemConfigBackVO systemConfigBackVO) {
-        systemConfigService.saveOrUpdateSystemConfigBackVO(systemConfigBackVO);
+    public Result saveOrUpdateBackSystemConfig(@Valid @RequestBody ConfigBackVO configBackVO) {
+        systemConfigService.saveOrUpdateSystemConfigBackVO(configBackVO);
         return Result.success().message("操作成功");
     }
 }

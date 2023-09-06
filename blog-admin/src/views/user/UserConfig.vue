@@ -120,6 +120,16 @@
               删除
             </el-button>
           </el-popconfirm>
+          <el-popconfirm
+            v-if="deletedFlag"
+            title="确定彻底删除吗？"
+            style="margin-left:10px"
+            @confirm="deleteUserConfig(scope.row.configName)"
+          >
+            <el-button type="danger" size="mini" slot="reference">
+              删除
+            </el-button>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -272,6 +282,23 @@ export default {
         .then(({ data }) => {
           this.usernameList = data.data;
         });
+    },
+    deleteUserConfig(configName) {
+      let param = { data: configName };
+      this.axios.delete("/api/back/userConfig", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listMenus();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+      });
     },
     addOrEditUserConfig() {
       if (this.userConfig.configName.trim() === "") {

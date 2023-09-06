@@ -35,7 +35,9 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
         Page<SystemConfig> page = new Page<>(condition.getCurrent(), condition.getSize());
         Page<SystemConfig> systemConfigPage = systemConfigMapper.selectPage(page, new LambdaQueryWrapper<SystemConfig>()
                 .select(SystemConfig::getId, SystemConfig::getUserId, SystemConfig::getConfigDesc, SystemConfig::getConfigValue, SystemConfig::getConfigName, SystemConfig::getDeletableFlag, SystemConfig::getCreateTime, SystemConfig::getUpdateTime)
-                .like(StringUtils.isNotBlank(condition.getKeywords()), SystemConfig::getConfigName, condition.getKeywords())
+                .and(StringUtils.isNotBlank(condition.getKeywords()), e -> e.like(SystemConfig::getConfigName, condition.getKeywords())
+                        .or()
+                        .like(SystemConfig::getConfigDesc, condition.getKeywords()))
                 .orderByDesc(SystemConfig::getId));
         if (systemConfigPage.getTotal() == 0)
             return new PagePojo<>();

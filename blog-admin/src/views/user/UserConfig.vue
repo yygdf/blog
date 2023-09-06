@@ -47,7 +47,7 @@
           size="small"
           style="width:200px"
           prefix-icon="el-icon-search"
-          placeholder="请输入配置名"
+          placeholder="请输入配置名或描述"
           clearable
           @keyup.enter.native="listUserConfigs"
         />
@@ -99,7 +99,7 @@
         align="center"
         width="120"
       >
-        <template slot-scope="scope">
+        <template slot-scope="scope" v-if="scope.row.updateTime">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.updateTime | date }}
         </template>
@@ -110,21 +110,23 @@
             编辑
           </el-button>
           <el-popconfirm
-            title="确定删除吗？"
+            v-if="deletedFlag"
+            v-disabled="scope.row.userId !== 2"
+            title="确定彻底删除吗？"
             style="margin-left:10px"
-            @confirm="
-              updateUserConfigStatus(scope.row.userId, scope.row.configName)
-            "
+            @confirm="deleteUserConfig(scope.row.configName)"
           >
             <el-button type="danger" size="mini" slot="reference">
               删除
             </el-button>
           </el-popconfirm>
           <el-popconfirm
-            v-if="deletedFlag"
-            title="确定彻底删除吗？"
+            v-else
+            title="确定删除吗？"
             style="margin-left:10px"
-            @confirm="deleteUserConfig(scope.row.configName)"
+            @confirm="
+              updateUserConfigStatus(scope.row.userId, scope.row.configName)
+            "
           >
             <el-button type="danger" size="mini" slot="reference">
               删除
@@ -147,17 +149,18 @@
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="userConfigTitle" />
       <el-form :model="userConfig" size="medium" label-width="80">
-        <el-form-item label="配置名">
+        <el-form-item label="配 置 名">
           <el-input
             v-model="userConfig.configName"
-            ref="input"
+            :ref="userConfig.id ? '' : 'input'"
             style="width:250px"
             :maxLength="50"
           />
         </el-form-item>
-        <el-form-item label="配置值">
+        <el-form-item label="配 置 值">
           <el-input
             v-model="userConfig.configValue"
+            :ref="userConfig.id ? 'input' : ''"
             style="width:250px"
             :maxLength="255"
           />
@@ -169,7 +172,7 @@
             :maxLength="255"
           />
         </el-form-item>
-        <el-form-item label="同步">
+        <el-form-item label="开启同步">
           <el-switch
             v-model="userConfig.assimilateFlag"
             :active-value="true"

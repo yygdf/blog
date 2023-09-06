@@ -17,7 +17,7 @@
           size="small"
           style="width:200px"
           prefix-icon="el-icon-search"
-          placeholder="请输入配置名"
+          placeholder="请输入配置名或描述"
           clearable
           @keyup.enter.native="listSystemConfigs"
         />

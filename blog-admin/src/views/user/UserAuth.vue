@@ -171,7 +171,12 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="80">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" :disabled="checkRoot(scope.row.userId) && !checkWeight(100)" @click="openModel(scope.row)">
+          <el-button
+            type="primary"
+            size="mini"
+            :disabled="checkRoot(scope.row.userId) && !checkWeight(100)"
+            @click="openModel(scope.row)"
+          >
             编辑
           </el-button>
         </template>

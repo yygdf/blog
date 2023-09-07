@@ -39,7 +39,11 @@
         >
           记住我
         </el-checkbox>
-        <el-link type="info" style="color: rgba(255,255,255,0.8);margin-left:auto">忘记账号或密码?点击此处!</el-link>
+        <el-link
+          type="info"
+          style="color: rgba(255,255,255,0.8);margin-left:auto"
+          >忘记账号或密码?点击此处!</el-link
+        >
       </div>
     </div>
   </div>

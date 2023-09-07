@@ -39,11 +39,7 @@
         align="center"
         width="120"
       />
-      <el-table-column
-        prop="configValue"
-        label="配置值"
-        align="center"
-      />
+      <el-table-column prop="configValue" label="配置值" align="center" />
       <el-table-column prop="configDesc" label="配置描述" align="center" />
       <el-table-column
         prop="createTime"

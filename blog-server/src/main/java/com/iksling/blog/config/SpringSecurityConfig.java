@@ -74,9 +74,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                     }
                 })
                 .anyRequest().permitAll()
-                .and()
-                .rememberMe()
-                .key("https://iksling.com")
+//                .and()
+//                .rememberMe()
+//                .key("https://iksling.com")
                 .and()
                 .csrf().disable()
                 .exceptionHandling()

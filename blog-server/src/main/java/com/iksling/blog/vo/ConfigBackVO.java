@@ -39,4 +39,10 @@ public class ConfigBackVO {
     @Max(message = "配置名最大长度", value = 50)
     @ApiModelProperty(name = "configName", value = "配置名", required = true, dataType = "String")
     private String configName;
+
+    /**
+     * 0不同步，1需同步
+     */
+    @ApiModelProperty(name = "assimilateFlag", value = "0不同步，1需同步", dataType = "Boolean")
+    private Boolean assimilateFlag;
 }

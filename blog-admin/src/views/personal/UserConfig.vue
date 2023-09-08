@@ -12,6 +12,7 @@
       </el-button>
       <div style="margin-left:auto">
         <el-select
+          v-if="checkWeight(100)"
           v-model="userId"
           size="small"
           style="margin-right:1rem"
@@ -29,6 +30,7 @@
           />
         </el-select>
         <el-select
+          v-if="checkWeight(100)"
           v-model="deletedFlag"
           size="small"
           style="margin-right:1rem"
@@ -79,7 +81,6 @@
         prop="configValue"
         label="配置值"
         align="center"
-        width="120"
       />
       <el-table-column prop="configDesc" label="配置描述" align="center" />
       <el-table-column
@@ -111,7 +112,7 @@
           </el-button>
           <el-popconfirm
             v-if="deletedFlag"
-            v-disabled="scope.row.userId !== 2"
+            :disabled="scope.row.userId !== 2"
             title="确定彻底删除吗？"
             style="margin-left:10px"
             @confirm="deleteUserConfig(scope.row.configName)"
@@ -172,7 +173,7 @@
             :maxLength="255"
           />
         </el-form-item>
-        <el-form-item label="开启同步">
+        <el-form-item v-if="rootFlag" label="开启同步">
           <el-switch
             v-model="userConfig.assimilateFlag"
             :active-value="true"
@@ -218,6 +219,7 @@ export default {
       userId: null,
       keywords: null,
       loading: true,
+      rootFlag: false,
       deletedFlag: false,
       addOrEditStatus: false,
       size: 10,
@@ -234,6 +236,11 @@ export default {
           configValue: userConfig.configValue,
           configDesc: userConfig.configDesc
         };
+        if (this.checkWeight(100)) {
+          this.rootFlag = this.checkRoot(userConfig.userId);
+        } else {
+          this.rootFlag = false;
+        }
         this.$refs.userConfigTitle.innerHTML = "修改配置";
       } else {
         this.userConfig = {
@@ -247,6 +254,9 @@ export default {
         this.$refs.input.focus();
       });
       this.addOrEditStatus = true;
+    },
+    checkRoot(id) {
+      return this.$store.state.rootUserId.some(e => e === id);
     },
     sizeChange(size) {
       this.size = size;

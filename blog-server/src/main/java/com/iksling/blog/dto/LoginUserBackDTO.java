@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
@@ -46,9 +44,4 @@ public class LoginUserBackDTO {
      * 用户昵称
      */
     private String nickname;
-
-    /**
-     * 系统核心用户idList
-     */
-    public List<Integer> rootUserId;
 }

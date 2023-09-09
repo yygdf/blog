@@ -73,7 +73,7 @@ public class LogAspect {
         String ipAddress = IpUtil.getIpAddress(request);
         String ipSource = IpUtil.getIpSource(ipAddress);
         operationLogMapper.insert(OperationLog.builder()
-                .userId(UserUtil.getLoginUser().getId())
+                .userId(UserUtil.getLoginUser().getUserId())
                 .optUri(Objects.requireNonNull(request).getRequestURI())
                 .optType(optLog.optType())
                 .optDesc(apiOperation.value())
@@ -84,7 +84,7 @@ public class LogAspect {
                 .optResponseData(JSON.toJSONString(keys))
                 .ipSource(ipSource)
                 .ipAddress(ipAddress)
-                .createUser(UserUtil.getLoginUser().getId())
+                .createUser(UserUtil.getLoginUser().getUserId())
                 .createTime(new Date())
                 .build());
     }
@@ -105,7 +105,7 @@ public class LogAspect {
         e.printStackTrace(pw);
         if (e instanceof IllegalRequestException) {
             IllegalLog illegalLog = IllegalLog.builder()
-                    .userId(UserUtil.getLoginUser().getId())
+                    .userId(UserUtil.getLoginUser().getUserId())
                     .optUri(Objects.requireNonNull(request).getRequestURI())
                     .optType(Objects.isNull(optLog) ? "查询" : optLog.optType())
                     .optDesc(apiOperation.value())
@@ -117,7 +117,7 @@ public class LogAspect {
                     .exceptionStackTrace(sw.toString())
                     .ipSource(ipSource)
                     .ipAddress(ipAddress)
-                    .createUser(UserUtil.getLoginUser().getId())
+                    .createUser(UserUtil.getLoginUser().getUserId())
                     .createTime(new Date())
                     .build();
             illegalLogMapper.insert(illegalLog);
@@ -130,7 +130,7 @@ public class LogAspect {
             rabbitTemplate.convertAndSend(EMAIL_EXCHANGE, "*", new Message(JSON.toJSONBytes(email), new MessageProperties()));
         } else {
             exceptionLogMapper.insert(ExceptionLog.builder()
-                    .userId(UserUtil.getLoginUser().getId())
+                    .userId(UserUtil.getLoginUser().getUserId())
                     .optUri(Objects.requireNonNull(request).getRequestURI())
                     .optType(Objects.isNull(optLog) ? "查询" : optLog.optType())
                     .optDesc(apiOperation.value())
@@ -142,7 +142,7 @@ public class LogAspect {
                     .exceptionStackTrace(sw.toString())
                     .ipSource(ipSource)
                     .ipAddress(ipAddress)
-                    .createUser(UserUtil.getLoginUser().getId())
+                    .createUser(UserUtil.getLoginUser().getUserId())
                     .createTime(new Date())
                     .build());
         }

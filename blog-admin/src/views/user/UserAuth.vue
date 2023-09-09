@@ -113,7 +113,6 @@
         <template slot-scope="scope">
           <el-switch
             :value="scope.row.disabledFlag"
-            :disabled="checkRoot(scope.row.userId) && !checkWeight(100)"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -171,12 +170,7 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="80">
         <template slot-scope="scope">
-          <el-button
-            type="primary"
-            size="mini"
-            :disabled="checkRoot(scope.row.userId) && !checkWeight(100)"
-            @click="openModel(scope.row)"
-          >
+          <el-button type="primary" size="mini" @click="openModel(scope.row)">
             编辑
           </el-button>
         </template>
@@ -350,14 +344,6 @@ export default {
         this.$refs.input.focus();
       });
       this.editStatus = true;
-    },
-    checkRoot(id, flag = false) {
-      const rootFlag = this.$store.state.rootUserId.some(e => e === id);
-      if (flag) {
-        return rootFlag && !this.checkWeight(100);
-      } else {
-        return rootFlag;
-      }
     },
     sizeChange(size) {
       this.size = size;

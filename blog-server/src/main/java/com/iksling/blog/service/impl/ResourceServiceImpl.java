@@ -91,12 +91,12 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
             resource.setResourceRequestMethod(resourceBackVO.getResourceRequestMethod().trim());
         }
         if (Objects.isNull(resource.getId())) {
-            resource.setUserId(loginUser.getId());
-            resource.setCreateUser(loginUser.getId());
+            resource.setUserId(loginUser.getUserId());
+            resource.setCreateUser(loginUser.getUserId());
             resource.setCreateTime(new Date());
             resourceMapper.insert(resource);
         } else {
-            resource.setUpdateUser(loginUser.getId());
+            resource.setUpdateUser(loginUser.getUserId());
             resource.setUpdateTime(new Date());
             int count = resourceMapper.update(resource, new LambdaUpdateWrapper<Resource>()
                     .eq(Resource::getId, resource.getId())

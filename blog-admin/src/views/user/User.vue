@@ -72,12 +72,7 @@
       border
       @selection-change="selectionChange"
     >
-      <el-table-column
-        type="selection"
-        align="center"
-        width="40"
-        :selectable="checkSelectable"
-      />
+      <el-table-column type="selection" align="center" width="40" />
       <el-table-column
         prop="username"
         label="用户"
@@ -138,7 +133,6 @@
           </el-popconfirm>
           <el-button
             v-else
-            :disabled="checkRoot(scope.row.userId, true)"
             type="primary"
             size="mini"
             @click="openModel(scope.row)"
@@ -162,7 +156,6 @@
             @confirm="updateUsersStatus(scope.row.id)"
           >
             <el-button
-              :disabled="checkRoot(scope.row.userId)"
               type="danger"
               size="mini"
               slot="reference"
@@ -381,14 +374,6 @@ export default {
       });
       this.addOrEditStatus = true;
     },
-    checkRoot(id, flag = false) {
-      const rootFlag = this.$store.state.rootUserId.some(e => e === id);
-      if (flag) {
-        return rootFlag && !this.checkWeight(100);
-      } else {
-        return rootFlag;
-      }
-    },
     sizeChange(size) {
       this.size = size;
       this.listUsers();
@@ -399,9 +384,6 @@ export default {
     currentChange(current) {
       this.current = current;
       this.listUsers();
-    },
-    checkSelectable(row) {
-      return !this.checkRoot(row.userId);
     },
     selectionChange(userList) {
       this.userIdList = [];

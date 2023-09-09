@@ -78,7 +78,7 @@
       <el-table-column label="操作" align="center" width="400">
         <template slot-scope="scope">
           <el-button
-            :disabled="!checkWeight(100) && scope.row.id === 1"
+            :disabled="!checkWeight(100) && scope.row.id === rootRoleId"
             type="info"
             size="mini"
             @click="openMenuModel(scope.row)"
@@ -86,14 +86,14 @@
             <i class="el-icon-folder-opened" /> 菜单权限
           </el-button>
           <el-button
-            :disabled="!checkWeight(100) && scope.row.id === 1"
+            :disabled="!checkWeight(100) && scope.row.id === rootRoleId"
             type="info"
             size="mini"
             @click="openResourceModel(scope.row)"
           >
             <i class="el-icon-folder-opened" /> 资源权限
           </el-button>
-          <el-button :disabled="!checkWeight(100) && scope.row.id === 1" type="primary" size="mini" @click="openModel(scope.row)">
+          <el-button :disabled="!checkWeight(100) && scope.row.id === rootRoleId" type="primary" size="mini" @click="openModel(scope.row)">
             <i class="el-icon-edit" /> 修改
           </el-button>
           <el-popconfirm
@@ -221,6 +221,7 @@ export default {
       menuList: [],
       resourceList: [],
       keywords: null,
+      rootRoleId: null,
       loading: true,
       addOrEditStatus: false,
       editRoleMenuStatus: false,
@@ -314,7 +315,8 @@ export default {
           }
         })
         .then(({ data }) => {
-          this.roleList = data.data;
+          this.rootRoleId = data.data.count;
+          this.roleList = data.data.pageList;
           this.loading = false;
         });
     },

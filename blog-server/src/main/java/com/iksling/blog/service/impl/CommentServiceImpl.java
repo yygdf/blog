@@ -41,7 +41,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         if (loginUser.getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        List<CommentsBackDTO> commentsBackDTOList = commentMapper.listCommentsBackDTO(condition, loginUser.getId(), loginUser.getRoleWeight());
+        List<CommentsBackDTO> commentsBackDTOList = commentMapper.listCommentsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (CollectionUtils.isEmpty(commentsBackDTOList))
             return new PagePojo<>();
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
@@ -55,7 +55,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     @Transactional
     public void updateCommentsStatus(UpdateBatchVO updateBatchVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        commentMapper.updateCommentsStatus(updateBatchVO, loginUser.getId(), loginUser.getRoleWeight());
+        commentMapper.updateCommentsStatus(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
     }
 
     @Override

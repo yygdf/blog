@@ -84,15 +84,19 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Transactional
     public void updateUserAuthBackVO(UserAuthBackVO userAuthBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100 && (userAuthBackVO.getLockedFlag() || ROOT_USER_ID.contains(userAuthBackVO.getId())))
-            throw new IllegalRequestException();
+        if (loginUser.getRoleWeight() > 100) {
+            if (userAuthBackVO.getLockedFlag())
+                throw new IllegalRequestException();
+            if (ROOT_USER_ID.contains(userAuthBackVO.getId()))
+                return;
+        }
         if (StringUtils.isNotBlank(userAuthBackVO.getPassword()))
             userAuthBackVO.setPassword(passwordEncoder.encode(userAuthBackVO.getPassword().trim()));
         int count = userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                 .set(StringUtils.isNotBlank(userAuthBackVO.getPassword()), UserAuth::getPassword, userAuthBackVO.getPassword())
                 .set(UserAuth::getLockedFlag, userAuthBackVO.getLockedFlag())
                 .set(UserAuth::getDisabledFlag, userAuthBackVO.getDisabledFlag())
-                .set(UserAuth::getUpdateUser, loginUser.getId())
+                .set(UserAuth::getUpdateUser, loginUser.getUserId())
                 .set(UserAuth::getUpdateTime, new Date())
                 .eq(UserAuth::getUserId, userAuthBackVO.getId())
                 .eq(loginUser.getRoleWeight() > 100, UserAuth::getDeletedFlag, false));
@@ -106,8 +110,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Transactional
     public void updateUserAuthStatusVO(CommonStatusVO commonStatusVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100 && (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag() || ROOT_USER_ID.contains(commonStatusVO.getId())))
-            throw new IllegalRequestException();
+        if (loginUser.getRoleWeight() > 100) {
+            if (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag())
+                throw new IllegalRequestException();
+            if (ROOT_USER_ID.contains(commonStatusVO.getId()))
+                return;
+        }
         int count = userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                 .set(Objects.nonNull(commonStatusVO.getTopFlag()), UserAuth::getLockedFlag, commonStatusVO.getTopFlag())
                 .set(UserAuth::getDisabledFlag, commonStatusVO.getPublicFlag())
@@ -122,8 +130,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Override
     @Transactional
     public void updateUserAuthsStatus(UpdateBatchVO updateBatchVO) {
-        if ((UserUtil.getLoginUser().getRoleWeight() > 100 && !updateBatchVO.getDeletedFlag()) || !Collections.disjoint(ROOT_USER_ID, updateBatchVO.getIdList()))
-            throw new IllegalRequestException();
+        if ((UserUtil.getLoginUser().getRoleWeight() > 100)) {
+            if (!updateBatchVO.getDeletedFlag())
+                throw new IllegalRequestException();
+             if (!Collections.disjoint(ROOT_USER_ID, updateBatchVO.getIdList()))
+                 return;
+        }
         Integer count = userAuthMapper.updateUserAuthsStatus(updateBatchVO);
         if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();
@@ -134,7 +146,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     private void disabledOrLockedOrDeletedUserAuth(List<Integer> idList) {
         List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(item -> {
             LoginUser loginUser = (LoginUser) item;
-            return idList.contains(loginUser.getId());
+            return idList.contains(loginUser.getUserId());
         }).collect(Collectors.toList());
         List<SessionInformation> allSessions = new ArrayList<>();
         loginUserList.forEach(item -> allSessions.addAll(sessionRegistry.getAllSessions(item, false)));

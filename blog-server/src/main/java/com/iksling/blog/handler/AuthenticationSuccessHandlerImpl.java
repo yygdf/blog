@@ -26,8 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 
-import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
-
 @Component
 public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHandler {
     @Autowired
@@ -40,7 +38,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException {
         LoginUser loginUser = UserUtil.getLoginUser();
-        Integer userId = loginUser.getId();
+        Integer userId = loginUser.getUserId();
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .select(User::getId, User::getNickname, User::getAvatar, User::getIntro, User::getEmail, User::getWebsite)
                 .eq(User::getId, userId));
@@ -58,7 +56,6 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
                     .weight(loginUser.getRoleWeight())
                     .website(user.getWebsite())
                     .nickname(user.getNickname())
-                    .rootUserId(ROOT_USER_ID)
                     .build();
             httpServletResponse.setContentType("application/json;charset=UTF-8");
             httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message("登录成功!").data(loginUserBackDTO)));

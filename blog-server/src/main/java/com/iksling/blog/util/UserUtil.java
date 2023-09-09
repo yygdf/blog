@@ -13,7 +13,7 @@ public class UserUtil {
 
     public static LoginUser getAnonymousUser() {
         return LoginUser.builder()
-                .id(-1)
+                .userId(-1)
                 .build();
     }
 }

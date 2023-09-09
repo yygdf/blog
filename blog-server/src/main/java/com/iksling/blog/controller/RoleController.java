@@ -1,6 +1,7 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.RoleService;
 import com.iksling.blog.vo.CommonStatusVO;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID;
 import static com.iksling.blog.constant.OptLogConst.*;
 
 @RestController
@@ -26,7 +28,7 @@ public class RoleController {
     @ApiImplicitParam(name = "keywords", value = "角色名称关键字", dataType = "String")
     @GetMapping("/back/roles")
     public Result listBackRoles(String keywords) {
-        return Result.success().message("查询成功").data(roleService.getRolesBackDTO(keywords));
+        return Result.success().message("查询成功").data(new PagePojo<>(ROOT_ROLE_ID, roleService.getRolesBackDTO(keywords)));
     }
 
     @ApiOperation(value = "查看角色选项")

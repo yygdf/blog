@@ -72,7 +72,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .nickname(userBackVO.getNickname().trim())
                 .build();
         if (loginUser.getRoleWeight() > 100 && CommonConst.ROOT_USER_ID.contains(userBackVO.getId()))
-            throw new IllegalRequestException();
+            return;
         if (StringUtils.isBlank(userBackVO.getAvatar()))
             user.setAvatar(DEFAULT_AVATAR);
         else
@@ -92,14 +92,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .eq(User::getEmail, user.getEmail()));
             if (count > 0)
                 throw new IllegalRequestException();
-            user.setCreateUser(loginUser.getId());
+            user.setCreateUser(loginUser.getUserId());
             user.setCreateTime(new Date());
             userMapper.insert(user);
             userAuthMapper.insert(UserAuth.builder()
                     .userId(user.getId())
                     .username(userBackVO.getUsername().trim())
                     .password(DEFAULT_PASSWORD)
-                    .createUser(loginUser.getId())
+                    .createUser(loginUser.getUserId())
                     .createTime(new Date())
                     .build());
         } else {
@@ -108,7 +108,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .ne(User::getId, user.getId()));
             if (count > 0)
                 throw new IllegalRequestException();
-            user.setUpdateUser(loginUser.getId());
+            user.setUpdateUser(loginUser.getUserId());
             user.setUpdateTime(new Date());
             userMapper.updateById(user);
         }
@@ -130,7 +130,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .filter(item -> StringUtils.isBlank(condition.getKeywords()) || item.getUsername().contains(condition.getKeywords()))
                 .filter(item -> Objects.isNull(condition.getDeletedFlag()) || item.getLoginPlatform().equals(condition.getDeletedFlag()))
                 .sorted(Comparator.comparing(LoginUser::getLoginTime).reversed())
-                .map(LoginUser::getId)
+                .map(LoginUser::getUserId)
                 .collect(Collectors.toList());
         if (onlineUserIdList.isEmpty())
             return new PagePojo<>();
@@ -143,9 +143,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public void deleteUserOnlineIdList(List<Integer> userOnlineIdList) {
+        if (UserUtil.getLoginUser().getRoleWeight() > 100)
+            userOnlineIdList.removeAll(ROOT_USER_ID);
         List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(item -> {
             LoginUser loginUser = (LoginUser) item;
-            return userOnlineIdList.contains(loginUser.getId());
+            return userOnlineIdList.contains(loginUser.getUserId());
         }).collect(Collectors.toList());
         List<SessionInformation> allSessions = new ArrayList<>();
         loginUserList.forEach(item -> allSessions.addAll(sessionRegistry.getAllSessions(item, false)));

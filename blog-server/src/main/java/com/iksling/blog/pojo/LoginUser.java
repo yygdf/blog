@@ -22,7 +22,7 @@ public class LoginUser implements UserDetails {
     /**
      * 用户id
      */
-    private Integer id;
+    private Integer userId;
 
     /**
      * 用户名
@@ -84,11 +84,11 @@ public class LoginUser implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LoginUser loginUser = (LoginUser) o;
-        return Objects.equals(id, loginUser.id);
+        return Objects.equals(userId, loginUser.userId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(userId);
     }
 }

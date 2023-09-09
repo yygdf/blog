@@ -33,4 +33,14 @@ public class CommonConst {
      * 系统核心用户idList
      */
     public static final List<Integer> ROOT_USER_ID = Arrays.asList(0, 1, 2);
+
+    /**
+     * 首页菜单id
+     */
+    public static final Integer HOME_MENU_ID = 1;
+
+    /**
+     * 核心角色id
+     */
+    public static final Integer ROOT_ROLE_ID = 1;
 }

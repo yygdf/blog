@@ -116,7 +116,7 @@
       <el-table-column label="操作" align="center" width="200">
         <template slot-scope="scope">
           <el-button
-            :disabled="scope.row.parentId !== -1 || scope.row.id === 1"
+            :disabled="scope.row.parentId !== -1 || scope.row.id === homeMenuId"
             type="primary"
             size="mini"
             class="smallerBtn"
@@ -166,7 +166,7 @@
             placeholder="请选择"
           >
             <el-option
-              v-for="item in menuList.filter(e => e.id !== 1)"
+              v-for="item in menuList.filter(e => e.id !== homeMenuId)"
               :key="item.id"
               :value="item.id"
               :label="item.name"
@@ -291,6 +291,7 @@ export default {
       menu: {},
       menuList: [],
       keywords: null,
+      homeMenuId: null,
       loading: true,
       showIcon: false,
       addOrEditStatus: false
@@ -372,7 +373,8 @@ export default {
           }
         })
         .then(({ data }) => {
-          this.menuList = data.data;
+          this.homeMenuId = data.data.count;
+          this.menuList = data.data.pageList;
           this.loading = false;
         });
     },

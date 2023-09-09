@@ -50,16 +50,16 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
         LoginUser loginUser = UserUtil.getLoginUser();
         SystemConfig systemConfig = SystemConfig.builder()
                 .id(configBackVO.getId())
-                .userId(loginUser.getId())
+                .userId(loginUser.getUserId())
                 .configDesc(configBackVO.getConfigDesc().trim())
                 .configValue(configBackVO.getConfigValue().trim())
                 .build();
         if (Objects.isNull(configBackVO.getId())) {
             systemConfig.setConfigName(configBackVO.getConfigName().trim());
-            systemConfig.setCreateUser(loginUser.getId());
+            systemConfig.setCreateUser(loginUser.getUserId());
             systemConfig.setCreateTime(new Date());
         } else {
-            systemConfig.setUpdateUser(loginUser.getId());
+            systemConfig.setUpdateUser(loginUser.getUserId());
             systemConfig.setUpdateTime(new Date());
         }
         this.saveOrUpdate(systemConfig);

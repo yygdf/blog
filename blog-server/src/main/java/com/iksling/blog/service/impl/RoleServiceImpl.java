@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID;
+
 /**
  *
  */
@@ -67,7 +69,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
         List<LabelsDTO> menusDTOList = menuService.getMenusDTO();
         List<LabelsDTO> resourcesDTOList = resourceService.getResourcesDTO();
         return RoleOptionDTO.builder()
-                .userId(UserUtil.getLoginUser().getId())
+                .userId(UserUtil.getLoginUser().getUserId())
                 .menusDTOList(menusDTOList)
                 .resourcesDTOList(resourcesDTOList)
                 .build();
@@ -76,7 +78,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     @Override
     @Transactional
     public void updateRoleStatusVO(CommonStatusVO commonStatusVO) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100 && commonStatusVO.getId() == 1)
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 && commonStatusVO.getId().equals(ROOT_ROLE_ID))
             throw new IllegalRequestException();
         int count = roleMapper.update(null, new LambdaUpdateWrapper<Role>()
                 .set(Role::getDisabledFlag, commonStatusVO.getPublicFlag())
@@ -113,7 +115,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     @Transactional
     public void saveOrUpdateRoleBackVO(RoleBackVO roleBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100 && (roleBackVO.getRoleWeight() <= 100 || (Objects.nonNull(roleBackVO.getId()) && roleBackVO.getId() == 1)))
+        if (loginUser.getRoleWeight() > 100 && (roleBackVO.getRoleWeight() <= 100 || (Objects.nonNull(roleBackVO.getId()) && roleBackVO.getId().equals(ROOT_ROLE_ID))))
             throw new IllegalRequestException();
         Role role = Role.builder()
                 .id(roleBackVO.getId())
@@ -127,13 +129,13 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
             if (count > 0)
                 throw new OperationStatusException("角色名已存在!");
             role.setRoleName(roleBackVO.getRoleName().trim());
-            role.setUserId(loginUser.getId());
+            role.setUserId(loginUser.getUserId());
             role.setCreateTime(new Date());
-            role.setCreateUser(loginUser.getId());
+            role.setCreateUser(loginUser.getUserId());
             roleMapper.insert(role);
         } else {
             role.setUpdateTime(new Date());
-            role.setUpdateUser(loginUser.getId());
+            role.setUpdateUser(loginUser.getUserId());
             int count = roleMapper.updateById(role);
             if (count != 1)
                 throw new IllegalRequestException();
@@ -145,6 +147,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     @Override
     @Transactional
     public void updateRoleOptionVO(RoleOptionVO roleOptionVO) {
+        if (UserUtil.getLoginUser().getRoleWeight() > 100 && roleOptionVO.getId().equals(ROOT_ROLE_ID))
+            throw new IllegalRequestException();
         if (Objects.nonNull(roleOptionVO.getMenuIdList())) {
             roleMenuService.remove(new LambdaQueryWrapper<RoleMenu>()
                     .eq(RoleMenu::getRoleId, roleOptionVO.getId()));

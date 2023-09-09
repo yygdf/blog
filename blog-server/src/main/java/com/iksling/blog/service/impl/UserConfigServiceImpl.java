@@ -38,7 +38,7 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
         Page<UserConfig> userConfigPage = userConfigMapper.selectPage(page, new LambdaQueryWrapper<UserConfig>()
                 .select(UserConfig::getId, UserConfig::getUserId, UserConfig::getConfigDesc, UserConfig::getConfigValue, UserConfig::getConfigName, UserConfig::getDeletableFlag, UserConfig::getCreateTime, UserConfig::getUpdateTime)
                 .eq(Objects.nonNull(condition.getUserId()), UserConfig::getUserId, condition.getUserId())
-                .eq(loginUser.getRoleWeight() > 100, UserConfig::getUserId, loginUser.getId())
+                .eq(loginUser.getRoleWeight() > 100, UserConfig::getUserId, loginUser.getUserId())
                 .and(StringUtils.isNotBlank(condition.getKeywords()), e -> e.like(UserConfig::getConfigName, condition.getKeywords())
                         .or()
                         .like(UserConfig::getConfigDesc, condition.getKeywords()))
@@ -69,9 +69,9 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
         if (Objects.isNull(configBackVO.getId())) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();
-            userConfig.setUserId(loginUser.getId());
+            userConfig.setUserId(loginUser.getUserId());
             userConfig.setConfigName(configBackVO.getConfigName().trim());
-            userConfig.setCreateUser(loginUser.getId());
+            userConfig.setCreateUser(loginUser.getUserId());
             userConfig.setCreateTime(new Date());
             userConfigMapper.insert(userConfig);
         } else {
@@ -81,7 +81,7 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
                 userConfigMapper.update(null, new LambdaUpdateWrapper<UserConfig>()
                         .set(UserConfig::getConfigDesc, userConfig.getConfigDesc())
                         .set(UserConfig::getConfigValue, userConfig.getConfigValue())
-                        .set(UserConfig::getUpdateUser, loginUser.getId())
+                        .set(UserConfig::getUpdateUser, loginUser.getUserId())
                         .set(UserConfig::getUpdateTime, new Date())
                         .eq(UserConfig::getConfigName, configBackVO.getConfigName().trim()));
             }
@@ -89,10 +89,10 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
                 int count = userConfigMapper.update(null, new LambdaUpdateWrapper<UserConfig>()
                         .set(UserConfig::getConfigDesc, userConfig.getConfigDesc())
                         .set(UserConfig::getConfigValue, userConfig.getConfigValue())
-                        .set(UserConfig::getUpdateUser, loginUser.getId())
+                        .set(UserConfig::getUpdateUser, loginUser.getUserId())
                         .set(UserConfig::getUpdateTime, new Date())
                         .eq(UserConfig::getId, configBackVO.getId())
-                        .eq(loginUser.getRoleWeight() > 100, UserConfig::getUserId, loginUser.getId()));
+                        .eq(loginUser.getRoleWeight() > 100, UserConfig::getUserId, loginUser.getUserId()));
                 if (count != 1)
                     throw new IllegalRequestException();
             }

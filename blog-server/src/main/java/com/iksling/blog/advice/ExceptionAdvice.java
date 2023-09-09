@@ -33,7 +33,7 @@ public class ExceptionAdvice {
     /********** 非法请求异常 **********/
     @ExceptionHandler(value = IllegalRequestException.class)
     public Result exceptionAdvice(IllegalRequestException e) {
-        Integer userId = UserUtil.getLoginUser().getId();
+        Integer userId = UserUtil.getLoginUser().getUserId();
         String username = UserUtil.getLoginUser().getUsername();
         redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).expire(1, TimeUnit.DAYS);
         redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).increment(userId.toString(), 1);

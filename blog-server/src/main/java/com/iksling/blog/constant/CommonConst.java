@@ -40,12 +40,17 @@ public class CommonConst {
     public static final List<Integer> ROOT_USER_ID_LIST = Arrays.asList(0, 1, 2);
 
     /**
-     * 首页菜单id
+     * 系统首页菜单id
      */
     public static final Integer HOME_MENU_ID = 1;
 
     /**
-     * 核心角色id
+     * 系统核心角色id
      */
     public static final Integer ROOT_ROLE_ID = 1;
+
+    /**
+     * 系统核心角色idList
+     */
+    public static final List<Integer> ROOT_ROLE_ID_LIST = Arrays.asList(1);
 }

@@ -38,10 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
@@ -56,6 +53,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     implements ArticleService{
     @Autowired
     private ArticleMapper articleMapper;
+
     @Autowired
     private ArticleTagMapper articleTagMapper;
     @Autowired
@@ -167,8 +165,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 if (StringUtils.isBlank(article.getArticleCover()))
                     article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.ARTICLE.getPath() + article2.getUserId() + "/default/defaultCover.jpg");
             }
-            articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>()
-                    .eq(ArticleTag::getArticleId, article.getId()));
+            articleTagMapper.deleteByMap(Collections.singletonMap("article_id", article.getId()));
             article.setUserId(article2.getUserId());
         }
         this.saveOrUpdate(article);
@@ -179,8 +176,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             if (!tagList.stream().map(Tag::getId).collect(Collectors.toList()).containsAll(articleBackVO.getTagIdList()))
                 throw new IllegalRequestException();
             List<ArticleTag> articleTagList = articleBackVO.getTagIdList().stream().map(tagId -> ArticleTag.builder()
-                    .articleId(article.getId())
                     .tagId(tagId)
+                    .articleId(article.getId())
                     .build()).collect(Collectors.toList());
             articleTagService.saveBatch(articleTagList);
         }

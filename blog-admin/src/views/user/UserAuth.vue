@@ -255,6 +255,18 @@
             inactive-color="#F4F4F5"
           />
         </el-form-item>
+        <el-form-item>
+          <el-checkbox-group v-model="userAuth.roleIdList" :min="1">
+            <el-checkbox
+              v-for="item of roleNameList"
+              :disabled="item.userId <= 100 && !checkWeight(100)"
+              :key="item.id"
+              :label="item.id"
+            >
+              {{ item.label }}
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
       </el-form>
       <div slot="footer">
         <el-button @click="editStatus = false">取 消</el-button>
@@ -333,6 +345,7 @@ export default {
     openModel(userAuth) {
       this.userAuth = {
         userId: userAuth.userId,
+        roleIdList: userAuth.roleDTOList.map(e => e.id),
         username: userAuth.username,
         lockedFlag: userAuth.lockedFlag,
         disabledFlag: userAuth.disabledFlag,
@@ -425,7 +438,8 @@ export default {
       let data = {
         id: this.userAuth.userId,
         lockedFlag: this.userAuth.lockedFlag,
-        disabledFlag: this.userAuth.disabledFlag
+        disabledFlag: this.userAuth.disabledFlag,
+        roleIdList: this.userAuth.roleIdList
       };
       if (this.userAuth.password.trim() !== "") {
         data.password = md5(this.userAuth.password);

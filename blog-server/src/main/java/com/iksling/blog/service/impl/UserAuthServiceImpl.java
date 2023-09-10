@@ -8,11 +8,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.LabelDTO;
 import com.iksling.blog.dto.UserAuthsBackDTO;
 import com.iksling.blog.entity.UserAuth;
+import com.iksling.blog.entity.UserRole;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.UserAuthMapper;
+import com.iksling.blog.mapper.UserRoleMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.UserAuthService;
+import com.iksling.blog.service.UserRoleService;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
@@ -28,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID_LIST;
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
 
 /**
@@ -38,6 +42,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     implements UserAuthService{
     @Autowired
     private UserAuthMapper userAuthMapper;
+
+    @Autowired
+    private UserRoleMapper userRoleMapper;
+
+    @Autowired
+    private UserRoleService userRoleService;
 
     @Autowired
     private SessionRegistry sessionRegistry;
@@ -90,6 +100,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 throw new IllegalRequestException();
             if (ROOT_USER_ID_LIST.contains(userAuthBackVO.getId()))
                 return;
+            if (!Collections.disjoint(ROOT_ROLE_ID_LIST, userAuthBackVO.getRoleIdList()))
+                throw new IllegalRequestException();
         }
         if (StringUtils.isNotBlank(userAuthBackVO.getPassword()))
             userAuthBackVO.setPassword(passwordEncoder.encode(userAuthBackVO.getPassword().trim()));
@@ -103,8 +115,13 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 .eq(loginUser.getRoleWeight() > 100, UserAuth::getDeletedFlag, false));
         if (count != 1)
             throw new IllegalRequestException();
-        if (userAuthBackVO.getLockedFlag() || userAuthBackVO.getDisabledFlag() || StringUtils.isNotBlank(userAuthBackVO.getPassword()))
-            disabledOrLockedOrDeletedUserAuth(Collections.singletonList(userAuthBackVO.getId()));
+        userRoleMapper.deleteByMap(Collections.singletonMap("user_id", userAuthBackVO.getId()));
+        List<UserRole> userRoleList = userAuthBackVO.getRoleIdList().stream().map(roleId -> UserRole.builder()
+                .roleId(roleId)
+                .userId(userAuthBackVO.getId())
+                .build()).collect(Collectors.toList());
+        userRoleService.saveBatch(userRoleList);
+        deleteUserIdList(Collections.singletonList(userAuthBackVO.getId()));
     }
 
     @Override
@@ -125,7 +142,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         if (count != 1)
             throw new IllegalRequestException();
         if (commonStatusVO.getPublicFlag() || (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag()))
-            disabledOrLockedOrDeletedUserAuth(Collections.singletonList(commonStatusVO.getId()));
+            deleteUserIdList(Collections.singletonList(commonStatusVO.getId()));
     }
 
     @Override
@@ -141,10 +158,10 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();
         if (updateBatchVO.getDeletedFlag())
-            disabledOrLockedOrDeletedUserAuth(updateBatchVO.getIdList());
+            deleteUserIdList(updateBatchVO.getIdList());
     }
 
-    private void disabledOrLockedOrDeletedUserAuth(List<Integer> idList) {
+    private void deleteUserIdList(List<Integer> idList) {
         List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(item -> {
             LoginUser loginUser = (LoginUser) item;
             return idList.contains(loginUser.getUserId());

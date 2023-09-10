@@ -71,7 +71,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .email(userBackVO.getEmail().trim())
                 .nickname(userBackVO.getNickname().trim())
                 .build();
-        if (loginUser.getRoleWeight() > 100 && CommonConst.ROOT_USER_ID.contains(userBackVO.getId()))
+        if (loginUser.getRoleWeight() > 100 && CommonConst.ROOT_USER_ID_LIST.contains(userBackVO.getId()))
             return;
         if (StringUtils.isBlank(userBackVO.getAvatar()))
             user.setAvatar(DEFAULT_AVATAR);
@@ -144,7 +144,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public void deleteUserOnlineIdList(List<Integer> userOnlineIdList) {
         if (UserUtil.getLoginUser().getRoleWeight() > 100)
-            userOnlineIdList.removeAll(ROOT_USER_ID);
+            userOnlineIdList.removeAll(ROOT_USER_ID_LIST);
         List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(item -> {
             LoginUser loginUser = (LoginUser) item;
             return userOnlineIdList.contains(loginUser.getUserId());

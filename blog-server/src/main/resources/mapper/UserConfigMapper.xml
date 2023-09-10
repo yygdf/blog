@@ -24,4 +24,20 @@
         deletable_flag,create_user,create_time,
         update_user,update_time
     </sql>
+
+    <update id="updateUserConfigsStatus">
+        UPDATE
+            tb_user_config
+        SET
+            deleted_flag = #{updateBatch.deletedFlag}
+        WHERE
+            id in
+            <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+            AND user_id not in
+            <foreach collection="rootUserIdList" item="user_id" index="index" open="(" separator="," close=")">
+                #{user_id}
+            </foreach>
+    </update>
 </mapper>

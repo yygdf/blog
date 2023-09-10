@@ -56,7 +56,7 @@
         WHERE
             ur.user_id = #{userId}
             AND ur.role_id = r.id
-            AND r.disabled_flag = 0
+            AND r.disabled_flag = false
         ORDER BY
             r.role_weight ASC
     </select>

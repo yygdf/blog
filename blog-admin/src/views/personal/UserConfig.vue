@@ -3,6 +3,7 @@
     <div class="title">{{ this.$route.name }}</div>
     <div class="operation-container">
       <el-button
+        v-if="checkWeight(100)"
         type="primary"
         size="small"
         icon="el-icon-plus"
@@ -10,9 +11,29 @@
       >
         新增
       </el-button>
+      <el-button
+        v-if="checkWeight && !deletedFlag"
+        :disabled="userConfigIdList.length === 0"
+        type="danger"
+        size="small"
+        icon="el-icon-minus"
+        @click="editStatus = true"
+      >
+        批量删除
+      </el-button>
+      <el-button
+        v-if="deletedFlag"
+        :disabled="userConfigIdList.length === 0"
+        type="success"
+        size="small"
+        icon="el-icon-minus"
+        @click="editStatus = true"
+      >
+        批量恢复
+      </el-button>
       <div style="margin-left:auto">
         <el-select
-          v-if="checkWeight(100)"
+          v-if="checkWeight"
           v-model="userId"
           size="small"
           style="margin-right:1rem"
@@ -64,7 +85,13 @@
         </el-button>
       </div>
     </div>
-    <el-table v-loading="loading" :data="userConfigList" border>
+    <el-table
+      v-loading="loading"
+      :data="userConfigList"
+      border
+      @selection-change="selectionChange"
+    >
+      <el-table-column type="selection" align="center" width="40" />
       <el-table-column
         prop="username"
         label="用户"
@@ -77,11 +104,7 @@
         align="center"
         width="120"
       />
-      <el-table-column
-        prop="configValue"
-        label="配置值"
-        align="center"
-      />
+      <el-table-column prop="configValue" label="配置值" align="center" />
       <el-table-column prop="configDesc" label="配置描述" align="center" />
       <el-table-column
         prop="createTime"
@@ -107,7 +130,24 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="openModel(scope.row)">
+          <el-popconfirm
+            v-if="deletedFlag"
+            title="确定恢复吗？"
+            style="margin-left:10px"
+            @confirm="
+              updateUserConfigStatus(scope.row.userId, scope.row.configName)
+            "
+          >
+            <el-button type="success" size="mini" slot="reference">
+              恢复
+            </el-button>
+          </el-popconfirm>
+          <el-button
+            v-else
+            type="primary"
+            size="mini"
+            @click="openModel(scope.row)"
+          >
             编辑
           </el-button>
           <el-popconfirm
@@ -121,7 +161,7 @@
             </el-button>
           </el-popconfirm>
           <el-popconfirm
-            v-else
+            v-if="checkWeight && !deletedFlag"
             title="确定删除吗？"
             style="margin-left:10px"
             @confirm="
@@ -146,6 +186,20 @@
       @size-change="sizeChange"
       @current-change="currentChange"
     />
+    <el-dialog :visible.sync="editStatus" width="30%">
+      <div class="dialog-title-container" slot="title">
+        <i class="el-icon-warning" style="color:#ff9900" />提示
+      </div>
+      <div style="font-size:1rem">
+        是否{{ deletedFlag ? "恢复" : "删除" }}选中项？
+      </div>
+      <div slot="footer">
+        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button type="primary" @click="updateUserConfigsStatus(null)">
+          确 定
+        </el-button>
+      </div>
+    </el-dialog>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="userConfigTitle" />
       <el-form :model="userConfig" size="medium" label-width="80">
@@ -215,9 +269,11 @@ export default {
       userConfig: {},
       usernameList: [],
       userConfigList: [],
+      userConfigIdList: [],
       userId: null,
       keywords: null,
       loading: true,
+      editStatus: false,
       deletedFlag: false,
       addOrEditStatus: false,
       size: 10,
@@ -258,6 +314,12 @@ export default {
     currentChange(current) {
       this.current = current;
       this.listUserConfigs();
+    },
+    selectionChange(userConfigList) {
+      this.userConfigIdList = [];
+      userConfigList.forEach(item => {
+        this.userConfigIdList.push(item.id);
+      });
     },
     listUserConfigs() {
       this.axios
@@ -333,7 +395,8 @@ export default {
     updateUserConfigStatus(userId, configName) {
       let param = {
         userId: userId,
-        configName: configName
+        configName: configName,
+        deletedFlag: !this.deletedFlag
       };
       this.axios.put("/api/back/userConfig", param).then(({ data }) => {
         if (data.flag) {
@@ -348,6 +411,26 @@ export default {
             message: data.message
           });
         }
+      });
+    },
+    updateUserConfigsStatus() {
+      let param = new URLSearchParams();
+      param.append("idList", this.userConfigIdList);
+      param.append("deletedFlag", !this.deletedFlag);
+      this.axios.put("/api/back/userConfigs", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listUserConfigs();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.editStatus = false;
       });
     }
   },

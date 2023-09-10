@@ -136,9 +136,9 @@
         SET
             deleted_flag = #{updateBatch.deletedFlag}
             <if test="updateBatch.recycleFlag != null">
-                , recycle_flag = #{updateBatch.recycleFlag},
+                , recycle_flag = #{updateBatch.recycleFlag}
                 <if test="updateBatch.recycleFlag">
-                    , draft_flag = 1
+                    , draft_flag = true
                 </if>
             </if>
         WHERE
@@ -150,7 +150,7 @@
                 AND user_id = #{userId}
             </if>
             <if test="roleWeight > 100">
-                AND deleted_flag = 0
+                AND deleted_flag = false
             </if>
     </update>
 
@@ -162,7 +162,7 @@
             tb_article
         WHERE
             category_id != -1
-            AND deleted_flag = 0
+            AND deleted_flag = false
             AND category_id in
             <foreach collection="categoryIdList" item="categoryId" index="index" open="(" separator="," close=")">
                 #{categoryId}

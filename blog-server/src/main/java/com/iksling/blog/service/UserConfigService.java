@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.ConfigBackVO;
+import com.iksling.blog.vo.ConfigStatusVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 
 /**
  *
@@ -14,9 +16,11 @@ public interface UserConfigService extends IService<UserConfig> {
 
     PagePojo<ConfigsBackDTO> getPageUserConfigsBackDTO(ConditionVO condition);
 
-    void updateUserConfigsStatus(Integer userId, String configName);
+    void updateUserConfigStatus(ConfigStatusVO configStatusVO);
 
     void deleteUserConfigByConfigName(String configName);
 
     void saveOrUpdateUserConfigBackVO(ConfigBackVO configBackVO);
+
+    void updateUserConfigsStatus(UpdateBatchVO updateBatchVO);
 }

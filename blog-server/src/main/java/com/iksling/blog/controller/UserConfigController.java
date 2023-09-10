@@ -5,9 +5,10 @@ import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserConfigService;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.ConfigBackVO;
+import com.iksling.blog.vo.ConfigStatusVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -31,13 +32,10 @@ public class UserConfigController {
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "更新用户配置状态")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Integer"),
-            @ApiImplicitParam(name = "configName", value = "用户配置名", required = true, dataType = "String")
-    })
+    @ApiImplicitParam(name = "configStatusVO", value = "配置状态VO", required = true, dataType = "ConfigStatusVO")
     @PutMapping("/back/userConfig")
-    public Result updateUserConfigsStatus(@RequestBody Integer userId, @RequestBody String configName) {
-        userConfigService.updateUserConfigsStatus(userId, configName);
+    public Result updateUserConfigStatus(@Valid @RequestBody ConfigStatusVO configStatusVO) {
+        userConfigService.updateUserConfigStatus(configStatusVO);
         return Result.success().message("操作成功");
     }
 
@@ -56,6 +54,15 @@ public class UserConfigController {
     @PostMapping("/back/userConfig")
     public Result saveOrUpdateBackUserConfig(@Valid @RequestBody ConfigBackVO configBackVO) {
         userConfigService.saveOrUpdateUserConfigBackVO(configBackVO);
+        return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "批量更新用户配置状态")
+    @ApiImplicitParam(name = "updateBatchVO", value = "批量更新VO", required = true, dataType = "UpdateBatchVO")
+    @PutMapping("/back/userConfigs")
+    public Result updateUserConfigsStatus(@Valid UpdateBatchVO updateBatchVO) {
+        userConfigService.updateUserConfigsStatus(updateBatchVO);
         return Result.success().message("操作成功");
     }
 }

@@ -93,7 +93,12 @@
           >
             <i class="el-icon-folder-opened" /> 资源权限
           </el-button>
-          <el-button :disabled="!checkWeight(100) && scope.row.id === rootRoleId" type="primary" size="mini" @click="openModel(scope.row)">
+          <el-button
+            :disabled="!checkWeight(100) && scope.row.id === rootRoleId"
+            type="primary"
+            size="mini"
+            @click="openModel(scope.row)"
+          >
             <i class="el-icon-edit" /> 修改
           </el-button>
           <el-popconfirm
@@ -101,7 +106,12 @@
             style="margin-left:10px"
             @confirm="deleteRole(scope.row.id)"
           >
-            <el-button :disabled="!scope.row.deletableFlag || scope.row.userCount !== 0" type="danger" size="mini" slot="reference">
+            <el-button
+              :disabled="!scope.row.deletableFlag || scope.row.userCount !== 0"
+              type="danger"
+              size="mini"
+              slot="reference"
+            >
               <i class="el-icon-delete" /> 删除
             </el-button>
           </el-popconfirm>
@@ -341,7 +351,6 @@ export default {
             message: data.message
           });
         }
-        this.isDelete = false;
       });
     },
     editRoleMenu() {

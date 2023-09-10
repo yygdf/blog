@@ -45,7 +45,7 @@
         WHERE
             ur.user_id = #{userId}
             <if test="roleWeight > 200">
-                AND m.hidden_flag = 0
+                AND m.hidden_flag = false
             </if>
         ORDER BY
             m.rank ASC,

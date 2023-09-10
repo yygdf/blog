@@ -86,7 +86,7 @@
         SET
             deleted_flag = #{updateBatch.deletedFlag}
             <if test="!updateBatch.deletedFlag">
-                , disabled_flag = 1
+                , disabled_flag = true
             </if>
         WHERE
             user_id in

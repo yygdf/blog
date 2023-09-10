@@ -155,11 +155,7 @@
             style="margin-left:10px"
             @confirm="updateUsersStatus(scope.row.id)"
           >
-            <el-button
-              type="danger"
-              size="mini"
-              slot="reference"
-            >
+            <el-button type="danger" size="mini" slot="reference">
               删除
             </el-button>
           </el-popconfirm>

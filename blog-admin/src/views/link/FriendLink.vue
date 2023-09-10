@@ -131,7 +131,22 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="openModel(scope.row)">
+          <el-popconfirm
+            v-if="deletedFlag"
+            title="确定恢复吗？"
+            style="margin-left:10px"
+            @confirm="updateFriendLinksStatus(scope.row.id)"
+          >
+            <el-button type="success" size="mini" slot="reference">
+              恢复
+            </el-button>
+          </el-popconfirm>
+          <el-button
+            v-else
+            type="primary"
+            size="mini"
+            @click="openModel(scope.row)"
+          >
             编辑
           </el-button>
           <el-popconfirm

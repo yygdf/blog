@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
 
 /**
  *
@@ -87,7 +87,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         if (loginUser.getRoleWeight() > 100) {
             if (userAuthBackVO.getLockedFlag())
                 throw new IllegalRequestException();
-            if (ROOT_USER_ID.contains(userAuthBackVO.getId()))
+            if (ROOT_USER_ID_LIST.contains(userAuthBackVO.getId()))
                 return;
         }
         if (StringUtils.isNotBlank(userAuthBackVO.getPassword()))
@@ -113,7 +113,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         if (loginUser.getRoleWeight() > 100) {
             if (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag())
                 throw new IllegalRequestException();
-            if (ROOT_USER_ID.contains(commonStatusVO.getId()))
+            if (ROOT_USER_ID_LIST.contains(commonStatusVO.getId()))
                 return;
         }
         int count = userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
@@ -133,7 +133,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         if ((UserUtil.getLoginUser().getRoleWeight() > 100)) {
             if (!updateBatchVO.getDeletedFlag())
                 throw new IllegalRequestException();
-             if (!Collections.disjoint(ROOT_USER_ID, updateBatchVO.getIdList()))
+             if (!Collections.disjoint(ROOT_USER_ID_LIST, updateBatchVO.getIdList()))
                  return;
         }
         Integer count = userAuthMapper.updateUserAuthsStatus(updateBatchVO);

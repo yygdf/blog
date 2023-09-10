@@ -126,7 +126,7 @@ export default {
       let param = new URLSearchParams();
       param.append("username", that.loginForm.username);
       param.append("password", md5(that.loginForm.password));
-      param.append("remember-me", this.remember);
+      // param.append("remember-me", this.remember);
       that.axios
         .post("/api/login", param, {
           headers: {

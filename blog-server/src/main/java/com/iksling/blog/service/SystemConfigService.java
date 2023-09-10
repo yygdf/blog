@@ -15,4 +15,6 @@ public interface SystemConfigService extends IService<SystemConfig> {
     PagePojo<ConfigsBackDTO> getPageSystemConfigsBackDTO(ConditionVO condition);
 
     void saveOrUpdateSystemConfigBackVO(ConfigBackVO configBackVO);
+
+    void deleteSystemConfigById(String id);
 }

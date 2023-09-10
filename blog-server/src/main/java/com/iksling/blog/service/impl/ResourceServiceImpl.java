@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.dto.ResourcesBackDTO;
 import com.iksling.blog.dto.LabelsDTO;
+import com.iksling.blog.dto.ResourcesBackDTO;
 import com.iksling.blog.entity.Resource;
-import com.iksling.blog.exception.IllegalRequestException;
+import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.handler.FilterInvocationSecurityMetadataSourceImpl;
 import com.iksling.blog.mapper.ResourceMapper;
 import com.iksling.blog.mapper.RoleResourceMapper;
@@ -52,10 +52,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
         int count = resourceMapper.update(null, new LambdaUpdateWrapper<Resource>()
                 .set(Resource::getDisabledFlag, commonStatusVO.getHiddenFlag())
                 .set(Resource::getAnonymousFlag, commonStatusVO.getPublicFlag())
-                .eq(Resource::getId, commonStatusVO.getId())
-                .eq(UserUtil.getLoginUser().getRoleWeight() > 100, Resource::getDeletableFlag, true));
+                .eq(Resource::getId, commonStatusVO.getId()));
         if (count != 1)
-            throw new IllegalRequestException();
+            throw new OperationStatusException();
         filterInvocationSecurityMetadataSource.clearResourceRoleList();
     }
 
@@ -67,11 +66,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                     .eq(Resource::getDeletableFlag, true)
                     .and(q -> q.eq(Resource::getId, Integer.parseInt(id)).or().eq(Resource::getParentId, Integer.parseInt(id))));
             if (count != 1)
-                throw new IllegalRequestException();
+                throw new OperationStatusException();
             roleResourceMapper.deleteByMap(Collections.singletonMap("resource_id", id));
             filterInvocationSecurityMetadataSource.clearResourceRoleList();
         } catch (NumberFormatException e) {
-            throw new IllegalRequestException();
+            throw new OperationStatusException();
         }
     }
 
@@ -99,10 +98,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
             resource.setUpdateUser(loginUser.getUserId());
             resource.setUpdateTime(new Date());
             int count = resourceMapper.update(resource, new LambdaUpdateWrapper<Resource>()
-                    .eq(Resource::getId, resource.getId())
-                    .eq(loginUser.getRoleWeight() > 100, Resource::getDeletableFlag, true));
+                    .eq(Resource::getId, resource.getId()));
             if (count != 1)
-                throw new IllegalRequestException();
+                throw new OperationStatusException();
         }
         filterInvocationSecurityMetadataSource.clearResourceRoleList();
     }

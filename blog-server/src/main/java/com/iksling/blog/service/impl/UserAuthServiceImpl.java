@@ -51,6 +51,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
             keywords = keywords.trim();
         List<UserAuth> userAuthList = userAuthMapper.selectList(new LambdaQueryWrapper<UserAuth>()
                 .select(UserAuth::getId, UserAuth::getUserId, UserAuth::getUsername)
+                .eq(UserUtil.getLoginUser().getRoleWeight() > 100, UserAuth::getDeletedFlag, false)
                 .likeRight(StringUtils.isNotBlank(keywords), UserAuth::getUsername, keywords));
         return userAuthList.stream()
                 .map(e -> LabelDTO.builder()

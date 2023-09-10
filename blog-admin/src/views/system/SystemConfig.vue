@@ -65,12 +65,7 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
-          <el-button
-            :disabled="!scope.row.deletableFlag && !checkWeight(100)"
-            type="primary"
-            size="mini"
-            @click="openModel(scope.row)"
-          >
+          <el-button type="primary" size="mini" @click="openModel(scope.row)">
             编辑
           </el-button>
           <el-popconfirm
@@ -189,9 +184,6 @@ export default {
     sizeChange(size) {
       this.size = size;
       this.listSystemConfigs();
-    },
-    checkWeight(weight = 200) {
-      return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;

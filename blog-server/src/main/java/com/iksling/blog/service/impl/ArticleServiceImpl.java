@@ -15,6 +15,7 @@ import com.iksling.blog.entity.Category;
 import com.iksling.blog.entity.Tag;
 import com.iksling.blog.enums.FilePathEnum;
 import com.iksling.blog.exception.IllegalRequestException;
+import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.ArticleMapper;
 import com.iksling.blog.mapper.ArticleTagMapper;
 import com.iksling.blog.mapper.CategoryMapper;
@@ -216,8 +217,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     @Transactional
     public void deleteArticleIdList(List<Integer> articleIdList) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100 || CollectionUtils.isEmpty(articleIdList))
-            throw new IllegalRequestException();
+        if (CollectionUtils.isEmpty(articleIdList))
+            throw new OperationStatusException();
         int count = articleMapper.deleteBatchIds(articleIdList);
         if (count != articleIdList.size())
             throw new IllegalRequestException();

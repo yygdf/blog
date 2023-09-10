@@ -114,7 +114,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
                     .set(Tag::getUpdateUser, loginUser.getUserId())
                     .set(Tag::getUpdateTime, new Date())
                     .eq(Tag::getId, tagBackVO.getId())
-                    .eq(loginUser.getRoleWeight() > 0, Tag::getUserId, loginUser.getUserId()));
+                    .eq(loginUser.getRoleWeight() > 300, Tag::getUserId, loginUser.getUserId()));
             if (count != 1)
                 throw new IllegalRequestException();
         }

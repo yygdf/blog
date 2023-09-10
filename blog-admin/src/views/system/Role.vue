@@ -56,6 +56,7 @@
         <template slot-scope="scope">
           <el-switch
             :value="scope.row.disabledFlag"
+            :disabled="scope.row.id === rootRoleId"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -77,28 +78,17 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="400">
         <template slot-scope="scope">
-          <el-button
-            :disabled="!checkWeight(100) && scope.row.id === rootRoleId"
-            type="info"
-            size="mini"
-            @click="openMenuModel(scope.row)"
-          >
+          <el-button type="info" size="mini" @click="openMenuModel(scope.row)">
             <i class="el-icon-folder-opened" /> 菜单权限
           </el-button>
           <el-button
-            :disabled="!checkWeight(100) && scope.row.id === rootRoleId"
             type="info"
             size="mini"
             @click="openResourceModel(scope.row)"
           >
             <i class="el-icon-folder-opened" /> 资源权限
           </el-button>
-          <el-button
-            :disabled="!checkWeight(100) && scope.row.id === rootRoleId"
-            type="primary"
-            size="mini"
-            @click="openModel(scope.row)"
-          >
+          <el-button type="primary" size="mini" @click="openModel(scope.row)">
             <i class="el-icon-edit" /> 修改
           </el-button>
           <el-popconfirm
@@ -143,7 +133,7 @@
         <el-form-item label="角色权重">
           <el-input-number
             v-model="role.roleWeight"
-            :min="checkWeight(100) ? 1 : 101"
+            :min="1"
             :max="1000"
             value="1"
             controls-position="right"
@@ -281,9 +271,6 @@ export default {
           }
         }
       });
-    },
-    checkWeight(weight = 200) {
-      return this.$store.state.weight <= weight;
     },
     openMenuModel(role) {
       this.$nextTick(function() {

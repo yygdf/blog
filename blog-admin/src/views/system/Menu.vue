@@ -51,7 +51,6 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hideFlag"
-            :disabled="!checkWeight(100) && !scope.row.deletableFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -64,7 +63,6 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hiddenFlag"
-            :disabled="!checkWeight(100) && !scope.row.deletableFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -82,7 +80,6 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.disabledFlag"
-            :disabled="!checkWeight(100) && !scope.row.deletableFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -125,7 +122,6 @@
             <i class="el-icon-plus" /> 新增
           </el-button>
           <el-button
-            :disabled="!checkWeight(100) && !scope.row.deletableFlag"
             type="warning"
             size="mini"
             class="smallerBtn"
@@ -361,9 +357,6 @@ export default {
         this.$refs.input.focus();
       });
       this.addOrEditStatus = true;
-    },
-    checkWeight(weight = 200) {
-      return this.$store.state.weight <= weight;
     },
     listMenus() {
       this.axios

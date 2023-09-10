@@ -100,8 +100,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                 .set(MultiFile::getDeletedFlag, true)
                 .eq(MultiFile::getFileUrl, url)
-                .eq(loginUser.getRoleWeight() > 300, MultiFile::getUserId, loginUser.getUserId())
-                .eq(loginUser.getRoleWeight() > 100, MultiFile::getDeletedFlag, false));
+                .eq(loginUser.getRoleWeight() > 300, MultiFile::getUserId, loginUser.getUserId()));
     }
 
     @Override
@@ -147,7 +146,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                 .set(MultiFile::getDeletedFlag, true)
                 .eq(MultiFile::getFileUrl, url)
-                .eq(loginUser.getRoleWeight() > 100, MultiFile::getDeletedFlag, false));
+                .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUser.getUserId()));
     }
 }
 

@@ -9,13 +9,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static com.iksling.blog.constant.OptLogConst.REMOVE;
 import static com.iksling.blog.constant.OptLogConst.SAVE_OR_UPDATE;
 
 @RestController
@@ -37,6 +35,15 @@ public class SystemConfigController {
     @PostMapping("/back/systemConfig")
     public Result saveOrUpdateBackSystemConfig(@Valid @RequestBody ConfigBackVO configBackVO) {
         systemConfigService.saveOrUpdateSystemConfigBackVO(configBackVO);
+        return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = REMOVE)
+    @ApiOperation(value = "删除系统配置")
+    @ApiImplicitParam(name = "id", value = "系统配置id", required = true, dataType = "String")
+    @DeleteMapping("/back/systemConfig")
+    public Result deleteBackSystemConfig(@RequestBody String id) {
+        systemConfigService.deleteSystemConfigById(id);
         return Result.success().message("操作成功");
     }
 }

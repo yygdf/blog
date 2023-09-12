@@ -7,14 +7,19 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.LabelDTO;
 import com.iksling.blog.dto.UserAuthsBackDTO;
+import com.iksling.blog.entity.Role;
 import com.iksling.blog.entity.UserAuth;
+import com.iksling.blog.entity.UserConfig;
 import com.iksling.blog.entity.UserRole;
 import com.iksling.blog.exception.IllegalRequestException;
+import com.iksling.blog.mapper.RoleMapper;
 import com.iksling.blog.mapper.UserAuthMapper;
+import com.iksling.blog.mapper.UserConfigMapper;
 import com.iksling.blog.mapper.UserRoleMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.UserAuthService;
+import com.iksling.blog.service.UserConfigService;
 import com.iksling.blog.service.UserRoleService;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.CommonStatusVO;
@@ -31,8 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID_LIST;
-import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
+import static com.iksling.blog.constant.CommonConst.*;
 
 /**
  *
@@ -44,10 +48,16 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     private UserAuthMapper userAuthMapper;
 
     @Autowired
+    private RoleMapper roleMapper;
+    @Autowired
     private UserRoleMapper userRoleMapper;
+    @Autowired
+    private UserConfigMapper userConfigMapper;
 
     @Autowired
     private UserRoleService userRoleService;
+    @Autowired
+    private UserConfigService userConfigService;
 
     @Autowired
     private SessionRegistry sessionRegistry;
@@ -121,6 +131,33 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 .userId(userAuthBackVO.getId())
                 .build()).collect(Collectors.toList());
         userRoleService.saveBatch(userRoleList);
+        Integer userConfigFlag = userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
+                .eq(UserAuth::getUserId, userAuthBackVO.getId())
+                .eq(UserAuth::getUserConfigFlag, true));
+        Integer countNew = roleMapper.selectCount(new LambdaQueryWrapper<Role>()
+                .le(Role::getRoleWeight, 400)
+                .in(Role::getId, userAuthBackVO.getRoleIdList()));
+        if (userConfigFlag > 0) {
+            if (countNew == 0)
+                userConfigMapper.update(null, new LambdaUpdateWrapper<UserConfig>()
+                        .set(UserConfig::getDeletedFlag, true)
+                        .eq(UserConfig::getUserId, userAuthBackVO.getId()));
+        }
+        else if (countNew > 0) {
+                List<UserConfig> userConfigList = userConfigMapper.selectList(new LambdaQueryWrapper<UserConfig>()
+                        .select(UserConfig::getConfigDesc, UserConfig::getConfigName, UserConfig::getConfigValue)
+                        .eq(UserConfig::getUserId, ROOT_USER_ID));
+                userConfigService.saveBatch(userConfigList.stream()
+                        .peek(item -> {
+                            item.setUserId(userAuthBackVO.getId());
+                            item.setCreateUser(loginUser.getUserId());
+                            item.setCreateTime(new Date());
+                        })
+                        .collect(Collectors.toList()));
+                userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
+                        .set(UserAuth::getUserConfigFlag, true)
+                        .eq(UserAuth::getUserId, userAuthBackVO.getId()));
+            }
         deleteUserIdList(Collections.singletonList(userAuthBackVO.getId()));
     }
 

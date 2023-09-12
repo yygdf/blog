@@ -22,7 +22,7 @@ public class CommonConst {
     /**
      * 默认用户密码
      */
-    public static final String DEFAULT_PASSWORD = "$2a$10$4aXL4Qc07EsoZxHQH60mHOJS6KAChpQrW5H.4d.7SLbHvBO0RdSoW";
+    public static final String DEFAULT_PASSWORD = "$2a$10$4DSTSm0GlWleNGt.eQ4mCuq6m4FiiNx9JJp0hl2SdEP5J5JtEjrHC";
 
     /**
      * 静态资源根路径

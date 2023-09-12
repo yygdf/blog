@@ -49,7 +49,7 @@ public class UserAuth implements Serializable {
     private String password;
 
     /**
-     * 登录方式
+     * 1邮箱，2QQ，3微信，4手机号
      */
     private Integer loginMethod;
 
@@ -59,14 +59,19 @@ public class UserAuth implements Serializable {
     private Boolean lockedFlag;
 
     /**
+     * 0未删除，1已删除
+     */
+    private Boolean deletedFlag;
+
+    /**
      * 0未禁用，1已禁用
      */
     private Boolean disabledFlag;
 
     /**
-     * 0未删除，1已删除
+     * 0未启用过，1已启用过
      */
-    private Boolean deletedFlag;
+    private Boolean userConfigFlag;
 
     /**
      * 创建人

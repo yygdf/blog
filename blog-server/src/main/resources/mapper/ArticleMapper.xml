@@ -96,7 +96,7 @@
                 <if test="condition.categoryId != null">
                     AND category_id = #{condition.categoryId}
                 </if>
-                <if test="condition.keywords != null">
+                <if test="condition.keywords != null and condition.keywords.trim() != ''">
                     AND article_title like concat('%', #{condition.keywords.trim()}, '%')
                 </if>
                 <if test="condition.tagIdList != null and condition.tagIdList.size() != 0">

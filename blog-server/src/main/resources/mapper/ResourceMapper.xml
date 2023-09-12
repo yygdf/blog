@@ -61,7 +61,7 @@
             r.create_time,r.update_time
         FROM
             tb_resource r
-            <if test="keywords != null">
+            <if test="keywords != null and keywords.trim() != ''">
                 WHERE
                     r.resource_name like concat('%', #{keywords.trim()}, '%')
                 OR id IN (

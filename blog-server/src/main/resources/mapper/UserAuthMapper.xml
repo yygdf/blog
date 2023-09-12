@@ -70,7 +70,7 @@
             <if test="condition.categoryId != null">
                 AND ur.role_id = #{condition.categoryId}
             </if>
-            <if test="condition.keywords != null">
+            <if test="condition.keywords != null and condition.keywords.trim() != ''">
                 AND ua.username like concat('%', #{condition.keywords.trim()}, '%')
             </if>
         </where>

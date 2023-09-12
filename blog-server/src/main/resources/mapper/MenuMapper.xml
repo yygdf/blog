@@ -61,7 +61,7 @@
             m.create_time,m.update_time
         FROM
             tb_menu m
-            <if test="keywords != null">
+            <if test="keywords != null and keywords.trim() != ''">
                 WHERE
                     m.name like concat('%', #{keywords.trim()}, '%')
                 OR id IN (

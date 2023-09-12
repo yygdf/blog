@@ -51,11 +51,10 @@
         SELECT
             ur.user_id,r.role_name,r.role_weight
         FROM
-            tb_user_role ur,
-            tb_role r
+            tb_user_role ur
+        LEFT JOIN tb_role r ON ur.role_id = r.id
         WHERE
             ur.user_id = #{userId}
-            AND ur.role_id = r.id
             AND r.disabled_flag = false
         ORDER BY
             r.role_weight ASC
@@ -76,7 +75,7 @@
                 FROM
                     tb_role
                     <where>
-                        <if test="keywords != null ">
+                        <if test="keywords != null and keywords.trim() != ''">
                             role_name like concat('%', #{keywords.trim()}, '%')
                         </if>
                     </where>

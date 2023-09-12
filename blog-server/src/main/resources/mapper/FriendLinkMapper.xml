@@ -41,7 +41,7 @@
             <if test="condition.userId != null">
                 AND fl.user_id = #{condition.userId}
             </if>
-            <if test="condition.keywords != null">
+            <if test="condition.keywords != null and condition.keywords.trim() != ''">
                 AND fl.link_name like concat('%', #{condition.keywords.trim()}, '%')
             </if>
         </where>

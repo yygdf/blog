@@ -68,7 +68,7 @@
             <choose>
                 <when test="condition.draftFlag == null || !condition.draftFlag">
                     AND a.article_title IS NOT NULL
-                    <if test="condition.keywords != null">
+                    <if test="condition.keywords != null and condition.keywords.trim() != ''">
                         AND a.article_title like concat('%', #{condition.keywords.trim()}, '%')
                     </if>
                 </when>

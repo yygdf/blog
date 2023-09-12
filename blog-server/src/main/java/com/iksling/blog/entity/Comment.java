@@ -4,10 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 
@@ -28,17 +27,17 @@ public class Comment implements Serializable {
     private Integer userId;
 
     /**
-     * 回复用户id
+     * 回复用户id，默认-1
      */
     private Integer replyId;
 
     /**
-     * 文章id
+     * 文章id，默认-1
      */
     private Integer articleId;
 
     /**
-     * 父评论id
+     * 父评论id，默认-1
      */
     private Integer parentId;
 
@@ -48,22 +47,22 @@ public class Comment implements Serializable {
     private String commentContent;
 
     /**
-     * 0未回收，1已回收
+     * 0未回收，1已回收，默认0
      */
     private Boolean recycleFlag;
 
     /**
-     * 0未删除，1已删除
+     * 0未删除，1已删除，默认0
      */
     private Boolean deletedFlag;
 
     /**
-     * ip来源
+     * ip来源，默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址
+     * ip地址，默认空串
      */
     private String ipAddress;
 

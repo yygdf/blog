@@ -4,13 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 
@@ -18,9 +14,6 @@ import java.util.Date;
  */
 @TableName(value ="tb_category")
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class Category implements Serializable {
     /**
      * 分类id
@@ -39,12 +32,12 @@ public class Category implements Serializable {
     private String categoryName;
 
     /**
-     * 0未公开，1已公开
+     * 0未公开，1已公开，默认1
      */
     private Boolean publicFlag;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏，1已隐藏，默认0
      */
     private Boolean hiddenFlag;
 
@@ -59,12 +52,12 @@ public class Category implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人
+     * 更新人，默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间
+     * 更新时间，默认null
      */
     private Date updateTime;
 

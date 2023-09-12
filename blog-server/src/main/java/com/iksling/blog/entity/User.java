@@ -29,7 +29,7 @@ public class User implements Serializable {
     private Integer id;
 
     /**
-     * 用户介绍
+     * 用户介绍，默认空串
      */
     private String intro;
 
@@ -44,7 +44,7 @@ public class User implements Serializable {
     private String avatar;
 
     /**
-     * 用户网站
+     * 用户网站，默认空串
      */
     private String website;
 
@@ -64,12 +64,12 @@ public class User implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人
+     * 更新人，默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间
+     * 更新时间，默认null
      */
     private Date updateTime;
 

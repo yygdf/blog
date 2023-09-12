@@ -54,22 +54,22 @@ public class UserAuth implements Serializable {
     private Integer loginMethod;
 
     /**
-     * 0未锁定，1已锁定
+     * 0未锁定，1已锁定，默认0
      */
     private Boolean lockedFlag;
 
     /**
-     * 0未删除，1已删除
+     * 0未删除，1已删除，默认0
      */
     private Boolean deletedFlag;
 
     /**
-     * 0未禁用，1已禁用
+     * 0未禁用，1已禁用，默认0
      */
     private Boolean disabledFlag;
 
     /**
-     * 0未启用过，1已启用过
+     * 0未启用过，1已启用过，默认0
      */
     private Boolean userConfigFlag;
 
@@ -84,12 +84,12 @@ public class UserAuth implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人
+     * 更新人，默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间
+     * 更新时间，默认null
      */
     private Date updateTime;
 

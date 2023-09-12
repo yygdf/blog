@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -17,6 +19,8 @@ import java.util.Date;
 @TableName(value ="tb_login_log")
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginLog implements Serializable {
     /**
      * 日志id
@@ -35,7 +39,7 @@ public class LoginLog implements Serializable {
     private Date loginTime;
 
     /**
-     * 登录设备
+     * 登录设备，默认空串
      */
     private String loginDevice;
 
@@ -50,22 +54,22 @@ public class LoginLog implements Serializable {
     private Boolean loginPlatform;
 
     /**
-     * 操作系统类型
+     * 操作系统类型，默认空串
      */
     private String loginSystem;
 
     /**
-     * 浏览器类型
+     * 浏览器类型，默认空串
      */
     private String loginBrowser;
 
     /**
-     * ip来源
+     * ip来源，默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址
+     * ip地址，默认空串
      */
     private String ipAddress;
 

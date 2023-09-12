@@ -34,7 +34,7 @@ public class Menu implements Serializable {
     private Integer userId;
 
     /**
-     * 父菜单id
+     * 父菜单id，默认-1
      */
     private Integer parentId;
 
@@ -44,7 +44,7 @@ public class Menu implements Serializable {
     private String icon;
 
     /**
-     * 排序指标
+     * 排序指标，默认127
      */
     private Integer rank;
 
@@ -64,22 +64,22 @@ public class Menu implements Serializable {
     private String component;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏，1已隐藏，默认0
      */
     private Boolean hideFlag;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏，1已隐藏，默认0
      */
     private Boolean hiddenFlag;
 
     /**
-     * 0未禁用，1已禁用
+     * 0未禁用，1已禁用，默认0
      */
     private Boolean disabledFlag;
 
     /**
-     * 0不可删除，1可删除
+     * 0不可删除，1可删除，默认1
      */
     private Boolean deletableFlag;
 
@@ -94,12 +94,12 @@ public class Menu implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人
+     * 更新人，默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间
+     * 更新时间，默认null
      */
     private Date updateTime;
 

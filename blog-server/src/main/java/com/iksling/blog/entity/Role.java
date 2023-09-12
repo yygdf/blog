@@ -44,17 +44,17 @@ public class Role implements Serializable {
     private String roleName;
 
     /**
-     * 角色权重
+     * 角色权重，默认1000
      */
     private Integer roleWeight;
 
     /**
-     * 0未禁用，1已禁用
+     * 0未禁用，1已禁用，默认0
      */
     private Boolean disabledFlag;
 
     /**
-     * 0不可删除，1可删除
+     * 0不可删除，1可删除，默认1
      */
     private Boolean deletableFlag;
 
@@ -69,12 +69,12 @@ public class Role implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人
+     * 更新人，默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间
+     * 更新时间，默认null
      */
     private Date updateTime;
 

@@ -7,14 +7,12 @@
     <resultMap id="BaseResultMap" type="com.iksling.blog.entity.QQAuth">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="loginLogId" column="login_log_id" jdbcType="INTEGER"/>
             <result property="openid" column="openid" jdbcType="VARCHAR"/>
             <result property="accessToken" column="access_token" jdbcType="VARCHAR"/>
-            <result property="loginTime" column="login_time" jdbcType="TIMESTAMP"/>
-            <result property="loginDevice" column="login_device" jdbcType="VARCHAR"/>
             <result property="lockedFlag" column="locked_flag" jdbcType="BOOLEAN"/>
+            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
             <result property="disabledFlag" column="disabled_flag" jdbcType="BOOLEAN"/>
-            <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>
-            <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
@@ -22,10 +20,9 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,user_id,openid,
-        access_token,login_time,login_device,
-        locked_flag,disabled_flag,ip_source,
-        ip_address,create_user,create_time,
-        update_user,update_time
+        id,user_id,login_log_id,
+        openid,access_token,locked_flag,
+        deleted_flag,disabled_flag,create_user,
+        create_time,update_user,update_time
     </sql>
 </mapper>

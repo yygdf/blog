@@ -34,12 +34,12 @@ public class Resource implements Serializable {
     private Integer userId;
 
     /**
-     * 父资源id
+     * 父资源id，默认-1
      */
     private Integer parentId;
 
     /**
-     * 资源路径
+     * 资源路径，默认空串
      */
     private String resourceUri;
 
@@ -49,22 +49,22 @@ public class Resource implements Serializable {
     private String resourceName;
 
     /**
-     * 请求方式
+     * 请求方式，默认空串
      */
     private String resourceRequestMethod;
 
     /**
-     * 0未禁用，1已禁用
+     * 0未禁用，1已禁用，默认0
      */
     private Boolean disabledFlag;
 
     /**
-     * 0不可删除，1可删除
+     * 0不可删除，1可删除，默认1
      */
     private Boolean deletableFlag;
 
     /**
-     * 0未匿名，1已匿名
+     * 0未匿名，1已匿名，默认0
      */
     private Boolean anonymousFlag;
 
@@ -79,12 +79,12 @@ public class Resource implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人
+     * 更新人，默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间
+     * 更新时间，默认null
      */
     private Date updateTime;
 

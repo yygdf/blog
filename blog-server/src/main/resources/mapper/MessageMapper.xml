@@ -9,7 +9,7 @@
             <result property="userId" column="user_id" jdbcType="INTEGER"/>
             <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
             <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
-            <result property="messageSpeed" column="message_speed" jdbcType="BOOLEAN"/>
+            <result property="messageSpeed" column="message_speed" jdbcType="INTEGER"/>
             <result property="messageContent" column="message_content" jdbcType="VARCHAR"/>
             <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
             <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>

@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -18,9 +15,6 @@ import java.util.Date;
  */
 @TableName(value ="tb_article")
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class Article implements Serializable {
     /**
      * 文章id
@@ -34,7 +28,7 @@ public class Article implements Serializable {
     private Integer userId;
 
     /**
-     * 分类id
+     * 分类id，默认-1
      */
     private Integer categoryId;
 
@@ -54,47 +48,47 @@ public class Article implements Serializable {
     private String articleContent;
 
     /**
-     * 0未置顶，1已置顶
+     * 0未置顶，1已置顶，默认0
      */
     private Boolean topFlag;
 
     /**
-     * 0不是草稿，1是草稿
+     * 0不是草稿，1是草稿，默认1
      */
     private Boolean draftFlag;
 
     /**
-     * 0未公开，1已公开
+     * 0未公开，1已公开，默认1
      */
     private Boolean publicFlag;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏，1已隐藏，默认0
      */
     private Boolean hiddenFlag;
 
     /**
-     * 0未回收，1已回收
+     * 0未回收，1已回收，默认0
      */
     private Boolean recycleFlag;
 
     /**
-     * 0未删除，1已删除
+     * 0未删除，1已删除，默认0
      */
     private Boolean deletedFlag;
 
     /**
-     * 0不可评论，1可评论
+     * 0不可评论，1可评论，默认1
      */
     private Boolean commentableFlag;
 
     /**
-     * ip来源
+     * ip来源，默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址
+     * ip地址，默认空串
      */
     private String ipAddress;
 
@@ -109,22 +103,22 @@ public class Article implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人
+     * 更新人，默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间
+     * 更新时间，默认null
      */
     private Date updateTime;
 
     /**
-     * 发表人
+     * 发表人，默认null
      */
     private Integer publishUser;
 
     /**
-     * 发表时间
+     * 发表时间，默认null
      */
     private Date publishTime;
 

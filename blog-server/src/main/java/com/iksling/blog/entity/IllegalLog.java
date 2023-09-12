@@ -44,7 +44,7 @@ public class IllegalLog implements Serializable {
     private String optType;
 
     /**
-     * 操作描述
+     * 操作描述，默认空串
      */
     private String optDesc;
 
@@ -79,12 +79,12 @@ public class IllegalLog implements Serializable {
     private String exceptionStackTrace;
 
     /**
-     * ip来源
+     * ip来源，默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址
+     * ip地址，默认空串
      */
     private String ipAddress;
 

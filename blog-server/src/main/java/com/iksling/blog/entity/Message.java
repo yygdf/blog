@@ -40,7 +40,7 @@ public class Message implements Serializable {
     /**
      * 留言速度
      */
-    private Boolean messageSpeed;
+    private Integer messageSpeed;
 
     /**
      * 留言内容
@@ -48,17 +48,17 @@ public class Message implements Serializable {
     private String messageContent;
 
     /**
-     * 0未删除，1已删除
+     * 0未删除，1已删除，默认0
      */
     private Boolean deletedFlag;
 
     /**
-     * ip来源
+     * ip来源，默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址
+     * ip地址，默认空串
      */
     private String ipAddress;
 

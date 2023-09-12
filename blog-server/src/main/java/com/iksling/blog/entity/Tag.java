@@ -42,12 +42,12 @@ public class Tag implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人
+     * 更新人，默认null
      */
     private Integer updateUser;
 
     /**
-     * 修改时间
+     * 修改时间，默认null
      */
     private Date updateTime;
 

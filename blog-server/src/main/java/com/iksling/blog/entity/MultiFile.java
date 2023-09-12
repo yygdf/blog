@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -17,6 +19,8 @@ import java.util.Date;
 @TableName(value ="tb_multi_file")
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MultiFile implements Serializable {
     /**
      * 文件id
@@ -40,7 +44,7 @@ public class MultiFile implements Serializable {
     private String fileUrl;
 
     /**
-     * 文件描述
+     * 文件描述，默认空串
      */
     private String fileDesc;
 
@@ -55,22 +59,22 @@ public class MultiFile implements Serializable {
     private String fileSubDir;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏，1已隐藏，默认0
      */
     private Boolean hiddenFlag;
 
     /**
-     * 0未删除，1已删除
+     * 0未删除，1已删除，默认0
      */
     private Boolean deletedFlag;
 
     /**
-     * ip来源
+     * ip来源，默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址
+     * ip地址，默认空串
      */
     private String ipAddress;
 
@@ -85,12 +89,12 @@ public class MultiFile implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人
+     * 更新人，默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间
+     * 更新时间，默认null
      */
     private Date updateTime;
 

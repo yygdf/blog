@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 
@@ -39,7 +40,7 @@ public class ChatRecord implements Serializable {
     /**
      * 聊天类型
      */
-    private Boolean chatType;
+    private Integer chatType;
 
     /**
      * 聊天内容
@@ -47,17 +48,17 @@ public class ChatRecord implements Serializable {
     private String chatContent;
 
     /**
-     * 0未撤回，1已撤回
+     * 0未撤回，1已撤回，默认0
      */
     private Boolean recalledFlag;
 
     /**
-     * ip来源
+     * ip来源，默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址
+     * ip地址，默认空串
      */
     private String ipAddress;
 

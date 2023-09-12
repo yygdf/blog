@@ -35,9 +35,39 @@
             <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
                 #{id}
             </foreach>
-            AND user_id not in
-            <foreach collection="rootUserIdList" item="user_id" index="index" open="(" separator="," close=")">
-                #{user_id}
-            </foreach>
+            AND user_id != #{rootUserId}
     </update>
+
+    <select id="listUserConfigsBackDTO" resultType="com.iksling.blog.dto.ConfigsBackDTO">
+        SELECT
+            uc.id,uc.user_id,ua.username,
+            uc.config_desc,uc.config_value,uc.config_name,
+            uc.deletable_flag,uc.create_time,uc.update_time
+        FROM
+            tb_user_config uc
+        LEFT JOIN tb_user_auth ua ON uc.user_id = ua.user_id
+        <where>
+            1 = 1
+            <if test="condition.userId != null">
+                AND uc.user_id = #{condition.userId}
+            </if>
+            <if test="roleWeight > 200">
+                AND uc.user_id = #{userId}
+            </if>
+            <if test="condition.deletedFlag != null">
+                AND uc.deleted_flag = #{condition.deletedFlag}
+            </if>
+            <if test="condition.keywords != null and condition.keywords.trim() != ''">
+                AND (
+                    uc.config_name like concat('%', #{condition.keywords.trim()}, '%')
+                    OR
+                    uc.config_desc like concat('%', #{condition.keywords.trim()}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY
+            uc.id DESC
+        LIMIT
+            #{condition.current}, #{condition.size}
+    </select>
 </mapper>

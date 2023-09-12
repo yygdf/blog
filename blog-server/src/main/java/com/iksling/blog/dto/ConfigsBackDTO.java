@@ -17,6 +17,11 @@ public class ConfigsBackDTO {
     private Integer userId;
 
     /**
+     * 用户名
+     */
+    private String username;
+
+    /**
      * 配置描述
      */
     private String configDesc;

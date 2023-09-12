@@ -1,9 +1,7 @@
 package com.iksling.blog.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.ConfigsBackDTO;
 import com.iksling.blog.entity.UserConfig;
@@ -12,7 +10,6 @@ import com.iksling.blog.mapper.UserConfigMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.UserConfigService;
-import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.ConfigBackVO;
@@ -24,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
@@ -43,19 +41,11 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
         LoginUser loginUser = UserUtil.getLoginUser();
         if (loginUser.getRoleWeight() > 100 && Objects.nonNull(condition.getDeletedFlag()) && condition.getDeletedFlag())
             throw new IllegalRequestException();
-        Page<UserConfig> page = new Page<>(condition.getCurrent(), condition.getSize());
-        Page<UserConfig> userConfigPage = userConfigMapper.selectPage(page, new LambdaQueryWrapper<UserConfig>()
-                .select(UserConfig::getId, UserConfig::getUserId, UserConfig::getConfigDesc, UserConfig::getConfigValue, UserConfig::getConfigName, UserConfig::getDeletableFlag, UserConfig::getCreateTime, UserConfig::getUpdateTime)
-                .eq(Objects.nonNull(condition.getUserId()), UserConfig::getUserId, condition.getUserId())
-                .eq(loginUser.getRoleWeight() > 200, UserConfig::getUserId, loginUser.getUserId())
-                .eq(Objects.nonNull(condition.getDeletedFlag()), UserConfig::getDeletedFlag, condition.getDeletedFlag())
-                .and(StringUtils.isNotBlank(condition.getKeywords()), e -> e.like(UserConfig::getConfigName, condition.getKeywords())
-                        .or()
-                        .like(UserConfig::getConfigDesc, condition.getKeywords()))
-                .orderByDesc(UserConfig::getId));
-        if (userConfigPage.getTotal() == 0)
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
+        List<ConfigsBackDTO> configsBackDTOList = userConfigMapper.listUserConfigsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (CollectionUtils.isEmpty(configsBackDTOList))
             return new PagePojo<>();
-        return new PagePojo<>((int) userConfigPage.getTotal(), BeanCopyUtil.copyList(userConfigPage.getRecords(), ConfigsBackDTO.class));
+        return new PagePojo<>(configsBackDTOList.size(), configsBackDTOList);
     }
 
     @Override
@@ -121,9 +111,14 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
     @Override
     @Transactional
     public void updateUserConfigsStatus(UpdateBatchVO updateBatchVO) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100 && !updateBatchVO.getDeletedFlag())
-            throw new IllegalRequestException();
-        userConfigMapper.updateUserConfigsStatus(updateBatchVO, ROOT_USER_ID_LIST);
+        if (UserUtil.getLoginUser().getRoleWeight() > 100) {
+            if (!updateBatchVO.getDeletedFlag())
+                throw new IllegalRequestException();
+            updateBatchVO.getIdList().removeAll(ROOT_USER_ID_LIST);
+            if (CollectionUtils.isEmpty(updateBatchVO.getIdList()))
+                return;
+        }
+        userConfigMapper.updateUserConfigsStatus(updateBatchVO, ROOT_USER_ID);
     }
 }
 

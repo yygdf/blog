@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.FriendLinksBackDTO;
 import com.iksling.blog.entity.FriendLink;
 import com.iksling.blog.exception.IllegalRequestException;
-import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.FriendLinkMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
@@ -56,10 +55,10 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     @Transactional
     public void deleteFriendLinkIdList(List<Integer> friendLinkIdList) {
         if (CollectionUtils.isEmpty(friendLinkIdList))
-            throw new OperationStatusException();
+            throw new IllegalRequestException();
         int count = friendLinkMapper.deleteBatchIds(friendLinkIdList);
         if (count != friendLinkIdList.size())
-            throw new OperationStatusException();
+            throw new IllegalRequestException();
     }
 
     @Override

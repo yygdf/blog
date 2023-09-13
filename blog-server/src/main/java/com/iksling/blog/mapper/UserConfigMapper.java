@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface UserConfigMapper extends BaseMapper<UserConfig> {
 
-    Integer updateUserConfigsStatus(@Param("updateBatch") UpdateBatchVO updateBatchVO, Integer rootUserId);
+    int updateUserConfigsStatus(@Param("updateBatch") UpdateBatchVO updateBatchVO, @Param("rootUserIdList") List<Integer> rootUserIdList, Integer userId, Integer roleWeight);
 
     List<ConfigsBackDTO> listUserConfigsBackDTO(@Param("condition") ConditionVO condition, Integer userId, Integer roleWeight);
 }

@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.ConfigsBackDTO;
 import com.iksling.blog.entity.SystemConfig;
-import com.iksling.blog.exception.OperationStatusException;
+import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.SystemConfigMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
@@ -74,9 +74,9 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
                     .eq(SystemConfig::getId, Integer.parseInt(id))
                     .eq(SystemConfig::getDeletableFlag, true));
             if (count != 1)
-                throw new OperationStatusException();
+                throw new IllegalRequestException();
         } catch (NumberFormatException e) {
-            throw new OperationStatusException();
+            throw new IllegalRequestException();
         }
     }
 }

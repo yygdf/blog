@@ -35,7 +35,15 @@
             <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
                 #{id}
             </foreach>
-            AND user_id != #{rootUserId}
+            <if test="roleWeight > 200">
+                AND user_id = #{userId}
+            </if>
+            <if test="roleWeight > 100 and roleWeight le 200">
+                AND user_id not in
+                <foreach collection="rootUserIdList" item="userId" index="index" open="(" separator="," close=")">
+                    #{userId}
+                </foreach>
+            </if>
     </update>
 
     <select id="listUserConfigsBackDTO" resultType="com.iksling.blog.dto.ConfigsBackDTO">

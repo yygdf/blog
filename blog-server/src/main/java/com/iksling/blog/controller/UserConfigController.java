@@ -1,11 +1,11 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserConfigService;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.ConfigBackVO;
-import com.iksling.blog.vo.ConfigStatusVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
 import static com.iksling.blog.constant.OptLogConst.*;
 
 @RestController
@@ -27,16 +29,10 @@ public class UserConfigController {
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/back/userConfigs")
     public Result listBackUserConfigs(@Valid ConditionVO condition) {
-        return Result.success().message("查询成功").data(userConfigService.getPageUserConfigsBackDTO(condition));
-    }
-
-    @OptLog(optType = UPDATE)
-    @ApiOperation(value = "更新用户配置状态")
-    @ApiImplicitParam(name = "configStatusVO", value = "配置状态VO", required = true, dataType = "ConfigStatusVO")
-    @PutMapping("/back/userConfig")
-    public Result updateUserConfigStatus(@Valid @RequestBody ConfigStatusVO configStatusVO) {
-        userConfigService.updateUserConfigStatus(configStatusVO);
-        return Result.success().message("操作成功");
+        return Result.success().message("查询成功").data(Dict.create()
+                .set("page", userConfigService.getPageUserConfigsBackDTO(condition))
+                .set("rootUserId", ROOT_USER_ID)
+                .set("rootUserIdList", ROOT_USER_ID_LIST));
     }
 
     @OptLog(optType = REMOVE)

@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.MessagesBackDTO;
 import com.iksling.blog.entity.Message;
 import com.iksling.blog.exception.IllegalRequestException;
-import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.MessageMapper;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.MessageService;
@@ -59,10 +58,10 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     @Transactional
     public void deleteMessageIdList(List<Integer> messageIdList) {
         if (CollectionUtils.isEmpty(messageIdList))
-            throw new OperationStatusException();
+            throw new IllegalRequestException();
         int count = messageMapper.deleteBatchIds(messageIdList);
         if (count != messageIdList.size())
-            throw new OperationStatusException();
+            throw new IllegalRequestException();
     }
 }
 

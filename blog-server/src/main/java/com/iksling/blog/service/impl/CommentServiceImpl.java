@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.CommentsBackDTO;
 import com.iksling.blog.entity.Comment;
 import com.iksling.blog.exception.IllegalRequestException;
-import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.CommentMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
@@ -63,10 +62,10 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     @Transactional
     public void deleteCommentIdList(List<Integer> commentIdList) {
         if (CollectionUtils.isEmpty(commentIdList))
-            throw new OperationStatusException();
+            throw new IllegalRequestException();
         int count = commentMapper.deleteBatchIds(commentIdList);
         if (count != commentIdList.size())
-            throw new OperationStatusException();
+            throw new IllegalRequestException();
     }
 }
 

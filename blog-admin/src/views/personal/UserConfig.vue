@@ -3,7 +3,7 @@
     <div class="title">{{ this.$route.name }}</div>
     <div class="operation-container">
       <el-button
-        v-if="checkWeight(100)"
+        v-if="checkCurrentUserId"
         type="primary"
         size="small"
         icon="el-icon-plus"
@@ -51,7 +51,7 @@
           />
         </el-select>
         <el-select
-          v-if="checkWeight(100)"
+          v-if="checkWeight"
           v-model="deletedFlag"
           size="small"
           style="margin-right:1rem"
@@ -91,7 +91,13 @@
       border
       @selection-change="selectionChange"
     >
-      <el-table-column type="selection" align="center" width="40" />
+      <el-table-column
+        v-if="checkWeight"
+        type="selection"
+        align="center"
+        width="40"
+        :selectable="checkSelectable"
+      />
       <el-table-column
         prop="username"
         label="用户"
@@ -132,11 +138,10 @@
         <template slot-scope="scope">
           <el-popconfirm
             v-if="deletedFlag"
+            :disabled="!checkSelectable(scope.row)"
             title="确定恢复吗？"
             style="margin-left:10px"
-            @confirm="
-              updateUserConfigStatus(scope.row.userId, scope.row.configName)
-            "
+            @confirm="updateUserConfigsStatus(scope.row.id)"
           >
             <el-button type="success" size="mini" slot="reference">
               恢复
@@ -144,6 +149,7 @@
           </el-popconfirm>
           <el-button
             v-else
+            :disabled="!checkSelectable(scope.row)"
             type="primary"
             size="mini"
             @click="openModel(scope.row)"
@@ -152,6 +158,7 @@
           </el-button>
           <el-popconfirm
             v-if="deletedFlag"
+            :disabled="!checkCurrentUserId"
             title="确定彻底删除吗？"
             style="margin-left:10px"
             @confirm="deleteUserConfig(scope.row.configName)"
@@ -162,11 +169,10 @@
           </el-popconfirm>
           <el-popconfirm
             v-if="checkWeight && !deletedFlag"
+            :disabled="!checkSelectable(scope.row)"
             title="确定删除吗？"
             style="margin-left:10px"
-            @confirm="
-              updateUserConfigStatus(scope.row.userId, scope.row.configName)
-            "
+            @confirm="updateUserConfigsStatus(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">
               删除
@@ -226,7 +232,7 @@
             :maxLength="255"
           />
         </el-form-item>
-        <el-form-item v-if="checkWeight(100)" label="开启同步">
+        <el-form-item v-if="checkCurrentUserId" label="开启同步">
           <el-switch
             v-model="userConfig.assimilateFlag"
             :active-value="true"
@@ -268,10 +274,12 @@ export default {
       ],
       userConfig: {},
       usernameList: [],
+      rootUserIdList: [],
       userConfigList: [],
       userConfigIdList: [],
       userId: null,
       keywords: null,
+      rootUserId: null,
       loading: true,
       editStatus: false,
       deletedFlag: false,
@@ -315,6 +323,12 @@ export default {
       this.current = current;
       this.listUserConfigs();
     },
+    checkSelectable(row) {
+      return (
+        this.checkWeight(100) ||
+        !this.rootUserIdList.some(e => e === row.userId)
+      );
+    },
     selectionChange(userConfigList) {
       this.userConfigIdList = [];
       userConfigList.forEach(item => {
@@ -333,8 +347,10 @@ export default {
           }
         })
         .then(({ data }) => {
-          this.count = data.data.count;
-          this.userConfigList = data.data.pageList;
+          this.count = data.data.page.count;
+          this.rootUserId = data.data.rootUserId;
+          this.rootUserIdList = data.data.rootUserIdList;
+          this.userConfigList = data.data.page.pageList;
           this.loading = false;
         });
     },
@@ -392,30 +408,13 @@ export default {
           this.addOrEditStatus = false;
         });
     },
-    updateUserConfigStatus(userId, configName) {
-      let param = {
-        userId: userId,
-        configName: configName,
-        deletedFlag: !this.deletedFlag
-      };
-      this.axios.put("/api/back/userConfig", param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: "成功",
-            message: data.message
-          });
-          this.listUserConfigs();
-        } else {
-          this.$notify.error({
-            title: "失败",
-            message: data.message
-          });
-        }
-      });
-    },
-    updateUserConfigsStatus() {
+    updateUserConfigsStatus(id) {
       let param = new URLSearchParams();
-      param.append("idList", this.userConfigIdList);
+      if (id != null) {
+        param.append("idList", [id]);
+      } else {
+        param.append("idList", this.userConfigIdList);
+      }
       param.append("deletedFlag", !this.deletedFlag);
       this.axios.put("/api/back/userConfigs", param).then(({ data }) => {
         if (data.flag) {
@@ -432,6 +431,11 @@ export default {
         }
         this.editStatus = false;
       });
+    }
+  },
+  computed: {
+    checkCurrentUserId() {
+      return this.$store.state.userId === this.rootUserId;
     }
   },
   watch: {

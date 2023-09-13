@@ -4,12 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.dto.MenusBackDTO;
 import com.iksling.blog.dto.LabelsDTO;
+import com.iksling.blog.dto.MenusBackDTO;
 import com.iksling.blog.dto.UserMenusDTO;
 import com.iksling.blog.entity.Menu;
 import com.iksling.blog.exception.IllegalRequestException;
-import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.MenuMapper;
 import com.iksling.blog.mapper.RoleMenuMapper;
 import com.iksling.blog.pojo.LoginUser;
@@ -75,10 +74,10 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                     .eq(Menu::getDeletableFlag, true)
                     .and(q -> q.eq(Menu::getId, Integer.parseInt(id)).or().eq(Menu::getParentId, Integer.parseInt(id))));
             if (count != 1)
-                throw new OperationStatusException();
+                throw new IllegalRequestException();
             roleMenuMapper.deleteByMap(Collections.singletonMap("menu_id", id));
         } catch (NumberFormatException e) {
-            throw new OperationStatusException();
+            throw new IllegalRequestException();
         }
     }
 
@@ -86,7 +85,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     @Transactional
     public void saveOrUpdateMenuBackVO(MenuBackVO menuBackVO) {
         if (Objects.isNull(menuBackVO.getId()) && (Objects.nonNull(menuBackVO.getParentId()) && menuBackVO.getParentId().equals(HOME_MENU_ID)))
-            throw new OperationStatusException();
+            throw new IllegalRequestException();
         LoginUser loginUser = UserUtil.getLoginUser();
         Menu menu = Menu.builder()
                 .id(menuBackVO.getId())
@@ -111,7 +110,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
             int count = menuMapper.update(menu, new LambdaUpdateWrapper<Menu>()
                     .eq(Menu::getId, menu.getId()));
             if (count != 1)
-                throw new OperationStatusException();
+                throw new IllegalRequestException();
         }
     }
 

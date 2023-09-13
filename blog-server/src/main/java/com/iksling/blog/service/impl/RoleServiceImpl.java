@@ -12,9 +12,11 @@ import com.iksling.blog.entity.Role;
 import com.iksling.blog.entity.RoleMenu;
 import com.iksling.blog.entity.RoleResource;
 import com.iksling.blog.entity.UserRole;
+import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.handler.FilterInvocationSecurityMetadataSourceImpl;
 import com.iksling.blog.mapper.RoleMapper;
+import com.iksling.blog.mapper.RoleResourceMapper;
 import com.iksling.blog.mapper.UserRoleMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.*;
@@ -28,10 +30,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID;
@@ -44,8 +43,11 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     implements RoleService{
     @Autowired
     private RoleMapper roleMapper;
+
     @Autowired
     private UserRoleMapper userRoleMapper;
+    @Autowired
+    private RoleResourceMapper roleResourceMapper;
 
     @Autowired
     private MenuService menuService;
@@ -81,12 +83,12 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     @Transactional
     public void updateRoleStatusVO(CommonStatusVO commonStatusVO) {
         if (commonStatusVO.getId().equals(ROOT_ROLE_ID))
-            throw new OperationStatusException();
+            throw new IllegalRequestException();
         int count = roleMapper.update(null, new LambdaUpdateWrapper<Role>()
                 .set(Role::getDisabledFlag, commonStatusVO.getPublicFlag())
                 .eq(Role::getId, commonStatusVO.getId()));
         if (count != 1)
-            throw new OperationStatusException();
+            throw new IllegalRequestException();
         if (commonStatusVO.getPublicFlag()) {
             Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>()
                     .select(Role::getRoleName)
@@ -100,16 +102,18 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     public void deleteRoleById(String id) {
         try {
             int roleId = Integer.parseInt(id);
-            Integer count = userRoleMapper.selectCount(new LambdaQueryWrapper<UserRole>().eq(UserRole::getRoleId, roleId));
+            Integer count = userRoleMapper.selectCount(new LambdaQueryWrapper<UserRole>()
+                    .eq(UserRole::getRoleId, roleId));
             if (count > 0)
-                throw new OperationStatusException();
+                throw new IllegalRequestException();
             count = roleMapper.delete(new LambdaQueryWrapper<Role>()
                     .eq(Role::getId, roleId)
                     .eq(Role::getDeletableFlag, true));
             if (count != 1)
-                throw new OperationStatusException();
+                throw new IllegalRequestException();
+            roleResourceMapper.deleteByMap(Collections.singletonMap("role_id", roleId));
         } catch (NumberFormatException e) {
-            throw new OperationStatusException();
+            throw new IllegalRequestException();
         }
     }
 
@@ -117,7 +121,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     @Transactional
     public void saveOrUpdateRoleBackVO(RoleBackVO roleBackVO) {
         if (ROOT_ROLE_ID.equals(roleBackVO.getId()) && (Objects.nonNull(roleBackVO.getDisabledFlag()) && roleBackVO.getDisabledFlag()))
-            throw new OperationStatusException();
+            throw new IllegalRequestException();
         LoginUser loginUser = UserUtil.getLoginUser();
         Role role = Role.builder()
                 .id(roleBackVO.getId())
@@ -140,7 +144,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
             role.setUpdateUser(loginUser.getUserId());
             int count = roleMapper.updateById(role);
             if (count != 1)
-                throw new OperationStatusException();
+                throw new IllegalRequestException();
             if (Objects.nonNull(role.getDisabledFlag()) && role.getDisabledFlag())
                 disabledRole(role.getRoleName());
         }

@@ -13,7 +13,6 @@ import com.iksling.blog.service.UserConfigService;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.ConfigBackVO;
-import com.iksling.blog.vo.ConfigStatusVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,20 +49,9 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
 
     @Override
     @Transactional
-    public void updateUserConfigStatus(ConfigStatusVO configStatusVO) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100 && ROOT_USER_ID_LIST.contains(configStatusVO.getUserId()))
-            return;
-        userConfigMapper.update(null, new LambdaUpdateWrapper<UserConfig>()
-                .set(UserConfig::getDeletedFlag, configStatusVO.getDeletedFlag())
-                .eq(UserConfig::getConfigName, configStatusVO.getConfigName())
-                .eq(!ROOT_USER_ID.equals(configStatusVO.getUserId()) || !configStatusVO.getDeletedFlag(), UserConfig::getUserId, configStatusVO.getUserId()));
-    }
-
-    @Override
-    @Transactional
     public void deleteUserConfigByConfigName(String configName) {
-        userConfigMapper.deleteByMap(Collections.singletonMap("config_name", configName.trim()));
+        if (UserUtil.getLoginUser().getUserId().equals(ROOT_USER_ID))
+            userConfigMapper.deleteByMap(Collections.singletonMap("config_name", configName.trim()));
     }
 
     @Override
@@ -76,7 +64,7 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
                 .configValue(configBackVO.getConfigValue().trim())
                 .build();
         if (Objects.isNull(configBackVO.getId())) {
-            if (loginUser.getRoleWeight() > 100)
+            if (!loginUser.getUserId().equals(ROOT_USER_ID))
                 throw new IllegalRequestException();
             userConfig.setUserId(loginUser.getUserId());
             userConfig.setConfigName(configBackVO.getConfigName().trim());
@@ -84,9 +72,7 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
             userConfig.setCreateTime(new Date());
             userConfigMapper.insert(userConfig);
         } else {
-            if (loginUser.getRoleWeight() > 100 && Objects.nonNull(configBackVO.getAssimilateFlag()) && configBackVO.getAssimilateFlag())
-                throw new IllegalRequestException();
-            if (Objects.nonNull(configBackVO.getAssimilateFlag()) && configBackVO.getAssimilateFlag()) {
+            if (loginUser.getUserId().equals(ROOT_USER_ID) && Objects.nonNull(configBackVO.getAssimilateFlag()) && configBackVO.getAssimilateFlag()) {
                 userConfigMapper.update(null, new LambdaUpdateWrapper<UserConfig>()
                         .set(UserConfig::getConfigDesc, userConfig.getConfigDesc())
                         .set(UserConfig::getConfigValue, userConfig.getConfigValue())
@@ -101,7 +87,8 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
                         .set(UserConfig::getUpdateUser, loginUser.getUserId())
                         .set(UserConfig::getUpdateTime, new Date())
                         .eq(UserConfig::getId, configBackVO.getId())
-                        .eq(loginUser.getRoleWeight() > 200, UserConfig::getUserId, loginUser.getUserId()));
+                        .eq(loginUser.getRoleWeight() > 200, UserConfig::getUserId, loginUser.getUserId())
+                        .notIn(loginUser.getRoleWeight() > 100 && loginUser.getRoleWeight() <= 200, UserConfig::getUserId, ROOT_USER_ID_LIST));
                 if (count != 1)
                     throw new IllegalRequestException();
             }
@@ -111,14 +98,10 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
     @Override
     @Transactional
     public void updateUserConfigsStatus(UpdateBatchVO updateBatchVO) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100) {
-            if (!updateBatchVO.getDeletedFlag())
-                throw new IllegalRequestException();
-            updateBatchVO.getIdList().removeAll(ROOT_USER_ID_LIST);
-            if (CollectionUtils.isEmpty(updateBatchVO.getIdList()))
-                return;
-        }
-        userConfigMapper.updateUserConfigsStatus(updateBatchVO, ROOT_USER_ID);
+        LoginUser loginUser = UserUtil.getLoginUser();
+        int count = userConfigMapper.updateUserConfigsStatus(updateBatchVO, ROOT_USER_ID_LIST, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (count != updateBatchVO.getIdList().size())
+            throw new IllegalRequestException();
     }
 }
 

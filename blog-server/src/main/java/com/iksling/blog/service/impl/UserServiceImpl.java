@@ -9,9 +9,11 @@ import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.entity.UserAuth;
+import com.iksling.blog.entity.UserRole;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.mapper.UserMapper;
+import com.iksling.blog.mapper.UserRoleMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.UserService;
@@ -41,6 +43,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private UserMapper userMapper;
 
     @Autowired
+    private UserRoleMapper userRoleMapper;
+
+    @Autowired
     private UserAuthMapper userAuthMapper;
 
     @Autowired
@@ -60,6 +65,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     @Transactional
     public void deleteUserIdList(List<Integer> userIdList) {
+        if (CollectionUtils.isEmpty(userIdList))
+            throw new IllegalRequestException();
+        userRoleMapper.delete(new LambdaQueryWrapper<UserRole>().in(UserRole::getUserId, userIdList));
     }
 
     @Override

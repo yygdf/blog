@@ -218,6 +218,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         int count = articleMapper.deleteBatchIds(articleIdList);
         if (count != articleIdList.size())
             throw new IllegalRequestException();
+        articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>().in(ArticleTag::getArticleId, articleIdList));
     }
 
     @Override

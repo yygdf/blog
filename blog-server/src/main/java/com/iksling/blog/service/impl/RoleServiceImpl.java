@@ -16,6 +16,7 @@ import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.handler.FilterInvocationSecurityMetadataSourceImpl;
 import com.iksling.blog.mapper.RoleMapper;
+import com.iksling.blog.mapper.RoleMenuMapper;
 import com.iksling.blog.mapper.RoleResourceMapper;
 import com.iksling.blog.mapper.UserRoleMapper;
 import com.iksling.blog.pojo.LoginUser;
@@ -48,6 +49,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     private UserRoleMapper userRoleMapper;
     @Autowired
     private RoleResourceMapper roleResourceMapper;
+    @Autowired
+    private RoleMenuMapper roleMenuMapper;
 
     @Autowired
     private MenuService menuService;
@@ -111,6 +114,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
                     .eq(Role::getDeletableFlag, true));
             if (count != 1)
                 throw new IllegalRequestException();
+            userRoleMapper.deleteByMap(Collections.singletonMap("role_id", roleId));
+            roleMenuMapper.deleteByMap(Collections.singletonMap("role_id", roleId));
             roleResourceMapper.deleteByMap(Collections.singletonMap("role_id", roleId));
         } catch (NumberFormatException e) {
             throw new IllegalRequestException();

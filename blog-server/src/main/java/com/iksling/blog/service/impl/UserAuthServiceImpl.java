@@ -24,7 +24,6 @@ import com.iksling.blog.service.UserRoleService;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
-import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserAuthBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
@@ -105,14 +104,9 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Transactional
     public void updateUserAuthBackVO(UserAuthBackVO userAuthBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100) {
-            if (userAuthBackVO.getLockedFlag())
-                throw new IllegalRequestException();
-            if (ROOT_USER_ID_LIST.contains(userAuthBackVO.getId()))
-                return;
-            if (!Collections.disjoint(ROOT_ROLE_ID_LIST, userAuthBackVO.getRoleIdList()))
-                throw new IllegalRequestException();
-        }
+        // TODO: 这里直接用核心用户idList替代核心角色idList进行卡控，需保持核心用户都是核心角色
+        if (loginUser.getRoleWeight() > 100 && (userAuthBackVO.getLockedFlag() || ROOT_USER_ID_LIST.contains(userAuthBackVO.getId()) || !Collections.disjoint(ROOT_ROLE_ID_LIST, userAuthBackVO.getRoleIdList())))
+            throw new IllegalRequestException();
         if (StringUtils.isNotBlank(userAuthBackVO.getPassword()))
             userAuthBackVO.setPassword(passwordEncoder.encode(userAuthBackVO.getPassword().trim()));
         int count = userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
@@ -165,12 +159,9 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Transactional
     public void updateUserAuthStatusVO(CommonStatusVO commonStatusVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100) {
-            if (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag())
+        // TODO: 这里直接用核心用户idList替代核心角色idList进行卡控，需保持核心用户都是核心角色
+        if (loginUser.getRoleWeight() > 100 && (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag()) || ROOT_USER_ID_LIST.contains(commonStatusVO.getId()))
                 throw new IllegalRequestException();
-            if (ROOT_USER_ID_LIST.contains(commonStatusVO.getId()))
-                return;
-        }
         int count = userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                 .set(Objects.nonNull(commonStatusVO.getTopFlag()), UserAuth::getLockedFlag, commonStatusVO.getTopFlag())
                 .set(UserAuth::getDisabledFlag, commonStatusVO.getPublicFlag())
@@ -180,22 +171,6 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
             throw new IllegalRequestException();
         if (commonStatusVO.getPublicFlag() || (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag()))
             deleteUserIdList(Collections.singletonList(commonStatusVO.getId()));
-    }
-
-    @Override
-    @Transactional
-    public void updateUserAuthsStatus(UpdateBatchVO updateBatchVO) {
-        if ((UserUtil.getLoginUser().getRoleWeight() > 100)) {
-            if (!updateBatchVO.getDeletedFlag())
-                throw new IllegalRequestException();
-             if (!Collections.disjoint(ROOT_USER_ID_LIST, updateBatchVO.getIdList()))
-                 return;
-        }
-        Integer count = userAuthMapper.updateUserAuthsStatus(updateBatchVO);
-        if (count != updateBatchVO.getIdList().size())
-            throw new IllegalRequestException();
-        if (updateBatchVO.getDeletedFlag())
-            deleteUserIdList(updateBatchVO.getIdList());
     }
 
     private void deleteUserIdList(List<Integer> idList) {

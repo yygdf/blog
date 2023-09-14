@@ -1,11 +1,11 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserAuthService;
 import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
-import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserAuthBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID_LIST;
 import static com.iksling.blog.constant.OptLogConst.UPDATE;
 
 @RestController
@@ -37,7 +38,9 @@ public class UserAuthController {
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/back/userAuths")
     public Result listBackUserAuths(@Valid ConditionVO condition) {
-        return Result.success().message("查询成功").data(userAuthService.getPageUserAuthsBackDTO(condition));
+        return Result.success().message("查询成功").data(Dict.create()
+                .set("rootRoleIdList", ROOT_ROLE_ID_LIST)
+                .set("pagePojo", userAuthService.getPageUserAuthsBackDTO(condition)));
     }
 
     @OptLog(optType = UPDATE)
@@ -46,15 +49,6 @@ public class UserAuthController {
     @PutMapping("/back/userAuth/status")
     public Result updateUserAuthStatus(@Valid @RequestBody CommonStatusVO commonStatusVO) {
         userAuthService.updateUserAuthStatusVO(commonStatusVO);
-        return Result.success().message("操作成功");
-    }
-
-    @OptLog(optType = UPDATE)
-    @ApiOperation(value = "批量更新账号状态")
-    @ApiImplicitParam(name = "updateBatchVO", value = "批量更新VO", required = true, dataType = "UpdateBatchVO")
-    @PutMapping("/back/userAuths")
-    public Result updateUserAuthsStatus(@Valid UpdateBatchVO updateBatchVO) {
-        userAuthService.updateUserAuthsStatus(updateBatchVO);
         return Result.success().message("操作成功");
     }
 

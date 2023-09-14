@@ -30,9 +30,9 @@ public class UserConfigController {
     @GetMapping("/back/userConfigs")
     public Result listBackUserConfigs(@Valid ConditionVO condition) {
         return Result.success().message("查询成功").data(Dict.create()
-                .set("page", userConfigService.getPageUserConfigsBackDTO(condition))
                 .set("rootUserId", ROOT_USER_ID)
-                .set("rootUserIdList", ROOT_USER_ID_LIST));
+                .set("rootUserIdList", ROOT_USER_ID_LIST)
+                .set("pagePojo", userConfigService.getPageUserConfigsBackDTO(condition)));
     }
 
     @OptLog(optType = REMOVE)

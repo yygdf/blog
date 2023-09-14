@@ -1,7 +1,7 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
-import com.iksling.blog.pojo.PagePojo;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MenuService;
 import com.iksling.blog.vo.CommonStatusVO;
@@ -33,7 +33,9 @@ public class MenuController {
     @ApiImplicitParam(name = "keywords", value = "菜单名称关键字", dataType = "String")
     @GetMapping("/back/menus")
     public Result listBackMenus(String keywords) {
-        return Result.success().message("查询成功").data(new PagePojo<>(HOME_MENU_ID, menuService.getMenusBackDTO(keywords)));
+        return Result.success().message("查询成功").data(Dict.create()
+                .set("homeMenuId", HOME_MENU_ID)
+                .set("dataList",menuService.getMenusBackDTO(keywords)));
     }
 
     @OptLog(optType = UPDATE)

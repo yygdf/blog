@@ -366,8 +366,8 @@ export default {
           }
         })
         .then(({ data }) => {
-          this.homeMenuId = data.data.count;
-          this.menuList = data.data.pageList;
+          this.homeMenuId = data.data.homeMenuId;
+          this.menuList = data.data.dataList;
           this.loading = false;
         });
     },

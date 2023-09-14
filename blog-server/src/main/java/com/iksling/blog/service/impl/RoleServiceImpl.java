@@ -191,7 +191,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
         return roleList.stream()
                 .map(e -> LabelDTO.builder()
                         .id(e.getId())
-                        .userId(e.getRoleWeight())
                         .label(e.getRoleName())
                         .build())
                 .collect(Collectors.toList());

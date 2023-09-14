@@ -65,9 +65,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     @Transactional
     public void deleteUserIdList(List<Integer> userIdList) {
+        // TODO: 物理删除用户牵扯太多数据，延后处理
         if (CollectionUtils.isEmpty(userIdList))
             throw new IllegalRequestException();
-        userRoleMapper.delete(new LambdaQueryWrapper<UserRole>().in(UserRole::getUserId, userIdList));
+        userRoleMapper.delete(new LambdaQueryWrapper<UserRole>()
+                .in(UserRole::getUserId, userIdList));
     }
 
     @Override

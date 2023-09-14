@@ -72,7 +72,12 @@
       border
       @selection-change="selectionChange"
     >
-      <el-table-column type="selection" align="center" width="40" />
+      <el-table-column
+        type="selection"
+        align="center"
+        width="40"
+        :selectable="checkSelectable"
+      />
       <el-table-column
         prop="username"
         label="用户"
@@ -133,6 +138,10 @@
           </el-popconfirm>
           <el-button
             v-else
+            :disabled="
+              !checkWeight(100) &&
+                rootUserIdList.some(e => e === scope.row.userId)
+            "
             type="primary"
             size="mini"
             @click="openModel(scope.row)"
@@ -151,6 +160,7 @@
           </el-popconfirm>
           <el-popconfirm
             v-else
+            :disabled="!checkSelectable(scope.row)"
             title="确定删除吗？"
             style="margin-left:10px"
             @confirm="updateUsersStatus(scope.row.id)"
@@ -326,8 +336,10 @@ export default {
       user: {},
       userList: [],
       userIdList: [],
+      rootUserIdList: [],
       keywords: null,
       oldEmail: null,
+      rootUserId: null,
       loading: true,
       editStatus: false,
       deletedFlag: false,
@@ -380,6 +392,13 @@ export default {
     currentChange(current) {
       this.current = current;
       this.listUsers();
+    },
+    checkSelectable(row) {
+      if (this.checkWeight(100)) {
+        return this.rootUserId !== row.id;
+      } else {
+        return !this.rootUserIdList.some(e => e === row.userId);
+      }
     },
     selectionChange(userList) {
       this.userIdList = [];
@@ -466,8 +485,10 @@ export default {
           }
         })
         .then(({ data }) => {
-          this.count = data.data.count;
-          this.userList = data.data.pageList;
+          this.rootUserId = data.data.rootUserId;
+          this.rootUserIdList = data.data.rootUserIdList;
+          this.count = data.data.pagePojo.count;
+          this.userList = data.data.pagePojo.pageList;
           this.loading = false;
         });
     },
@@ -555,6 +576,11 @@ export default {
         }
         this.editStatus = false;
       });
+    }
+  },
+  computed: {
+    checkCurrentUserId() {
+      return this.$store.state.userId === this.rootUserId;
     }
   },
   watch: {

@@ -113,6 +113,7 @@
         <template slot-scope="scope">
           <el-switch
             :value="scope.row.disabledFlag"
+            :disabled="!checkRootRole(scope.row.roleIdList)"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -125,7 +126,10 @@
         <template slot-scope="scope">
           <el-switch
             :value="scope.row.lockedFlag"
-            :disabled="!scope.row.lockedFlag && !checkWeight(100)"
+            :disabled="
+              !checkRootRole(scope.row.roleIdList) ||
+                (!scope.row.lockedFlag && !checkWeight(100))
+            "
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -170,7 +174,12 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="80">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="openModel(scope.row)">
+          <el-button
+            :disabled="!checkRootRole(scope.row.roleIdList)"
+            type="primary"
+            size="mini"
+            @click="openModel(scope.row)"
+          >
             编辑
           </el-button>
         </template>
@@ -259,7 +268,9 @@
           <el-checkbox-group v-model="userAuth.roleIdList" :min="1">
             <el-checkbox
               v-for="item of roleNameList"
-              :disabled="item.userId <= 100 && !checkWeight(100)"
+              :disabled="
+                !checkWeight(100) && rootRoleIdList.some(e => e === item.id)
+              "
               :key="item.id"
               :label="item.id"
             >
@@ -327,6 +338,7 @@ export default {
       userAuth: {},
       userAuthList: [],
       roleNameList: [],
+      rootRoleIdList: [],
       roleId: null,
       keywords: null,
       lockedFlag: null,
@@ -364,6 +376,13 @@ export default {
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
+    },
+    checkRootRole(roleIdList) {
+      if (this.checkWeight(100)) {
+        return true;
+      }
+      const rootRoleIdSet = new Set(this.rootRoleIdList);
+      return !roleIdList.some(e => rootRoleIdSet.has(e.id));
     },
     currentChange(current) {
       this.current = current;
@@ -424,8 +443,9 @@ export default {
           }
         })
         .then(({ data }) => {
-          this.count = data.data.count;
-          this.userAuthList = data.data.pageList;
+          this.rootRoleIdList = data.data.rootRoleIdList;
+          this.count = data.data.pagePojo.count;
+          this.userAuthList = data.data.pagePojo.pageList;
           this.loading = false;
         });
     },

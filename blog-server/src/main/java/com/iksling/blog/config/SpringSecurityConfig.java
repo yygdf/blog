@@ -74,6 +74,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                     }
                 })
                 .anyRequest().permitAll()
+                // TODO: 暂且注释掉rememberMe功能
 //                .and()
 //                .rememberMe()
 //                .key("https://iksling.com")

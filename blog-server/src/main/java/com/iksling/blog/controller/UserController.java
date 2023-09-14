@@ -1,6 +1,7 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserService;
 import com.iksling.blog.vo.ConditionVO;
@@ -15,6 +16,8 @@ import javax.validation.Valid;
 
 import java.util.List;
 
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
 import static com.iksling.blog.constant.OptLogConst.REMOVE;
 import static com.iksling.blog.constant.OptLogConst.SAVE_OR_UPDATE;
 
@@ -28,7 +31,10 @@ public class UserController {
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/back/users")
     public Result listBackUsers(@Valid ConditionVO condition) {
-        return Result.success().message("查询成功").data(userService.getPageUsersBackDTO(condition));
+        return Result.success().message("查询成功").data(Dict.create()
+                .set("rootUserId", ROOT_USER_ID)
+                .set("rootUserIdList", ROOT_USER_ID_LIST)
+                .set("pagePojo", userService.getPageUsersBackDTO(condition)));
     }
 
     @OptLog(optType = REMOVE)

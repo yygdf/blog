@@ -347,10 +347,10 @@ export default {
           }
         })
         .then(({ data }) => {
-          this.count = data.data.page.count;
           this.rootUserId = data.data.rootUserId;
           this.rootUserIdList = data.data.rootUserIdList;
-          this.userConfigList = data.data.page.pageList;
+          this.count = data.data.pagePojo.count;
+          this.userConfigList = data.data.pagePojo.pageList;
           this.loading = false;
         });
     },

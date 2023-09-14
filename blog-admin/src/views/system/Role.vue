@@ -142,6 +142,7 @@
         <el-form-item label="禁用">
           <el-switch
             v-model="role.disabledFlag"
+            :disabled="role.id === rootRoleId"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -312,8 +313,8 @@ export default {
           }
         })
         .then(({ data }) => {
-          this.rootRoleId = data.data.count;
-          this.roleList = data.data.pageList;
+          this.rootRoleId = data.data.rootRoleId;
+          this.roleList = data.data.dataList;
           this.loading = false;
         });
     },

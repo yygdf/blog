@@ -7,6 +7,7 @@ import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserAuthBackVO;
 
 import java.util.List;
@@ -25,4 +26,6 @@ public interface UserAuthService extends IService<UserAuth> {
     boolean getBackUserAuthExistFlag(String keywords);
 
     void updateUserAuthBackVO(UserAuthBackVO userAuthBackVO);
+
+    void updateUserAuthsStatus(UpdateBatchVO updateBatchVO);
 }

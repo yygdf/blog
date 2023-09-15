@@ -6,6 +6,7 @@ import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserAuthService;
 import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserAuthBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -65,6 +66,15 @@ public class UserAuthController {
     @PutMapping("/back/userAuth")
     public Result updateBackUserAuth(@Valid @RequestBody UserAuthBackVO userAuthBackVO) {
         userAuthService.updateUserAuthBackVO(userAuthBackVO);
+        return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "批量更新账号状态")
+    @ApiImplicitParam(name = "updateBatchVO", value = "批量更新VO", required = true, dataType = "UpdateBatchVO")
+    @PutMapping("/back/userAuths")
+    public Result updateUserAuthsStatus(@Valid UpdateBatchVO updateBatchVO) {
+        userAuthService.updateUserAuthsStatus(updateBatchVO);
         return Result.success().message("操作成功");
     }
 }

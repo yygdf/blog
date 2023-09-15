@@ -40,15 +40,16 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         LoginUser loginUser = UserUtil.getLoginUser();
         if (loginUser.getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
+        Integer count = commentMapper.selectCommentsBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (count == 0)
+            return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<CommentsBackDTO> commentsBackDTOList = commentMapper.listCommentsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (CollectionUtils.isEmpty(commentsBackDTOList))
-            return new PagePojo<>();
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
         commentsBackDTOList.forEach(item -> {
             item.setLikeCount(Objects.requireNonNull(likeCountMap).get(item.getId().toString()));
         });
-        return new PagePojo<>(commentsBackDTOList.size(), commentsBackDTOList);
+        return new PagePojo<>(count, commentsBackDTOList);
     }
 
     @Override

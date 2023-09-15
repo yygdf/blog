@@ -34,11 +34,12 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     public PagePojo<FriendLinksBackDTO> getPageFriendLinksBackDTO(ConditionVO condition) {
         if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
+        Integer count = friendLinkMapper.selectFriendLinksBackDTOCount(condition);
+        if (count == 0)
+            return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<FriendLinksBackDTO> friendLinksBackDTOList = friendLinkMapper.listFriendLinksBackDTO(condition);
-        if (CollectionUtils.isEmpty(friendLinksBackDTOList))
-            return new PagePojo<>();
-        return new PagePojo<>(friendLinksBackDTOList.size(), friendLinksBackDTOList);
+        return new PagePojo<>(count, friendLinksBackDTOList);
     }
 
     @Override

@@ -66,4 +66,23 @@
                 #{id}
             </foreach>
     </select>
+
+    <select id="selectUsersBackDTOCount" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            tb_user u
+        LEFT JOIN tb_user_auth ua ON u.id = ua.user_id
+        <where>
+            1 = 1
+            <if test="condition.deletedFlag != null">
+                AND ua.deleted_flag = #{condition.deletedFlag}
+            </if>
+            <if test="condition.keywords != null and condition.keywords.trim() != ''">
+                AND (
+                    u.nickname like concat('%', #{condition.keywords.trim()}, '%') OR ua.username like concat('%', #{condition.keywords.trim()}, '%')
+                )
+            </if>
+        </where>
+    </select>
 </mapper>

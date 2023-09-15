@@ -170,4 +170,53 @@
         GROUP BY
             category_id;
     </select>
+
+    <select id="selectArticlesBackDTOCount" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            tb_article
+        <where>
+            1 = 1
+            <if test="condition.recycleFlag != null">
+                AND recycle_flag = #{condition.recycleFlag}
+            </if>
+            <if test="condition.deletedFlag != null">
+                AND deleted_flag = #{condition.deletedFlag}
+            </if>
+            <choose>
+                <when test="roleWeight > 300">
+                    AND user_id = #{userId}
+                </when>
+                <otherwise>
+                    <if test="condition.userId != null">
+                        AND user_id = #{condition.userId}
+                    </if>
+                </otherwise>
+            </choose>
+            <if test="condition.draftFlag != null">
+                AND draft_flag = #{condition.draftFlag}
+            </if>
+            <if test="condition.categoryId != null">
+                AND category_id = #{condition.categoryId}
+            </if>
+            <if test="condition.keywords != null and condition.keywords.trim() != ''">
+                AND article_title like concat('%', #{condition.keywords.trim()}, '%')
+            </if>
+            <if test="condition.tagIdList != null and condition.tagIdList.size() != 0">
+                AND id in
+                (
+                SELECT
+                ata.article_id
+                FROM
+                tb_article_tag ata
+                WHERE
+                ata.tag_id in
+                <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
+                    #{tagId}
+                </foreach>
+                )
+            </if>
+        </where>
+    </select>
 </mapper>

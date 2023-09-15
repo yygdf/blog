@@ -51,6 +51,25 @@
             #{condition.current}, #{condition.size}
     </select>
 
+    <select id="selectFriendLinksBackDTOCount" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            tb_friend_link fl
+        <where>
+            1 = 1
+            <if test="condition.deletedFlag != null">
+                AND fl.deleted_flag = #{condition.deletedFlag}
+            </if>
+            <if test="condition.userId != null">
+                AND fl.user_id = #{condition.userId}
+            </if>
+            <if test="condition.keywords != null and condition.keywords.trim() != ''">
+                AND fl.link_name like concat('%', #{condition.keywords.trim()}, '%')
+            </if>
+        </where>
+    </select>
+
     <update id="updateFriendLinksStatus">
         UPDATE
             tb_friend_link

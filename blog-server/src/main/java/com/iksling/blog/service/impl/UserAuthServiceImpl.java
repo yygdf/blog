@@ -86,11 +86,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     public PagePojo<UserAuthsBackDTO> getPageUserAuthsBackDTO(ConditionVO condition) {
         if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
+        Integer count = userAuthMapper.selectUserAuthsBackDTOCount(condition);
+        if (count == 0)
+            return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<UserAuthsBackDTO> userAuthsBackDTOList = userAuthMapper.listUserAuthsBackDTO(condition);
-        if (CollectionUtils.isEmpty(userAuthsBackDTOList))
-            return new PagePojo<>();
-        return new PagePojo<>(userAuthsBackDTOList.size(), userAuthsBackDTOList);
+        return new PagePojo<>(count, userAuthsBackDTOList);
     }
 
     @Override

@@ -20,6 +20,8 @@ public interface ArticleMapper extends BaseMapper<Article> {
     Integer updateArticlesStatus(@Param("updateBatch") UpdateBatchVO updateBatch, Integer userId, Integer roleWeight);
 
     List<CategoryArticleDTO> selectCategoryArticleCount(@Param("categoryIdList") List<Integer> categoryIdList);
+
+    Integer selectArticlesBackDTOCount(@Param("condition") ConditionVO condition, Integer userId, Integer roleWeight);
 }
 
 

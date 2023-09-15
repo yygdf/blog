@@ -40,11 +40,12 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
         LoginUser loginUser = UserUtil.getLoginUser();
         if (loginUser.getRoleWeight() > 100 && Objects.nonNull(condition.getDeletedFlag()) && condition.getDeletedFlag())
             throw new IllegalRequestException();
+        Integer count = userConfigMapper.selectUserConfigsBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (count == 0)
+            return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<ConfigsBackDTO> configsBackDTOList = userConfigMapper.listUserConfigsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (CollectionUtils.isEmpty(configsBackDTOList))
-            return new PagePojo<>();
-        return new PagePojo<>(configsBackDTOList.size(), configsBackDTOList);
+        return new PagePojo<>(count, configsBackDTOList);
     }
 
     @Override

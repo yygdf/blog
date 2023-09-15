@@ -17,6 +17,8 @@ public interface CommentMapper extends BaseMapper<Comment> {
     List<CommentsBackDTO> listCommentsBackDTO(@Param("condition") ConditionVO condition, Integer userId, Integer roleWeight);
 
     Integer updateCommentsStatus(@Param("updateBatch") UpdateBatchVO updateBatch, Integer userId, Integer roleWeight);
+
+    Integer selectCommentsBackDTOCount(@Param("condition") ConditionVO condition, Integer userId, Integer roleWeight);
 }
 
 

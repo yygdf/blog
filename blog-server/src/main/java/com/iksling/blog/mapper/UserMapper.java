@@ -17,6 +17,8 @@ public interface UserMapper extends BaseMapper<User> {
     List<UsersBackDTO> listUsersBackDTO(@Param("condition") ConditionVO condition);
 
     List<UserOnlinesBackDTO> listUserOnlinesBackDTO(@Param("onlineUserIdList") List<Integer> onlineUserIdList);
+
+    Integer selectUsersBackDTOCount(@Param("condition") ConditionVO condition);
 }
 
 

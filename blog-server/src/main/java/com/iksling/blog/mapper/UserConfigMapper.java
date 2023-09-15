@@ -17,6 +17,8 @@ public interface UserConfigMapper extends BaseMapper<UserConfig> {
     int updateUserConfigsStatus(@Param("updateBatch") UpdateBatchVO updateBatchVO, @Param("rootUserIdList") List<Integer> rootUserIdList, Integer userId, Integer roleWeight);
 
     List<ConfigsBackDTO> listUserConfigsBackDTO(@Param("condition") ConditionVO condition, Integer userId, Integer roleWeight);
+
+    Integer selectUserConfigsBackDTOCount(@Param("condition") ConditionVO condition, Integer userId, Integer roleWeight);
 }
 
 

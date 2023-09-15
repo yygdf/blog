@@ -78,4 +78,30 @@
         LIMIT
             #{condition.current}, #{condition.size}
     </select>
+
+    <select id="selectUserConfigsBackDTOCount" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            tb_user_config uc
+        <where>
+            1 = 1
+            <if test="condition.userId != null">
+                AND uc.user_id = #{condition.userId}
+            </if>
+            <if test="roleWeight > 200">
+                AND uc.user_id = #{userId}
+            </if>
+            <if test="condition.deletedFlag != null">
+                AND uc.deleted_flag = #{condition.deletedFlag}
+            </if>
+            <if test="condition.keywords != null and condition.keywords.trim() != ''">
+                AND (
+                    uc.config_name like concat('%', #{condition.keywords.trim()}, '%')
+                    OR
+                    uc.config_desc like concat('%', #{condition.keywords.trim()}, '%')
+                )
+            </if>
+        </where>
+    </select>
 </mapper>

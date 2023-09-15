@@ -17,6 +17,8 @@ public interface UserAuthMapper extends BaseMapper<UserAuth> {
     List<UserAuthsBackDTO> listUserAuthsBackDTO(@Param("condition") ConditionVO condition);
 
     Integer updateUserAuthsStatus(@Param("updateBatch") UpdateBatchVO updateBatchVO);
+
+    Integer selectUserAuthsBackDTOCount(@Param("condition") ConditionVO condition);
 }
 
 

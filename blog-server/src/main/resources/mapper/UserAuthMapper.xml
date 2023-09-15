@@ -91,6 +91,32 @@
         </where>
     </select>
 
+    <select id="selectUserAuthsBackDTOCount" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            tb_user_auth ua
+        LEFT JOIN tb_user_role ur ON ua.user_id = ur.user_id
+        <where>
+            1 = 1
+            <if test="condition.draftFlag != null">
+                AND ua.locked_flag = #{condition.draftFlag}
+            </if>
+            <if test="condition.deletedFlag != null">
+                AND ua.deleted_flag = #{condition.deletedFlag}
+            </if>
+            <if test="condition.recycleFlag != null">
+                AND ua.disabled_flag = #{condition.recycleFlag}
+            </if>
+            <if test="condition.keywords != null and condition.keywords.trim() != ''">
+                AND ua.username like concat('%', #{condition.keywords.trim()}, '%')
+            </if>
+            <if test="condition.categoryId != null">
+                AND ur.role_id = #{condition.categoryId}
+            </if>
+        </where>
+    </select>
+
     <update id="updateUserAuthsStatus">
         UPDATE
             tb_user_auth

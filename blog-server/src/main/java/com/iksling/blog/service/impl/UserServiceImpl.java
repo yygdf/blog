@@ -55,11 +55,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public PagePojo<UsersBackDTO> getPageUsersBackDTO(ConditionVO condition) {
         if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
+        Integer count = userMapper.selectUsersBackDTOCount(condition);
+        if (count == 0)
+            return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<UsersBackDTO> usersBackDTOList = userMapper.listUsersBackDTO(condition);
-        if (CollectionUtils.isEmpty(usersBackDTOList))
-            return new PagePojo<>();
-        return new PagePojo<>(usersBackDTOList.size(), usersBackDTOList);
+        return new PagePojo<>(count, usersBackDTOList);
     }
 
     @Override
@@ -142,13 +143,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .sorted(Comparator.comparing(LoginUser::getLoginTime).reversed())
                 .map(LoginUser::getUserId)
                 .collect(Collectors.toList());
-        if (onlineUserIdList.isEmpty())
+        int count = onlineUserIdList.size();
+        if (count == 0)
             return new PagePojo<>();
         int current = (condition.getCurrent() - 1) * condition.getSize();
         int size = onlineUserIdList.size() > condition.getSize() ? current + condition.getSize() : onlineUserIdList.size();
         onlineUserIdList = onlineUserIdList.subList((condition.getCurrent() - 1) * condition.getSize(), size);
         List<UserOnlinesBackDTO> userOnlinesBackDTOList = userMapper.listUserOnlinesBackDTO(onlineUserIdList);
-        return new PagePojo<>(userOnlinesBackDTOList.size(), userOnlinesBackDTOList);
+        return new PagePojo<>(count, userOnlinesBackDTOList);
     }
 
     @Override

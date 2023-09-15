@@ -51,7 +51,12 @@
       border
       @selection-change="selectionChange"
     >
-      <el-table-column type="selection" width="40" align="center" />
+      <el-table-column
+        type="selection"
+        width="40"
+        align="center"
+        :selectable="checkSelectable"
+      />
       <el-table-column
         prop="username"
         label="用户"
@@ -130,6 +135,7 @@
       <el-table-column label="操作" align="center" width="120">
         <template slot-scope="scope">
           <el-popconfirm
+            :disabled="!checkSelectable(scope.row)"
             title="确定强制下线该用户吗？"
             @confirm="deleteUserOnlines(scope.row.id)"
           >
@@ -190,9 +196,11 @@ export default {
           label: "后台"
         }
       ],
+      rootUserIdList: [],
       userOnlineList: [],
       userOnlineIdList: [],
       keywords: null,
+      rootUserId: null,
       deletedFlag: null,
       loading: true,
       removeStatus: false,
@@ -209,6 +217,13 @@ export default {
     currentChange(current) {
       this.current = current;
       this.listUserOnlines();
+    },
+    checkSelectable(row) {
+      return (
+        (this.checkWeight(100) ||
+          !this.rootUserIdList.some(e => e === row.userId)) &&
+        this.rootUserId !== row.id
+      );
     },
     selectionChange(userOnlineList) {
       this.userOnlineIdList = [];
@@ -227,8 +242,10 @@ export default {
           }
         })
         .then(({ data }) => {
-          this.count = data.data.count;
-          this.userOnlineList = data.data.pageList;
+          this.rootUserId = data.data.rootUserId;
+          this.rootUserIdList = data.data.rootUserIdList;
+          this.count = data.data.pagePojo.count;
+          this.userOnlineList = data.data.pagePojo.pageList;
           this.loading = false;
         });
     },

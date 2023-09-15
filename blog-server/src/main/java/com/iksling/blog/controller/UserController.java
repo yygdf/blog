@@ -66,7 +66,10 @@ public class UserController {
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/back/user/onlines")
     public Result listBackUserOnlines(@Valid ConditionVO condition) {
-        return Result.success().message("查询成功").data(userService.getPageUserOnlinesBackDTO(condition));
+        return Result.success().message("查询成功").data(Dict.create()
+                .set("rootUserId", ROOT_USER_ID)
+                .set("rootUserIdList", ROOT_USER_ID_LIST)
+                .set("pagePojo", userService.getPageUserOnlinesBackDTO(condition)));
     }
 
     @OptLog(optType = REMOVE)

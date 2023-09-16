@@ -68,6 +68,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
 
     @Override
     public List<RolesBackDTO> getRolesBackDTO(String keywords) {
+        if (Objects.nonNull(keywords))
+            keywords = keywords.trim();
         return roleMapper.listRolesBackDTO(keywords);
     }
 

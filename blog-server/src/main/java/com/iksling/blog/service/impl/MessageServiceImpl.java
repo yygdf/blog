@@ -35,11 +35,14 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     public PagePojo<MessagesBackDTO> getPageMessagesBackDTO(ConditionVO condition) {
         if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
+        String keywords = condition.getKeywords();
+        if (Objects.nonNull(keywords))
+            keywords = keywords.trim();
         Page<Message> page = new Page<>(condition.getCurrent(), condition.getSize());
         Page<Message> messagePage = messageMapper.selectPage(page, new LambdaQueryWrapper<Message>()
                 .select(Message::getId, Message::getUserId, Message::getAvatar, Message::getNickname, Message::getMessageSpeed, Message::getMessageContent, Message::getIpSource, Message::getIpAddress, Message::getCreateTime)
                 .eq(Objects.nonNull(condition.getDeletedFlag()), Message::getDeletedFlag, condition.getDeletedFlag())
-                .like(StringUtils.isNotBlank(condition.getKeywords()), Message::getNickname, condition.getKeywords())
+                .like(StringUtils.isNotBlank(keywords), Message::getNickname, keywords)
                 .orderByDesc(Message::getId));
         if (messagePage.getTotal() == 0)
             return new PagePojo<>();

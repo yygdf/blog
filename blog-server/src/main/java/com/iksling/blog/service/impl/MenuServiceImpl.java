@@ -48,6 +48,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
 
     @Override
     public List<MenusBackDTO> getMenusBackDTO(String keywords) {
+        if (Objects.nonNull(keywords))
+            keywords = keywords.trim();
         List<Menu> menuList = menuMapper.listMenusByKeywords(keywords);
         List<Menu> parentMenuList = getParentMenuList(menuList);
         Map<Integer, List<Menu>> childrenMenuMap = getChildrenMenuMap(menuList);

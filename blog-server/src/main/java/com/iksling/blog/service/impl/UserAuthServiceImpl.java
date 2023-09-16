@@ -2,7 +2,6 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.LabelDTO;
@@ -67,7 +66,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
 
     @Override
     public List<LabelDTO> getBackUsernames(String keywords) {
-        if (StringUtils.isNotBlank(keywords))
+        if (Objects.nonNull(keywords))
             keywords = keywords.trim();
         List<UserAuth> userAuthList = userAuthMapper.selectList(new LambdaQueryWrapper<UserAuth>()
                 .select(UserAuth::getId, UserAuth::getUserId, UserAuth::getUsername)
@@ -86,6 +85,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     public PagePojo<UserAuthsBackDTO> getPageUserAuthsBackDTO(ConditionVO condition) {
         if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
+        if (Objects.nonNull(condition.getKeywords()))
+            condition.setKeywords(condition.getKeywords().trim());
         Integer count = userAuthMapper.selectUserAuthsBackDTOCount(condition);
         if (count == 0)
             return new PagePojo<>();

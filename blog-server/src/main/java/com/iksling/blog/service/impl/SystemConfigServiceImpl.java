@@ -33,12 +33,15 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
 
     @Override
     public PagePojo<ConfigsBackDTO> getPageSystemConfigsBackDTO(ConditionVO condition) {
+        String[] keywords = new String[] {condition.getKeywords()};
+        if (Objects.nonNull(keywords[0]))
+            keywords[0] = keywords[0].trim();
         Page<SystemConfig> page = new Page<>(condition.getCurrent(), condition.getSize());
         Page<SystemConfig> systemConfigPage = systemConfigMapper.selectPage(page, new LambdaQueryWrapper<SystemConfig>()
                 .select(SystemConfig::getId, SystemConfig::getUserId, SystemConfig::getConfigDesc, SystemConfig::getConfigValue, SystemConfig::getConfigName, SystemConfig::getDeletableFlag, SystemConfig::getCreateTime, SystemConfig::getUpdateTime)
-                .and(StringUtils.isNotBlank(condition.getKeywords()), e -> e.like(SystemConfig::getConfigName, condition.getKeywords())
+                .and(StringUtils.isNotBlank(keywords[0]), e -> e.like(SystemConfig::getConfigName, keywords[0])
                         .or()
-                        .like(SystemConfig::getConfigDesc, condition.getKeywords()))
+                        .like(SystemConfig::getConfigDesc, keywords[0]))
                 .orderByDesc(SystemConfig::getId));
         if (systemConfigPage.getTotal() == 0)
             return new PagePojo<>();

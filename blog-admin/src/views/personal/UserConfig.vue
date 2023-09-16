@@ -51,7 +51,7 @@
           />
         </el-select>
         <el-select
-          v-if="checkWeight"
+          v-if="checkWeight(100)"
           v-model="deletedFlag"
           size="small"
           style="margin-right:1rem"
@@ -169,12 +169,16 @@
           </el-popconfirm>
           <el-popconfirm
             v-if="checkWeight && !deletedFlag"
-            :disabled="!checkSelectable(scope.row)"
             title="确定删除吗？"
             style="margin-left:10px"
             @confirm="updateUserConfigsStatus(scope.row.id)"
           >
-            <el-button type="danger" size="mini" slot="reference">
+            <el-button
+              :disabled="!checkSelectable(scope.row)"
+              type="danger"
+              size="mini"
+              slot="reference"
+            >
               删除
             </el-button>
           </el-popconfirm>

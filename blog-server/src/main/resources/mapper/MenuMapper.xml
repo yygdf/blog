@@ -61,16 +61,16 @@
             m.create_time,m.update_time
         FROM
             tb_menu m
-            <if test="keywords != null and keywords.trim() != ''">
+            <if test="keywords != null and keywords != ''">
                 WHERE
-                    m.name like concat('%', #{keywords.trim()}, '%')
+                    m.name like concat('%', #{keywords}, '%')
                 OR id IN (
                     SELECT
                         parent_id id
                     FROM
                         tb_menu
                     WHERE
-                        name like concat('%', #{keywords.trim()}, '%')
+                        name like concat('%', #{keywords}, '%')
                 )
             </if>
         ORDER BY

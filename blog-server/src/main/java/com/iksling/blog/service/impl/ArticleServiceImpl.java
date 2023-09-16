@@ -188,11 +188,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         LoginUser loginUser = UserUtil.getLoginUser();
         if (loginUser.getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
+        if (Objects.nonNull(condition.getKeywords()))
+            condition.setKeywords(condition.getKeywords().trim());
         Integer count = articleMapper.selectArticlesBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count == 0)
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<ArticlesBackDTO> articlesBackDTOList = articleMapper.listArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (articlesBackDTOList.size() == 0)
+            return new PagePojo<>();
         Map<String, Integer> viewCountMap = redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).entries();
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).entries();
         articlesBackDTOList.forEach(item -> {

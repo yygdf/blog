@@ -61,16 +61,16 @@
             r.create_time,r.update_time
         FROM
             tb_resource r
-            <if test="keywords != null and keywords.trim() != ''">
+            <if test="keywords != null and keywords != ''">
                 WHERE
-                    r.resource_name like concat('%', #{keywords.trim()}, '%')
+                    r.resource_name like concat('%', #{keywords}, '%')
                 OR id IN (
                     SELECT
                         parent_id id
                     FROM
                         tb_resource
                     WHERE
-                        resource_name like concat('%', #{keywords.trim()}, '%')
+                        resource_name like concat('%', #{keywords}, '%')
                 )
             </if>
         ORDER BY

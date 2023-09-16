@@ -75,8 +75,8 @@
                 FROM
                     tb_role
                     <where>
-                        <if test="keywords != null and keywords.trim() != ''">
-                            role_name like concat('%', #{keywords.trim()}, '%')
+                        <if test="keywords != null and keywords != ''">
+                            role_name like concat('%', #{keywords}, '%')
                         </if>
                     </where>
              ) r

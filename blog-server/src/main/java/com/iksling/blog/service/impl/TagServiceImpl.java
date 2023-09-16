@@ -48,10 +48,14 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     @Override
     public PagePojo<TagsBackDTO> getPageTagsBackDTO(ConditionVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
+        String keywords = condition.getKeywords();
+        if (Objects.nonNull(keywords))
+            keywords = keywords.trim();
+        // TODO: 删除最后一条数据会报错
         Page<Tag> page = new Page<>(condition.getCurrent(), condition.getSize());
         Page<Tag> tagPage = tagMapper.selectPage(page, new LambdaQueryWrapper<Tag>()
                 .select(Tag::getId, Tag::getUserId, Tag::getTagName, Tag::getCreateTime, Tag::getUpdateTime)
-                .like(StringUtils.isNotBlank(condition.getKeywords()), Tag::getTagName, condition.getKeywords())
+                .like(StringUtils.isNotBlank(keywords), Tag::getTagName, keywords)
                 .eq(Objects.nonNull(condition.getUserId()), Tag::getUserId, condition.getUserId())
                 .eq(loginUser.getRoleWeight() > 300, Tag::getUserId, loginUser.getUserId())
                 .orderByDesc(Tag::getId));

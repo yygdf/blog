@@ -59,7 +59,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         Integer count;
         try {
             count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
-                    .eq(Article::getId, Integer.parseInt(articleImageBackVO.getFileSubDir()))
+                    .eq(Article::getId, Integer.parseInt(articleImageBackVO.getFileSubDir().trim()))
                     .eq(Objects.isNull(articleUserId), Article::getUserId, loginUser.getUserId())
                     .eq(Objects.nonNull(articleUserId), Article::getUserId, articleUserId));
         } catch (NumberFormatException e) {
@@ -69,7 +69,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             throw new IllegalRequestException();
         if (Objects.isNull(articleUserId))
             articleUserId = loginUser.getUserId();
-        String fireSubDir = articleUserId + "/" + articleImageBackVO.getFileSubDir() + "/";
+        String fireSubDir = articleUserId + "/" + articleImageBackVO.getFileSubDir().trim() + "/";
         String targetAddr = FilePathEnum.ARTICLE.getPath() + fireSubDir;
         String url = FileUploadUtil.upload(file, targetAddr);
         if (Objects.isNull(url))

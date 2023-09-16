@@ -38,9 +38,9 @@
             <if test="condition.deletedFlag != null">
                 AND ua.deleted_flag = #{condition.deletedFlag}
             </if>
-            <if test="condition.keywords != null and condition.keywords.trim() != ''">
+            <if test="condition.keywords != null and condition.keywords != ''">
                 AND (
-                        u.nickname like concat('%', #{condition.keywords.trim()}, '%') OR ua.username like concat('%', #{condition.keywords.trim()}, '%')
+                        u.nickname like concat('%', #{condition.keywords}, '%') OR ua.username like concat('%', #{condition.keywords}, '%')
                     )
             </if>
         </where>
@@ -78,9 +78,9 @@
             <if test="condition.deletedFlag != null">
                 AND ua.deleted_flag = #{condition.deletedFlag}
             </if>
-            <if test="condition.keywords != null and condition.keywords.trim() != ''">
+            <if test="condition.keywords != null and condition.keywords != ''">
                 AND (
-                    u.nickname like concat('%', #{condition.keywords.trim()}, '%') OR ua.username like concat('%', #{condition.keywords.trim()}, '%')
+                    u.nickname like concat('%', #{condition.keywords}, '%') OR ua.username like concat('%', #{condition.keywords}, '%')
                 )
             </if>
         </where>

@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @Data
@@ -13,14 +13,14 @@ public class ConditionVO {
     /**
      * 每页数量
      */
-    @NotNull(message = "每页数量不能为null")
+    @Min(message = "每页数量最小值", value = 10)
     @ApiModelProperty(name = "size", value = "每页数量", required = true, dataType = "Integer")
     private Integer size;
 
     /**
      * 当前页码
      */
-    @NotNull(message = "当前页码不能为null")
+    @Min(message = "当前页码最小值", value = 1)
     @ApiModelProperty(name = "current", value = "当前页码", required = true, dataType = "Integer")
     private Integer current;
 

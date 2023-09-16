@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.constant.CommonConst;
 import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
@@ -55,6 +54,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public PagePojo<UsersBackDTO> getPageUsersBackDTO(ConditionVO condition) {
         if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
+        if (Objects.nonNull(condition.getKeywords()))
+            condition.setKeywords(condition.getKeywords().trim());
         Integer count = userMapper.selectUsersBackDTOCount(condition);
         if (count == 0)
             return new PagePojo<>();
@@ -127,6 +128,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public boolean getBackUserExistFlag(String keywords) {
+        // TODO: 根据邮箱号判断该用户是否存在
         if (StringUtils.isBlank(keywords))
             return false;
         return userMapper.selectCount(new LambdaQueryWrapper<User>()
@@ -138,7 +140,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<Integer> onlineUserIdList = sessionRegistry.getAllPrincipals().stream()
                 .filter(item -> sessionRegistry.getAllSessions(item, false).size() > 0)
                 .map(item -> BeanCopyUtil.copyObject(item, LoginUser.class))
-                .filter(item -> StringUtils.isBlank(condition.getKeywords()) || item.getUsername().contains(condition.getKeywords()))
+                .filter(item -> StringUtils.isBlank(condition.getKeywords()) || item.getUsername().contains(condition.getKeywords().trim()))
                 .filter(item -> Objects.isNull(condition.getDeletedFlag()) || item.getLoginPlatform().equals(condition.getDeletedFlag()))
                 .sorted(Comparator.comparing(LoginUser::getLoginTime).reversed())
                 .map(LoginUser::getUserId)

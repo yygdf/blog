@@ -101,14 +101,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入文章名"
           clearable
-          @keyup.enter.native="listArticles"
+          @keyup.enter.native="listArticles(true, true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listArticles"
+          @click="listArticles(true, true)"
         >
           搜索
         </el-button>
@@ -387,6 +387,7 @@ export default {
       userId: null,
       keywords: null,
       categoryId: null,
+      oldKeywords: null,
       loading: true,
       draftFlag: false,
       editStatus: false,
@@ -416,7 +417,7 @@ export default {
     },
     currentChange(current) {
       this.current = current;
-      this.listArticles();
+      this.listArticles(this.keywords !== this.oldKeywords);
     },
     selectionChange(articleList) {
       this.articleIdList = [];
@@ -424,19 +425,24 @@ export default {
         this.articleIdList.push(item.id);
       });
     },
-    listArticles() {
+    listArticles(resetPageFlag = false, searchFlag = false) {
       let params = {
         size: this.size,
         userId: this.userId,
         current: this.current,
         keywords: this.keywords,
         draftFlag: this.draftFlag,
+        tagIdList: this.tagIdList,
+        categoryId: this.categoryId,
         recycleFlag: this.recycleFlag,
         deletedFlag: this.deletedFlag
       };
-      if (this.optionIndex === 0) {
-        params.tagIdList = this.tagIdList;
-        params.categoryId = this.categoryId;
+      if (resetPageFlag) {
+        params.size = 10;
+        params.current = 1;
+      }
+      if (searchFlag) {
+        this.oldKeywords = this.keywords;
       }
       this.axios
         .get("/api/back/articles", {
@@ -480,6 +486,9 @@ export default {
       } else {
         param = { data: [id] };
       }
+      if (param.data.length === this.articleList.length) {
+        this.current = --this.current > 1 ? this.current : 1;
+      }
       this.axios.delete("/api/back/articles", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
@@ -521,6 +530,9 @@ export default {
       }
       param.append("recycleFlag", recycleFlag);
       param.append("deletedFlag", deletedFlag);
+      if (param.get("idList").length === this.articleList.length) {
+        this.current = --this.current > 1 ? this.current : 1;
+      }
       this.axios.put("/api/back/articles", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
@@ -553,19 +565,19 @@ export default {
       } else {
         this.optionIndex = 0;
       }
-      this.listArticles();
+      this.listArticles(true);
     },
     userId() {
-      this.listArticles();
+      this.listArticles(true);
       this.listArticleOptions();
     },
     categoryId() {
-      this.listArticles();
+      this.listArticles(true);
     },
     tagIdList: {
       handler(newVal, oldVal) {
         if (newVal.length !== oldVal.length) {
-          this.listArticles();
+          this.listArticles(true);
         }
       },
       deep: true

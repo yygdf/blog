@@ -46,14 +46,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入分类名"
           clearable
-          @keyup.enter.native="listCategories"
+          @keyup.enter.native="listCategories(true, true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listCategories"
+          @click="listCategories(true, true)"
         >
           搜索
         </el-button>
@@ -235,6 +235,7 @@ export default {
       categoryIdList: [],
       userId: null,
       keywords: null,
+      oldKeywords: null,
       loading: true,
       removeStatus: false,
       addOrEditStatus: false,
@@ -274,7 +275,7 @@ export default {
     },
     currentChange(current) {
       this.current = current;
-      this.listCategories();
+      this.listCategories(this.keywords !== this.oldKeywords);
     },
     checkSelectable(row) {
       return !row.articleCount;
@@ -285,21 +286,25 @@ export default {
         this.categoryIdList.push(item.id);
       });
     },
-    listCategories() {
-      this.axios
-        .get("/api/back/categories", {
-          params: {
-            size: this.size,
-            userId: this.userId,
-            current: this.current,
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.count = data.data.count;
-          this.categoryList = data.data.pageList;
-          this.loading = false;
-        });
+    listCategories(resetPageFlag = false, searchFlag = false) {
+      let params = {
+        size: this.size,
+        userId: this.userId,
+        current: this.current,
+        keywords: this.keywords
+      };
+      if (resetPageFlag) {
+        params.size = 10;
+        params.current = 1;
+      }
+      if (searchFlag) {
+        this.oldKeywords = this.keywords;
+      }
+      this.axios.get("/api/back/categories", { params }).then(({ data }) => {
+        this.count = data.data.count;
+        this.categoryList = data.data.pageList;
+        this.loading = false;
+      });
     },
     listAllUsername(keywords) {
       if (keywords.trim() === "") {
@@ -317,6 +322,9 @@ export default {
         param = { data: this.categoryIdList };
       } else {
         param = { data: [id] };
+      }
+      if (param.data.length === this.categoryList.length) {
+        this.current = --this.current > 1 ? this.current : 1;
       }
       this.axios.delete("/api/back/categories", param).then(({ data }) => {
         if (data.flag) {
@@ -366,7 +374,7 @@ export default {
   },
   watch: {
     userId() {
-      this.listCategories();
+      this.listCategories(true);
     }
   }
 };

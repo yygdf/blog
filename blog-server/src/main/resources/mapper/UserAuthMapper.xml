@@ -71,8 +71,8 @@
                     <if test="condition.recycleFlag != null">
                         AND disabled_flag = #{condition.recycleFlag}
                     </if>
-                    <if test="condition.keywords != null and condition.keywords.trim() != ''">
-                        AND username like concat('%', #{condition.keywords.trim()}, '%')
+                    <if test="condition.keywords != null and condition.keywords != ''">
+                        AND username like concat('%', #{condition.keywords}, '%')
                     </if>
                 </where>
                 ORDER BY
@@ -108,8 +108,8 @@
             <if test="condition.recycleFlag != null">
                 AND ua.disabled_flag = #{condition.recycleFlag}
             </if>
-            <if test="condition.keywords != null and condition.keywords.trim() != ''">
-                AND ua.username like concat('%', #{condition.keywords.trim()}, '%')
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND ua.username like concat('%', #{condition.keywords}, '%')
             </if>
             <if test="condition.categoryId != null">
                 AND ur.role_id = #{condition.categoryId}

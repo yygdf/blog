@@ -1,7 +1,6 @@
 package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.ConfigsBackDTO;
 import com.iksling.blog.entity.UserConfig;
@@ -40,6 +39,8 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
         LoginUser loginUser = UserUtil.getLoginUser();
         if (loginUser.getRoleWeight() > 100 && Objects.nonNull(condition.getDeletedFlag()) && condition.getDeletedFlag())
             throw new IllegalRequestException();
+        if (Objects.nonNull(condition.getKeywords()))
+            condition.setKeywords(condition.getKeywords().trim());
         Integer count = userConfigMapper.selectUserConfigsBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count == 0)
             return new PagePojo<>();
@@ -51,6 +52,8 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
     @Override
     @Transactional
     public void deleteUserConfigByConfigName(String configName) {
+        if (Objects.isNull(configName))
+            throw new IllegalRequestException();
         if (UserUtil.getLoginUser().getUserId().equals(ROOT_USER_ID))
             userConfigMapper.deleteByMap(Collections.singletonMap("config_name", configName.trim()));
     }

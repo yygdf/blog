@@ -40,6 +40,8 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
 
     @Override
     public List<ResourcesBackDTO> getResourcesBackDTO(String keywords) {
+        if (Objects.nonNull(keywords))
+            keywords = keywords.trim();
         List<Resource> resourceList = resourceMapper.listResourcesByKeywords(keywords);
         List<Resource> parentResourceList = getParentResourceList(resourceList);
         Map<Integer, List<Resource>> childrenResourceMap = getChildrenResourceMap(resourceList);

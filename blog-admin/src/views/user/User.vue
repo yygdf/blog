@@ -394,7 +394,11 @@ export default {
       this.listUsers();
     },
     checkSelectable(row) {
-      return (this.checkWeight(100) || !this.rootUserIdList.some(e => e === row.userId)) && this.rootUserId !== row.id;
+      return (
+        (this.checkWeight(100) ||
+          !this.rootUserIdList.some(e => e === row.userId)) &&
+        this.rootUserId !== row.id
+      );
     },
     selectionChange(userList) {
       this.userIdList = [];

@@ -157,7 +157,7 @@
       :total="count"
       :page-size="size"
       :page-sizes="[10, 20]"
-      :current-page="current"
+      :current-page.sync="current"
       class="pagination-container"
       layout="total, sizes, prev, pager, next, jumper"
       background
@@ -268,7 +268,7 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listCategories();
+      this.listCategories(true);
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
@@ -287,24 +287,26 @@ export default {
       });
     },
     listCategories(resetPageFlag = false, searchFlag = false) {
-      let params = {
-        size: this.size,
-        userId: this.userId,
-        current: this.current,
-        keywords: this.keywords
-      };
       if (resetPageFlag) {
-        params.size = 10;
-        params.current = 1;
+        this.current = 1;
       }
       if (searchFlag) {
         this.oldKeywords = this.keywords;
       }
-      this.axios.get("/api/back/categories", { params }).then(({ data }) => {
-        this.count = data.data.count;
-        this.categoryList = data.data.pageList;
-        this.loading = false;
-      });
+      this.axios
+        .get("/api/back/categories", {
+          params: {
+            size: this.size,
+            userId: this.userId,
+            current: this.current,
+            keywords: this.keywords
+          }
+        })
+        .then(({ data }) => {
+          this.count = data.data.count;
+          this.categoryList = data.data.pageList;
+          this.loading = false;
+        });
     },
     listAllUsername(keywords) {
       if (keywords.trim() === "") {

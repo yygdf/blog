@@ -45,14 +45,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入用户昵称"
           clearable
-          @keyup.enter.native="listMessages"
+          @keyup.enter.native="listMessages(true, true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listMessages"
+          @click="listMessages(true, true)"
         >
           搜索
         </el-button>
@@ -141,7 +141,7 @@
       :total="count"
       :page-size="size"
       :page-sizes="[10, 20]"
-      :current-page="current"
+      :current-page.sync="current"
       class="pagination-container"
       layout="total, sizes, prev, pager, next, jumper"
       background
@@ -198,6 +198,7 @@ export default {
       messageList: [],
       messageIdList: [],
       keywords: null,
+      oldKeywords: null,
       loading: true,
       editStatus: false,
       deletedFlag: false,
@@ -210,14 +211,14 @@ export default {
   methods: {
     sizeChange(size) {
       this.size = size;
-      this.listMessages();
+      this.listMessages(true);
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listMessages();
+      this.listMessages(this.keywords !== this.oldKeywords);
     },
     selectionChange(messageList) {
       this.messageIdList = [];
@@ -225,7 +226,13 @@ export default {
         this.messageIdList.push(item.id);
       });
     },
-    listMessages() {
+    listMessages(resetPageFlag = false, searchFlag = false) {
+      if (resetPageFlag) {
+        this.current = 1;
+      }
+      if (searchFlag) {
+        this.oldKeywords = this.keywords;
+      }
       this.axios
         .get("/api/back/messages", {
           params: {
@@ -247,6 +254,9 @@ export default {
         param = { data: [id] };
       } else {
         param = { data: this.messageIdList };
+      }
+      if (param.data.length === this.messageList.length) {
+        this.current = --this.current > 1 ? this.current : 1;
       }
       this.axios.delete("/api/back/messages", param).then(({ data }) => {
         if (data.flag) {
@@ -272,6 +282,9 @@ export default {
         param.append("idList", this.messageIdList);
       }
       param.append("deletedFlag", !this.deletedFlag);
+      if (param.get("idList").length === this.messageList.length) {
+        this.current = --this.current > 1 ? this.current : 1;
+      }
       this.axios.put("/api/back/messages", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
@@ -291,7 +304,7 @@ export default {
   },
   watch: {
     deletedFlag() {
-      this.listMessages();
+      this.listMessages(true);
     }
   }
 };

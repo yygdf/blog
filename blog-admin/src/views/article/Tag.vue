@@ -46,14 +46,14 @@
           placeholder="请输入标签名"
           prefix-icon="el-icon-search"
           clearable
-          @keyup.enter.native="listTags"
+          @keyup.enter.native="listTags(true, true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listTags"
+          @click="listTags(true, true)"
         >
           搜索
         </el-button>
@@ -123,7 +123,7 @@
       :total="count"
       :page-size="size"
       :page-sizes="[10, 20]"
-      :current-page="current"
+      :current-page.sync="current"
       class="pagination-container"
       layout="total, sizes, prev, pager, next, jumper"
       background
@@ -146,7 +146,12 @@
       <div class="dialog-title-container" slot="title" ref="tagTitle" />
       <el-form :model="tag" size="medium" label-width="80">
         <el-form-item label="标签名">
-          <el-input v-model="tag.tagName" ref="input" style="width:200px" :maxLength="50" />
+          <el-input
+            v-model="tag.tagName"
+            ref="input"
+            style="width:200px"
+            :maxLength="50"
+          />
           <span style="color: red;"> *</span>
         </el-form-item>
       </el-form>
@@ -176,6 +181,7 @@ export default {
       usernameList: [],
       userId: null,
       keywords: null,
+      oldKeywords: null,
       loading: true,
       removeStatus: false,
       addOrEditStatus: false,
@@ -202,14 +208,14 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listTags();
+      this.listTags(true);
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listTags();
+      this.listTags(this.keywords !== this.oldKeywords);
     },
     selectionChange(tagList) {
       this.tagIdList = [];
@@ -217,7 +223,13 @@ export default {
         this.tagIdList.push(item.id);
       });
     },
-    listTags() {
+    listTags(resetPageFlag = false, searchFlag = false) {
+      if (resetPageFlag) {
+        this.current = 1;
+      }
+      if (searchFlag) {
+        this.oldKeywords = this.keywords;
+      }
       this.axios
         .get("/api/back/tags", {
           params: {
@@ -249,6 +261,9 @@ export default {
         param = { data: this.tagIdList };
       } else {
         param = { data: [id] };
+      }
+      if (param.data.length === this.tagList.length) {
+        this.current = --this.current > 1 ? this.current : 1;
       }
       this.axios.delete("/api/back/tags", param).then(({ data }) => {
         if (data.flag) {
@@ -290,7 +305,7 @@ export default {
   },
   watch: {
     userId() {
-      this.listTags();
+      this.listTags(true);
     }
   }
 };

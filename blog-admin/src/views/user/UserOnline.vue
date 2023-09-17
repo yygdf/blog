@@ -32,14 +32,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入用户名"
           style="width:200px"
-          @keyup.enter.native="listUserOnlines"
+          @keyup.enter.native="listUserOnlines(true, true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listUserOnlines"
+          @click="listUserOnlines(true, true)"
         >
           搜索
         </el-button>
@@ -149,7 +149,7 @@
     <el-pagination
       :total="count"
       :page-size="size"
-      :current-page="current"
+      :current-page.sync="current"
       :page-sizes="[10, 20]"
       class="pagination-container"
       layout="total, sizes, prev, pager, next, jumper"
@@ -202,6 +202,7 @@ export default {
       keywords: null,
       rootUserId: null,
       deletedFlag: null,
+      oldKeywords: null,
       loading: true,
       removeStatus: false,
       size: 10,
@@ -212,11 +213,14 @@ export default {
   methods: {
     sizeChange(size) {
       this.size = size;
-      this.listUserOnlines();
+      this.listUserOnlines(true);
+    },
+    checkWeight(weight = 200) {
+      return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listUserOnlines();
+      this.listUserOnlines(this.keywords !== this.oldKeywords);
     },
     checkSelectable(row) {
       return (
@@ -231,7 +235,13 @@ export default {
         this.userOnlineIdList.push(item.id);
       });
     },
-    listUserOnlines() {
+    listUserOnlines(resetPageFlag = false, searchFlag = false) {
+      if (resetPageFlag) {
+        this.current = 1;
+      }
+      if (searchFlag) {
+        this.oldKeywords = this.keywords;
+      }
       this.axios
         .get("/api/back/user/onlines", {
           params: {
@@ -255,6 +265,9 @@ export default {
         param = { data: this.userOnlineIdList };
       } else {
         param = { data: [id] };
+      }
+      if (param.data.length === this.userOnlineList.length) {
+        this.current = --this.current > 1 ? this.current : 1;
       }
       this.axios.delete("/api/back/user/onlines", param).then(({ data }) => {
         if (data.flag) {
@@ -290,7 +303,7 @@ export default {
   },
   watch: {
     deletedFlag() {
-      this.listUserOnlines();
+      this.listUserOnlines(true);
     }
   }
 };

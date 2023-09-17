@@ -70,14 +70,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入友链名"
           clearable
-          @keyup.enter.native="listFriendLinks"
+          @keyup.enter.native="listFriendLinks(true, true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listFriendLinks"
+          @click="listFriendLinks(true, true)"
         >
           搜索
         </el-button>
@@ -176,7 +176,7 @@
       :total="count"
       :page-size="size"
       :page-sizes="[10, 20]"
-      :current-page="current"
+      :current-page.sync="current"
       class="pagination-container"
       layout="total, sizes, prev, pager, next, jumper"
       background
@@ -296,6 +296,7 @@ export default {
       friendLinkIdList: [],
       userId: null,
       keywords: null,
+      oldKeywords: null,
       loading: true,
       editStatus: false,
       deletedFlag: false,
@@ -333,14 +334,14 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listFriendLinks();
+      this.listFriendLinks(true);
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listFriendLinks();
+      this.listFriendLinks(this.keywords !== this.oldKeywords);
     },
     selectionChange(friendLinkList) {
       this.friendLinkIdList = [];
@@ -348,7 +349,13 @@ export default {
         this.friendLinkIdList.push(item.id);
       });
     },
-    listFriendLinks() {
+    listFriendLinks(resetPageFlag = false, searchFlag = false) {
+      if (resetPageFlag) {
+        this.current = 1;
+      }
+      if (searchFlag) {
+        this.oldKeywords = this.keywords;
+      }
       this.axios
         .get("/api/back/friendLinks", {
           params: {
@@ -425,6 +432,9 @@ export default {
       } else {
         param = { data: [id] };
       }
+      if (param.data.length === this.friendLinkList.length) {
+        this.current = --this.current > 1 ? this.current : 1;
+      }
       this.axios.delete("/api/back/friendLinks", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
@@ -449,6 +459,9 @@ export default {
         param.append("idList", this.friendLinkIdList);
       }
       param.append("deletedFlag", !this.deletedFlag);
+      if (param.get("idList").length === this.friendLinkList.length) {
+        this.current = --this.current > 1 ? this.current : 1;
+      }
       this.axios.put("/api/back/friendLinks", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
@@ -468,10 +481,10 @@ export default {
   },
   watch: {
     userId() {
-      this.listFriendLinks();
+      this.listFriendLinks(true);
     },
     deletedFlag() {
-      this.listFriendLinks();
+      this.listFriendLinks(true);
     }
   }
 };

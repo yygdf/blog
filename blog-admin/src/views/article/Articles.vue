@@ -311,7 +311,7 @@
       :total="count"
       :page-size="size"
       :page-sizes="[10, 20]"
-      :current-page="current"
+      :current-page.sync="current"
       class="pagination-container"
       layout="total, sizes, prev, pager, next, jumper"
       background
@@ -406,7 +406,7 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listArticles();
+      this.listArticles(true);
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
@@ -426,6 +426,12 @@ export default {
       });
     },
     listArticles(resetPageFlag = false, searchFlag = false) {
+      if (resetPageFlag) {
+        this.current = 1;
+      }
+      if (searchFlag) {
+        this.oldKeywords = this.keywords;
+      }
       let params = {
         size: this.size,
         userId: this.userId,
@@ -437,13 +443,6 @@ export default {
         recycleFlag: this.recycleFlag,
         deletedFlag: this.deletedFlag
       };
-      if (resetPageFlag) {
-        params.size = 10;
-        params.current = 1;
-      }
-      if (searchFlag) {
-        this.oldKeywords = this.keywords;
-      }
       this.axios
         .get("/api/back/articles", {
           params,

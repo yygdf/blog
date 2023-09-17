@@ -19,14 +19,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入配置名或描述"
           clearable
-          @keyup.enter.native="listSystemConfigs"
+          @keyup.enter.native="listSystemConfigs(true, true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listSystemConfigs"
+          @click="listSystemConfigs(true, true)"
         >
           搜索
         </el-button>
@@ -89,7 +89,7 @@
       :total="count"
       :page-size="size"
       :page-sizes="[10, 20]"
-      :current-page="current"
+      :current-page.sync="current"
       class="pagination-container"
       layout="total, sizes, prev, pager, next, jumper"
       background
@@ -151,6 +151,7 @@ export default {
       systemConfig: {},
       systemConfigList: [],
       keywords: null,
+      oldKeywords: null,
       loading: true,
       addOrEditStatus: false,
       size: 10,
@@ -183,13 +184,19 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listSystemConfigs();
+      this.listSystemConfigs(true);
     },
     currentChange(current) {
       this.current = current;
-      this.listSystemConfigs();
+      this.listSystemConfigs(this.keywords !== this.oldKeywords);
     },
-    listSystemConfigs() {
+    listSystemConfigs(resetPageFlag = false, searchFlag = false) {
+      if (resetPageFlag) {
+        this.current = 1;
+      }
+      if (searchFlag) {
+        this.oldKeywords = this.keywords;
+      }
       this.axios
         .get("/api/back/systemConfigs", {
           params: {
@@ -233,6 +240,9 @@ export default {
     },
     deleteSystemConfig(id) {
       let param = { data: id };
+      if (this.messageList.length === 1) {
+        this.current = --this.current > 1 ? this.current : 1;
+      }
       this.axios.delete("/api/back/systemConfig", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({

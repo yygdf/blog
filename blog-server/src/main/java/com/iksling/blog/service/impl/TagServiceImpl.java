@@ -25,10 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -51,7 +48,6 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
         String keywords = condition.getKeywords();
         if (Objects.nonNull(keywords))
             keywords = keywords.trim();
-        // TODO: 删除最后一条数据会报错
         Page<Tag> page = new Page<>(condition.getCurrent(), condition.getSize());
         Page<Tag> tagPage = tagMapper.selectPage(page, new LambdaQueryWrapper<Tag>()
                 .select(Tag::getId, Tag::getUserId, Tag::getTagName, Tag::getCreateTime, Tag::getUpdateTime)
@@ -61,6 +57,8 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
                 .orderByDesc(Tag::getId));
         if (tagPage.getTotal() == 0)
             return new PagePojo<>();
+        else if (tagPage.getRecords().size() == 0)
+            return new PagePojo<>((int) tagPage.getTotal(), new ArrayList<>());
         List<TagsBackDTO> tagsBackDTOList = BeanCopyUtil.copyList(tagPage.getRecords(), TagsBackDTO.class);
         List<Integer> userIdList = tagsBackDTOList.stream().map(TagsBackDTO::getUserId).distinct().collect(Collectors.toList());
         List<UserAuth> userAuthList = userAuthMapper.selectList(new LambdaQueryWrapper<UserAuth>()

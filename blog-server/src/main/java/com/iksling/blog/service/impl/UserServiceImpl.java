@@ -149,8 +149,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (count == 0)
             return new PagePojo<>();
         int current = (condition.getCurrent() - 1) * condition.getSize();
-        int size = onlineUserIdList.size() > condition.getSize() ? current + condition.getSize() : onlineUserIdList.size();
-        onlineUserIdList = onlineUserIdList.subList((condition.getCurrent() - 1) * condition.getSize(), size);
+        if (current >= count)
+            return new PagePojo<>(count, new ArrayList<>());
+        int size = count > condition.getSize() ? current + condition.getSize() : count;
+        onlineUserIdList = onlineUserIdList.subList(current, size);
         List<UserOnlinesBackDTO> userOnlinesBackDTOList = userMapper.listUserOnlinesBackDTO(onlineUserIdList);
         return new PagePojo<>(count, userOnlinesBackDTOList);
     }

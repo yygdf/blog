@@ -17,6 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,6 +48,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<CommentsBackDTO> commentsBackDTOList = commentMapper.listCommentsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (commentsBackDTOList.size() == 0)
+            return new PagePojo<>(count, new ArrayList<>());
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
         commentsBackDTOList.forEach(item -> {
             item.setLikeCount(Objects.requireNonNull(likeCountMap).get(item.getId().toString()));

@@ -68,14 +68,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入用户名"
           clearable
-          @keyup.enter.native="listUserAuths"
+          @keyup.enter.native="listUserAuths(true, true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listUserAuths"
+          @click="listUserAuths(true, true)"
         >
           搜索
         </el-button>
@@ -188,7 +188,7 @@
     <el-pagination
       :total="count"
       :page-size="size"
-      :current-page="current"
+      :current-page.sync="current"
       :page-sizes="[10, 20]"
       class="pagination-container"
       layout="total, sizes, prev, pager, next, jumper"
@@ -342,6 +342,7 @@ export default {
       roleId: null,
       keywords: null,
       lockedFlag: null,
+      oldKeywords: null,
       disabledFlag: null,
       loading: true,
       editStatus: false,
@@ -372,7 +373,7 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listUserAuths();
+      this.listUserAuths(true);
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
@@ -386,7 +387,7 @@ export default {
     },
     currentChange(current) {
       this.current = current;
-      this.listUserAuths();
+      this.listUserAuths(this.keywords !== this.oldKeywords);
     },
     parseLoginMethod(loginMethod) {
       let loginMethods = [];
@@ -429,7 +430,13 @@ export default {
       }
       this.confirmPasswordStatus = 2;
     },
-    listUserAuths() {
+    listUserAuths(resetPageFlag = false, searchFlag = false) {
+      if (resetPageFlag) {
+        this.current = 1;
+      }
+      if (searchFlag) {
+        this.oldKeywords = this.keywords;
+      }
       this.axios
         .get("/api/back/userAuths", {
           params: {
@@ -518,16 +525,16 @@ export default {
   },
   watch: {
     roleId() {
-      this.listUserAuths();
+      this.listUserAuths(true);
     },
     lockedFlag() {
-      this.listUserAuths();
+      this.listUserAuths(true);
     },
     deletedFlag() {
-      this.listUserAuths();
+      this.listUserAuths(true);
     },
     disabledFlag() {
-      this.listUserAuths();
+      this.listUserAuths(true);
     }
   }
 };

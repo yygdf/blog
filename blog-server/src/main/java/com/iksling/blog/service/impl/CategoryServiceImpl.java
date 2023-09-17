@@ -58,8 +58,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                 .eq(Objects.nonNull(condition.getUserId()), Category::getUserId, condition.getUserId())
                 .eq(loginUser.getRoleWeight() > 300, Category::getUserId, loginUser.getUserId())
                 .orderByDesc(Category::getId));
-        if (categoryPage.getTotal() == 0 || categoryPage.getRecords().size() == 0)
+        if (categoryPage.getTotal() == 0)
             return new PagePojo<>();
+        else if (categoryPage.getRecords().size() == 0)
+            return new PagePojo<>((int) categoryPage.getTotal(), new ArrayList<>());
         List<CategoriesBackDTO> categoriesBackDTOList = BeanCopyUtil.copyList(categoryPage.getRecords(), CategoriesBackDTO.class);
         List<Integer> categoryIdList = categoriesBackDTOList.stream().map(CategoriesBackDTO::getId).collect(Collectors.toList());
         List<CategoryArticleDTO> categoryArticleDTOList = articleMapper.selectCategoryArticleCount(categoryIdList);

@@ -72,14 +72,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入配置名或描述"
           clearable
-          @keyup.enter.native="listUserConfigs"
+          @keyup.enter.native="listUserConfigs(true, true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listUserConfigs"
+          @click="listUserConfigs(true, true)"
         >
           搜索
         </el-button>
@@ -189,7 +189,7 @@
       :total="count"
       :page-size="size"
       :page-sizes="[10, 20]"
-      :current-page="current"
+      :current-page.sync="current"
       class="pagination-container"
       layout="total, sizes, prev, pager, next, jumper"
       background
@@ -284,6 +284,7 @@ export default {
       userId: null,
       keywords: null,
       rootUserId: null,
+      oldKeywords: null,
       loading: true,
       editStatus: false,
       deletedFlag: false,
@@ -318,14 +319,14 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listUserConfigs();
+      this.listUserConfigs(true);
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listUserConfigs();
+      this.listUserConfigs(this.keywords !== this.oldKeywords);
     },
     checkSelectable(row) {
       return (
@@ -339,7 +340,13 @@ export default {
         this.userConfigIdList.push(item.id);
       });
     },
-    listUserConfigs() {
+    listUserConfigs(resetPageFlag = false, searchFlag = false) {
+      if (resetPageFlag) {
+        this.current = 1;
+      }
+      if (searchFlag) {
+        this.oldKeywords = this.keywords;
+      }
       this.axios
         .get("/api/back/userConfigs", {
           params: {
@@ -370,6 +377,7 @@ export default {
     },
     deleteUserConfig(configName) {
       let param = { data: configName };
+      this.current = 1;
       this.axios.delete("/api/back/userConfig", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
@@ -420,6 +428,9 @@ export default {
         param.append("idList", this.userConfigIdList);
       }
       param.append("deletedFlag", !this.deletedFlag);
+      if (param.get("idList").length === this.userConfigList.length) {
+        this.current = --this.current > 1 ? this.current : 1;
+      }
       this.axios.put("/api/back/userConfigs", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
@@ -444,10 +455,10 @@ export default {
   },
   watch: {
     userId() {
-      this.listUserConfigs();
+      this.listUserConfigs(true);
     },
     deletedFlag() {
-      this.listUserConfigs();
+      this.listUserConfigs(true);
     }
   }
 };

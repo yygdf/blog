@@ -53,14 +53,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入用户名或昵称"
           clearable
-          @keyup.enter.native="listUsers"
+          @keyup.enter.native="listUsers(true, true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listUsers"
+          @click="listUsers(true, true)"
         >
           搜索
         </el-button>
@@ -175,7 +175,7 @@
     <el-pagination
       :total="count"
       :page-size="size"
-      :current-page="current"
+      :current-page.sync="current"
       :page-sizes="[10, 20]"
       class="pagination-container"
       layout="total, sizes, prev, pager, next, jumper"
@@ -340,6 +340,7 @@ export default {
       keywords: null,
       oldEmail: null,
       rootUserId: null,
+      oldKeywords: null,
       loading: true,
       editStatus: false,
       deletedFlag: false,
@@ -384,14 +385,14 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listUsers();
+      this.listUsers(true);
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listUsers();
+      this.listUsers(this.keywords !== this.oldKeywords);
     },
     checkSelectable(row) {
       return (
@@ -474,7 +475,13 @@ export default {
           }
         });
     },
-    listUsers() {
+    listUsers(resetPageFlag = false, searchFlag = false) {
+      if (resetPageFlag) {
+        this.current = 1;
+      }
+      if (searchFlag) {
+        this.oldKeywords = this.keywords;
+      }
       this.axios
         .get("/api/back/users", {
           params: {
@@ -498,6 +505,9 @@ export default {
         param = { data: this.userIdList };
       } else {
         param = { data: [id] };
+      }
+      if (param.data.length === this.userList.length) {
+        this.current = --this.current > 1 ? this.current : 1;
       }
       this.axios.delete("/api/back/users", param).then(({ data }) => {
         if (data.flag) {
@@ -561,6 +571,9 @@ export default {
         param.append("idList", this.userIdList);
       }
       param.append("deletedFlag", !this.deletedFlag);
+      if (param.get("idList").length === this.userList.length) {
+        this.current = --this.current > 1 ? this.current : 1;
+      }
       this.axios.put("/api/back/userAuths", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
@@ -585,7 +598,7 @@ export default {
   },
   watch: {
     deletedFlag() {
-      this.listUsers();
+      this.listUsers(true);
     }
   }
 };

@@ -6,6 +6,7 @@ import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserBackVO;
 
 import java.util.List;
@@ -22,6 +23,8 @@ public interface UserService extends IService<User> {
     void saveOrUpdateUserBackVO(UserBackVO userBackVO);
 
     boolean getBackUserExistFlag(String keywords);
+
+    void updateUsersStatus(UpdateBatchVO updateBatchVO);
 
     PagePojo<UserOnlinesBackDTO> getPageUserOnlinesBackDTO(ConditionVO condition);
 

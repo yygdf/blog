@@ -6,5 +6,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface OptLog {
-    String optType() default "";
+    int optType() default 4;
 }

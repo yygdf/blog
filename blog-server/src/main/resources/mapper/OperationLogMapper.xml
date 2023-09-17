@@ -13,7 +13,6 @@
             <result property="optModule" column="opt_module" jdbcType="VARCHAR"/>
             <result property="optMethod" column="opt_method" jdbcType="VARCHAR"/>
             <result property="optRequestParam" column="opt_request_param" jdbcType="VARCHAR"/>
-            <result property="optRequestMethod" column="opt_request_method" jdbcType="VARCHAR"/>
             <result property="optResponseData" column="opt_response_data" jdbcType="VARCHAR"/>
             <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>
             <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
@@ -24,8 +23,8 @@
     <sql id="Base_Column_List">
         id,user_id,opt_uri,
         opt_type,opt_desc,opt_module,
-        opt_method,opt_request_param,opt_request_method,
-        opt_response_data,ip_source,ip_address,
-        create_user,create_time
+        opt_method,opt_request_param,opt_response_data,
+        ip_source,ip_address,create_user,
+        create_time
     </sql>
 </mapper>

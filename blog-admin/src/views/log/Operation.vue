@@ -1,6 +1,5 @@
 <template>
   <el-card class="main-card">
-    <!-- 标题 -->
     <div class="title">{{ this.$route.name }}</div>
     <div class="operation-container">
       <el-button

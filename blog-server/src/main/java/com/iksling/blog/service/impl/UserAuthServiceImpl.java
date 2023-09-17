@@ -23,7 +23,6 @@ import com.iksling.blog.service.UserRoleService;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
-import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserAuthBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
@@ -174,18 +173,6 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
             throw new IllegalRequestException();
         if (commonStatusVO.getPublicFlag() || (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag()))
             deleteUserIdList(Collections.singletonList(commonStatusVO.getId()));
-    }
-
-    @Override
-    @Transactional
-    public void updateUserAuthsStatus(UpdateBatchVO updateBatchVO) {
-        if (updateBatchVO.getIdList().contains(ROOT_USER_ID) || (UserUtil.getLoginUser().getRoleWeight() > 100 && (!Collections.disjoint(updateBatchVO.getIdList(), ROOT_USER_ID_LIST) || !updateBatchVO.getDeletedFlag())))
-            throw new IllegalStateException();
-        Integer count = userAuthMapper.updateUserAuthsStatus(updateBatchVO);
-        if (count != updateBatchVO.getIdList().size())
-            throw new IllegalRequestException();
-        if (updateBatchVO.getDeletedFlag())
-            deleteUserIdList(updateBatchVO.getIdList());
     }
 
     private void deleteUserIdList(List<Integer> idList) {

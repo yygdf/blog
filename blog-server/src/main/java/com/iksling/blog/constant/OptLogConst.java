@@ -2,27 +2,27 @@ package com.iksling.blog.constant;
 
 public class OptLogConst {
     /**
-     * 新增
+     * 上传
      */
-    public static final String SAVE = "新增";
+    public static final int UPLOAD = 1;
 
     /**
-     * 修改操作
+     * 删除
      */
-    public static final String UPDATE = "修改";
+    public static final int REMOVE = 2;
+
+    /**
+     * 修改
+     */
+    public static final int UPDATE = 3;
+
+    /**
+     * 查询
+     */
+    public static final int QUERY = 4;
 
     /**
      * 新增或修改
      */
-    public static final String SAVE_OR_UPDATE = "新增或修改";
-
-    /**
-     * 删除操作
-     */
-    public static final String REMOVE = "删除";
-
-    /**
-     * 上传操作
-     */
-    public static final String UPLOAD = "上传";
+    public static final int SAVE_OR_UPDATE = 5;
 }

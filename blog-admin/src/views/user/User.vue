@@ -574,7 +574,7 @@ export default {
       if (param.get("idList").length === this.userList.length) {
         this.current = --this.current > 1 ? this.current : 1;
       }
-      this.axios.put("/api/back/userAuths", param).then(({ data }) => {
+      this.axios.put("/api/back/users", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",

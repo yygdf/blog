@@ -20,6 +20,7 @@ import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.RegexUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
@@ -133,6 +134,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return false;
         return userMapper.selectCount(new LambdaQueryWrapper<User>()
                 .eq(User::getEmail, keywords.trim())) != 0;
+    }
+
+    @Override
+    @Transactional
+    public void updateUsersStatus(UpdateBatchVO updateBatchVO) {
+        if (updateBatchVO.getIdList().contains(ROOT_USER_ID) || (UserUtil.getLoginUser().getRoleWeight() > 100 && (!Collections.disjoint(updateBatchVO.getIdList(), ROOT_USER_ID_LIST) || !updateBatchVO.getDeletedFlag())))
+            throw new IllegalStateException();
+        Integer count = userAuthMapper.updateUserAuthsStatus(updateBatchVO);
+        if (count != updateBatchVO.getIdList().size())
+            throw new IllegalRequestException();
+        if (updateBatchVO.getDeletedFlag())
+            deleteUserIdList(updateBatchVO.getIdList());
     }
 
     @Override

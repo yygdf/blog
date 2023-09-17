@@ -3,13 +3,12 @@ package com.iksling.blog.aspect;
 import com.alibaba.fastjson.JSON;
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.entity.ExceptionLog;
-import com.iksling.blog.entity.IllegalLog;
 import com.iksling.blog.entity.OperationLog;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.ExceptionLogMapper;
-import com.iksling.blog.mapper.IllegalLogMapper;
 import com.iksling.blog.mapper.OperationLogMapper;
 import com.iksling.blog.pojo.Email;
+import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.util.IpUtil;
 import com.iksling.blog.util.UserUtil;
 import io.swagger.annotations.Api;
@@ -38,14 +37,13 @@ import java.util.Objects;
 
 import static com.iksling.blog.constant.CommonConst.ADMIN_EMAIL;
 import static com.iksling.blog.constant.MQConst.EMAIL_EXCHANGE;
+import static com.iksling.blog.constant.OptLogConst.QUERY;
 
 @Aspect
 @Component
 public class LogAspect {
     @Autowired
     private OperationLogMapper operationLogMapper;
-    @Autowired
-    private IllegalLogMapper illegalLogMapper;
     @Autowired
     private ExceptionLogMapper exceptionLogMapper;
 
@@ -80,7 +78,6 @@ public class LogAspect {
                 .optModule(api.tags()[0])
                 .optMethod(joinPoint.getTarget().getClass().getName() + "." + method.getName())
                 .optRequestParam(JSON.toJSONString(joinPoint.getArgs()))
-                .optRequestMethod(request.getMethod())
                 .optResponseData(JSON.toJSONString(keys))
                 .ipSource(ipSource)
                 .ipAddress(ipAddress)
@@ -93,6 +90,7 @@ public class LogAspect {
     @Transactional(rollbackFor = Exception.class)
     @AfterThrowing(value = "exceptionLogPointCut()", throwing = "e")
     public void saveExceptionLog(JoinPoint joinPoint, Throwable e) {
+        LoginUser loginUser = UserUtil.getLoginUser();
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         Api api = (Api) signature.getDeclaringType().getAnnotation(Api.class);
@@ -103,48 +101,32 @@ public class LogAspect {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
+        ExceptionLog exceptionLog = ExceptionLog.builder()
+                .userId(loginUser.getUserId())
+                .optUri(Objects.requireNonNull(request).getRequestURI())
+                .optType(Objects.isNull(optLog) ? QUERY : optLog.optType())
+                .optDesc(apiOperation.value())
+                .optModule(api.tags()[0])
+                .optMethod(joinPoint.getTarget().getClass().getName() + "." + method.getName())
+                .optRequestParam(JSON.toJSONString(joinPoint.getArgs()))
+                .exceptionMessage(e.toString())
+                .exceptionStackTrace(sw.toString())
+                .ipSource(ipSource)
+                .ipAddress(ipAddress)
+                .createUser(loginUser.getUserId())
+                .createTime(new Date())
+                .build();
         if (e instanceof IllegalRequestException) {
-            IllegalLog illegalLog = IllegalLog.builder()
-                    .userId(UserUtil.getLoginUser().getUserId())
-                    .optUri(Objects.requireNonNull(request).getRequestURI())
-                    .optType(Objects.isNull(optLog) ? "查询" : optLog.optType())
-                    .optDesc(apiOperation.value())
-                    .optModule(api.tags()[0])
-                    .optMethod(joinPoint.getTarget().getClass().getName() + "." + method.getName())
-                    .optRequestParam(JSON.toJSONString(joinPoint.getArgs()))
-                    .optRequestMethod(request.getMethod())
-                    .exceptionMessage(e.toString())
-                    .exceptionStackTrace(sw.toString())
-                    .ipSource(ipSource)
-                    .ipAddress(ipAddress)
-                    .createUser(UserUtil.getLoginUser().getUserId())
-                    .createTime(new Date())
-                    .build();
-            illegalLogMapper.insert(illegalLog);
-            illegalLog.setExceptionStackTrace(null);
+            exceptionLog.setIllegalFlag(true);
+            exceptionLogMapper.insert(exceptionLog);
+            exceptionLog.setExceptionStackTrace(null);
             Email email = Email.builder()
                     .email(ADMIN_EMAIL)
-                    .subject("用户非法操作拦截成功")
-                    .content(JSON.toJSONString(illegalLog))
+                    .subject("用户[" + loginUser.getUsername() + "]的非法操作已成功拦截")
+                    .content(JSON.toJSONString(exceptionLog))
                     .build();
             rabbitTemplate.convertAndSend(EMAIL_EXCHANGE, "*", new Message(JSON.toJSONBytes(email), new MessageProperties()));
-        } else {
-            exceptionLogMapper.insert(ExceptionLog.builder()
-                    .userId(UserUtil.getLoginUser().getUserId())
-                    .optUri(Objects.requireNonNull(request).getRequestURI())
-                    .optType(Objects.isNull(optLog) ? "查询" : optLog.optType())
-                    .optDesc(apiOperation.value())
-                    .optModule(api.tags()[0])
-                    .optMethod(joinPoint.getTarget().getClass().getName() + "." + method.getName())
-                    .optRequestParam(JSON.toJSONString(joinPoint.getArgs()))
-                    .optRequestMethod(request.getMethod())
-                    .exceptionMessage(e.toString())
-                    .exceptionStackTrace(sw.toString())
-                    .ipSource(ipSource)
-                    .ipAddress(ipAddress)
-                    .createUser(UserUtil.getLoginUser().getUserId())
-                    .createTime(new Date())
-                    .build());
-        }
+        } else
+            exceptionLogMapper.insert(exceptionLog);
     }
 }

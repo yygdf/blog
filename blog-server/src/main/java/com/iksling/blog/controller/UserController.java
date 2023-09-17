@@ -5,6 +5,7 @@ import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserService;
 import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -18,8 +19,7 @@ import java.util.List;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
-import static com.iksling.blog.constant.OptLogConst.REMOVE;
-import static com.iksling.blog.constant.OptLogConst.SAVE_OR_UPDATE;
+import static com.iksling.blog.constant.OptLogConst.*;
 
 @RestController
 @Api(tags = "用户模块")
@@ -60,6 +60,15 @@ public class UserController {
     @GetMapping("/back/user/exist")
     public Result getBackUserExistFlag(String keywords) {
         return Result.success().message("查询成功").data(userService.getBackUserExistFlag(keywords));
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "批量更新用户状态")
+    @ApiImplicitParam(name = "updateBatchVO", value = "批量更新VO", required = true, dataType = "UpdateBatchVO")
+    @PutMapping("/back/users")
+    public Result updateUsersStatus(@Valid UpdateBatchVO updateBatchVO) {
+        userService.updateUsersStatus(updateBatchVO);
+        return Result.success().message("操作成功");
     }
 
     @ApiOperation(value = "查看后台在线用户列表")

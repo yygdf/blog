@@ -39,9 +39,9 @@ public class OperationLog implements Serializable {
     private String optUri;
 
     /**
-     * 操作类型
+     * 操作类型，1上传，2删除，3修改，4查询，5新增或修改
      */
-    private String optType;
+    private Integer optType;
 
     /**
      * 操作描述，默认空串
@@ -62,11 +62,6 @@ public class OperationLog implements Serializable {
      * 请求参数
      */
     private String optRequestParam;
-
-    /**
-     * 请求方式
-     */
-    private String optRequestMethod;
 
     /**
      * 响应数据

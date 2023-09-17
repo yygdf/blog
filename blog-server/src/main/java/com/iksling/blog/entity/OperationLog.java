@@ -61,12 +61,12 @@ public class OperationLog implements Serializable {
     /**
      * 请求参数
      */
-    private String optRequestParam;
+    private String requestParam;
 
     /**
      * 响应数据
      */
-    private String optResponseData;
+    private String responseData;
 
     /**
      * ip来源，默认空串

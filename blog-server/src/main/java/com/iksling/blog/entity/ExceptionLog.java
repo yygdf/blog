@@ -14,16 +14,16 @@ import java.util.Date;
 
 /**
  * 
- * @TableName tb_login_log
+ * @TableName tb_exception_log
  */
-@TableName(value ="tb_login_log")
+@TableName(value ="tb_exception_log")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginLog implements Serializable {
+public class ExceptionLog implements Serializable {
     /**
-     * 日志id
+     * 操作日志id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -34,34 +34,49 @@ public class LoginLog implements Serializable {
     private Integer userId;
 
     /**
-     * 登录时间
+     * 操作路径
      */
-    private Date loginTime;
+    private String optUri;
 
     /**
-     * 登录设备，默认空串
+     * 操作类型，1上传，2删除，3修改，4查询，5新增或修改
      */
-    private String loginDevice;
+    private Integer optType;
 
     /**
-     * 登录方式，1邮箱，2QQ，3微信，4手机号
+     * 操作描述，默认空串
      */
-    private Integer loginMethod;
+    private String optDesc;
 
     /**
-     * 登录平台，0前台，1后台
+     * 操作模块
      */
-    private Boolean loginPlatform;
+    private String optModule;
 
     /**
-     * 操作系统类型，默认空串
+     * 操作方法
      */
-    private String loginSystem;
+    private String optMethod;
 
     /**
-     * 浏览器类型，默认空串
+     * 请求参数
      */
-    private String loginBrowser;
+    private String requestParam;
+
+    /**
+     * 异常简略信息
+     */
+    private String exceptionMessage;
+
+    /**
+     * 异常堆栈信息
+     */
+    private String exceptionStackTrace;
+
+    /**
+     * 0不是非法，1是非法，默认0
+     */
+    private Boolean illegalFlag;
 
     /**
      * ip来源，默认空串
@@ -72,6 +87,16 @@ public class LoginLog implements Serializable {
      * ip地址，默认空串
      */
     private String ipAddress;
+
+    /**
+     * 创建人
+     */
+    private Integer createUser;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

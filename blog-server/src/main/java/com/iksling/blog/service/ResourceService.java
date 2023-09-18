@@ -1,6 +1,7 @@
 package com.iksling.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.iksling.blog.dto.LabelDTO;
 import com.iksling.blog.dto.ResourcesBackDTO;
 import com.iksling.blog.dto.LabelsDTO;
 import com.iksling.blog.entity.Resource;
@@ -23,4 +24,6 @@ public interface ResourceService extends IService<Resource> {
     void saveOrUpdateResourceBackVO(ResourceBackVO resourceBackVO);
 
     List<LabelsDTO> getResourcesDTO();
+
+    List<LabelDTO> getBackModuleNames();
 }

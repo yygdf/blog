@@ -29,4 +29,69 @@
         exception_stack_trace,illegal_flag,ip_source,
         ip_address,create_user,create_time
     </sql>
+
+    <select id="selectExceptionLogsBackDTOCount" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            tb_exception_log el
+        <where>
+            1 = 1
+            <if test="condition.deletedFlag != null">
+                AND el.illegal_flag = #{condition.deletedFlag}
+            </if>
+            <if test="condition.userId != null">
+                AND el.user_id = #{condition.userId}
+            </if>
+            <if test="condition.categoryId != null">
+                AND el.opt_type = #{condition.categoryId}
+            </if>
+            <if test="condition.startTime != null">
+                AND el.create_time >= #{condition.startTime}
+            </if>
+            <if test="condition.endTime != null">
+                AND el.create_time lte #{condition.endTime}
+            </if>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND el.opt_module = #{condition.keywords}
+            </if>
+        </where>
+    </select>
+
+    <select id="listExceptionLogsBackDTO" resultType="com.iksling.blog.dto.ExceptionLogsBackDTO">
+        SELECT
+            el.id,el.user_id,ua.username,
+            el.opt_uri,el.opt_type,el.opt_desc,
+            el.opt_module,el.opt_method,el.request_param,
+            el.exception_message,el.exception_stack_trace,el.ip_source,
+            el.ip_address,el.create_time
+        FROM
+            tb_exception_log el
+        LEFT JOIN tb_user_auth ua ON el.user_id = ua.user_id
+        <where>
+            1 = 1
+            <if test="condition.deletedFlag != null">
+                AND el.illegal_flag = #{condition.deletedFlag}
+            </if>
+            <if test="condition.userId != null">
+                AND el.user_id = #{condition.userId}
+            </if>
+            <if test="condition.categoryId != null">
+                AND el.opt_type = #{condition.categoryId}
+            </if>
+            <if test="condition.startTime != null">
+                AND el.create_time >= #{condition.startTime}
+            </if>
+            <if test="condition.endTime != null">
+                AND el.create_time lte #{condition.endTime}
+            </if>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND el.opt_module = #{condition.keywords}
+            </if>
+        </where>
+        ORDER BY
+            el.id DESC
+        LIMIT
+            #{condition.current}, #{condition.size}
+    </select>
 </mapper>

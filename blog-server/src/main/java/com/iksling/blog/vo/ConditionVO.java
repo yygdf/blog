@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -13,7 +14,7 @@ public class ConditionVO {
     /**
      * 每页数量
      */
-    @Min(message = "每页数量最小值", value = 10)
+    @Min(message = "每页数量最小值", value = 1)
     @ApiModelProperty(name = "size", value = "每页数量", required = true, dataType = "Integer")
     private Integer size;
 
@@ -65,4 +66,16 @@ public class ConditionVO {
      */
     @ApiModelProperty(name = "tagIdList", value = "标签id集合", dataType = "List<Integer>")
     private List<Integer> tagIdList;
+
+    /**
+     * 起始时间
+     */
+    @ApiModelProperty(name = "startTime", value = "起始时间", dataType = "Date")
+    private Date startTime;
+
+    /**
+     * 结束时间
+     */
+    @ApiModelProperty(name = "endTime", value = "结束时间", dataType = "Date")
+    private Date endTime;
 }

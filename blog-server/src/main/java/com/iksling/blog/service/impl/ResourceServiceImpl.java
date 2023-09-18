@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.iksling.blog.dto.LabelDTO;
 import com.iksling.blog.dto.LabelsDTO;
 import com.iksling.blog.dto.ResourcesBackDTO;
 import com.iksling.blog.entity.Resource;
@@ -115,6 +116,20 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
         List<Resource> parentResourceList = getParentResourceList(resourceList);
         Map<Integer, List<Resource>> childrenResourceMap = getChildrenResourceMap(resourceList);
         return convertResourcesDTOList(parentResourceList, childrenResourceMap);
+    }
+
+    @Override
+    public List<LabelDTO> getBackModuleNames() {
+        List<Resource> resourceList = resourceMapper.selectList(new LambdaQueryWrapper<Resource>()
+                .select(Resource::getId, Resource::getResourceName)
+                .eq(Resource::getParentId, -1)
+                .orderByAsc(Resource::getId));
+        return resourceList.stream()
+                .map(e -> LabelDTO.builder()
+                        .id(e.getId())
+                        .label(e.getResourceName())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     private List<Resource> getParentResourceList(List<Resource> resourceList) {

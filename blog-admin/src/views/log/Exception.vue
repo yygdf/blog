@@ -29,7 +29,7 @@
           filterable
         >
           <el-option
-            v-for="item in optModuleList"
+            v-for="item in moduleNameList"
             :key="item.label"
             :value="item.label"
             :label="item.label"
@@ -63,6 +63,22 @@
             :label="item.label"
           />
         </el-select>
+        <el-date-picker
+          v-model="startTime"
+          type="datetime"
+          placeholder="起始时间"
+          align="right"
+          :picker-options="pickerOptions"
+        >
+        </el-date-picker>
+        <el-date-picker
+          v-model="endTime"
+          type="datetime"
+          placeholder="结束时间"
+          align="right"
+          :picker-options="pickerOptions"
+        >
+        </el-date-picker>
       </div>
     </div>
     <el-table v-loading="loading" :data="exceptionLogList" border>
@@ -169,7 +185,7 @@
 export default {
   created() {
     this.listExceptionLogs();
-    this.listAllOptModule();
+    this.listAllModuleName();
   },
   data: function() {
     return {
@@ -205,13 +221,41 @@ export default {
           label: "新增或修改"
         }
       ],
+      pickerOptions: {
+        shortcuts: [
+          {
+            text: "今天",
+            onClick(picker) {
+              picker.$emit("pick", new Date());
+            }
+          },
+          {
+            text: "昨天",
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() - 3600 * 1000 * 24);
+              picker.$emit("pick", date);
+            }
+          },
+          {
+            text: "一周前",
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit("pick", date);
+            }
+          }
+        ]
+      },
       exceptionLog: {},
       usernameList: [],
-      optModuleList: [],
+      moduleNameList: [],
       exceptionLogList: [],
       userId: null,
+      endTime: null,
       optType: null,
       optModule: null,
+      startTime: null,
       loading: true,
       checkFlag: false,
       illegalFlag: false,
@@ -233,14 +277,19 @@ export default {
       this.current = current;
       this.listExceptionLogs();
     },
-    listExceptionLogs() {
+    listExceptionLogs(resetPageFlag = false) {
+      if (resetPageFlag) {
+        this.current = 1;
+      }
       this.axios
         .get("/api/back/exceptionLogs", {
           params: {
             size: this.size,
             userId: this.userId,
+            endTime: this.endTime,
             current: this.current,
             keywords: this.optModule,
+            startTime: this.startTime,
             categoryId: this.optType,
             deletedFlag: this.illegalFlag
           }
@@ -251,9 +300,9 @@ export default {
           this.loading = false;
         });
     },
-    listAllOptModule() {
-      this.axios.get("/api/back/resource/resourceNames").then(({ data }) => {
-        this.optModuleList = data.data;
+    listAllModuleName() {
+      this.axios.get("/api/back/resource/moduleNames").then(({ data }) => {
+        this.moduleNameList = data.data;
       });
     },
     listAllUsername(keywords) {
@@ -269,16 +318,22 @@ export default {
   },
   watch: {
     userId() {
-      this.listExceptionLogs();
+      this.listExceptionLogs(true);
+    },
+    endTime() {
+      this.listExceptionLogs(true);
     },
     optType() {
-      this.listExceptionLogs();
+      this.listExceptionLogs(true);
     },
     optModule() {
-      this.listExceptionLogs();
+      this.listExceptionLogs(true);
+    },
+    startTime() {
+      this.listExceptionLogs(true);
     },
     illegalFlag() {
-      this.listExceptionLogs();
+      this.listExceptionLogs(true);
     }
   },
   computed: {

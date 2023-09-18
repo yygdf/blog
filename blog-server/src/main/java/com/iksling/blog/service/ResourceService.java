@@ -25,5 +25,5 @@ public interface ResourceService extends IService<Resource> {
 
     List<LabelsDTO> getResourcesDTO();
 
-    List<LabelDTO> getBackModuleNames();
+    List<LabelDTO> getBackResourceModuleNames();
 }

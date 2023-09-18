@@ -119,7 +119,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     }
 
     @Override
-    public List<LabelDTO> getBackModuleNames() {
+    public List<LabelDTO> getBackResourceModuleNames() {
         List<Resource> resourceList = resourceMapper.selectList(new LambdaQueryWrapper<Resource>()
                 .select(Resource::getId, Resource::getResourceName)
                 .eq(Resource::getParentId, -1)

@@ -50,7 +50,7 @@
                 AND el.create_time >= #{condition.startTime}
             </if>
             <if test="condition.endTime != null">
-                AND el.create_time lte #{condition.endTime}
+                AND el.create_time &lt;= #{condition.endTime}
             </if>
             <if test="condition.keywords != null and condition.keywords != ''">
                 AND el.opt_module = #{condition.keywords}
@@ -83,7 +83,7 @@
                 AND el.create_time >= #{condition.startTime}
             </if>
             <if test="condition.endTime != null">
-                AND el.create_time lte #{condition.endTime}
+                AND el.create_time &lt;= #{condition.endTime}
             </if>
             <if test="condition.keywords != null and condition.keywords != ''">
                 AND el.opt_module = #{condition.keywords}

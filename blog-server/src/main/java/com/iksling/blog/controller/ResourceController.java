@@ -58,6 +58,6 @@ public class ResourceController {
     @ApiOperation(value = "查看所有的模块名")
     @GetMapping("/back/resource/moduleNames")
     public Result listBackResourceModuleNames() {
-        return Result.success().message("查询成功").data(resourceService.getBackModuleNames());
+        return Result.success().message("查询成功").data(resourceService.getBackResourceModuleNames());
     }
 }

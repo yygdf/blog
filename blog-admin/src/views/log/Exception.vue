@@ -39,7 +39,7 @@
           v-model="optType"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择操作类型"
+          placeholder="请选择类型"
           clearable
         >
           <el-option
@@ -65,17 +65,23 @@
         </el-select>
         <el-date-picker
           v-model="startTime"
+          size="small"
           type="datetime"
+          align="center"
+          style="margin-right:1rem"
           placeholder="起始时间"
-          align="right"
+          value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
         >
         </el-date-picker>
         <el-date-picker
           v-model="endTime"
+          size="small"
           type="datetime"
-          placeholder="结束时间"
           align="right"
+          style="margin-right:1rem"
+          placeholder="结束时间"
+          value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
         >
         </el-date-picker>
@@ -89,10 +95,22 @@
         width="160"
       />
       <el-table-column
+        prop="optModule"
+        label="操作模块"
+        align="center"
+        width="120"
+      >
+        <template slot-scope="scope">
+          <el-tag>
+            {{ scope.row.optModule }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
         prop="optType"
         label="操作类型"
         align="center"
-        width="160"
+        width="120"
       >
         <template slot-scope="scope">
           <el-tag>
@@ -104,31 +122,24 @@
         prop="optDesc"
         label="操作描述"
         align="center"
-        width="160"
+        width="200"
       />
-      <el-table-column
-        prop="optModule"
-        label="操作模块"
-        align="center"
-        width="160"
-      />
-      <el-table-column
-        prop="exceptionMessage"
-        label="简略信息"
-        align="center"
-        width="160"
-      />
+      <el-table-column prop="exceptionMessage" label="简略信息" align="center">
+        <template slot-scope="scope">
+          {{ scope.row.exceptionMessage | subStr }}
+        </template>
+      </el-table-column>
       <el-table-column
         prop="ipAddress"
-        label="登录ip"
+        label="ip地址"
         align="center"
-        width="160"
+        width="120"
       />
       <el-table-column
         prop="ipSource"
-        label="登录地址"
+        label="ip来源"
         align="center"
-        width="160"
+        width="120"
       />
       <el-table-column
         prop="loginTime"
@@ -141,7 +152,7 @@
           {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="80">
+      <el-table-column label="操作" align="center" width="120">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="check(scope.row)">
             <i class="el-icon-view" /> 查看
@@ -160,7 +171,7 @@
       @size-change="sizeChange"
       @current-change="currentChange"
     />
-    <el-dialog :visible.sync="checkFlag" width="30%">
+    <el-dialog :visible.sync="checkFlag" width="60%">
       <div class="dialog-title-container" slot="title">
         详细信息
       </div>
@@ -168,13 +179,42 @@
         <el-form-item label="操作人员: ">
           {{ exceptionLog.username }}
         </el-form-item>
-        <el-form-item label="操作路径: ">
-          {{ exceptionLog.optUri }}
+        <el-form-item label="操作模块: ">
+          <el-tag>
+            {{ exceptionLog.optModule }}
+          </el-tag>
         </el-form-item>
         <el-form-item label="操作类型: ">
           <el-tag>
             {{ switchOptType(exceptionLog.optType) }}
           </el-tag>
+        </el-form-item>
+        <el-form-item label="操作路径: ">
+          {{ exceptionLog.optUri }}
+        </el-form-item>
+        <el-form-item label="操作方法: ">
+          {{ exceptionLog.optMethod }}
+        </el-form-item>
+        <el-form-item label="操作描述: ">
+          {{ exceptionLog.optDesc }}
+        </el-form-item>
+        <el-form-item label="ip地址: ">
+          {{ exceptionLog.ipAddress }}
+        </el-form-item>
+        <el-form-item label="ip来源: ">
+          {{ exceptionLog.ipSource }}
+        </el-form-item>
+        <el-form-item label="发生时间: ">
+          {{ exceptionLog.createTime | dateTime }}
+        </el-form-item>
+        <el-form-item label="请求参数: " style="white-space: pre-line">
+          {{ exceptionLog.requestParam }}
+        </el-form-item>
+        <el-form-item label="简略信息: " style="white-space: pre-line">
+          {{ exceptionLog.exceptionMessage }}
+        </el-form-item>
+        <el-form-item label="详细信息: " style="white-space: pre-line">
+          {{ exceptionLog.exceptionStackTrace }}
         </el-form-item>
       </el-form>
     </el-dialog>

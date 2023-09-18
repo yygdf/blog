@@ -7,10 +7,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @RestController
 @Api(tags = "异常日志模块")
@@ -23,5 +28,11 @@ public class ExceptionLogController {
     @GetMapping("/back/exceptionLogs")
     public Result listBackExceptionLogs(@Valid ConditionVO condition) {
         return Result.success().message("查询成功").data(exceptionLogService.getPageExceptionLogsBackDTO(condition));
+    }
+
+    @InitBinder
+    public void initBinder(ServletRequestDataBinder binder){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
     }
 }

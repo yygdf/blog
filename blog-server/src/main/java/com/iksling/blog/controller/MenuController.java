@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 import static com.iksling.blog.constant.CommonConst.HOME_MENU_ID;
-import static com.iksling.blog.constant.OptLogConst.*;
+import static com.iksling.blog.constant.LogConst.*;
 
 @RestController
 @Api(tags = "菜单模块")

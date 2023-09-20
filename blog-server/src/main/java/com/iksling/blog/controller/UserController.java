@@ -19,7 +19,7 @@ import java.util.List;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
-import static com.iksling.blog.constant.OptLogConst.*;
+import static com.iksling.blog.constant.LogConst.*;
 
 @RestController
 @Api(tags = "用户模块")

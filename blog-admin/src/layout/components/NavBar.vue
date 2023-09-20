@@ -45,6 +45,9 @@
       <span class="tabs-view-item" style="float:right" @click="closeAllTab">
         全部关闭
       </span>
+      <span class="tabs-view-item" style="float:right" @click="closeOtherTab">
+        关闭其他
+      </span>
     </div>
   </div>
 </template>
@@ -58,19 +61,30 @@ export default {
     if (first && first.name !== "首页") {
       matched = [{ path: "/", name: "首页" }].concat(matched);
     }
+    this.tab = {
+      path: this.$route.path,
+      name: this.$route.name
+    };
     this.breadcrumbList = matched;
     this.$store.commit("saveTab", this.$route);
   },
   data: function() {
     return {
-      isSearch: false,
-      fullscreen: false,
-      breadcrumbList: []
+      tab: {},
+      breadcrumbList: [],
+      fullscreen: false
     };
   },
   methods: {
     goTo(tab) {
+      this.tab = {
+        path: tab.path,
+        name: tab.name
+      };
       this.$router.push({ path: tab.path });
+    },
+    trigger() {
+      this.$store.commit("trigger");
     },
     removeTab(tab) {
       this.$store.commit("removeTab", tab);
@@ -78,25 +92,6 @@ export default {
         let tabList = this.$store.state.tabList;
         this.$router.push({ path: tabList[tabList.length - 1].path });
       }
-    },
-    trigger() {
-      this.$store.commit("trigger");
-    },
-    handleCommand(command) {
-      if (command === "setting") {
-        this.$router.push({ path: "/setting" });
-      }
-      if (command === "logout") {
-        this.axios.post("/api/logout");
-        this.$store.commit("logout");
-        this.$store.commit("resetTab");
-        resetRouter();
-        this.$router.push({ path: "/login" });
-      }
-    },
-    closeAllTab() {
-      this.$store.commit("resetTab");
-      this.$router.push({ path: "/" });
     },
     fullScreen() {
       let element = document.documentElement;
@@ -122,9 +117,37 @@ export default {
         }
       }
       this.fullscreen = !this.fullscreen;
+    },
+    closeAllTab() {
+      this.$store.commit("resetTab");
+      this.$router.push({ path: "/" });
+    },
+    closeOtherTab() {
+      this.$store.commit("resetTab");
+      if (this.tab.path !== "/") {
+        this.$store.state.tabList.push({
+          name: this.tab.name,
+          path: this.tab.path
+        });
+      }
+    },
+    handleCommand(command) {
+      if (command === "setting") {
+        this.$router.push({ path: "/setting" });
+      }
+      if (command === "logout") {
+        this.axios.post("/api/logout");
+        this.$store.commit("logout");
+        this.$store.commit("resetTab");
+        resetRouter();
+        this.$router.push({ path: "/login" });
+      }
     }
   },
   computed: {
+    isFold() {
+      return this.$store.state.collapse ? "el-icon-s-unfold" : "el-icon-s-fold";
+    },
     isActive() {
       return function(tab) {
         if (tab.path === this.$route.path) {
@@ -132,9 +155,6 @@ export default {
         }
         return "tabs-view-item";
       };
-    },
-    isFold() {
-      return this.$store.state.collapse ? "el-icon-s-unfold" : "el-icon-s-fold";
     }
   }
 };

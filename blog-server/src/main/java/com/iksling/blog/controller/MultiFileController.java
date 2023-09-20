@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static com.iksling.blog.constant.OptLogConst.*;
+import static com.iksling.blog.constant.LogConst.*;
 
 @RestController
 @Api(tags = "文件模块")

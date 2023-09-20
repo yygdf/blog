@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID_LIST;
-import static com.iksling.blog.constant.OptLogConst.UPDATE;
+import static com.iksling.blog.constant.LogConst.UPDATE;
 
 @RestController
 @Api(tags = "账号模块")

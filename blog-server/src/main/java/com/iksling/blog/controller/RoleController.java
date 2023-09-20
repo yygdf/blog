@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID;
-import static com.iksling.blog.constant.OptLogConst.*;
+import static com.iksling.blog.constant.LogConst.*;
 
 @RestController
 @Api(tags = "角色模块")

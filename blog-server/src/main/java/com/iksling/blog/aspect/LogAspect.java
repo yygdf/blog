@@ -37,7 +37,7 @@ import java.util.Objects;
 
 import static com.iksling.blog.constant.CommonConst.ADMIN_EMAIL;
 import static com.iksling.blog.constant.MQConst.EMAIL_EXCHANGE;
-import static com.iksling.blog.constant.OptLogConst.QUERY;
+import static com.iksling.blog.constant.LogConst.QUERY;
 
 @Aspect
 @Component

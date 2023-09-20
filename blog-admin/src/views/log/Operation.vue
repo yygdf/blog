@@ -222,10 +222,6 @@ export default {
           label: "修改"
         },
         {
-          value: 4,
-          label: "查询"
-        },
-        {
           value: 5,
           label: "新增或修改"
         }

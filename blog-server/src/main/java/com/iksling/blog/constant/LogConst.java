@@ -1,6 +1,6 @@
 package com.iksling.blog.constant;
 
-public class OptLogConst {
+public class LogConst {
     /**
      * 上传
      */

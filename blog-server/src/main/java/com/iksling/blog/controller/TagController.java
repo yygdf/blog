@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.iksling.blog.constant.OptLogConst.REMOVE;
-import static com.iksling.blog.constant.OptLogConst.SAVE_OR_UPDATE;
+import static com.iksling.blog.constant.LogConst.REMOVE;
+import static com.iksling.blog.constant.LogConst.SAVE_OR_UPDATE;
 
 @RestController
 @Api(tags = "标签模块")

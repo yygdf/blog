@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.iksling.blog.constant.OptLogConst.*;
+import static com.iksling.blog.constant.LogConst.*;
 
 @RestController
 @Api(tags = "文章模块")

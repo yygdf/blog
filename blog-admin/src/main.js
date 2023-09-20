@@ -38,7 +38,7 @@ Vue.filter("dateTime", function(value, formatStr = "yyyy-MM-DD HH:mm:ss") {
   return moment(value).format(formatStr);
 });
 
-Vue.filter("subStr", function(value, maxLen = 125) {
+Vue.filter("subStr", function(value, maxLen = 120) {
   return value.length > maxLen ? value.substr(0, maxLen) + "..." : value;
 });
 

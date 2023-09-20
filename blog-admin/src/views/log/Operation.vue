@@ -2,170 +2,200 @@
   <el-card class="main-card">
     <div class="title">{{ this.$route.name }}</div>
     <div class="operation-container">
-      <el-button
-        type="danger"
-        size="small"
-        icon="el-icon-minus"
-        :disabled="this.logIdList.length == 0"
-        @click="isDelete = true"
-      >
-        批量删除
-      </el-button>
-      <!-- 数据筛选 -->
       <div style="margin-left:auto">
-        <el-input
-          v-model="keywords"
-          prefix-icon="el-icon-search"
+        <el-select
+          v-model="userId"
           size="small"
-          placeholder="请输入模块名或描述"
-          style="width:200px"
-          @keyup.enter.native="listLogs"
-        />
-        <el-button
-          type="primary"
-          size="small"
-          icon="el-icon-search"
-          style="margin-left:1rem"
-          @click="listLogs"
+          style="margin-right:1rem"
+          placeholder="请选择用户"
+          remote
+          clearable
+          filterable
+          :remote-method="listAllUsername"
         >
-          搜索
-        </el-button>
+          <el-option
+            v-for="item in usernameList"
+            :key="item.userId"
+            :value="item.userId"
+            :label="item.label"
+          />
+        </el-select>
+        <el-select
+          v-model="optModule"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择模块"
+          clearable
+          filterable
+        >
+          <el-option
+            v-for="item in moduleNameList"
+            :key="item.label"
+            :value="item.label"
+            :label="item.label"
+          />
+        </el-select>
+        <el-select
+          v-model="optType"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择类型"
+          clearable
+        >
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
+          />
+        </el-select>
+        <el-date-picker
+          v-model="startTime"
+          size="small"
+          type="datetime"
+          align="center"
+          style="margin-right:1rem"
+          placeholder="起始时间"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          :picker-options="pickerOptions"
+        >
+        </el-date-picker>
+        <el-date-picker
+          v-model="endTime"
+          size="small"
+          type="datetime"
+          align="right"
+          style="margin-right:1rem"
+          placeholder="结束时间"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          :picker-options="pickerOptions"
+        >
+        </el-date-picker>
       </div>
     </div>
-    <!-- 权限列表 -->
-    <el-table
-      @selection-change="selectionChange"
-      v-loading="loading"
-      :data="logList"
-    >
-      <el-table-column type="selection" width="55" align="center" />
+    <el-table v-loading="loading" :data="operationLogList" border>
+      <el-table-column
+        prop="username"
+        label="操作人员"
+        align="center"
+        width="160"
+      />
       <el-table-column
         prop="optModule"
-        label="系统模块"
+        label="操作模块"
         align="center"
         width="120"
-      />
-      <el-table-column prop="optType" label="操作类型" align="center" />
+      >
+        <template slot-scope="scope">
+          <el-tag>
+            {{ scope.row.optModule }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="optType"
+        label="操作类型"
+        align="center"
+        width="120"
+      >
+        <template slot-scope="scope">
+          <el-tag>
+            {{ switchOptType(scope.row.optType) }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="optDesc"
         label="操作描述"
         align="center"
-        width="130"
+        width="200"
       />
+      <el-table-column prop="optMethod" label="操作方法" align="center" />
       <el-table-column
-        prop="requetMethod"
-        label="请求方式"
+        prop="ipAddress"
+        label="ip地址"
         align="center"
-        width="100"
-      >
-        <template slot-scope="scope" v-if="scope.row.requestMethod">
-          <el-tag :type="tagType(scope.row.requestMethod)">
-            {{ scope.row.requestMethod }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="nickname" label="操作人员" align="center" />
-      <el-table-column
-        prop="ipAddr"
-        label="登录ip"
-        align="center"
-        width="130"
+        width="120"
       />
       <el-table-column
         prop="ipSource"
-        label="登录地址"
+        label="ip来源"
         align="center"
-        width="150"
+        width="120"
       />
       <el-table-column
         prop="createTime"
-        label="操作日期"
-        align="center"
+        label="操作时间"
         width="200"
+        align="center"
       >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="200">
+      <el-table-column label="操作" align="center" width="120">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="primary"
-            slot="reference"
-            @click="check(scope.row)"
-          >
+          <el-button type="primary" size="mini" @click="check(scope.row)">
             <i class="el-icon-view" /> 查看
           </el-button>
-          <el-popconfirm
-            title="确定删除吗？"
-            style="margin-left:10px"
-            @confirm="deleteLog(scope.row.id)"
-          >
-            <el-button size="mini" type="danger" slot="reference">
-              <i class="el-icon-delete" /> 删除
-            </el-button>
-          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
-    <!-- 分页 -->
     <el-pagination
+      :total="count"
+      :page-size="size"
+      :current-page.sync="current"
+      :page-sizes="[10, 20]"
       class="pagination-container"
+      layout="total, sizes, prev, pager, next, jumper"
       background
       @size-change="sizeChange"
       @current-change="currentChange"
-      :current-page="current"
-      :page-size="size"
-      :total="count"
-      :page-sizes="[10, 20]"
-      layout="total, sizes, prev, pager, next, jumper"
     />
-    <!-- 查看模态框 -->
-    <el-dialog :visible.sync="isCheck" width="40%">
+    <el-dialog :visible.sync="checkFlag" width="60%">
       <div class="dialog-title-container" slot="title">
         详细信息
       </div>
-
-      <el-form label-width="100px" size="mini">
-        <el-form-item label="操作模块：">
-          {{ optLog.optModule }}
+      <el-form size="medium" label-width="80">
+        <el-form-item label="操作人员: ">
+          {{ operationLog.username }}
         </el-form-item>
-        <el-form-item label="请求地址：">
-          {{ optLog.optUrl }}
-        </el-form-item>
-        <el-form-item label="请求方式：">
-          <el-tag :type="tagType(optLog.requestMethod)">
-            {{ optLog.requestMethod }}
+        <el-form-item label="操作模块: ">
+          <el-tag>
+            {{ operationLog.optModule }}
           </el-tag>
         </el-form-item>
-        <el-form-item label="操作方法：">
-          {{ optLog.optMethod }}
+        <el-form-item label="操作类型: ">
+          <el-tag>
+            {{ switchOptType(operationLog.optType) }}
+          </el-tag>
         </el-form-item>
-        <el-form-item label="请求参数：">
-          {{ optLog.requestParam }}
+        <el-form-item label="操作路径: ">
+          {{ operationLog.optUri }}
         </el-form-item>
-        <el-form-item label="返回数据：">
-          {{ optLog.responseData }}
+        <el-form-item label="操作方法: ">
+          {{ operationLog.optMethod }}
         </el-form-item>
-        <el-form-item label="操作人员：">
-          {{ optLog.nickname }}
+        <el-form-item label="操作描述: ">
+          {{ operationLog.optDesc }}
+        </el-form-item>
+        <el-form-item label="ip地址: ">
+          {{ operationLog.ipAddress }}
+        </el-form-item>
+        <el-form-item label="ip来源: ">
+          {{ operationLog.ipSource }}
+        </el-form-item>
+        <el-form-item label="操作时间: ">
+          {{ operationLog.createTime | dateTime }}
+        </el-form-item>
+        <el-form-item label="请求参数: " style="white-space: pre-line">
+          {{ operationLog.requestParam }}
+        </el-form-item>
+        <el-form-item label="响应数据: " style="white-space: pre-line">
+          {{ operationLog.responseData }}
         </el-form-item>
       </el-form>
-    </el-dialog>
-    <!-- 批量删除对话框 -->
-    <el-dialog :visible.sync="isDelete" width="30%">
-      <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
-      </div>
-      <div style="font-size:1rem">是否删除选中项？</div>
-      <div slot="footer">
-        <el-button @click="isDelete = false">取 消</el-button>
-        <el-button type="primary" @click="deleteLog(null)">
-          确 定
-        </el-button>
-      </div>
     </el-dialog>
   </el-card>
 </template>
@@ -173,101 +203,160 @@
 <script>
 export default {
   created() {
-    this.listLogs();
+    this.listOperationLogs();
+    this.listAllModuleName();
   },
-  data() {
+  data: function() {
     return {
+      options: [
+        {
+          value: 1,
+          label: "上传"
+        },
+        {
+          value: 2,
+          label: "删除"
+        },
+        {
+          value: 3,
+          label: "修改"
+        },
+        {
+          value: 4,
+          label: "查询"
+        },
+        {
+          value: 5,
+          label: "新增或修改"
+        }
+      ],
+      pickerOptions: {
+        shortcuts: [
+          {
+            text: "今天",
+            onClick(picker) {
+              picker.$emit("pick", new Date());
+            }
+          },
+          {
+            text: "昨天",
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() - 3600 * 1000 * 24);
+              picker.$emit("pick", date);
+            }
+          },
+          {
+            text: "一周前",
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit("pick", date);
+            }
+          }
+        ]
+      },
+      operationLog: {},
+      usernameList: [],
+      moduleNameList: [],
+      operationLogList: [],
+      userId: null,
+      endTime: null,
+      optType: null,
+      optModule: null,
+      startTime: null,
       loading: true,
-      logList: [],
-      logIdList: [],
-      keywords: null,
-      current: 1,
+      checkFlag: false,
       size: 10,
       count: 0,
-      isCheck: false,
-      isDelete: false,
-      optLog: {}
+      current: 1
     };
   },
   methods: {
-    selectionChange(logList) {
-      this.logIdList = [];
-      logList.forEach(item => {
-        this.logIdList.push(item.id);
-      });
+    check(operationLog) {
+      this.operationLog = JSON.parse(JSON.stringify(operationLog));
+      this.checkFlag = true;
     },
     sizeChange(size) {
       this.size = size;
-      this.listLogs();
+      this.listOperationLogs(true);
     },
     currentChange(current) {
       this.current = current;
-      this.listLogs();
+      this.listOperationLogs();
     },
-    listLogs() {
+    listOperationLogs(resetPageFlag = false) {
+      if (resetPageFlag) {
+        this.current = 1;
+      }
       this.axios
-        .get("/api/admin/operation/logs", {
+        .get("/api/back/operationLogs", {
           params: {
-            current: this.current,
             size: this.size,
-            keywords: this.keywords
+            userId: this.userId,
+            endTime: this.endTime,
+            current: this.current,
+            keywords: this.optModule,
+            startTime: this.startTime,
+            categoryId: this.optType
           }
         })
         .then(({ data }) => {
-          this.logList = data.data.recordList;
           this.count = data.data.count;
+          this.operationLogList = data.data.pageList;
           this.loading = false;
         });
     },
-    deleteLog(id) {
-      var param = {};
-      if (id != null) {
-        param = { data: [id] };
-      } else {
-        param = { data: this.logIdList };
-      }
-      this.axios.delete("/api/admin/operation/logs", param).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: "成功",
-            message: data.message
-          });
-          this.listLogs();
-        } else {
-          this.$notify.error({
-            title: "失败",
-            message: data.message
-          });
-        }
-        this.isDelete = false;
+    listAllModuleName() {
+      this.axios.get("/api/back/resource/moduleNames").then(({ data }) => {
+        this.moduleNameList = data.data;
       });
     },
-    check(optLog) {
-      this.optLog = JSON.parse(JSON.stringify(optLog));
-      this.isCheck = true;
+    listAllUsername(keywords) {
+      if (keywords.trim() === "") {
+        return;
+      }
+      this.axios
+        .get("/api/back/userAuth/usernames", { params: { keywords } })
+        .then(({ data }) => {
+          this.usernameList = data.data;
+        });
+    }
+  },
+  watch: {
+    userId() {
+      this.listOperationLogs(true);
+    },
+    endTime() {
+      this.listOperationLogs(true);
+    },
+    optType() {
+      this.listOperationLogs(true);
+    },
+    optModule() {
+      this.listOperationLogs(true);
+    },
+    startTime() {
+      this.listOperationLogs(true);
     }
   },
   computed: {
-    tagType() {
+    switchOptType() {
       return function(type) {
         switch (type) {
-          case "GET":
-            return "";
-          case "POST":
-            return "success";
-          case "PUT":
-            return "warning";
-          case "DELETE":
-            return "danger";
+          case 1:
+            return "上传";
+          case 2:
+            return "删除";
+          case 3:
+            return "修改";
+          case 4:
+            return "查询";
+          case 5:
+            return "新增或修改";
         }
       };
     }
   }
 };
 </script>
-
-<style scoped>
-label {
-  font-weight: bold !important;
-}
-</style>

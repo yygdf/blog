@@ -27,4 +27,61 @@
         ip_source,ip_address,create_user,
         create_time
     </sql>
+    <select id="selectOperationLogsBackDTOCount" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            tb_operation_log ol
+        <where>
+            1 = 1
+            <if test="condition.userId != null">
+                AND ol.user_id = #{condition.userId}
+            </if>
+            <if test="condition.categoryId != null">
+                AND ol.opt_type = #{condition.categoryId}
+            </if>
+            <if test="condition.startTime != null">
+                AND ol.create_time >= #{condition.startTime}
+            </if>
+            <if test="condition.endTime != null">
+                AND ol.create_time &lt;= #{condition.endTime}
+            </if>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND ol.opt_module = #{condition.keywords}
+            </if>
+        </where>
+    </select>
+    <select id="listOperationLogsBackDTO" resultType="com.iksling.blog.dto.OperationLogsBackDTO">
+        SELECT
+            ol.id,ol.user_id,ua.username,
+            ol.opt_uri,ol.opt_type,ol.opt_desc,
+            ol.opt_module,ol.opt_method,ol.request_param,
+            ol.response_data,ol.ip_source,ol.ip_address,
+            ol.create_time
+        FROM
+            tb_operation_log ol
+        LEFT JOIN tb_user_auth ua ON ol.user_id = ua.user_id
+        <where>
+            1 = 1
+            <if test="condition.userId != null">
+                AND ol.user_id = #{condition.userId}
+            </if>
+            <if test="condition.categoryId != null">
+                AND ol.opt_type = #{condition.categoryId}
+            </if>
+            <if test="condition.startTime != null">
+                AND ol.create_time >= #{condition.startTime}
+            </if>
+            <if test="condition.endTime != null">
+                AND ol.create_time &lt;= #{condition.endTime}
+            </if>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND ol.opt_module = #{condition.keywords}
+            </if>
+        </where>
+        ORDER BY
+            ol.id DESC
+        LIMIT
+            #{condition.current}, #{condition.size}
+    </select>
 </mapper>

@@ -142,7 +142,7 @@
         width="120"
       />
       <el-table-column
-        prop="loginTime"
+        prop="createTime"
         label="发生时间"
         width="200"
         align="center"

@@ -215,11 +215,13 @@
       <el-form :model="userConfig" size="medium" label-width="80">
         <el-form-item label="配 置 名">
           <el-input
+            :disabled="userConfig.id != null"
             v-model="userConfig.configName"
             :ref="userConfig.id ? '' : 'input'"
             style="width:250px"
             :maxLength="50"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="配 置 值">
           <el-input
@@ -228,6 +230,7 @@
             style="width:250px"
             :maxLength="255"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="配置描述">
           <el-input
@@ -236,7 +239,10 @@
             :maxLength="255"
           />
         </el-form-item>
-        <el-form-item v-if="checkCurrentUserId" label="开启同步">
+        <el-form-item
+          v-if="checkCurrentUserId && userConfigUserId === rootUserId"
+          label="开启同步"
+        >
           <el-switch
             v-model="userConfig.assimilateFlag"
             :active-value="true"
@@ -285,6 +291,7 @@ export default {
       keywords: null,
       rootUserId: null,
       oldKeywords: null,
+      userConfigUserId: null,
       loading: true,
       editStatus: false,
       deletedFlag: false,
@@ -303,9 +310,11 @@ export default {
           configValue: userConfig.configValue,
           configDesc: userConfig.configDesc
         };
+        this.userConfigUserId = userConfig.userId;
         this.$refs.userConfigTitle.innerHTML = "修改配置";
       } else {
         this.userConfig = {
+          id: null,
           configName: "",
           configValue: "",
           configDesc: ""

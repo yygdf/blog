@@ -43,8 +43,7 @@ public class ArticleController {
     @ApiImplicitParam(name = "articleBackVO", value = "文章后台VO", required = true, dataType = "ArticleBackVO")
     @PostMapping("/back/article")
     public Result saveOrUpdateBackArticle(@Valid @RequestBody ArticleBackVO articleBackVO) {
-        Integer id = articleService.saveOrUpdateArticleBackVO(articleBackVO);
-        return Result.success().message("操作成功").data(id);
+        return Result.success().message("操作成功").data(articleService.saveOrUpdateArticleBackVO(articleBackVO));
     }
 
     @ApiOperation(value = "查看后台文章列表")

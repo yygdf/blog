@@ -111,6 +111,7 @@
             style="width:250px"
             :maxLength="50"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="配 置 值">
           <el-input
@@ -119,6 +120,7 @@
             style="width:250px"
             :maxLength="255"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="配置描述">
           <el-input
@@ -240,7 +242,7 @@ export default {
     },
     deleteSystemConfig(id) {
       let param = { data: id };
-      if (this.messageList.length === 1) {
+      if (this.systemConfigList.length === 1) {
         this.current = --this.current > 1 ? this.current : 1;
       }
       this.axios.delete("/api/back/systemConfig", param).then(({ data }) => {

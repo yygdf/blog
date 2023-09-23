@@ -33,7 +33,12 @@
       @imgAdd="uploadArticleImg"
       @imgDel="deleteArticleImg"
     />
-    <el-dialog :visible.sync="addOrEditStatus" width="40%" top="10vh">
+    <el-dialog
+      :visible.sync="addOrEditStatus"
+      width="40%"
+      top="10vh"
+      @close="cancelSaveOrUpdateArticle"
+    >
       <div class="dialog-title-container" slot="title">
         上传文章
       </div>
@@ -66,12 +71,13 @@
         </el-form-item>
         <el-form-item label="上传封面">
           <el-upload
-            :limit="1"
+            ref="upload"
             action=""
             class="upload-cover"
-            drag
+            :on-change="changeCover"
             :on-remove="updateCover"
             :http-request="uploadCover"
+            drag
           >
             <i class="el-icon-upload" v-if="!article.articleCover" />
             <div class="el-upload__text" v-if="!article.articleCover">
@@ -141,7 +147,7 @@ export default {
           data.data.categoryId = null;
         }
         this.article = data.data;
-        this.articleOrigin = data.data;
+        this.articleOrigin = JSON.parse(JSON.stringify(data.data));
       });
     }
     this.listArticleOptions();
@@ -285,12 +291,17 @@ export default {
           });
       }
     },
+    changeCover(file, fileList) {
+      if (fileList.length > 1) {
+        fileList.splice(0, 1);
+      }
+    },
     updateCover() {
       this.updateImg(this.article.articleCover);
       this.article.articleCover = "";
     },
     uploadCover(form) {
-      if (this.article.articleCover !== "") {
+      if (this.article.articleCover !== this.articleOrigin.articleCover) {
         this.updateImg(this.article.articleCover);
       }
       this.uploadImg(null, form.file);
@@ -334,20 +345,25 @@ export default {
         return false;
       }
       this.article.draftFlag = true;
-      this.axios.post("/api/back/article", this.contrastObjectOrigin(this.article, this.articleOrigin)).then(({ data }) => {
-        if (data.flag) {
-          this.article.id = data.data;
-          this.$notify.success({
-            title: "成功",
-            message: "保存草稿成功"
-          });
-        } else {
-          this.$notify.error({
-            title: "失败",
-            message: "保存草稿失败"
-          });
-        }
-      });
+      this.axios
+        .post(
+          "/api/back/article",
+          this.contrastObjectOrigin(this.article, this.articleOrigin)
+        )
+        .then(({ data }) => {
+          if (data.flag) {
+            this.article.id = data.data;
+            this.$notify.success({
+              title: "成功",
+              message: "保存草稿成功"
+            });
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: "保存草稿失败"
+            });
+          }
+        });
       this.autoSave = false;
     },
     saveOrUpdateArticle() {
@@ -380,6 +396,13 @@ export default {
       });
       this.addOrEditStatus = false;
       this.autoSave = false;
+    },
+    cancelSaveOrUpdateArticle() {
+      if (this.article.articleCover !== this.articleOrigin.articleCover) {
+        this.updateImg(this.article.articleCover);
+        this.$refs.upload.clearFiles();
+        this.article.articleCover = this.articleOrigin.articleCover;
+      }
     }
   },
   watch: {

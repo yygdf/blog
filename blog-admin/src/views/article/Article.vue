@@ -77,12 +77,7 @@
             <div class="el-upload__text" v-if="!article.articleCover">
               将文件拖到此处，或<em>点击上传</em>
             </div>
-            <img
-              v-else
-              :src="article.articleCover"
-              width="360"
-              height="180"
-            />
+            <img v-else :src="article.articleCover" width="360" height="180" />
           </el-upload>
         </el-form-item>
       </el-form>

@@ -98,7 +98,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
             Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>()
                     .select(Role::getRoleName)
                     .eq(Role::getId, commonStatusVO.getId()));
-            disabledRole(role.getRoleName());
+            offlineByRoleName(role.getRoleName());
         }
     }
 
@@ -153,7 +153,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
             if (count != 1)
                 throw new IllegalRequestException();
             if (Objects.nonNull(role.getDisabledFlag()) && role.getDisabledFlag())
-                disabledRole(role.getRoleName());
+                offlineByRoleName(role.getRoleName());
         }
     }
 
@@ -198,7 +198,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
                 .collect(Collectors.toList());
     }
 
-    private void disabledRole(String roleName) {
+    private void offlineByRoleName(String roleName) {
         List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(item -> {
             LoginUser loginUser = (LoginUser) item;
             return loginUser.getRoleList().contains(roleName);

@@ -17,7 +17,13 @@
               <span>{{ route.name }}</span>
             </template>
             <template v-for="(item, index) of route.children">
-              <el-menu-item :index="item.path" :key="index" v-if="!item.hideFlag" :disabled="checkDisabledFlag(item.disabledFlag)" :style="checkStyle(item.hiddenFlag, item.disabledFlag)">
+              <el-menu-item
+                :index="item.path"
+                :key="index"
+                v-if="!item.hideFlag"
+                :disabled="checkDisabledFlag(item.disabledFlag)"
+                :style="checkStyle(item.hiddenFlag, item.disabledFlag)"
+              >
                 <i :class="item.icon" />
                 <span slot="title">{{ item.name }}</span>
               </el-menu-item>
@@ -25,7 +31,12 @@
           </el-submenu>
         </template>
         <template v-else>
-          <el-menu-item :index="route.path" :key="route.path" :disabled="checkDisabledFlag(route.disabledFlag)" :style="checkStyle(route.hiddenFlag, route.disabledFlag)">
+          <el-menu-item
+            :index="route.path"
+            :key="route.path"
+            :disabled="checkDisabledFlag(route.disabledFlag)"
+            :style="checkStyle(route.hiddenFlag, route.disabledFlag)"
+          >
             <i :class="route.icon" />
             <span>{{ route.children[0].name }}</span>
             <template slot="title">

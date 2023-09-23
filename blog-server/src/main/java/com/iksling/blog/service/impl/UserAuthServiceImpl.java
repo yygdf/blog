@@ -154,7 +154,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                         .set(UserAuth::getUserConfigFlag, true)
                         .eq(UserAuth::getUserId, userAuthBackVO.getId()));
             }
-        deleteUserIdList(Collections.singletonList(userAuthBackVO.getId()));
+        offlineByUserIdList(Collections.singletonList(userAuthBackVO.getId()));
     }
 
     @Override
@@ -172,10 +172,10 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         if (count != 1)
             throw new IllegalRequestException();
         if (commonStatusVO.getPublicFlag() || (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag()))
-            deleteUserIdList(Collections.singletonList(commonStatusVO.getId()));
+            offlineByUserIdList(Collections.singletonList(commonStatusVO.getId()));
     }
 
-    private void deleteUserIdList(List<Integer> idList) {
+    private void offlineByUserIdList(List<Integer> idList) {
         List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(item -> {
             LoginUser loginUser = (LoginUser) item;
             return idList.contains(loginUser.getUserId());

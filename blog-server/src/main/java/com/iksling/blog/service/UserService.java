@@ -8,6 +8,7 @@ import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserBackVO;
+import com.iksling.blog.vo.UserVO;
 
 import java.util.List;
 
@@ -29,4 +30,6 @@ public interface UserService extends IService<User> {
     PagePojo<UserOnlinesBackDTO> getPageUserOnlinesBackDTO(ConditionVO condition);
 
     void deleteUserOnlineIdList(List<Integer> userOnlineIdList);
+
+    void updateUserVO(UserVO userVO);
 }

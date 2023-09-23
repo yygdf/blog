@@ -49,7 +49,7 @@
           v-model="keywords"
           ref="input"
           size="small"
-          style="width:200px"
+          style="width: 200px"
           prefix-icon="el-icon-search"
           placeholder="请输入用户名或昵称"
           clearable
@@ -215,7 +215,7 @@
             v-model="user.username"
             :maxlength="50"
             ref="input"
-            style="width:200px"
+            style="width: 200px"
             @keyup.native="usernameInputChange($event)"
             @keyup.enter.native="getUsernameExistFlag"
           />&nbsp;
@@ -237,7 +237,7 @@
             v-model="user.nickname"
             :maxlength="50"
             :ref="user.id || user.id === 0 ? 'input' : ''"
-            style="width:200px"
+            style="width: 200px"
           />
           <span style="color: red;"> *</span>
         </el-form-item>
@@ -245,7 +245,7 @@
           <el-input
             v-model="user.email"
             :maxlength="50"
-            style="width:200px"
+            style="width: 200px"
             @keyup.native="emailInputChange($event)"
             @keyup.enter.native="getEmailExistFlag"
           />&nbsp;
@@ -270,13 +270,13 @@
           ></span>
         </el-form-item>
         <el-form-item label="介绍">
-          <el-input v-model="user.intro" :maxlength="50" style="width:200px" />
+          <el-input v-model="user.intro" :maxlength="50" style="width: 200px" />
         </el-form-item>
         <el-form-item label="网站">
           <el-input
             v-model="user.website"
             :maxlength="255"
-            style="width:200px"
+            style="width: 200px"
           />
         </el-form-item>
         <el-form-item label="头像" v-if="user.id || user.id === 0">

@@ -2,15 +2,31 @@
   <el-card class="main-card">
     <el-tabs v-model="activeName">
       <el-tab-pane label="基本信息" name="info">
-        <el-form label-width="80px" :model="userForm" style="width:320px;">
+        <el-form label-width="80px" :model="userForm">
           <el-form-item label="昵称">
-            <el-input v-model="userForm.nickname" size="small" />
+            <el-input
+              v-model="userForm.nickname"
+              size="small"
+              style="width: 200px"
+              :maxLength="50"
+            />
+            <span style="color: red;"> *</span>
           </el-form-item>
           <el-form-item label="简介">
-            <el-input v-model="userForm.intro" size="small" />
+            <el-input
+              v-model="userForm.intro"
+              size="small"
+              style="width: 200px"
+              :maxLength="50"
+            />
           </el-form-item>
           <el-form-item label="网站">
-            <el-input v-model="userForm.webSite" size="small" />
+            <el-input
+              v-model="userForm.website"
+              size="small"
+              style="width: 200px"
+              :maxLength="255"
+            />
           </el-form-item>
           <el-button
             @click="updateInfo"
@@ -29,7 +45,7 @@
               v-model="passwordForm.oldPassword"
               ref="input"
               size="small"
-              style="width: 240px"
+              style="width: 200px"
               show-password
               @keyup.native="oldPasswordInputChange"
             />&nbsp;
@@ -50,7 +66,7 @@
             <el-input
               v-model="passwordForm.newPassword"
               size="small"
-              style="width: 240px"
+              style="width: 200px"
               show-password
               @keyup.native="passwordInputChange(true)"
             />&nbsp;
@@ -71,7 +87,7 @@
             <el-input
               v-model="passwordForm.confirmPassword"
               size="small"
-              style="width: 240px"
+              style="width: 200px"
               show-password
               @keyup.native="passwordInputChange()"
             />&nbsp;
@@ -104,7 +120,7 @@
         </el-form>
       </el-tab-pane>
       <el-tab-pane label="修改头像" name="avatar">
-        <el-form label-width="80px" :model="avatarForm" style="width:320px;">
+        <el-form label-width="80px" :model="avatarForm" style="width: 200px">
           <el-form-item label="头像">
             <el-button
               id="pick-avatar"
@@ -115,7 +131,7 @@
             <avatar-cropper
               @uploaded="uploadedAvatar"
               trigger="#pick-avatar"
-              upload-url="/api/back/users/avatar"
+              upload-url="/api/user/avatar"
             />
           </el-form-item>
         </el-form>
@@ -137,9 +153,9 @@ export default {
       userId: this.$store.state.userId,
       activeName: "info",
       userForm: {
-        nickname: this.$store.state.nickname,
         intro: this.$store.state.intro,
-        webSite: this.$store.state.webSite
+        website: this.$store.state.website,
+        nickname: this.$store.state.nickname
       },
       avatarForm: {
         avatar: this.$store.state.avatar
@@ -157,7 +173,7 @@ export default {
         this.$message.error("昵称不能为空");
         return false;
       }
-      this.axios.put("/api/users/info", this.userForm).then(({ data }) => {
+      this.axios.put("/api/user", this.userForm).then(({ data }) => {
         if (data.flag) {
           this.$message.success(data.message);
           this.$store.commit("updateUserInfo", this.userForm);

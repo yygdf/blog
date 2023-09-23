@@ -42,7 +42,7 @@
           v-model="keywords"
           ref="input"
           size="small"
-          style="width:200px"
+          style="width: 200px"
           prefix-icon="el-icon-search"
           placeholder="请输入分类名"
           clearable
@@ -183,7 +183,7 @@
           <el-input
             v-model="category.categoryName"
             ref="input"
-            style="width:200px"
+            style="width: 200px"
             :maxLength="50"
           />
           <span style="color: red;"> *</span>

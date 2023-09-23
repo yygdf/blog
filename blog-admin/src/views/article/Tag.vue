@@ -42,7 +42,7 @@
           v-model="keywords"
           ref="input"
           size="small"
-          style="width:200px"
+          style="width: 200px"
           placeholder="请输入标签名"
           prefix-icon="el-icon-search"
           clearable
@@ -149,7 +149,7 @@
           <el-input
             v-model="tag.tagName"
             ref="input"
-            style="width:200px"
+            style="width: 200px"
             :maxLength="50"
           />
           <span style="color: red;"> *</span>

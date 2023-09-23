@@ -15,7 +15,7 @@
           v-model="keywords"
           ref="input"
           size="small"
-          style="width:200px"
+          style="width: 200px"
           prefix-icon="el-icon-search"
           placeholder="请输入菜单名"
           clearable
@@ -174,7 +174,7 @@
             v-model="menu.name"
             :maxlength="50"
             ref="input"
-            style="width:200px"
+            style="width: 200px"
           />
           <span style="color: red;"> *</span>
         </el-form-item>
@@ -182,7 +182,7 @@
           <el-input
             v-model="menu.icon"
             :prefix-icon="menu.icon"
-            style="width:200px"
+            style="width: 200px"
             @focus="showIcon = true"
             @blur="showIcon = false"
           />
@@ -202,14 +202,14 @@
           </div>
         </el-form-item>
         <el-form-item label="菜单路径">
-          <el-input v-model="menu.path" :maxlength="50" style="width:200px" />
+          <el-input v-model="menu.path" :maxlength="50" style="width: 200px" />
           <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="菜单组件">
           <el-input
             v-model="menu.component"
             :maxlength="50"
-            style="width:200px"
+            style="width: 200px"
           />
           <span style="color: red;"> *</span>
         </el-form-item>

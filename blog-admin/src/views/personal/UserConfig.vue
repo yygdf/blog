@@ -68,7 +68,7 @@
           v-model="keywords"
           ref="input"
           size="small"
-          style="width:200px"
+          style="width: 200px"
           prefix-icon="el-icon-search"
           placeholder="请输入配置名或描述"
           clearable
@@ -218,7 +218,7 @@
             :disabled="userConfig.id != null"
             v-model="userConfig.configName"
             :ref="userConfig.id ? '' : 'input'"
-            style="width:250px"
+            style="width: 200px"
             :maxLength="50"
           />
           <span style="color: red;"> *</span>
@@ -227,7 +227,7 @@
           <el-input
             v-model="userConfig.configValue"
             :ref="userConfig.id ? 'input' : ''"
-            style="width:250px"
+            style="width: 200px"
             :maxLength="255"
           />
           <span style="color: red;"> *</span>
@@ -235,7 +235,7 @@
         <el-form-item label="配置描述">
           <el-input
             v-model="userConfig.configDesc"
-            style="width:250px"
+            style="width: 200px"
             :maxLength="255"
           />
         </el-form-item>

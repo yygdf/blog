@@ -7,6 +7,7 @@ import com.iksling.blog.service.UserService;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserBackVO;
+import com.iksling.blog.vo.UserVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-
 import java.util.List;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
@@ -87,6 +87,15 @@ public class UserController {
     @DeleteMapping("/back/user/onlines")
     public Result deleteBackUserOnlines(@RequestBody List<Integer> userOnlineIdList) {
         userService.deleteUserOnlineIdList(userOnlineIdList);
+        return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "修改用户信息")
+    @ApiImplicitParam(name = "userVO", value = "用户VO", required = true, dataType = "UserVO")
+    @PutMapping("/user")
+    public Result updateUser(@Valid @RequestBody UserVO userVO) {
+        userService.updateUserVO(userVO);
         return Result.success().message("操作成功");
     }
 }

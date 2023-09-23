@@ -18,7 +18,7 @@
           <el-avatar :src="this.$store.state.avatar" :size="40" />
           <i class="el-icon-caret-bottom" />
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="setting">
+            <el-dropdown-item command="personal">
               <i class="el-icon-headset" />个人中心
             </el-dropdown-item>
             <el-dropdown-item command="logout" divided>
@@ -132,8 +132,8 @@ export default {
       }
     },
     handleCommand(command) {
-      if (command === "setting") {
-        this.$router.push({ path: "/setting" });
+      if (command === "personal") {
+        this.$router.push({ path: "/personal" });
       }
       if (command === "logout") {
         this.axios.post("/api/logout");

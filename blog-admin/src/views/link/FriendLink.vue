@@ -66,7 +66,7 @@
           v-model="keywords"
           ref="input"
           size="small"
-          style="width:200px"
+          style="width: 200px"
           prefix-icon="el-icon-search"
           placeholder="请输入友链名"
           clearable
@@ -214,7 +214,7 @@
           <el-select
             v-model="friendLink.userId"
             ref="input"
-            style="width:250px"
+            style="width: 200px"
             placeholder="请选择用户"
             remote
             clearable
@@ -228,35 +228,40 @@
               :label="item.label"
             />
           </el-select>
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="友链名称">
           <el-input
             v-model="friendLink.linkName"
             :ref="friendLink.id ? 'input' : ''"
-            style="width:250px"
+            style="width: 200px"
             :maxLength="50"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="友链描述">
           <el-input
             v-model="friendLink.linkDesc"
-            style="width:250px"
+            style="width: 200px"
             :maxLength="50"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="友链图标">
           <el-input
             v-model="friendLink.linkLogo"
-            style="width:250px"
+            style="width: 200px"
             :maxLength="255"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="友链地址">
           <el-input
             v-model="friendLink.linkUrl"
-            style="width:250px"
+            style="width: 200px"
             :maxLength="255"
           />
+          <span style="color: red;"> *</span>
         </el-form-item>
       </el-form>
       <div slot="footer">

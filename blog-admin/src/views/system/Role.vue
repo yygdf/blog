@@ -15,7 +15,7 @@
           v-model="keywords"
           ref="input"
           size="small"
-          style="width:200px"
+          style="width: 200px"
           prefix-icon="el-icon-search"
           placeholder="请输入角色名"
           clearable
@@ -117,7 +117,7 @@
             :disabled="role.id != null"
             :ref="role.id ? '' : 'input'"
             :maxlength="50"
-            style="width:200px"
+            style="width: 200px"
           />
           <span style="color: red;"> *</span>
         </el-form-item>
@@ -126,7 +126,7 @@
             v-model="role.roleDesc"
             :ref="role.id ? 'input' : ''"
             :maxlength="50"
-            style="width:200px"
+            style="width: 200px"
           />
           <span style="color: red;"> *</span>
         </el-form-item>
@@ -161,7 +161,7 @@
       <div class="dialog-title-container" slot="title">修改菜单权限</div>
       <el-form :model="role" size="medium" label-width="80px">
         <el-form-item label="角色名称">
-          <el-input v-model="role.roleName" style="width:200px" disabled />
+          <el-input v-model="role.roleName" style="width: 200px" disabled />
         </el-form-item>
         <el-form-item label="菜单权限">
           <el-tree
@@ -184,7 +184,7 @@
       <div class="dialog-title-container" slot="title">修改资源权限</div>
       <el-form :model="role" size="medium" label-width="80px">
         <el-form-item label="角色名称">
-          <el-input v-model="role.roleName" style="width:200px" disabled />
+          <el-input v-model="role.roleName" style="width: 200px" disabled />
         </el-form-item>
         <el-form-item label="资源权限">
           <el-tree

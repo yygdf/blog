@@ -1,6 +1,7 @@
 package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -22,6 +23,7 @@ import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserBackVO;
+import com.iksling.blog.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -181,6 +183,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<SessionInformation> allSessions = new ArrayList<>();
         loginUserList.forEach(item -> allSessions.addAll(sessionRegistry.getAllSessions(item, false)));
         allSessions.forEach(SessionInformation::expireNow);
+    }
+
+    @Override
+    @Transactional
+    public void updateUserVO(UserVO userVO) {
+        LambdaUpdateWrapper<User> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        if (Objects.nonNull(userVO.getIntro()))
+            lambdaUpdateWrapper.set(User::getIntro, userVO.getIntro().trim());
+        if (Objects.nonNull(userVO.getWebsite()))
+            lambdaUpdateWrapper.set(User::getWebsite, userVO.getWebsite().trim());
+        userMapper.update(null, lambdaUpdateWrapper
+                .set(User::getNickname, userVO.getNickname().trim())
+                .eq(User::getId, UserUtil.getLoginUser().getUserId()));
     }
 }
 

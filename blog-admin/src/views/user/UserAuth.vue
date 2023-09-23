@@ -64,7 +64,7 @@
           v-model="keywords"
           ref="input"
           size="small"
-          style="width:200px"
+          style="width: 200px"
           prefix-icon="el-icon-search"
           placeholder="请输入用户名"
           clearable
@@ -200,13 +200,13 @@
       <div class="dialog-title-container" slot="title" ref="userAuthTitle" />
       <el-form :model="userAuth" size="medium" label-width="80">
         <el-form-item label="账号">
-          <el-input v-model="userAuth.username" style="width:200px" disabled />
+          <el-input v-model="userAuth.username" style="width: 200px" disabled />
         </el-form-item>
         <el-form-item label="密码">
           <el-input
             v-model="userAuth.password"
             ref="input"
-            style="width:200px"
+            style="width: 200px"
             show-password
             @keyup.native="passwordInputChange(true)"
           />&nbsp;
@@ -226,7 +226,7 @@
         <el-form-item label="确认">
           <el-input
             v-model="userAuth.confirmPassword"
-            style="width:200px"
+            style="width: 200px"
             show-password
             @keyup.native="passwordInputChange()"
           />&nbsp;

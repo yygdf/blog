@@ -73,7 +73,7 @@
           :disabled="sourceFlag"
           ref="input"
           size="small"
-          style="width:200px"
+          style="width: 200px"
           prefix-icon="el-icon-search"
           placeholder="请输入文章标题"
           clearable

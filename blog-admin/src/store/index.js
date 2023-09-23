@@ -13,7 +13,7 @@ export default new Vuex.Store({
     intro: "",
     avatar: "",
     weight: 1000,
-    webSite: "",
+    website: "",
     nickname: "",
     userMenuList: [],
     currentRoutePath: "/",
@@ -41,7 +41,7 @@ export default new Vuex.Store({
       state.email = user.email;
       state.avatar = user.avatar;
       state.weight = user.weight;
-      state.webSite = user.webSite;
+      state.website = user.website;
       state.nickname = user.nickname;
     },
     saveUserMenuList(state, userMenuList) {
@@ -53,7 +53,7 @@ export default new Vuex.Store({
       state.email = "";
       state.avatar = "";
       state.weight = 1000;
-      state.webSite = "";
+      state.website = "";
       state.nickname = "";
       state.userMenuList = [];
       state.articleUserId = null;
@@ -63,7 +63,7 @@ export default new Vuex.Store({
     },
     updateUserInfo(state, user) {
       state.intro = user.intro;
-      state.webSite = user.webSite;
+      state.website = user.website;
       state.nickname = user.nickname;
     },
     updateArticleUserId(state, userId) {

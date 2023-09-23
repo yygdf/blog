@@ -72,6 +72,7 @@
           placeholder="起始时间"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
+          @change="listExceptionLogs(true)"
         >
         </el-date-picker>
         <el-date-picker
@@ -83,6 +84,7 @@
           placeholder="结束时间"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
+          @change="listExceptionLogs(true)"
         >
         </el-date-picker>
       </div>
@@ -360,16 +362,10 @@ export default {
     userId() {
       this.listExceptionLogs(true);
     },
-    endTime() {
-      this.listExceptionLogs(true);
-    },
     optType() {
       this.listExceptionLogs(true);
     },
     optModule() {
-      this.listExceptionLogs(true);
-    },
-    startTime() {
       this.listExceptionLogs(true);
     },
     illegalFlag() {

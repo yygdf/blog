@@ -57,6 +57,7 @@
           placeholder="起始时间"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
+          @change="listLoginLogs(true)"
         >
         </el-date-picker>
         <el-date-picker
@@ -68,6 +69,7 @@
           placeholder="结束时间"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
+          @change="listLoginLogs(true)"
         >
         </el-date-picker>
       </div>
@@ -266,13 +268,7 @@ export default {
     userId() {
       this.listLoginLogs(true);
     },
-    endTime() {
-      this.listLoginLogs(true);
-    },
     loginMethod() {
-      this.listLoginLogs(true);
-    },
-    startTime() {
       this.listLoginLogs(true);
     },
     loginPlatform() {

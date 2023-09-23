@@ -58,6 +58,7 @@
           placeholder="起始时间"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
+          @change="listOperationLogs(true)"
         >
         </el-date-picker>
         <el-date-picker
@@ -69,6 +70,7 @@
           placeholder="结束时间"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
+          @change="listOperationLogs(true)"
         >
         </el-date-picker>
       </div>
@@ -323,16 +325,10 @@ export default {
     userId() {
       this.listOperationLogs(true);
     },
-    endTime() {
-      this.listOperationLogs(true);
-    },
     optType() {
       this.listOperationLogs(true);
     },
     optModule() {
-      this.listOperationLogs(true);
-    },
-    startTime() {
       this.listOperationLogs(true);
     }
   },

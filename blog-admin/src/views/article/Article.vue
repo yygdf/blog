@@ -141,6 +141,7 @@ export default {
           data.data.categoryId = null;
         }
         this.article = data.data;
+        this.articleOrigin = data.data;
       });
     }
     this.listArticleOptions();
@@ -152,11 +153,28 @@ export default {
   data: function() {
     return {
       article: {
+        categoryId: null,
         articleTitle: this.$moment(new Date()).format("YYYY-MM-DD"),
+        articleCover: "",
         articleContent: "",
+        topFlag: false,
         draftFlag: true,
         publicFlag: true,
-        commentableFlag: true
+        hiddenFlag: false,
+        commentableFlag: true,
+        tagIdList: []
+      },
+      articleOrigin: {
+        categoryId: null,
+        articleTitle: "",
+        articleCover: "",
+        articleContent: "",
+        topFlag: false,
+        draftFlag: true,
+        publicFlag: true,
+        hiddenFlag: false,
+        commentableFlag: true,
+        tagIdList: []
       },
       tagList: [],
       categoryList: [],
@@ -185,6 +203,19 @@ export default {
     }
   },
   methods: {
+    contrastObjectOrigin(obj, objOrigin) {
+      let param = {};
+      Object.keys(obj).forEach(key => {
+        if (obj[key] instanceof Array) {
+          if (JSON.stringify(obj[key]) !== JSON.stringify(objOrigin[key])) {
+            param[key] = obj[key];
+          }
+        } else if (obj[key] !== objOrigin[key]) {
+          param[key] = obj[key];
+        }
+      });
+      return param;
+    },
     checkArticleUserIdIsNull() {
       return this.$store.state.articleUserId == null
         ? ""
@@ -303,7 +334,7 @@ export default {
         return false;
       }
       this.article.draftFlag = true;
-      this.axios.post("/api/back/article", this.article).then(({ data }) => {
+      this.axios.post("/api/back/article", this.contrastObjectOrigin(this.article, this.articleOrigin)).then(({ data }) => {
         if (data.flag) {
           this.article.id = data.data;
           this.$notify.success({

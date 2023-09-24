@@ -9,17 +9,17 @@ public enum FilePathEnum {
     /**
      * 聊天室音频目录
      */
-    VOICE(1, "voice/chat/", "聊天室音频目录", 1, "MB"),
+    VOICE_CHAT(1, "voice/chat/", "聊天室音频目录", 1, "MB"),
 
     /**
      * 用户头像目录
      */
-    AVATAR(2, "img/avatar/", "用户头像目录", 1, "MB"),
+    IMG_AVATAR(2, "img/avatar/", "用户头像目录", 1, "MB"),
 
     /**
      * 文章图片目录
      */
-    ARTICLE(3, "img/article/", "文章图片目录", 5, "MB");
+    IMG_ARTICLE(3, "img/article/", "文章图片目录", 5, "MB");
 
     /**
      * id

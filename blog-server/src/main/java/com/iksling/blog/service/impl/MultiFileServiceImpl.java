@@ -52,8 +52,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         MultipartFile file = articleImageBackVO.getFile();
         if (!FileUploadUtil.checkImageFileType(file))
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
-        if (!FileUploadUtil.checkFileSize(file.getSize(), FilePathEnum.ARTICLE.getSize(), FilePathEnum.ARTICLE.getUnit()))
-            throw new FileStatusException("文件大小超出限制!文件最大为{" + FilePathEnum.ARTICLE.getSize() + FilePathEnum.ARTICLE.getUnit() + "}");
+        if (!FileUploadUtil.checkFileSize(file.getSize(), FilePathEnum.IMG_ARTICLE.getSize(), FilePathEnum.IMG_ARTICLE.getUnit()))
+            throw new FileStatusException("文件大小超出限制!文件最大为{" + FilePathEnum.IMG_ARTICLE.getSize() + FilePathEnum.IMG_ARTICLE.getUnit() + "}");
         if (Objects.nonNull(articleUserId) && loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(articleUserId))
             throw new IllegalRequestException();
         Integer count;
@@ -70,7 +70,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         if (Objects.isNull(articleUserId))
             articleUserId = loginUser.getUserId();
         String fireSubDir = articleUserId + "/" + articleImageBackVO.getFileSubDir().trim() + "/";
-        String targetAddr = FilePathEnum.ARTICLE.getPath() + fireSubDir;
+        String targetAddr = FilePathEnum.IMG_ARTICLE.getPath() + fireSubDir;
         String url = FileUploadUtil.upload(file, targetAddr);
         if (Objects.isNull(url))
             throw new FileStatusException("文件上传失败!");
@@ -78,7 +78,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(articleUserId)
-                .multiDirId(FilePathEnum.ARTICLE.getId())
+                .multiDirId(FilePathEnum.IMG_ARTICLE.getId())
                 .fileUrl(url)
                 .fileDesc("用户[" + articleUserId + "], 文章id[" + articleImageBackVO.getFileSubDir() + "]中的插图")
                 .fileName(file.getOriginalFilename())
@@ -113,10 +113,10 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         MultipartFile file = userAvatarBackVO.getFile();
         if (!FileUploadUtil.checkImageFileType(file))
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
-        if (!FileUploadUtil.checkFileSize(file.getSize(), FilePathEnum.AVATAR.getSize(), FilePathEnum.AVATAR.getUnit()))
-            throw new FileStatusException("文件大小超出限制!文件最大为{" + FilePathEnum.AVATAR.getSize() + FilePathEnum.AVATAR.getUnit() + "}");
+        if (!FileUploadUtil.checkFileSize(file.getSize(), FilePathEnum.IMG_AVATAR.getSize(), FilePathEnum.IMG_AVATAR.getUnit()))
+            throw new FileStatusException("文件大小超出限制!文件最大为{" + FilePathEnum.IMG_AVATAR.getSize() + FilePathEnum.IMG_AVATAR.getUnit() + "}");
         String fireSubDir = userId + "/";
-        String targetAddr = FilePathEnum.AVATAR.getPath() + fireSubDir;
+        String targetAddr = FilePathEnum.IMG_AVATAR.getPath() + fireSubDir;
         String url = FileUploadUtil.upload(file, targetAddr);
         if (Objects.isNull(url))
             throw new FileStatusException("文件上传失败!");
@@ -124,7 +124,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(userId)
-                .multiDirId(FilePathEnum.AVATAR.getId())
+                .multiDirId(FilePathEnum.IMG_AVATAR.getId())
                 .fileUrl(url)
                 .fileDesc("用户[" + userId + "]的头像")
                 .fileName(file.getOriginalFilename())

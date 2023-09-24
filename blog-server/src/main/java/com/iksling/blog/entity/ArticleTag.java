@@ -37,6 +37,11 @@ public class ArticleTag implements Serializable {
      */
     private Integer articleId;
 
+    /**
+     * 0未删除，1已删除，默认0
+     */
+    private Boolean deletedFlag;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

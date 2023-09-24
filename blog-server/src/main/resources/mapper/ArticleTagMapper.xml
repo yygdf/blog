@@ -8,10 +8,12 @@
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="tagId" column="tag_id" jdbcType="INTEGER"/>
             <result property="articleId" column="article_id" jdbcType="INTEGER"/>
+            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,tag_id,article_id
+        id,tag_id,article_id,
+        deleted_flag
     </sql>
 
     <delete id="deleteByTagIdList">

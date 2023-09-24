@@ -9,16 +9,11 @@ import com.iksling.blog.dto.ArticleBackDTO;
 import com.iksling.blog.dto.ArticleOptionDTO;
 import com.iksling.blog.dto.ArticlesBackDTO;
 import com.iksling.blog.dto.LabelDTO;
-import com.iksling.blog.entity.Article;
-import com.iksling.blog.entity.ArticleTag;
-import com.iksling.blog.entity.Category;
-import com.iksling.blog.entity.Tag;
+import com.iksling.blog.entity.*;
 import com.iksling.blog.enums.FilePathEnum;
 import com.iksling.blog.exception.IllegalRequestException;
-import com.iksling.blog.mapper.ArticleMapper;
-import com.iksling.blog.mapper.ArticleTagMapper;
-import com.iksling.blog.mapper.CategoryMapper;
-import com.iksling.blog.mapper.TagMapper;
+import com.iksling.blog.exception.OperationStatusException;
+import com.iksling.blog.mapper.*;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.ArticleService;
@@ -54,11 +49,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     private ArticleMapper articleMapper;
 
     @Autowired
-    private ArticleTagMapper articleTagMapper;
-    @Autowired
     private TagMapper tagMapper;
     @Autowired
     private CategoryMapper categoryMapper;
+    @Autowired
+    private MultiFileMapper multiFileMapper;
+    @Autowired
+    private ArticleTagMapper articleTagMapper;
 
     @Autowired
     private ArticleTagService articleTagService;
@@ -123,15 +120,18 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Transactional(rollbackFor = Exception.class)
     public Integer saveOrUpdateArticleBackVO(ArticleBackVO articleBackVO) {
         LoginUser loginUser =  UserUtil.getLoginUser();
-        articleBackVO.setArticleTitle(articleBackVO.getArticleTitle().trim());
         Article article = BeanCopyUtil.copyObject(articleBackVO, Article.class);
         if (Objects.isNull(article.getId())) {
+            if (StringUtils.isBlank(article.getArticleTitle()) || StringUtils.isBlank(article.getArticleContent()))
+                throw new OperationStatusException("文章标题或者内容不允许为空!");
             article.setUserId(loginUser.getUserId());
             article.setIpAddress(IpUtil.getIpAddress(request));
             article.setIpSource(IpUtil.getIpSource(article.getIpAddress()));
             article.setCreateUser(loginUser.getUserId());
             article.setCreateTime(new Date());
-            if (!article.getDraftFlag()) {
+            if (Objects.nonNull(article.getDraftFlag()) && !article.getDraftFlag()) {
+                if (Objects.isNull(article.getCategoryId()))
+                    throw new OperationStatusException("文章分类不允许为空!");
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                         .eq(Category::getId, article.getCategoryId())
                         .eq(Category::getUserId, loginUser.getUserId()));
@@ -140,34 +140,46 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 article.setPublishUser(loginUser.getUserId());
                 article.setPublishTime(new Date());
                 if (StringUtils.isBlank(article.getArticleCover()))
-                    article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.ARTICLE.getPath() + loginUser.getUserId() + "/default/defaultCover.jpg");
+                    article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.IMG_ARTICLE.getPath() + loginUser.getUserId() + "/default/defaultCover.jpg");
             }
+            articleMapper.insert(article);
         } else {
-            Article article2 = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
-                    .select(Article::getId, Article::getUserId, Article::getPublishUser)
+            if ((Objects.nonNull(article.getArticleTitle()) && StringUtils.isBlank(article.getArticleTitle())) || (Objects.nonNull(article.getArticleContent()) && StringUtils.isBlank(article.getArticleContent())))
+                throw new OperationStatusException("文章标题或者内容不允许为空!");
+            Article articleOrigin = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
+                    .select(Article::getId, Article::getUserId, Article::getPublishUser, Article::getArticleCover)
                     .eq(Article::getId, article.getId())
                     .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
-            if (Objects.isNull(article2.getId()))
+            if (Objects.isNull(articleOrigin.getId()))
                 throw new IllegalRequestException();
-            if (!article.getDraftFlag()) {
-                Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
-                        .eq(Category::getId, article.getCategoryId())
-                        .eq(Category::getUserId, article2.getUserId()));
-                if (count != 1)
-                    throw new IllegalRequestException();
+            if (Objects.nonNull(article.getDraftFlag()) && !article.getDraftFlag()) {
+                if (Objects.nonNull(article.getCategoryId())) {
+                    Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
+                            .eq(Category::getId, article.getCategoryId())
+                            .eq(Category::getUserId, articleOrigin.getUserId()));
+                    if (count != 1)
+                        throw new IllegalRequestException();
+                }
                 article.setUpdateUser(loginUser.getUserId());
                 article.setUpdateTime(new Date());
-                if (Objects.isNull(article2.getPublishUser())) {
+                if (Objects.isNull(articleOrigin.getPublishUser())) {
                     article.setPublishUser(loginUser.getUserId());
                     article.setPublishTime(new Date());
                 }
-                if (StringUtils.isBlank(article.getArticleCover()))
-                    article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.ARTICLE.getPath() + article2.getUserId() + "/default/defaultCover.jpg");
+                if (Objects.nonNull(article.getArticleCover())) {
+                    if (StringUtils.isBlank(article.getArticleCover()))
+                        article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.IMG_ARTICLE.getPath() + articleOrigin.getUserId() + "/default/defaultCover.jpg");
+                    multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>().set(MultiFile::getDeletedFlag, true)
+                            .eq(MultiFile::getFileUrl, articleOrigin.getArticleCover())
+                            .eq(loginUser.getRoleWeight() > 300, MultiFile::getUserId, loginUser.getUserId()));
+                }
             }
-            articleTagMapper.deleteByMap(Collections.singletonMap("article_id", article.getId()));
-            article.setUserId(article2.getUserId());
+            articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
+                    .set(ArticleTag::getDeletedFlag, true)
+                    .eq(ArticleTag::getArticleId, articleOrigin.getId()));
+            article.setUserId(articleOrigin.getUserId());
+            articleMapper.updateById(article);
         }
-        this.saveOrUpdate(article);
         if (CollectionUtils.isNotEmpty(articleBackVO.getTagIdList())) {
             List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
                     .select(Tag::getId)

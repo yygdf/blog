@@ -21,7 +21,7 @@
         type="danger"
         size="medium"
         style="margin-left:10px"
-        @click="addOrEditStatus = true"
+        @click="publicArticle"
       >
         发表文章
       </el-button>
@@ -69,7 +69,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="上传封面">
+        <el-form-item label="文章封面">
           <el-upload
             ref="upload"
             action=""
@@ -85,6 +85,16 @@
             </div>
             <img v-else :src="article.articleCover" width="360" height="180" />
           </el-upload>
+        </el-form-item>
+        <el-form-item label="封面链接">
+          <el-input
+            v-model="article.articleCover"
+            style="width: 520px"
+            placeholder="点击上传或直接输入封面链接"
+            :maxLength="255"
+            @focus="articleCoverUpload = article.articleCover"
+            @change="updateCover(true)"
+          />
         </el-form-item>
       </el-form>
       <el-form :model="article" :inline="true" size="medium" label-width="80">
@@ -184,8 +194,10 @@ export default {
       },
       tagList: [],
       categoryList: [],
+      articleCoverUpload: "",
       autoSave: false,
-      addOrEditStatus: false
+      addOrEditStatus: false,
+      articleCoverUploadFlag: false
     };
   },
   computed: {
@@ -245,10 +257,7 @@ export default {
       if (this.article.id == null) {
         if (this.article.articleTitle.trim() === "") {
           this.$message.error("文章标题不能为空");
-          return false;
-        }
-        if (this.article.articleContent.trim() === "") {
-          this.$message.error("文章内容不能为空");
+          this.$refs.md.$img2Url(pos, "");
           return false;
         }
         this.article.draftFlag = true;
@@ -264,6 +273,7 @@ export default {
               .then(({ data }) => {
                 if (pos == null) {
                   this.article.articleCover = data.data;
+                  this.articleCoverUploadFlag = true;
                 } else {
                   this.$refs.md.$img2Url(pos, data.data);
                 }
@@ -285,6 +295,7 @@ export default {
           .then(({ data }) => {
             if (pos == null) {
               this.article.articleCover = data.data;
+              this.articleCoverUploadFlag = true;
             } else {
               this.$refs.md.$img2Url(pos, data.data);
             }
@@ -296,12 +307,20 @@ export default {
         fileList.splice(0, 1);
       }
     },
-    updateCover() {
-      this.updateImg(this.article.articleCover);
-      this.article.articleCover = "";
+    updateCover(flag) {
+      if (typeof flag == "boolean") {
+        if (this.articleCoverUploadFlag) {
+          this.$refs.upload.clearFiles();
+          this.updateImg(this.articleCoverUpload);
+          this.articleCoverUploadFlag = false;
+        }
+      } else {
+        this.updateImg(this.article.articleCover);
+        this.article.articleCover = "";
+      }
     },
     uploadCover(form) {
-      if (this.article.articleCover !== this.articleOrigin.articleCover) {
+      if (this.articleCoverUploadFlag && this.article.articleCover !== "") {
         this.updateImg(this.article.articleCover);
       }
       this.uploadImg(null, form.file);
@@ -313,20 +332,25 @@ export default {
         this.article.articleContent.trim() !== ""
       ) {
         this.article.draftFlag = true;
-        this.axios.post("/api/back/article", this.article).then(({ data }) => {
-          this.article.id = data.data;
-          if (data.flag) {
-            this.$notify.success({
-              title: "成功",
-              message: "自动保存成功"
-            });
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: "自动保存失败"
-            });
-          }
-        });
+        this.axios
+          .post(
+            "/api/back/article",
+            this.contrastObjectOrigin(this.article, this.articleOrigin)
+          )
+          .then(({ data }) => {
+            this.article.id = data.data;
+            if (data.flag) {
+              this.$notify.success({
+                title: "成功",
+                message: "自动保存成功"
+              });
+            } else {
+              this.$notify.error({
+                title: "失败",
+                message: "自动保存失败"
+              });
+            }
+          });
       }
     },
     uploadArticleImg(pos, file) {
@@ -334,6 +358,17 @@ export default {
     },
     deleteArticleImg(pos) {
       this.updateImg(pos[0]);
+    },
+    publicArticle() {
+      if (this.article.articleTitle.trim() === "") {
+        this.$message.error("文章标题不能为空");
+        return false;
+      }
+      if (this.article.articleContent.trim() === "") {
+        this.$message.error("文章内容不能为空");
+        return false;
+      }
+      this.addOrEditStatus = true;
     },
     saveArticleDraft() {
       if (this.article.articleTitle.trim() === "") {
@@ -367,38 +402,36 @@ export default {
       this.autoSave = false;
     },
     saveOrUpdateArticle() {
-      if (this.article.articleTitle.trim() === "") {
-        this.$message.error("文章标题不能为空");
-        return false;
-      }
-      if (this.article.articleContent.trim() === "") {
-        this.$message.error("文章内容不能为空");
-        return false;
-      }
       if (!this.article.categoryId) {
         this.$message.error("文章分类不能为空");
+        this.$refs.upload.clearFiles();
         return false;
       }
       this.article.draftFlag = false;
-      this.axios.post("/api/back/article", this.article).then(({ data }) => {
-        if (data.flag) {
-          this.article.id = data.data;
-          this.$notify.success({
-            title: "成功",
-            message: data.message
-          });
-        } else {
-          this.$notify.error({
-            title: "失败",
-            message: data.message
-          });
-        }
-      });
+      this.axios
+        .post(
+          "/api/back/article",
+          this.contrastObjectOrigin(this.article, this.articleOrigin)
+        )
+        .then(({ data }) => {
+          if (data.flag) {
+            this.article.id = data.data;
+            this.$notify.success({
+              title: "成功",
+              message: data.message
+            });
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: data.message
+            });
+          }
+        });
       this.addOrEditStatus = false;
       this.autoSave = false;
     },
     cancelSaveOrUpdateArticle() {
-      if (this.article.articleCover !== this.articleOrigin.articleCover) {
+      if (this.articleCoverUploadFlag) {
         this.updateImg(this.article.articleCover);
         this.$refs.upload.clearFiles();
         this.article.articleCover = this.articleOrigin.articleCover;

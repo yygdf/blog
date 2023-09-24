@@ -317,10 +317,11 @@ export default {
       } else {
         this.updateImg(this.article.articleCover);
         this.article.articleCover = "";
+        this.articleCoverUploadFlag = false;
       }
     },
     uploadCover(form) {
-      if (this.articleCoverUploadFlag && this.article.articleCover !== "") {
+      if (this.articleCoverUploadFlag) {
         this.updateImg(this.article.articleCover);
       }
       this.uploadImg(null, form.file);

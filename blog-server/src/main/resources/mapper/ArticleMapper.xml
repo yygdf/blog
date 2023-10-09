@@ -135,12 +135,19 @@
             tb_article
         SET
             deleted_flag = #{updateBatch.deletedFlag}
-            <if test="updateBatch.recycleFlag != null">
-                , recycle_flag = #{updateBatch.recycleFlag}
-                <if test="updateBatch.recycleFlag">
-                    , draft_flag = true
-                </if>
-            </if>
+            <choose>
+                <when test="updateBatch.deletedFlag">
+                    , recycle_flag = true, draft_flag = true
+                </when>
+                <otherwise>
+                    <if test="updateBatch.recycleFlag != null">
+                        , recycle_flag = #{updateBatch.recycleFlag}
+                        <if test="updateBatch.recycleFlag">
+                            , draft_flag = true
+                        </if>
+                    </if>
+                </otherwise>
+            </choose>
         WHERE
             id in
             <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">

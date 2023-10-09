@@ -11,7 +11,7 @@
  Target Server Version : 50731
  File Encoding         : 65001
 
- Date: 20/09/2023 10:17:58
+ Date: 09/10/2023 18:10:10
 */
 
 SET NAMES utf8mb4;
@@ -44,7 +44,7 @@ CREATE TABLE `tb_article`  (
   `publish_user` int(11) NULL DEFAULT NULL COMMENT '发表人，默认null',
   `publish_time` datetime(0) NULL DEFAULT NULL COMMENT '发表时间，默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 33 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 53 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_article_tag
@@ -54,6 +54,7 @@ CREATE TABLE `tb_article_tag`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `tag_id` int(11) NOT NULL COMMENT '标签id',
   `article_id` int(11) NOT NULL COMMENT '文章id',
+  `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除，默认0',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 61 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
@@ -145,7 +146,7 @@ CREATE TABLE `tb_exception_log`  (
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 23 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_friend_link
@@ -182,7 +183,7 @@ CREATE TABLE `tb_login_log`  (
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源，默认空串',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址，默认空串',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 375 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 394 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_menu
@@ -234,13 +235,12 @@ DROP TABLE IF EXISTS `tb_multi_dir`;
 CREATE TABLE `tb_multi_dir`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '目录id',
   `user_id` int(11) NOT NULL COMMENT '用户id',
-  `dir_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '目录链接',
-  `dir_size` int(11) NOT NULL COMMENT '目录大小',
-  `dir_unit` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '大小单位',
-  `dir_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '目录路径',
+  `parent_id` int(11) NOT NULL DEFAULT -1 COMMENT '父id，默认-1',
+  `dir_path` bigint(20) NOT NULL COMMENT '目录路径',
   `dir_desc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '目录描述，默认空串',
   `dir_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '目录名称',
   `dir_cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '目录封面，默认空串',
+  `dir_path_new` bigint(20) NOT NULL DEFAULT -1 COMMENT '目录新路径，默认-1',
   `public_flag` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0未公开，1已公开，默认1',
   `hidden_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏，默认0',
   `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除，默认0',
@@ -250,7 +250,7 @@ CREATE TABLE `tb_multi_dir`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人，默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间，默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_multi_file
@@ -259,12 +259,13 @@ DROP TABLE IF EXISTS `tb_multi_file`;
 CREATE TABLE `tb_multi_file`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '文件id',
   `user_id` int(11) NOT NULL COMMENT '用户id',
-  `multi_dir_id` int(11) NOT NULL COMMENT '父目录id',
-  `file_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件地址',
+  `multi_dir_id` int(11) NOT NULL COMMENT '目录id',
   `file_desc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '文件描述，默认空串',
-  `file_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件名称',
-  `file_sub_dir` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件子目录',
-  `hidden_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未隐藏，1已隐藏，默认0',
+  `file_mark` int(11) NOT NULL DEFAULT -1 COMMENT '文件标识，默认-1',
+  `file_name` bigint(20) NOT NULL COMMENT '文件名称',
+  `file_extension` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件拓展名',
+  `file_name_new` bigint(20) NOT NULL DEFAULT -1 COMMENT '文件新名称，默认-1',
+  `file_name_origin` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '文件原始名称，默认空串',
   `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除，1已删除，默认0',
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源，默认空串',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址，默认空串',
@@ -273,7 +274,7 @@ CREATE TABLE `tb_multi_file`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人，默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间，默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_operation_log
@@ -294,7 +295,7 @@ CREATE TABLE `tb_operation_log`  (
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 135 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_qq_auth
@@ -335,7 +336,7 @@ CREATE TABLE `tb_resource`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人，默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间，默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1339 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1340 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_role
@@ -376,7 +377,7 @@ CREATE TABLE `tb_role_resource`  (
   `role_id` int(11) NOT NULL COMMENT '角色id',
   `resource_id` int(11) NOT NULL COMMENT '资源id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2695 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2788 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_system_config
@@ -394,7 +395,7 @@ CREATE TABLE `tb_system_config`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人，默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间，默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_tag

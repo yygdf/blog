@@ -17,7 +17,7 @@ public class ArticleBackVO {
     private Integer id;
 
     /**
-     * 分类id
+     * 分类id，默认-1
      */
     @ApiModelProperty(name = "categoryId", value = "分类id", dataType = "Integer")
     private Integer categoryId;
@@ -43,31 +43,31 @@ public class ArticleBackVO {
     private String articleContent;
 
     /**
-     * 0未置顶，1已置顶
+     * 0未置顶，1已置顶，默认0
      */
-    @ApiModelProperty(name = "isTop", value = "0未置顶，1已置顶", dataType = "Boolean")
+    @ApiModelProperty(name = "topFlag", value = "0未置顶，1已置顶", dataType = "Boolean")
     private Boolean topFlag;
 
     /**
-     * 0是草稿，1不是草稿
+     * 0是草稿，1不是草稿，默认1
      */
     @ApiModelProperty(name = "draftFlag", value = "0不是草稿，1是草稿", dataType = "Boolean")
     private Boolean draftFlag;
 
     /**
-     * 0未公开，1已公开
+     * 0未公开，1已公开，默认1
      */
     @ApiModelProperty(name = "publicFlag", value = "0未公开，1已公开", dataType = "Boolean")
     private Boolean publicFlag;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏，1已隐藏，默认0
      */
     @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏", dataType = "Boolean")
     private Boolean hiddenFlag;
 
     /**
-     * 0不可评论，1可评论
+     * 0不可评论，1可评论，默认1
      */
     @ApiModelProperty(name = "commentableFlag", value = "0不可评论，1可评论", dataType = "Boolean")
     private Boolean commentableFlag;

@@ -20,7 +20,6 @@ public class UserAvatarBackVO {
     /**
      * 用户id
      */
-    @NotNull(message = "用户id不能为ull")
-    @ApiModelProperty(name = "userId", value = "用户id", required = true, dataType = "Integer")
+    @ApiModelProperty(name = "userId", value = "用户id", dataType = "Integer")
     private Integer userId;
 }

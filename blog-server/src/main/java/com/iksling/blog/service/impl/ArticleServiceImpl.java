@@ -10,7 +10,6 @@ import com.iksling.blog.dto.ArticleOptionDTO;
 import com.iksling.blog.dto.ArticlesBackDTO;
 import com.iksling.blog.dto.LabelDTO;
 import com.iksling.blog.entity.*;
-import com.iksling.blog.enums.FilePathEnum;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.*;
@@ -18,6 +17,7 @@ import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.service.ArticleTagService;
+import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.IpUtil;
 import com.iksling.blog.util.UserUtil;
@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_LIKE_COUNT;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_VIEW_COUNT;
+import static com.iksling.blog.enums.FilePathEnum.IMG_ARTICLE;
 
 /**
  *
@@ -53,12 +54,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Autowired
     private CategoryMapper categoryMapper;
     @Autowired
-    private MultiFileMapper multiFileMapper;
-    @Autowired
     private ArticleTagMapper articleTagMapper;
 
     @Autowired
     private ArticleTagService articleTagService;
+    @Autowired
+    private MultiFileService multiFileService;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -73,8 +74,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         Article::getTopFlag, Article::getDraftFlag, Article::getPublicFlag, Article::getHiddenFlag, Article::getCommentableFlag)
                 .eq(Article::getId, articleId)
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
-                .eq(Article::getRecycleFlag, 0)
-                .eq(Article::getDeletedFlag, 0));
+                .eq(Article::getRecycleFlag, false)
+                .eq(Article::getDeletedFlag, false));
+        if(Objects.isNull(article))
+            return new ArticleBackDTO();
         List<Integer> tagIdList = articleTagMapper.selectList(new LambdaQueryWrapper<ArticleTag>()
                 .select(ArticleTag::getTagId)
                 .eq(ArticleTag::getArticleId, articleId))
@@ -89,10 +92,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         LoginUser loginUser = UserUtil.getLoginUser();
         if (Objects.nonNull(userId) && loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(userId))
             throw new IllegalRequestException();
-            List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
-                .select(Tag::getId, Tag::getTagName)
-                .eq(Objects.isNull(userId), Tag::getUserId, loginUser.getUserId())
-                .eq(Objects.nonNull(userId), Tag::getUserId, userId));
+        List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
+            .select(Tag::getId, Tag::getTagName)
+            .eq(Objects.isNull(userId), Tag::getUserId, loginUser.getUserId())
+            .eq(Objects.nonNull(userId), Tag::getUserId, userId));
         List<LabelDTO> tagDTOList = tagList.stream()
                 .map(e -> LabelDTO.builder()
                         .id(e.getId())
@@ -140,7 +143,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 article.setPublishUser(loginUser.getUserId());
                 article.setPublishTime(new Date());
                 if (StringUtils.isBlank(article.getArticleCover()))
-                    article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.IMG_ARTICLE.getPath() + loginUser.getUserId() + "/default/defaultCover.jpg");
+                    article.setArticleCover(STATIC_RESOURCE_URL + loginUser.getUserId() + "/" + IMG_ARTICLE.getPath() + "/default/defaultCover.jpg");
             }
             articleMapper.insert(article);
         } else {
@@ -149,6 +152,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             Article articleOrigin = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
                     .select(Article::getId, Article::getUserId, Article::getPublishUser, Article::getArticleCover)
                     .eq(Article::getId, article.getId())
+                    .eq(loginUser.getRoleWeight() > 100, Article::getDeletedFlag, false)
                     .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
             if (Objects.isNull(articleOrigin.getId()))
                 throw new IllegalRequestException();
@@ -168,10 +172,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 }
                 if (Objects.nonNull(article.getArticleCover())) {
                     if (StringUtils.isBlank(article.getArticleCover()))
-                        article.setArticleCover(STATIC_RESOURCE_URL + FilePathEnum.IMG_ARTICLE.getPath() + articleOrigin.getUserId() + "/default/defaultCover.jpg");
-                    multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>().set(MultiFile::getDeletedFlag, true)
-                            .eq(MultiFile::getFileUrl, articleOrigin.getArticleCover())
-                            .eq(loginUser.getRoleWeight() > 300, MultiFile::getUserId, loginUser.getUserId()));
+                        article.setArticleCover(STATIC_RESOURCE_URL + "/" + articleOrigin.getUserId() + IMG_ARTICLE.getPath() + "/default/defaultCover.jpg");
+                    multiFileService.updateArticleImgByUrl(articleOrigin.getArticleCover());
                 }
             }
             articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
@@ -225,6 +227,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         Integer count = articleMapper.updateArticlesStatus(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();
+        // TODO: 删除文章后更新目录
+        if (updateBatchVO.getDeletedFlag()) {
+            articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
+                    .set(ArticleTag::getDeletedFlag, true)
+                    .in(ArticleTag::getArticleId, updateBatchVO.getIdList()));
+
+        }
     }
 
     @Override
@@ -235,7 +244,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         int count = articleMapper.deleteBatchIds(articleIdList);
         if (count != articleIdList.size())
             throw new IllegalRequestException();
-        articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>().in(ArticleTag::getArticleId, articleIdList));
+        articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>()
+                .in(ArticleTag::getArticleId, articleIdList));
     }
 
     @Override

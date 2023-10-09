@@ -1,28 +1,31 @@
 package com.iksling.blog.util;
 
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
 
+import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
+
 public class FileUploadUtil {
-    public static String upload(MultipartFile file, String targetAddr) {
-        String fileName = String.valueOf(IdWorker.getId());
-        String extension = getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
-        return FtpUtil.upload(file, targetAddr, fileName + extension);
+    public static String upload(MultipartFile file, String targetAddr, String fullFileName) {
+        return FtpUtil.upload(file, targetAddr, fullFileName);
     }
 
-    public static boolean checkVoiceFileType(MultipartFile file) {
-        String fileExtension = FileUploadUtil.getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
-        return ".wav".equalsIgnoreCase(fileExtension);
+    public static void rename(String path, String pathNew) {
+        FtpUtil.rename(path, pathNew);
     }
 
-    public static boolean checkImageFileType(MultipartFile file) {
-        String fileExtension = FileUploadUtil.getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
-        return ".jpg".equalsIgnoreCase(fileExtension) || ".jpeg".equalsIgnoreCase(fileExtension) || ".png".equalsIgnoreCase(fileExtension) || ".gif".equalsIgnoreCase(fileExtension);
+    public static boolean checkNotValidAudioFileType(MultipartFile file) {
+        String fileExtension = getSplitStringByIndex(Objects.requireNonNull(file.getOriginalFilename()), "\\.", -1);
+        return !"wav".equalsIgnoreCase(fileExtension);
     }
 
-    public static boolean checkFileSize(long source, int size, String unit) {
+    public static boolean checkNotValidImageFileType(MultipartFile file) {
+        String fileExtension = getSplitStringByIndex(Objects.requireNonNull(file.getOriginalFilename()), "\\.", -1);
+        return !"jpg".equalsIgnoreCase(fileExtension) && !"jpeg".equalsIgnoreCase(fileExtension) && !"png".equalsIgnoreCase(fileExtension) && !"gif".equalsIgnoreCase(fileExtension);
+    }
+
+    public static boolean checkNotValidFileSize(long source, int size, String unit) {
         switch (unit) {
             case "KB":
                 source >>= 10;
@@ -34,10 +37,6 @@ public class FileUploadUtil {
                 source >>= 30;
                 break;
         }
-        return source <= size;
-    }
-
-    private static String getFileExtension(String fileName) {
-        return fileName.substring(fileName.lastIndexOf("."));
+        return source > size;
     }
 }

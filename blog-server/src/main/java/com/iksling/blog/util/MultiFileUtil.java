@@ -6,13 +6,17 @@ import java.util.Objects;
 
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
 
-public class FileUploadUtil {
+public class MultiFileUtil {
     public static String upload(MultipartFile file, String targetAddr, String fullFileName) {
         return FtpUtil.upload(file, targetAddr, fullFileName);
     }
 
-    public static void rename(String path, String pathNew) {
-        FtpUtil.rename(path, pathNew);
+    public static void rename(String uri, String uriNew) {
+        FtpUtil.rename(uri, uriNew);
+    }
+
+    public static void delete(String uri) {
+        FtpUtil.delete(uri);
     }
 
     public static boolean checkNotValidAudioFileType(MultipartFile file) {

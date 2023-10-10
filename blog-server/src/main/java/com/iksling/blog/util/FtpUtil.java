@@ -48,12 +48,12 @@ public class FtpUtil {
         return uploadFile(file, targetAddr, fullFileName);
     }
 
-    public static void rename(String path, String pathNew) {
-        renameFile(path, pathNew);
+    public static boolean rename(String uri, String uriNew) {
+        return renameFile(uri, uriNew);
     }
 
-    public static boolean delete(String url) {
-        return deleteFile(url);
+    public static boolean delete(String uri) {
+        return deleteFile(uri);
     }
 
     private static String uploadFile(MultipartFile file, String targetAddr, String fullFileName) {
@@ -86,13 +86,13 @@ public class FtpUtil {
         return address + targetAddr + "/" + fullFileName;
     }
 
-    private static boolean deleteFile(String url) {
+    private static boolean deleteFile(String uri) {
         FTPClient ftpClient = null;
         try {
             ftpClient = getFTPClient();
-            String[] paths = url.split("/");
+            String[] paths = uri.split("/");
             int lastIndex = paths.length - 1;
-            for (int i = 4; i < lastIndex; i++)
+            for (int i = 0; i < lastIndex; i++)
                 ftpClient.changeWorkingDirectory(paths[i]);
             boolean flag;
             if (ftpClient.changeWorkingDirectory(paths[lastIndex])) {
@@ -118,14 +118,16 @@ public class FtpUtil {
         }
     }
 
-    private static void renameFile(String path, String pathNew) {
+    private static boolean renameFile(String uri, String uriNew) {
         FTPClient ftpClient = null;
         try {
             ftpClient = getFTPClient();
-            ftpClient.rename(path, pathNew);
+            ftpClient.rename(uri, uriNew);
             ftpClient.logout();
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         } finally {
             if (ftpClient != null) {
                 if (ftpClient.isConnected()) {

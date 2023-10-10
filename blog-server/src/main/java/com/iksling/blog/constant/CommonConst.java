@@ -55,11 +55,6 @@ public class CommonConst {
     public static final List<Integer> ROOT_ROLE_ID_LIST = Arrays.asList(1);
 
     /**
-     * 聊天室音频目录路径
-     */
-    public static final String AUDIO_CHAT_PATH = "audio/chat";
-
-    /**
      * 聊天室音频目录大小
      */
     public static final Integer AUDIO_CHAT_SIZE = 1;
@@ -68,11 +63,6 @@ public class CommonConst {
      * 聊天室音频目录单位
      */
     public static final String AUDIO_CHAT_UNIT= "MB";
-
-    /**
-     * 用户头像目录路径
-     */
-    public static final String IMG_AVATAR_PATH = "img/avatar";
 
     /**
      * 用户头像目录大小
@@ -85,11 +75,6 @@ public class CommonConst {
     public static final String IMG_AVATAR_UNIT= "MB";
 
     /**
-     * 文章图片目录路径
-     */
-    public static final String IMG_ARTICLE_PATH = "img/article";
-
-    /**
      * 文章图片目录大小
      */
     public static final Integer IMG_ARTICLE_SIZE = 5;
@@ -98,4 +83,9 @@ public class CommonConst {
      * 文章图片目录单位
      */
     public static final String IMG_ARTICLE_UNIT= "MB";
+
+    /**
+     * 文章封面默认后缀
+     */
+    public static final String DEFAULT_ARTICLE_COVER_SUFFIX = "/default/default.png";
 }

@@ -8,7 +8,7 @@ import com.iksling.blog.entity.MultiDir;
 import com.iksling.blog.mapper.MultiDirMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MultiDirService;
-import com.iksling.blog.util.FileUploadUtil;
+import com.iksling.blog.util.MultiFileUtil;
 import com.iksling.blog.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,15 +61,23 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
                             .set(MultiDir::getUpdateUser, UserUtil.getLoginUser().getUserId())
                             .set(MultiDir::getUpdateTime, new Date())
                             .eq(MultiDir::getId, multiDirMap.get(0).get("id")));
-                    String frontPath = multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + item;
-                    FileUploadUtil.rename(frontPath, frontPath + "-" + dirPathNew);
+                    String uri = multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + item;
+                    MultiFileUtil.rename(uri, uri + "-" + dirPathNew);
                 }
         );
     }
 
     @Override
     public void removeArticleDirByIdList(List<Integer> idList) {
-
+        idList.forEach(
+                item -> {
+                    List<Map<String, Object>> multiDirMap = multiDirMapper.selectMaps(new QueryWrapper<MultiDir>()
+                            .select("id", "user_id")
+                            .eq("dir_path", item));
+                    multiDirMapper.deleteById((Integer) multiDirMap.get(0).get("id"));
+                    MultiFileUtil.delete(multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + item);
+                }
+        );
     }
 }
 

@@ -17,8 +17,7 @@ import com.iksling.blog.mapper.MultiFileMapper;
 import com.iksling.blog.pojo.ArticleImgFile;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MultiFileService;
-import com.iksling.blog.util.CommonUtil;
-import com.iksling.blog.util.FileUploadUtil;
+import com.iksling.blog.util.MultiFileUtil;
 import com.iksling.blog.util.IpUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ArticleImgBackVO;
@@ -30,10 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.enums.FilePathEnum.IMG_ARTICLE;
@@ -66,9 +62,9 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         MultipartFile file = articleImgBackVO.getFile();
         if (file.isEmpty())
             throw new FileStatusException("文件不存在!");
-        if (FileUploadUtil.checkNotValidImageFileType(file))
+        if (MultiFileUtil.checkNotValidImageFileType(file))
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
-        if (FileUploadUtil.checkNotValidFileSize(file.getSize(), IMG_ARTICLE_SIZE, IMG_ARTICLE_UNIT))
+        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_ARTICLE_SIZE, IMG_ARTICLE_UNIT))
             throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_ARTICLE_SIZE + IMG_ARTICLE_UNIT + "}");
         if (Objects.isNull(articleUserId))
             articleUserId = loginUser.getUserId();
@@ -83,7 +79,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         long fileName = IdWorker.getId();
         String extension = getSplitStringByIndex(Objects.requireNonNull(file.getOriginalFilename()), "\\.", -1);
         String targetAddr = articleUserId + "/" + IMG_ARTICLE.getPath() + "/" + articleId;
-        String url = FileUploadUtil.upload(file, targetAddr, fileName + "." + extension);
+        String url = MultiFileUtil.upload(file, targetAddr, fileName + "." + extension);
         if (Objects.isNull(url))
             throw new FileStatusException("文件上传失败!");
         articleImgBackVO.setFile(null);
@@ -123,7 +119,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .eq(MultiFile::getId, articleImgFile.getId()));
         String frontPath = articleImgFile.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + articleImgFile.getDirPath() + "/" + fileName;
         String fullExtension = "." + articleImgFile.getFileExtension();
-        FileUploadUtil.rename(frontPath + fullExtension, frontPath + "-" + fileNameNew + fullExtension);
+        MultiFileUtil.rename(frontPath + fullExtension, frontPath + "-" + fileNameNew + fullExtension);
     }
 
     @Override
@@ -134,9 +130,9 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         MultipartFile file = userAvatarBackVO.getFile();
         if (file.isEmpty())
             throw new FileStatusException("文件不存在!");
-        if (FileUploadUtil.checkNotValidImageFileType(file))
+        if (MultiFileUtil.checkNotValidImageFileType(file))
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
-        if (FileUploadUtil.checkNotValidFileSize(file.getSize(), IMG_AVATAR_SIZE, IMG_AVATAR_UNIT))
+        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_AVATAR_SIZE, IMG_AVATAR_UNIT))
             throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_AVATAR_SIZE + IMG_AVATAR_UNIT + "}");
         if (Objects.isNull(userId))
             userId = loginUser.getUserId();
@@ -145,7 +141,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         long fileName = IdWorker.getId();
         String extension = getSplitStringByIndex(Objects.requireNonNull(file.getOriginalFilename()), "\\.", -1);
         String targetAddr = userId + "/" + IMG_AVATAR.getPath();
-        String url = FileUploadUtil.upload(file, targetAddr, fileName + "." + extension);
+        String url = MultiFileUtil.upload(file, targetAddr, fileName + "." + extension);
         if (Objects.isNull(url))
             throw new FileStatusException("文件上传失败!");
         userAvatarBackVO.setFile(null);
@@ -190,27 +186,25 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .eq(MultiFile::getId, multiFileMap.get(0).get("id")));
         String frontPath = multiFileMap.get(0).get("user_id") + "/" + IMG_AVATAR.getPath() + "/" + fileName;
         String fullExtension = "." + multiFileMap.get(0).get("file_extension");
-        FileUploadUtil.rename(frontPath + fullExtension, frontPath + "-" + fileNameNew + fullExtension);
+        MultiFileUtil.rename(frontPath + fullExtension, frontPath + "-" + fileNameNew + fullExtension);
     }
 
     @Override
-    public void updateArticleImgByUrl(String url) {
-        String fullFileName = CommonUtil.getSplitStringByIndex(url, "/", -1);
-        String[] pathArr = url.split("/");
+    public void updateArticleImgBy(Integer userId, Integer articleId, String fullFileName) {
         String[] fileNameArr = fullFileName.split("\\.");
-        String extension = fileNameArr[1];
         long fileNameNew = IdWorker.getId();
-        long fileNameParse = Long.parseLong(fileNameArr[0]);
+        long fileNameOld = Long.parseLong(fileNameArr[0]);
         LoginUser loginUser = UserUtil.getLoginUser();
         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                 .set(MultiFile::getFileNameNew, fileNameNew)
                 .set(MultiFile::getDeletedFlag, true)
                 .set(MultiFile::getUpdateUser, loginUser.getUserId())
                 .set(MultiFile::getUpdateTime, new Date())
-                .eq(MultiFile::getFileName, fileNameParse)
+                .eq(MultiFile::getFileName, fileNameOld)
                 .eq(loginUser.getRoleWeight() > 300, MultiFile::getUserId, loginUser.getUserId()));
-        String frontPath = pathArr[3] + "/" + IMG_ARTICLE.getPath() + "/" + pathArr[6] + "/";
-        FileUploadUtil.rename(frontPath + fullFileName, frontPath + fileNameParse + "-" + fileNameNew + "." + extension);
+        String frontPath = userId + "/" + IMG_ARTICLE.getPath() + "/" + articleId + "/" + fileNameOld;
+        String fullExtension = "." + fileNameArr[1];
+        MultiFileUtil.rename(frontPath + fullExtension, frontPath + fileNameOld + "-" + fileNameNew + fullExtension);
     }
 }
 

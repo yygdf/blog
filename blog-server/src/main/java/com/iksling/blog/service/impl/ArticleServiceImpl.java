@@ -26,6 +26,7 @@ import com.iksling.blog.service.ArticleTagService;
 import com.iksling.blog.service.MultiDirService;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.util.BeanCopyUtil;
+import com.iksling.blog.util.CommonUtil;
 import com.iksling.blog.util.IpUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ArticleBackVO;
@@ -42,6 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.iksling.blog.constant.CommonConst.DEFAULT_ARTICLE_COVER_SUFFIX;
 import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_LIKE_COUNT;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_VIEW_COUNT;
@@ -152,8 +154,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     throw new IllegalRequestException();
                 article.setPublishUser(loginUser.getUserId());
                 article.setPublishTime(new Date());
-                if (StringUtils.isBlank(article.getArticleCover()))
-                    article.setArticleCover(STATIC_RESOURCE_URL + loginUser.getUserId() + "/" + IMG_ARTICLE.getPath() + "/default/defaultCover.jpg");
+                if (StringUtils.isBlank(article.getArticleCover()) || !article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
+                    article.setArticleCover(STATIC_RESOURCE_URL + loginUser.getUserId() + "/" + IMG_ARTICLE.getPath() + DEFAULT_ARTICLE_COVER_SUFFIX);
             }
             articleMapper.insert(article);
             multiDirService.saveArticleDir(article.getId(), article.getArticleCover());
@@ -182,9 +184,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     article.setPublishTime(new Date());
                 }
                 if (Objects.nonNull(article.getArticleCover())) {
-                    if (StringUtils.isBlank(article.getArticleCover()))
-                        article.setArticleCover(STATIC_RESOURCE_URL + "/" + articleOrigin.getUserId() + IMG_ARTICLE.getPath() + "/default/defaultCover.jpg");
-                    multiFileService.updateArticleImgByUrl(articleOrigin.getArticleCover());
+                    if (StringUtils.isBlank(article.getArticleCover()) || !article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
+                        article.setArticleCover(STATIC_RESOURCE_URL + "/" + articleOrigin.getUserId() + IMG_ARTICLE.getPath() + DEFAULT_ARTICLE_COVER_SUFFIX);
+                    if (articleOrigin.getArticleCover().startsWith(STATIC_RESOURCE_URL + articleOrigin.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + articleOrigin.getId()))
+                        multiFileService.updateArticleImgBy(articleOrigin.getUserId(), articleOrigin.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1));
                 }
             }
             articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()

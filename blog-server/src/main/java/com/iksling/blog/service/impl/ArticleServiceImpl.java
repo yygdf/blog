@@ -9,14 +9,21 @@ import com.iksling.blog.dto.ArticleBackDTO;
 import com.iksling.blog.dto.ArticleOptionDTO;
 import com.iksling.blog.dto.ArticlesBackDTO;
 import com.iksling.blog.dto.LabelDTO;
-import com.iksling.blog.entity.*;
+import com.iksling.blog.entity.Article;
+import com.iksling.blog.entity.ArticleTag;
+import com.iksling.blog.entity.Category;
+import com.iksling.blog.entity.Tag;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
-import com.iksling.blog.mapper.*;
+import com.iksling.blog.mapper.ArticleMapper;
+import com.iksling.blog.mapper.ArticleTagMapper;
+import com.iksling.blog.mapper.CategoryMapper;
+import com.iksling.blog.mapper.TagMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.service.ArticleTagService;
+import com.iksling.blog.service.MultiDirService;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.IpUtil;
@@ -57,12 +64,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     private ArticleTagMapper articleTagMapper;
 
     @Autowired
-    private ArticleTagService articleTagService;
+    private MultiDirService multiDirService;
     @Autowired
     private MultiFileService multiFileService;
+    @Autowired
+    private ArticleTagService articleTagService;
 
     @Autowired
     private RedisTemplate redisTemplate;
+
     @Resource
     private HttpServletRequest request;
 
@@ -73,9 +83,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .select(Article::getId, Article::getUserId, Article::getCategoryId, Article::getArticleTitle, Article::getArticleCover, Article::getArticleContent,
                         Article::getTopFlag, Article::getDraftFlag, Article::getPublicFlag, Article::getHiddenFlag, Article::getCommentableFlag)
                 .eq(Article::getId, articleId)
-                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
                 .eq(Article::getRecycleFlag, false)
-                .eq(Article::getDeletedFlag, false));
+                .eq(Article::getDeletedFlag, false)
+                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
         if(Objects.isNull(article))
             return new ArticleBackDTO();
         List<Integer> tagIdList = articleTagMapper.selectList(new LambdaQueryWrapper<ArticleTag>()
@@ -146,6 +156,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     article.setArticleCover(STATIC_RESOURCE_URL + loginUser.getUserId() + "/" + IMG_ARTICLE.getPath() + "/default/defaultCover.jpg");
             }
             articleMapper.insert(article);
+            multiDirService.saveArticleDir(article.getId(), article.getArticleCover());
         } else {
             if ((Objects.nonNull(article.getArticleTitle()) && StringUtils.isBlank(article.getArticleTitle())) || (Objects.nonNull(article.getArticleContent()) && StringUtils.isBlank(article.getArticleContent())))
                 throw new OperationStatusException("文章标题或者内容不允许为空!");
@@ -227,12 +238,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         Integer count = articleMapper.updateArticlesStatus(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count != updateBatchVO.getIdList().size())
             throw new IllegalRequestException();
-        // TODO: 删除文章后更新目录
         if (updateBatchVO.getDeletedFlag()) {
             articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
                     .set(ArticleTag::getDeletedFlag, true)
                     .in(ArticleTag::getArticleId, updateBatchVO.getIdList()));
-
+            multiDirService.updateArticleDirByIdList(updateBatchVO.getIdList());
         }
     }
 
@@ -246,6 +256,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             throw new IllegalRequestException();
         articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>()
                 .in(ArticleTag::getArticleId, articleIdList));
+        multiDirService.removeArticleDirByIdList(articleIdList);
     }
 
     @Override

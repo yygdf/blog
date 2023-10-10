@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iksling.blog.mapper.MultiFileMapper">
+
+    <resultMap id="BaseResultMap" type="com.iksling.blog.entity.MultiFile">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="multiDirId" column="multi_dir_id" jdbcType="INTEGER"/>
+            <result property="fileDesc" column="file_desc" jdbcType="VARCHAR"/>
+            <result property="fileMark" column="file_mark" jdbcType="INTEGER"/>
+            <result property="fileName" column="file_name" jdbcType="BIGINT"/>
+            <result property="fileExtension" column="file_extension" jdbcType="VARCHAR"/>
+            <result property="fileNameNew" column="file_name_new" jdbcType="BIGINT"/>
+            <result property="fileNameOrigin" column="file_name_origin" jdbcType="VARCHAR"/>
+            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
+            <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>
+            <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
+            <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,multi_dir_id,
+        file_desc,file_mark,file_name,
+        file_extension,file_name_new,file_name_origin,
+        deleted_flag,ip_source,ip_address,
+        create_user,create_time,update_user,
+        update_time
+    </sql>
+
+    <select id="selectArticleImgFileByFileName" resultType="com.iksling.blog.pojo.ArticleImgFile">
+        select
+            mf.id,mf.user_id,mf.file_extension,md.dir_path
+        from
+            tb_multi_file mf
+        left join tb_multi_dir md on mf.multi_dir_id = md.id
+        where
+            mf.file_name = #{fileName}
+            and mf.file_mark = #{fileMark}
+            <if test="roleWeight > 300">
+                and mf.user_id = #{userId}
+            </if>
+    </select>
+</mapper>

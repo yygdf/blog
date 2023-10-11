@@ -38,7 +38,7 @@ public class MultiFileController {
     @ApiOperation(value = "更新文章图片删除状态")
     @ApiImplicitParam(name = "fileName", value = "文章图片名", required = true, dataType = "Long")
     @PutMapping("/back/article/image")
-    public Result updateBackArticleImage(@RequestBody Long fileName) {
+    public Result updateBackArticleImage(@RequestBody String fileName) {
         multiFileService.updateArticleImgByFileName(fileName);
         return Result.success().message("操作成功");
     }
@@ -56,7 +56,7 @@ public class MultiFileController {
     @ApiOperation(value = "更新用户头像删除状态")
     @ApiImplicitParam(name = "fileName", value = "用户头像名", required = true, dataType = "Long")
     @PutMapping("/back/user/avatar")
-    public Result updateBackUserAvatar(@RequestBody Long fileName) {
+    public Result updateBackUserAvatar(@RequestBody String fileName) {
         multiFileService.updateUserAvatarByFileName(fileName);
         return Result.success().message("操作成功");
     }

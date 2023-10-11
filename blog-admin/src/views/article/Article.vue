@@ -31,7 +31,7 @@
       ref="md"
       style="height:calc(100vh - 260px)"
       @imgAdd="uploadArticleImg"
-      @imgDel="deleteArticleImg"
+      @imgDel="updateArticleImg"
     />
     <el-dialog
       :visible.sync="addOrEditStatus"
@@ -94,7 +94,10 @@
             :maxLength="255"
             @focus="articleCoverUpload = article.articleCover"
             @change="updateCover(true)"
-          />
+            show-word-limit
+          >
+            <template slot="prepend">{{staticResourceUrl}}</template>
+          </el-input>
         </el-form-item>
       </el-form>
       <el-form :model="article" :inline="true" size="medium" label-width="80">
@@ -194,6 +197,7 @@ export default {
       },
       tagList: [],
       categoryList: [],
+      staticResourceUrl: "",
       articleCoverUpload: "",
       autoSave: false,
       addOrEditStatus: false,
@@ -232,6 +236,9 @@ export default {
           param[key] = obj[key];
         }
       });
+      if (obj.id !== undefined) {
+        param.id = obj.id;
+      }
       return param;
     },
     checkArticleUserIdIsNull() {
@@ -247,11 +254,13 @@ export default {
         .then(({ data }) => {
           this.tagList = data.data.tagDTOList;
           this.categoryList = data.data.categoryDTOList;
+          this.staticResourceUrl = data.data.staticResourceUrl;
         });
     },
     updateImg(url) {
-      let param = { data: url };
-      this.axios.put("/api/back/article/image", param);
+      let pathArr = url.split("/");
+      let fileName = pathArr[pathArr.length - 1].split(".")[0];
+      this.axios.put("/api/back/article/image", { fileName });
     },
     uploadImg(pos, file) {
       if (this.article.id == null) {
@@ -267,7 +276,7 @@ export default {
             let formData = new FormData();
             formData.append("file", file);
             formData.append("userId", this.checkArticleUserIdIsNull());
-            formData.append("fileSubDir", this.article.id);
+            formData.append("articleId", this.article.id);
             this.axios
               .post("/api/back/article/image", formData)
               .then(({ data }) => {
@@ -289,7 +298,7 @@ export default {
         let formData = new FormData();
         formData.append("file", file);
         formData.append("userId", this.checkArticleUserIdIsNull());
-        formData.append("fileSubDir", this.article.id);
+        formData.append("articleId", this.article.id);
         this.axios
           .post("/api/back/article/image", formData)
           .then(({ data }) => {
@@ -357,7 +366,7 @@ export default {
     uploadArticleImg(pos, file) {
       this.uploadImg(pos, file);
     },
-    deleteArticleImg(pos) {
+    updateArticleImg(pos) {
       this.updateImg(pos[0]);
     },
     publicArticle() {

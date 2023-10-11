@@ -105,9 +105,15 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
 
     @Override
     @Transactional
-    public void updateArticleImgByFileName(Long fileName) {
+    public void updateArticleImgByFileName(String fileName) {
+        long parseFileName;
+        try {
+            parseFileName = Long.parseLong(fileName);
+        } catch (NumberFormatException e) {
+            throw new FileStatusException("文件名不匹配!");
+        }
         LoginUser loginUser = UserUtil.getLoginUser();
-        ArticleImgFile articleImgFile = multiFileMapper.selectArticleImgFileByFileName(fileName, IMG_ARTICLE.getMark(), loginUser.getRoleWeight(), loginUser.getUserId());
+        ArticleImgFile articleImgFile = multiFileMapper.selectArticleImgFileByFileName(parseFileName, IMG_ARTICLE.getMark(), loginUser.getRoleWeight(), loginUser.getUserId());
         if (Objects.isNull(articleImgFile))
             return;
         long fileNameNew = IdWorker.getId();
@@ -168,11 +174,17 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
 
     @Override
     @Transactional
-    public void updateUserAvatarByFileName(Long fileName) {
+    public void updateUserAvatarByFileName(String fileName) {
+        long parseFileName;
+        try {
+            parseFileName = Long.parseLong(fileName);
+        } catch (NumberFormatException e) {
+            throw new FileStatusException("文件名不匹配!");
+        }
         LoginUser loginUser = UserUtil.getLoginUser();
         List<Map<String, Object>> multiFileMap = multiFileMapper.selectMaps(new QueryWrapper<MultiFile>()
                 .select("id", "user_id", "file_extension")
-                .eq("file_name", fileName)
+                .eq("file_name", parseFileName)
                 .eq("file_mark", IMG_AVATAR.getMark())
                 .eq(loginUser.getRoleWeight() > 200, "user_id", loginUser.getUserId()));
         if (CollectionUtils.isEmpty(multiFileMap))

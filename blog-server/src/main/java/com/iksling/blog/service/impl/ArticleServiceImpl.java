@@ -128,6 +128,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .userId(loginUser.getUserId())
                 .tagDTOList(tagDTOList)
                 .categoryDTOList(categoryDTOList)
+                .staticResourceUrl(STATIC_RESOURCE_URL)
                 .build();
     }
 

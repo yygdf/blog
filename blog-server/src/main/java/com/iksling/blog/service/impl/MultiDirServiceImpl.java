@@ -42,6 +42,7 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
                 .dirDesc("文章[id:" + id + "]")
                 .dirName(id.toString())
                 .dirCover(articleCover)
+                .deletableFlag(false)
                 .createUser(loginUser.getUserId())
                 .createTime(new Date())
                 .build());

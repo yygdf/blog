@@ -44,7 +44,7 @@ public class MultiFile implements Serializable {
     private String fileDesc;
 
     /**
-     * 文件标识，默认-1
+     * 文件标识，默认0
      */
     private Integer fileMark;
 

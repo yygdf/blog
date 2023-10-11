@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -26,4 +28,9 @@ public class ArticleOptionDTO {
      * 文章分类集合
      */
     private List<LabelDTO> categoryDTOList;
+
+    /**
+     * 静态资源根路径
+     */
+    private String staticResourceUrl;
 }

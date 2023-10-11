@@ -9,10 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -38,7 +35,7 @@ public class MultiFileController {
     @ApiOperation(value = "更新文章图片删除状态")
     @ApiImplicitParam(name = "fileName", value = "文章图片名", required = true, dataType = "Long")
     @PutMapping("/back/article/image")
-    public Result updateBackArticleImage(@RequestBody String fileName) {
+    public Result updateBackArticleImage(@RequestParam Long fileName) {
         multiFileService.updateArticleImgByFileName(fileName);
         return Result.success().message("操作成功");
     }
@@ -56,7 +53,7 @@ public class MultiFileController {
     @ApiOperation(value = "更新用户头像删除状态")
     @ApiImplicitParam(name = "fileName", value = "用户头像名", required = true, dataType = "Long")
     @PutMapping("/back/user/avatar")
-    public Result updateBackUserAvatar(@RequestBody String fileName) {
+    public Result updateBackUserAvatar(@RequestParam Long fileName) {
         multiFileService.updateUserAvatarByFileName(fileName);
         return Result.success().message("操作成功");
     }

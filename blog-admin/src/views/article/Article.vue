@@ -96,7 +96,7 @@
             @change="updateCover(true)"
             show-word-limit
           >
-            <template slot="prepend">{{staticResourceUrl}}</template>
+            <template slot="prepend">{{ staticResourceUrl }}</template>
           </el-input>
         </el-form-item>
       </el-form>
@@ -260,7 +260,7 @@ export default {
     updateImg(url) {
       let pathArr = url.split("/");
       let fileName = pathArr[pathArr.length - 1].split(".")[0];
-      this.axios.put("/api/back/article/image", { fileName });
+      this.axios.put("/api/back/article/image", null, { params: { fileName } });
     },
     uploadImg(pos, file) {
       if (this.article.id == null) {

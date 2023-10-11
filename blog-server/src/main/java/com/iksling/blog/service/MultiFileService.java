@@ -11,11 +11,11 @@ import com.iksling.blog.vo.UserAvatarBackVO;
 public interface MultiFileService extends IService<MultiFile> {
     String saveArticleImgBackVO(ArticleImgBackVO articleImgBackVO);
 
-    void updateArticleImgByFileName(String fileName);
+    void updateArticleImgByFileName(Long fileName);
 
     String saveUserAvatarBackVO(UserAvatarBackVO userAvatarBackVO);
 
-    void updateUserAvatarByFileName(String fileName);
+    void updateUserAvatarByFileName(Long fileName);
 
     void updateArticleImgBy(Integer userId, Integer articleId, String fullFileName);
 }

@@ -121,7 +121,7 @@
                 #{condition.current}, #{condition.size}
             ) a
             LEFT JOIN tb_category c ON a.category_id = c.id
-            LEFT JOIN tb_article_tag ata ON a.id = ata.article_id
+            LEFT JOIN tb_article_tag ata ON a.id = ata.article_id AND ata.deleted_flag = false
             LEFT JOIN tb_tag t ON ata.tag_id = t.id
             LEFT JOIN tb_user_auth ua ON a.user_id = ua.user_id
         ORDER BY

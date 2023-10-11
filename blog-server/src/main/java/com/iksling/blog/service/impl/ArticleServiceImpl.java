@@ -43,7 +43,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.DEFAULT_ARTICLE_COVER_SUFFIX;
 import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_LIKE_COUNT;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_VIEW_COUNT;
@@ -92,7 +91,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             return new ArticleBackDTO();
         List<Integer> tagIdList = articleTagMapper.selectList(new LambdaQueryWrapper<ArticleTag>()
                 .select(ArticleTag::getTagId)
-                .eq(ArticleTag::getArticleId, articleId))
+                .eq(ArticleTag::getArticleId, articleId)
+                .eq(ArticleTag::getDeletedFlag, false))
                 .stream().map(ArticleTag::getTagId).collect(Collectors.toList());
         ArticleBackDTO articleBackDTO = BeanCopyUtil.copyObject(article, ArticleBackDTO.class);
         articleBackDTO.setTagIdList(tagIdList);
@@ -156,10 +156,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 article.setPublishUser(loginUser.getUserId());
                 article.setPublishTime(new Date());
                 if (StringUtils.isBlank(article.getArticleCover()) || !article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
-                    article.setArticleCover(STATIC_RESOURCE_URL + loginUser.getUserId() + "/" + IMG_ARTICLE.getPath() + DEFAULT_ARTICLE_COVER_SUFFIX);
+                    article.setArticleCover(null);
             }
             articleMapper.insert(article);
-            multiDirService.saveArticleDir(article.getId(), article.getArticleCover());
+            multiDirService.saveArticleDirById(article.getId());
         } else {
             if ((Objects.nonNull(article.getArticleTitle()) && StringUtils.isBlank(article.getArticleTitle())) || (Objects.nonNull(article.getArticleContent()) && StringUtils.isBlank(article.getArticleContent())))
                 throw new OperationStatusException("文章标题或者内容不允许为空!");
@@ -186,7 +186,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 }
                 if (Objects.nonNull(article.getArticleCover())) {
                     if (StringUtils.isBlank(article.getArticleCover()) || !article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
-                        article.setArticleCover(STATIC_RESOURCE_URL + "/" + articleOrigin.getUserId() + IMG_ARTICLE.getPath() + DEFAULT_ARTICLE_COVER_SUFFIX);
+                        article.setArticleCover(null);
                     if (articleOrigin.getArticleCover().startsWith(STATIC_RESOURCE_URL + articleOrigin.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + articleOrigin.getId()))
                         multiFileService.updateArticleImgBy(articleOrigin.getUserId(), articleOrigin.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1));
                 }

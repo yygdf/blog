@@ -29,7 +29,7 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
     private MultiDirMapper multiDirMapper;
 
     @Override
-    public void saveArticleDir(Integer id, String articleCover) {
+    public void saveArticleDirById(Integer id) {
         LoginUser loginUser = UserUtil.getLoginUser();
         List<Map<String, Object>> multiDirMap = multiDirMapper.selectMaps(new QueryWrapper<MultiDir>()
                 .select("id")
@@ -41,7 +41,6 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
                 .dirPath(Long.valueOf(id))
                 .dirDesc("文章[id:" + id + "]")
                 .dirName(id.toString())
-                .dirCover(articleCover)
                 .deletableFlag(false)
                 .createUser(loginUser.getUserId())
                 .createTime(new Date())

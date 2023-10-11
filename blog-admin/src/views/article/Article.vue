@@ -90,14 +90,11 @@
           <el-input
             v-model="article.articleCover"
             style="width: 520px"
-            placeholder="点击上传或直接输入封面链接"
-            :maxLength="255"
+            :placeholder="staticResourceUrl"
+            maxlength="255"
             @focus="articleCoverUpload = article.articleCover"
             @change="updateCover(true)"
-            show-word-limit
-          >
-            <template slot="prepend">{{ staticResourceUrl }}</template>
-          </el-input>
+          />
         </el-form-item>
       </el-form>
       <el-form :model="article" :inline="true" size="medium" label-width="80">

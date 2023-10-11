@@ -9,7 +9,7 @@ import java.util.List;
  *
  */
 public interface MultiDirService extends IService<MultiDir> {
-    void saveArticleDir(Integer id, String articleCover);
+    void saveArticleDirById(Integer id);
 
     void updateArticleDirByIdList(List<Integer> idList);
 

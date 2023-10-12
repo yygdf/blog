@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 
@@ -40,6 +41,11 @@ public class Category implements Serializable {
      * 0未隐藏，1已隐藏，默认0
      */
     private Boolean hiddenFlag;
+
+    /**
+     * 0未删除，1已删除，默认0
+     */
+    private Boolean deletedFlag;
 
     /**
      * 创建人

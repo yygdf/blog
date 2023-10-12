@@ -62,7 +62,7 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
                             .set(MultiDir::getUpdateTime, new Date())
                             .eq(MultiDir::getId, multiDirMap.get(0).get("id")));
                     String uri = multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + item;
-                    MultiFileUtil.rename(uri, uri + "-" + dirPathNew);
+                    MultiFileUtil.rename(uri, uri + "-" + dirPathNew + "-del");
                 }
         );
     }
@@ -72,10 +72,10 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
         idList.forEach(
                 item -> {
                     List<Map<String, Object>> multiDirMap = multiDirMapper.selectMaps(new QueryWrapper<MultiDir>()
-                            .select("id", "user_id")
+                            .select("id", "user_id", "dir_path_new")
                             .eq("dir_path", item));
                     multiDirMapper.deleteById((Integer) multiDirMap.get(0).get("id"));
-                    MultiFileUtil.delete(multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + item);
+                    MultiFileUtil.delete(multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + item + "-" + multiDirMap.get(0).get("dir_path_new") + "-del");
                 }
         );
     }

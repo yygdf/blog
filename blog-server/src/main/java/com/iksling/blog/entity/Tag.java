@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 
@@ -30,6 +31,11 @@ public class Tag implements Serializable {
      * 标签名称
      */
     private String tagName;
+
+    /**
+     * 0未删除，1已删除，默认0
+     */
+    private Boolean deletedFlag;
 
     /**
      * 创建人

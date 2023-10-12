@@ -102,12 +102,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public ArticleOptionDTO getArticleOptionDTO(Integer userId) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (Objects.nonNull(userId) && loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(userId))
-            throw new IllegalRequestException();
+        if (Objects.isNull(userId))
+            userId = loginUser.getUserId();
+        else if (loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(userId))
+            return new ArticleOptionDTO();
         List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
             .select(Tag::getId, Tag::getTagName)
-            .eq(Objects.isNull(userId), Tag::getUserId, loginUser.getUserId())
-            .eq(Objects.nonNull(userId), Tag::getUserId, userId));
+            .eq(Tag::getUserId, userId)
+            .eq(Tag::getDeletedFlag, false));
         List<LabelDTO> tagDTOList = tagList.stream()
                 .map(e -> LabelDTO.builder()
                         .id(e.getId())
@@ -116,8 +118,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .collect(Collectors.toList());
         List<Category> categoryList = categoryMapper.selectList(new LambdaQueryWrapper<Category>()
                 .select(Category::getId, Category::getCategoryName)
-                .eq(Objects.isNull(userId), Category::getUserId, loginUser.getUserId())
-                .eq(Objects.nonNull(userId), Category::getUserId, userId));
+                .eq(Category::getUserId, userId)
+                .eq(Category::getDeletedFlag, false));
         List<LabelDTO> categoryDTOList = categoryList.stream()
                 .map(e -> LabelDTO.builder()
                         .id(e.getId())
@@ -125,7 +127,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         .build())
                 .collect(Collectors.toList());
         return ArticleOptionDTO.builder()
-                .userId(loginUser.getUserId())
+                .userId(userId)
                 .tagDTOList(tagDTOList)
                 .categoryDTOList(categoryDTOList)
                 .staticResourceUrl(STATIC_RESOURCE_URL)
@@ -150,7 +152,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     throw new OperationStatusException("文章分类不允许为空!");
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                         .eq(Category::getId, article.getCategoryId())
-                        .eq(Category::getUserId, loginUser.getUserId()));
+                        .eq(Category::getUserId, loginUser.getUserId())
+                        .eq(Category::getDeletedFlag, false));
                 if (count != 1)
                     throw new IllegalRequestException();
                 article.setPublishUser(loginUser.getUserId());
@@ -166,14 +169,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             Article articleOrigin = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
                     .select(Article::getId, Article::getUserId, Article::getPublishUser, Article::getArticleCover)
                     .eq(Article::getId, article.getId())
-                    .eq(loginUser.getRoleWeight() > 100, Article::getDeletedFlag, false)
+                    .eq(Article::getDeletedFlag, false)
+                    .eq(Article::getRecycleFlag, false)
                     .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
-            if (Objects.isNull(articleOrigin.getId()))
+            if (Objects.isNull(articleOrigin))
                 throw new IllegalRequestException();
             if (Objects.nonNull(article.getCategoryId())) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                         .eq(Category::getId, article.getCategoryId())
-                        .eq(Category::getUserId, articleOrigin.getUserId()));
+                        .eq(Category::getUserId, articleOrigin.getUserId())
+                        .eq(Category::getDeletedFlag, false));
                 if (count != 1)
                     throw new IllegalRequestException();
             }
@@ -201,7 +206,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (CollectionUtils.isNotEmpty(articleBackVO.getTagIdList())) {
             List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
                     .select(Tag::getId)
-                    .eq(Tag::getUserId, article.getUserId()));
+                    .eq(Tag::getUserId, article.getUserId())
+                    .eq(Tag::getDeletedFlag, false));
             if (!tagList.stream().map(Tag::getId).collect(Collectors.toList()).containsAll(articleBackVO.getTagIdList()))
                 throw new IllegalRequestException();
             List<ArticleTag> articleTagList = articleBackVO.getTagIdList().stream().map(tagId -> ArticleTag.builder()
@@ -246,6 +252,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (updateBatchVO.getDeletedFlag()) {
             articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
                     .set(ArticleTag::getDeletedFlag, true)
+                    .eq(ArticleTag::getDeletedFlag, false)
                     .in(ArticleTag::getArticleId, updateBatchVO.getIdList()));
             multiDirService.updateArticleDirByIdList(updateBatchVO.getIdList());
         }
@@ -274,7 +281,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .set(Article::getHiddenFlag, commonStatusVO.getHiddenFlag())
                 .set(Article::getCommentableFlag, commonStatusVO.getCommentableFlag())
                 .eq(Article::getId, commonStatusVO.getId())
-                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
+                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
+                .eq(Article::getDraftFlag, false));
         if (count != 1)
             throw new IllegalRequestException();
     }

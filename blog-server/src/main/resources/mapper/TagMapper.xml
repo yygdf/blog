@@ -8,6 +8,7 @@
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="userId" column="user_id" jdbcType="INTEGER"/>
             <result property="tagName" column="tag_name" jdbcType="VARCHAR"/>
+            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
@@ -16,8 +17,8 @@
 
     <sql id="Base_Column_List">
         id,user_id,tag_name,
-        create_user,create_time,update_user,
-        update_time
+        deleted_flag,create_user,create_time,
+        update_user,update_time
     </sql>
 
     <delete id="deleteTagIdList">

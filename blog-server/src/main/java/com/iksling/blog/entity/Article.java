@@ -38,7 +38,7 @@ public class Article implements Serializable {
     private String articleTitle;
 
     /**
-     * 文章封面
+     * 文章封面，默认空串
      */
     private String articleCover;
 

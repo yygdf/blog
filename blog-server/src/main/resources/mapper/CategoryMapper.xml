@@ -10,6 +10,7 @@
             <result property="categoryName" column="category_name" jdbcType="VARCHAR"/>
             <result property="publicFlag" column="public_flag" jdbcType="BOOLEAN"/>
             <result property="hiddenFlag" column="hidden_flag" jdbcType="BOOLEAN"/>
+            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
@@ -18,8 +19,9 @@
 
     <sql id="Base_Column_List">
         id,user_id,category_name,
-        public_flag,hidden_flag,create_user,
-        create_time,update_user,update_time
+        public_flag,hidden_flag,deleted_flag,
+        create_user,create_time,update_user,
+        update_time
     </sql>
 
     <delete id="deleteCategoryIdList">

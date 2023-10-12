@@ -40,6 +40,7 @@
         left join tb_multi_dir md on mf.multi_dir_id = md.id
         where
             mf.file_name = #{fileName}
+            and mf.deleted_flag = false
             and mf.file_mark = #{fileMark}
             <if test="roleWeight > 300">
                 and mf.user_id = #{userId}

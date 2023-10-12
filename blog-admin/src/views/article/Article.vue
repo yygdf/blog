@@ -9,7 +9,7 @@
         placeholder="输入文章标题"
       />
       <el-button
-        v-if="article.draftFlag"
+        :disabled="modCount === 0"
         type="danger"
         size="medium"
         class="save-btn"
@@ -40,7 +40,7 @@
       @close="cancelSaveOrUpdateArticle"
     >
       <div class="dialog-title-container" slot="title">
-        上传文章
+        发表文章
       </div>
       <el-form :model="article" size="medium" label-width="80">
         <el-form-item label="文章分类">
@@ -89,11 +89,13 @@
         <el-form-item label="封面链接">
           <el-input
             v-model="article.articleCover"
-            style="width: 520px"
             :placeholder="staticResourceUrl"
+            class="word-limit-input"
+            style="width: 520px"
             maxlength="255"
             @focus="articleCoverUpload = article.articleCover"
             @change="updateCover(true)"
+            show-word-limit
           />
         </el-form-item>
       </el-form>
@@ -137,7 +139,11 @@
       </el-form>
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
-        <el-button type="danger" @click="saveOrUpdateArticle">
+        <el-button
+          :disabled="modCount === 0"
+          type="danger"
+          @click="saveOrUpdateArticle"
+        >
           发 表
         </el-button>
       </div>
@@ -157,6 +163,7 @@ export default {
           data.data.categoryId = null;
         }
         this.article = data.data;
+        this.articleBackVO.id = articleId;
         this.articleOrigin = JSON.parse(JSON.stringify(data.data));
       });
     }
@@ -194,50 +201,15 @@ export default {
       },
       tagList: [],
       categoryList: [],
+      articleBackVO: {},
       staticResourceUrl: "",
       articleCoverUpload: "",
-      autoSave: false,
+      modCount: 0,
       addOrEditStatus: false,
       articleCoverUploadFlag: false
     };
   },
-  computed: {
-    watchList() {
-      const {
-        id,
-        categoryId,
-        articleTitle,
-        articleCover,
-        articleContent,
-        tagIdList
-      } = this.article;
-      return {
-        id,
-        categoryId,
-        articleTitle,
-        articleCover,
-        articleContent,
-        tagIdList
-      };
-    }
-  },
   methods: {
-    contrastObjectOrigin(obj, objOrigin) {
-      let param = {};
-      Object.keys(obj).forEach(key => {
-        if (obj[key] instanceof Array) {
-          if (JSON.stringify(obj[key]) !== JSON.stringify(objOrigin[key])) {
-            param[key] = obj[key];
-          }
-        } else if (obj[key] !== objOrigin[key]) {
-          param[key] = obj[key];
-        }
-      });
-      if (obj.id !== undefined) {
-        param.id = obj.id;
-      }
-      return param;
-    },
     checkArticleUserIdIsNull() {
       return this.$store.state.articleUserId == null
         ? ""
@@ -270,6 +242,7 @@ export default {
         this.axios.post("/api/back/article", this.article).then(({ data }) => {
           if (data.flag) {
             this.article.id = data.data;
+            this.articleBackVO.id = data.data;
             let formData = new FormData();
             formData.append("file", file);
             formData.append("userId", this.checkArticleUserIdIsNull());
@@ -334,16 +307,13 @@ export default {
     },
     autoSaveArticle() {
       if (
-        this.autoSave &&
+        this.modCount !== 0 &&
         this.article.articleTitle.trim() !== "" &&
         this.article.articleContent.trim() !== ""
       ) {
         this.article.draftFlag = true;
         this.axios
-          .post(
-            "/api/back/article",
-            this.contrastObjectOrigin(this.article, this.articleOrigin)
-          )
+          .post("/api/back/article", this.articleBackVO)
           .then(({ data }) => {
             this.article.id = data.data;
             if (data.flag) {
@@ -388,13 +358,12 @@ export default {
       }
       this.article.draftFlag = true;
       this.axios
-        .post(
-          "/api/back/article",
-          this.contrastObjectOrigin(this.article, this.articleOrigin)
-        )
+        .post("/api/back/article", this.articleBackVO)
         .then(({ data }) => {
           if (data.flag) {
             this.article.id = data.data;
+            this.articleBackVO.id = data.data;
+            this.articleOrigin = JSON.parse(JSON.stringify(this.article));
             this.$notify.success({
               title: "成功",
               message: "保存草稿成功"
@@ -406,7 +375,7 @@ export default {
             });
           }
         });
-      this.autoSave = false;
+      this.modCount = 0;
     },
     saveOrUpdateArticle() {
       if (!this.article.categoryId) {
@@ -416,13 +385,12 @@ export default {
       }
       this.article.draftFlag = false;
       this.axios
-        .post(
-          "/api/back/article",
-          this.contrastObjectOrigin(this.article, this.articleOrigin)
-        )
+        .post("/api/back/article", this.articleBackVO)
         .then(({ data }) => {
           if (data.flag) {
             this.article.id = data.data;
+            this.articleBackVO.id = data.data;
+            this.articleOrigin = JSON.parse(JSON.stringify(this.article));
             this.$notify.success({
               title: "成功",
               message: data.message
@@ -434,8 +402,8 @@ export default {
             });
           }
         });
+      this.modCount = 0;
       this.addOrEditStatus = false;
-      this.autoSave = false;
     },
     cancelSaveOrUpdateArticle() {
       if (this.articleCoverUploadFlag) {
@@ -446,10 +414,89 @@ export default {
     }
   },
   watch: {
-    watchList: {
-      handler(newVal, oldVal) {
-        if (oldVal.id != null || (newVal.id == null && oldVal.id == null)) {
-          this.autoSave = true;
+    "article.categoryId"(newVal) {
+      if (newVal !== this.articleOrigin.categoryId) {
+        this.modCount++;
+        this.articleBackVO.categoryId = newVal;
+      } else {
+        this.modCount = --this.modCount < 0 ? 0 : this.modCount;
+        delete this.articleBackVO.categoryId;
+      }
+    },
+    "article.articleTitle"(newVal) {
+      if (newVal !== this.articleOrigin.articleTitle) {
+        this.modCount++;
+        this.articleBackVO.articleTitle = newVal;
+      } else {
+        this.modCount = --this.modCount < 0 ? 0 : this.modCount;
+        delete this.articleBackVO.articleTitle;
+      }
+    },
+    "article.articleCover"(newVal) {
+      if (newVal !== this.articleOrigin.articleCover) {
+        this.modCount++;
+        this.articleBackVO.articleCover = newVal;
+      } else {
+        this.modCount = --this.modCount < 0 ? 0 : this.modCount;
+        delete this.articleBackVO.articleCover;
+      }
+    },
+    "article.articleContent"(newVal) {
+      if (newVal !== this.articleOrigin.articleContent) {
+        this.modCount++;
+        this.articleBackVO.articleContent = newVal;
+      } else {
+        this.modCount = --this.modCount < 0 ? 0 : this.modCount;
+        delete this.articleBackVO.articleContent;
+      }
+    },
+    "article.topFlag"(newVal) {
+      if (newVal !== this.articleOrigin.topFlag) {
+        this.modCount++;
+        this.articleBackVO.topFlag = newVal;
+      } else {
+        this.modCount--;
+        delete this.articleBackVO.topFlag;
+      }
+    },
+    "article.publicFlag"(newVal) {
+      if (newVal !== this.articleOrigin.publicFlag) {
+        this.modCount++;
+        this.articleBackVO.publicFlag = newVal;
+      } else {
+        this.modCount--;
+        delete this.articleBackVO.publicFlag;
+      }
+    },
+    "article.hiddenFlag"(newVal) {
+      if (newVal !== this.articleOrigin.hiddenFlag) {
+        this.modCount++;
+        this.articleBackVO.hiddenFlag = newVal;
+      } else {
+        this.modCount--;
+        delete this.articleBackVO.hiddenFlag;
+      }
+    },
+    "article.commentableFlag"(newVal) {
+      if (newVal !== this.articleOrigin.commentableFlag) {
+        this.modCount++;
+        this.articleBackVO.commentableFlag = newVal;
+      } else {
+        this.modCount--;
+        delete this.articleBackVO.commentableFlag;
+      }
+    },
+    "article.tagIdList": {
+      handler(newVal) {
+        if (
+          JSON.stringify(newVal) !==
+          JSON.stringify(this.articleOrigin.tagIdList)
+        ) {
+          this.modCount++;
+          this.articleBackVO.tagIdList = newVal;
+        } else {
+          this.modCount = --this.modCount < 0 ? 0 : this.modCount;
+          delete this.articleBackVO.tagIdList;
         }
       },
       deep: true
@@ -469,5 +516,8 @@ export default {
   margin-left: 0.75rem;
   background: #fff;
   color: #f56c6c;
+}
+.word-limit-input {
+  padding-right: 60px;
 }
 </style>

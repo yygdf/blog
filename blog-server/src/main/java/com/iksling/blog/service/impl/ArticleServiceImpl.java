@@ -170,31 +170,32 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
             if (Objects.isNull(articleOrigin.getId()))
                 throw new IllegalRequestException();
-            if (Objects.nonNull(article.getDraftFlag()) && !article.getDraftFlag()) {
-                if (Objects.nonNull(article.getCategoryId())) {
-                    Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
-                            .eq(Category::getId, article.getCategoryId())
-                            .eq(Category::getUserId, articleOrigin.getUserId()));
-                    if (count != 1)
-                        throw new IllegalRequestException();
-                }
-                article.setUpdateUser(loginUser.getUserId());
-                article.setUpdateTime(new Date());
-                if (Objects.isNull(articleOrigin.getPublishUser())) {
-                    article.setPublishUser(loginUser.getUserId());
-                    article.setPublishTime(new Date());
-                }
-                if (Objects.nonNull(article.getArticleCover())) {
-                    if (StringUtils.isBlank(article.getArticleCover()) || !article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
-                        article.setArticleCover(null);
-                    if (articleOrigin.getArticleCover().startsWith(STATIC_RESOURCE_URL + articleOrigin.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + articleOrigin.getId()))
-                        multiFileService.updateArticleImgBy(articleOrigin.getUserId(), articleOrigin.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1));
-                }
+            if (Objects.nonNull(article.getCategoryId())) {
+                Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
+                        .eq(Category::getId, article.getCategoryId())
+                        .eq(Category::getUserId, articleOrigin.getUserId()));
+                if (count != 1)
+                    throw new IllegalRequestException();
             }
-            articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
-                    .set(ArticleTag::getDeletedFlag, true)
-                    .eq(ArticleTag::getArticleId, articleOrigin.getId()));
+            if (Objects.nonNull(article.getArticleCover())) {
+                if (StringUtils.isBlank(article.getArticleCover()) || !article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
+                    article.setArticleCover(null);
+                if (articleOrigin.getArticleCover().startsWith(STATIC_RESOURCE_URL + articleOrigin.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + articleOrigin.getId()))
+                    multiFileService.updateArticleImgBy(articleOrigin.getUserId(), articleOrigin.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1));
+            }
+            if (CollectionUtils.isNotEmpty(articleBackVO.getTagIdList())) {
+                articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
+                        .set(ArticleTag::getDeletedFlag, true)
+                        .eq(ArticleTag::getDeletedFlag, false)
+                        .eq(ArticleTag::getArticleId, articleOrigin.getId()));
+            }
+            if (Objects.isNull(articleOrigin.getPublishUser())) {
+                article.setPublishUser(loginUser.getUserId());
+                article.setPublishTime(new Date());
+            }
             article.setUserId(articleOrigin.getUserId());
+            article.setUpdateUser(loginUser.getUserId());
+            article.setUpdateTime(new Date());
             articleMapper.updateById(article);
         }
         if (CollectionUtils.isNotEmpty(articleBackVO.getTagIdList())) {

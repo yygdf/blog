@@ -165,6 +165,8 @@ export default {
         this.article = data.data;
         this.articleOrigin = JSON.parse(JSON.stringify(data.data));
       });
+    } else {
+      this.article.articleTitle = this.$moment(new Date()).format("YYYY-MM-DD");
     }
     this.listArticleOptions();
   },
@@ -176,7 +178,7 @@ export default {
     return {
       article: {
         articleId: null,
-        articleTitle: this.$moment(new Date()).format("YYYY-MM-DD"),
+        articleTitle: "",
         articleCover: "",
         articleContent: "",
         topFlag: false,
@@ -511,9 +513,6 @@ export default {
         }
       },
       deep: true
-    },
-    modCount(newVal) {
-      console.log(newVal);
     }
   }
 };

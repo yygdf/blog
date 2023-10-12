@@ -176,28 +176,14 @@ export default {
   data: function() {
     return {
       article: {
-        categoryId: null,
         articleTitle: this.$moment(new Date()).format("YYYY-MM-DD"),
-        articleCover: "",
-        articleContent: "",
-        topFlag: false,
-        draftFlag: true,
         publicFlag: true,
-        hiddenFlag: false,
-        commentableFlag: true,
-        tagIdList: []
+        commentableFlag: true
       },
       articleOrigin: {
-        categoryId: null,
         articleTitle: "",
-        articleCover: "",
-        articleContent: "",
-        topFlag: false,
-        draftFlag: true,
         publicFlag: true,
-        hiddenFlag: false,
-        commentableFlag: true,
-        tagIdList: []
+        commentableFlag: true
       },
       tagList: [],
       categoryList: [],
@@ -518,6 +504,6 @@ export default {
   color: #f56c6c;
 }
 .word-limit-input {
-  padding-right: 60px;
+  padding-right: 50px;
 }
 </style>

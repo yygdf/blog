@@ -11,11 +11,22 @@
         新增
       </el-button>
       <el-button
-        :disabled="this.categoryIdList.length === 0"
+        v-if="deletedFlag"
+        :disabled="categoryIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
         @click="removeStatus = true"
+      >
+        批量删除
+      </el-button>
+      <el-button
+        v-else
+        :disabled="categoryIdList.length === 0"
+        type="danger"
+        size="small"
+        icon="el-icon-minus"
+        @click="editStatus = true"
       >
         批量删除
       </el-button>
@@ -35,6 +46,20 @@
             v-for="item in usernameList"
             :key="item.userId"
             :value="item.userId"
+            :label="item.label"
+          />
+        </el-select>
+        <el-select
+          v-if="checkWeight(100)"
+          v-model="deletedFlag"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择"
+        >
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :value="item.value"
             :label="item.label"
           />
         </el-select>
@@ -137,9 +162,20 @@
             编辑
           </el-button>
           <el-popconfirm
-            title="确定删除吗？"
+            v-if="deletedFlag"
+            title="确定彻底删除吗？"
             style="margin-left:10px"
             @confirm="deleteCategories(scope.row.id)"
+          >
+            <el-button type="danger" size="mini" slot="reference">
+              删除
+            </el-button>
+          </el-popconfirm>
+          <el-popconfirm
+            v-else
+            title="确定删除吗？"
+            style="margin-left:10px"
+            @confirm="updateCategoriesStatus(scope.row.id)"
           >
             <el-button
               :disabled="scope.row.articleCount !== 0"
@@ -164,11 +200,23 @@
       @size-change="sizeChange"
       @current-change="currentChange"
     />
-    <el-dialog :visible.sync="removeStatus" width="30%">
+    <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
       <div style="font-size:1rem">是否删除选中项？</div>
+      <div slot="footer">
+        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button type="primary" @click="updateCategoriesStatus(null)">
+          确 定
+        </el-button>
+      </div>
+    </el-dialog>
+    <el-dialog :visible.sync="removeStatus" width="30%">
+      <div class="dialog-title-container" slot="title">
+        <i class="el-icon-warning" style="color:#ff9900" />提示
+      </div>
+      <div style="font-size:1rem">是否彻底删除选中项？</div>
       <div slot="footer">
         <el-button @click="removeStatus = false">取 消</el-button>
         <el-button type="primary" @click="deleteCategories(null)">
@@ -179,14 +227,16 @@
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="categoryTitle" />
       <el-form :model="category" size="medium" label-width="80">
-        <el-form-item label="分类名">
+        <el-form-item label="名称">
           <el-input
             v-model="category.categoryName"
+            placeholder="请输入分类名"
+            class="word-limit-input"
             ref="input"
             style="width: 200px"
-            :maxLength="50"
+            maxlength="50"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
       </el-form>
       <el-form :model="category" :inline="true" size="medium" label-width="80">
@@ -211,7 +261,7 @@
       </el-form>
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
-        <el-button type="primary" @click="addOrEditCategory">
+        <el-button :disabled="!category.categoryName" type="primary" @click="addOrEditCategory">
           确 定
         </el-button>
       </div>
@@ -229,6 +279,16 @@ export default {
   },
   data: function() {
     return {
+      options: [
+        {
+          value: false,
+          label: "未删除"
+        },
+        {
+          value: true,
+          label: "已删除"
+        }
+      ],
       category: {},
       usernameList: [],
       categoryList: [],
@@ -237,6 +297,8 @@ export default {
       keywords: null,
       oldKeywords: null,
       loading: true,
+      editStatus: false,
+      deletedFlag: false,
       removeStatus: false,
       addOrEditStatus: false,
       size: 10,
@@ -299,7 +361,8 @@ export default {
             size: this.size,
             userId: this.userId,
             current: this.current,
-            keywords: this.keywords
+            keywords: this.keywords,
+            deletedFlag: this.deletedFlag
           }
         })
         .then(({ data }) => {
@@ -345,10 +408,6 @@ export default {
       });
     },
     addOrEditCategory() {
-      if (this.category.categoryName.trim() === "") {
-        this.$message.error("分类名不能为空");
-        return false;
-      }
       this.axios.post("/api/back/category", this.category).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
@@ -365,6 +424,33 @@ export default {
         this.addOrEditStatus = false;
       });
     },
+    updateCategoriesStatus(id) {
+      let param = new URLSearchParams();
+      if (id != null) {
+        param.append("idList", [id]);
+      } else {
+        param.append("idList", this.categoryIdList);
+      }
+      param.append("deletedFlag", !this.deletedFlag);
+      if (param.get("idList").length === this.categoryList.length) {
+        this.current = --this.current > 1 ? this.current : 1;
+      }
+      this.axios.put("/api/back/categories", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listCategories();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.editStatus = false;
+      });
+    },
     changeCategoryStatus(category) {
       let param = {
         id: category.id,
@@ -377,7 +463,16 @@ export default {
   watch: {
     userId() {
       this.listCategories(true);
+    },
+    deletedFlag() {
+      this.listFriendLinks(true);
     }
   }
 };
 </script>
+
+<style scoped>
+.word-limit-input {
+  padding-right: 40px;
+}
+</style>

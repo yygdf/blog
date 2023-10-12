@@ -222,8 +222,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public PagePojo<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
-            throw new IllegalRequestException();
+        if (Objects.isNull(condition.getDeletedFlag()))
+            condition.setDeletedFlag(false);
+        else if (Objects.equals(condition.getDeletedFlag(), true) && loginUser.getRoleWeight() > 100)
+            return new PagePojo<>();
         if (Objects.nonNull(condition.getKeywords()))
             condition.setKeywords(condition.getKeywords().trim());
         Integer count = articleMapper.selectArticlesBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());

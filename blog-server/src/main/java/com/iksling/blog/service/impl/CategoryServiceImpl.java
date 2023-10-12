@@ -48,15 +48,20 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     @Override
     public PagePojo<CategoriesBackDTO> getPageCategoriesBackDTO(ConditionVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        String keywords = condition.getKeywords();
-        if (Objects.nonNull(keywords))
-            keywords = keywords.trim();
+        if (Objects.isNull(condition.getDeletedFlag()))
+            condition.setDeletedFlag(false);
+        else if (Objects.equals(condition.getDeletedFlag(), true) && loginUser.getRoleWeight() > 100)
+            return new PagePojo<>();
+        if (Objects.nonNull(condition.getKeywords()))
+            condition.setKeywords(condition.getKeywords().trim());
+        if (loginUser.getRoleWeight() > 300)
+            condition.setUserId(loginUser.getUserId());
         Page<Category> page = new Page<>(condition.getCurrent(), condition.getSize());
         Page<Category> categoryPage = categoryMapper.selectPage(page, new LambdaQueryWrapper<Category>()
                 .select(Category::getId, Category::getUserId, Category::getCategoryName, Category::getHiddenFlag, Category::getPublicFlag, Category::getCreateTime, Category::getUpdateTime)
-                .like(StringUtils.isNotBlank(keywords), Category::getCategoryName, keywords)
+                .like(StringUtils.isNotBlank(condition.getKeywords()), Category::getCategoryName, condition.getKeywords())
+                .eq(Category::getDeletedFlag, condition.getDeletedFlag())
                 .eq(Objects.nonNull(condition.getUserId()), Category::getUserId, condition.getUserId())
-                .eq(loginUser.getRoleWeight() > 300, Category::getUserId, loginUser.getUserId())
                 .orderByDesc(Category::getId));
         if (categoryPage.getTotal() == 0)
             return new PagePojo<>();

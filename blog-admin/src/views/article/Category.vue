@@ -261,7 +261,11 @@
       </el-form>
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
-        <el-button :disabled="!category.categoryName" type="primary" @click="addOrEditCategory">
+        <el-button
+          :disabled="!category.categoryName"
+          type="primary"
+          @click="addOrEditCategory"
+        >
           确 定
         </el-button>
       </div>

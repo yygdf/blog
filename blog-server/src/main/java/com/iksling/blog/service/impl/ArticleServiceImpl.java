@@ -198,10 +198,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 article.setPublishUser(loginUser.getUserId());
                 article.setPublishTime(new Date());
             }
-            article.setUserId(articleOrigin.getUserId());
             article.setUpdateUser(loginUser.getUserId());
             article.setUpdateTime(new Date());
             articleMapper.updateById(article);
+            article.setUserId(articleOrigin.getUserId());
         }
         if (CollectionUtils.isNotEmpty(articleBackVO.getTagIdList())) {
             List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()

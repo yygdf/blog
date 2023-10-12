@@ -140,7 +140,7 @@
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
         <el-button
-          :disabled="modCount === 0"
+          :disabled="modCount === 0 && !article.draftFlag"
           type="danger"
           @click="saveOrUpdateArticle"
         >
@@ -163,7 +163,6 @@ export default {
           data.data.categoryId = null;
         }
         this.article = data.data;
-        this.articleBackVO.id = articleId;
         this.articleOrigin = JSON.parse(JSON.stringify(data.data));
       });
     }
@@ -176,14 +175,26 @@ export default {
   data: function() {
     return {
       article: {
+        articleId: null,
         articleTitle: this.$moment(new Date()).format("YYYY-MM-DD"),
+        articleCover: "",
+        articleContent: "",
+        topFlag: false,
         publicFlag: true,
-        commentableFlag: true
+        hiddenFlag: false,
+        commentableFlag: true,
+        tagIdList: []
       },
       articleOrigin: {
+        articleId: null,
         articleTitle: "",
+        articleCover: "",
+        articleContent: "",
+        topFlag: false,
         publicFlag: true,
-        commentableFlag: true
+        hiddenFlag: false,
+        commentableFlag: true,
+        tagIdList: []
       },
       tagList: [],
       categoryList: [],
@@ -218,38 +229,38 @@ export default {
       this.axios.put("/api/back/article/image", null, { params: { fileName } });
     },
     uploadImg(pos, file) {
-      if (this.article.id == null) {
+      if (this.article.id === undefined) {
         if (this.article.articleTitle.trim() === "") {
           this.$message.error("文章标题不能为空");
           this.$refs.md.$img2Url(pos, "");
           return false;
         }
-        this.article.draftFlag = true;
-        this.axios.post("/api/back/article", this.article).then(({ data }) => {
-          if (data.flag) {
-            this.article.id = data.data;
-            this.articleBackVO.id = data.data;
-            let formData = new FormData();
-            formData.append("file", file);
-            formData.append("userId", this.checkArticleUserIdIsNull());
-            formData.append("articleId", this.article.id);
-            this.axios
-              .post("/api/back/article/image", formData)
-              .then(({ data }) => {
-                if (pos == null) {
-                  this.article.articleCover = data.data;
-                  this.articleCoverUploadFlag = true;
-                } else {
-                  this.$refs.md.$img2Url(pos, data.data);
-                }
+        this.axios
+          .post("/api/back/article", this.articleBackVO)
+          .then(({ data }) => {
+            if (data.flag) {
+              this.article.id = data.data;
+              let formData = new FormData();
+              formData.append("file", file);
+              formData.append("userId", this.checkArticleUserIdIsNull());
+              formData.append("articleId", this.article.id);
+              this.axios
+                .post("/api/back/article/image", formData)
+                .then(({ data }) => {
+                  if (pos == null) {
+                    this.article.articleCover = data.data;
+                    this.articleCoverUploadFlag = true;
+                  } else {
+                    this.$refs.md.$img2Url(pos, data.data);
+                  }
+                });
+            } else {
+              this.$notify.error({
+                title: "失败",
+                message: "图片上传失败"
               });
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: "图片上传失败"
-            });
-          }
-        });
+            }
+          });
       } else {
         let formData = new FormData();
         formData.append("file", file);
@@ -297,11 +308,15 @@ export default {
         this.article.articleTitle.trim() !== "" &&
         this.article.articleContent.trim() !== ""
       ) {
-        this.article.draftFlag = true;
+        if (!this.article.draftFlag) {
+          this.articleBackVO.draftFlag = true;
+        }
+        if (this.article.id !== undefined) {
+          this.articleBackVO.id = this.article.id;
+        }
         this.axios
           .post("/api/back/article", this.articleBackVO)
           .then(({ data }) => {
-            this.article.id = data.data;
             if (data.flag) {
               this.$notify.success({
                 title: "成功",
@@ -342,13 +357,18 @@ export default {
         this.$message.error("文章内容不能为空");
         return false;
       }
-      this.article.draftFlag = true;
+      if (!this.article.draftFlag) {
+        this.articleBackVO.draftFlag = true;
+      }
+      if (this.article.id !== undefined) {
+        this.articleBackVO.id = this.article.id;
+      }
       this.axios
         .post("/api/back/article", this.articleBackVO)
         .then(({ data }) => {
           if (data.flag) {
             this.article.id = data.data;
-            this.articleBackVO.id = data.data;
+            this.article.draftFlag = true;
             this.articleOrigin = JSON.parse(JSON.stringify(this.article));
             this.$notify.success({
               title: "成功",
@@ -369,13 +389,18 @@ export default {
         this.$refs.upload.clearFiles();
         return false;
       }
-      this.article.draftFlag = false;
+      if (this.article.draftFlag) {
+        this.articleBackVO.draftFlag = false;
+      }
+      if (this.article.id !== undefined) {
+        this.articleBackVO.id = this.article.id;
+      }
       this.axios
         .post("/api/back/article", this.articleBackVO)
         .then(({ data }) => {
           if (data.flag) {
             this.article.id = data.data;
-            this.articleBackVO.id = data.data;
+            this.article.draftFlag = false;
             this.articleOrigin = JSON.parse(JSON.stringify(this.article));
             this.$notify.success({
               title: "成功",
@@ -402,73 +427,73 @@ export default {
   watch: {
     "article.categoryId"(newVal) {
       if (newVal !== this.articleOrigin.categoryId) {
-        this.modCount++;
+        this.modCount = this.modCount | 1;
         this.articleBackVO.categoryId = newVal;
       } else {
-        this.modCount = --this.modCount < 0 ? 0 : this.modCount;
+        this.modCount = this.modCount & 510;
         delete this.articleBackVO.categoryId;
       }
     },
     "article.articleTitle"(newVal) {
       if (newVal !== this.articleOrigin.articleTitle) {
-        this.modCount++;
+        this.modCount = this.modCount | 2;
         this.articleBackVO.articleTitle = newVal;
       } else {
-        this.modCount = --this.modCount < 0 ? 0 : this.modCount;
+        this.modCount = this.modCount & 509;
         delete this.articleBackVO.articleTitle;
       }
     },
     "article.articleCover"(newVal) {
       if (newVal !== this.articleOrigin.articleCover) {
-        this.modCount++;
+        this.modCount = this.modCount | 4;
         this.articleBackVO.articleCover = newVal;
       } else {
-        this.modCount = --this.modCount < 0 ? 0 : this.modCount;
+        this.modCount = this.modCount & 507;
         delete this.articleBackVO.articleCover;
       }
     },
     "article.articleContent"(newVal) {
       if (newVal !== this.articleOrigin.articleContent) {
-        this.modCount++;
+        this.modCount = this.modCount | 8;
         this.articleBackVO.articleContent = newVal;
       } else {
-        this.modCount = --this.modCount < 0 ? 0 : this.modCount;
+        this.modCount = this.modCount & 503;
         delete this.articleBackVO.articleContent;
       }
     },
     "article.topFlag"(newVal) {
       if (newVal !== this.articleOrigin.topFlag) {
-        this.modCount++;
+        this.modCount = this.modCount | 16;
         this.articleBackVO.topFlag = newVal;
       } else {
-        this.modCount--;
+        this.modCount = this.modCount & 495;
         delete this.articleBackVO.topFlag;
       }
     },
     "article.publicFlag"(newVal) {
       if (newVal !== this.articleOrigin.publicFlag) {
-        this.modCount++;
+        this.modCount = this.modCount | 32;
         this.articleBackVO.publicFlag = newVal;
       } else {
-        this.modCount--;
+        this.modCount = this.modCount & 479;
         delete this.articleBackVO.publicFlag;
       }
     },
     "article.hiddenFlag"(newVal) {
       if (newVal !== this.articleOrigin.hiddenFlag) {
-        this.modCount++;
+        this.modCount = this.modCount | 64;
         this.articleBackVO.hiddenFlag = newVal;
       } else {
-        this.modCount--;
+        this.modCount = this.modCount & 447;
         delete this.articleBackVO.hiddenFlag;
       }
     },
     "article.commentableFlag"(newVal) {
       if (newVal !== this.articleOrigin.commentableFlag) {
-        this.modCount++;
+        this.modCount = this.modCount | 128;
         this.articleBackVO.commentableFlag = newVal;
       } else {
-        this.modCount--;
+        this.modCount = this.modCount & 383;
         delete this.articleBackVO.commentableFlag;
       }
     },
@@ -478,14 +503,17 @@ export default {
           JSON.stringify(newVal) !==
           JSON.stringify(this.articleOrigin.tagIdList)
         ) {
-          this.modCount++;
+          this.modCount = this.modCount | 256;
           this.articleBackVO.tagIdList = newVal;
         } else {
-          this.modCount = --this.modCount < 0 ? 0 : this.modCount;
+          this.modCount = this.modCount & 255;
           delete this.articleBackVO.tagIdList;
         }
       },
       deep: true
+    },
+    modCount(newVal) {
+      console.log(newVal);
     }
   }
 };
@@ -504,6 +532,6 @@ export default {
   color: #f56c6c;
 }
 .word-limit-input {
-  padding-right: 50px;
+  padding-right: 60px;
 }
 </style>

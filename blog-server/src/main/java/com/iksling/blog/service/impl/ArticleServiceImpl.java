@@ -138,53 +138,72 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Transactional(rollbackFor = Exception.class)
     public Integer saveOrUpdateArticleBackVO(ArticleBackVO articleBackVO) {
         LoginUser loginUser =  UserUtil.getLoginUser();
-        Article article = BeanCopyUtil.copyObject(articleBackVO, Article.class);
-        if (Objects.isNull(article.getId())) {
-            if (StringUtils.isBlank(article.getArticleTitle()) || StringUtils.isBlank(article.getArticleContent()))
+        Article article = new Article();
+        if (Objects.isNull(articleBackVO.getId())) {
+            if (StringUtils.isBlank(articleBackVO.getArticleTitle()) || StringUtils.isBlank(articleBackVO.getArticleContent()))
                 throw new OperationStatusException("文章标题或者内容不允许为空!");
+            article.setArticleTitle(articleBackVO.getArticleTitle());
+            article.setArticleContent(articleBackVO.getArticleContent());
             article.setUserId(loginUser.getUserId());
             article.setIpAddress(IpUtil.getIpAddress(request));
             article.setIpSource(IpUtil.getIpSource(article.getIpAddress()));
             article.setCreateUser(loginUser.getUserId());
             article.setCreateTime(new Date());
-            if (Objects.nonNull(article.getDraftFlag()) && !article.getDraftFlag()) {
-                if (Objects.isNull(article.getCategoryId()))
+            if (Objects.nonNull(articleBackVO.getDraftFlag()) && !articleBackVO.getDraftFlag()) {
+                if (Objects.isNull(articleBackVO.getCategoryId()))
                     throw new OperationStatusException("文章分类不允许为空!");
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
-                        .eq(Category::getId, article.getCategoryId())
+                        .eq(Category::getId, articleBackVO.getCategoryId())
                         .eq(Category::getUserId, loginUser.getUserId())
                         .eq(Category::getDeletedFlag, false));
                 if (count != 1)
                     throw new IllegalRequestException();
+                article.setDraftFlag(false);
+                article.setCategoryId(articleBackVO.getCategoryId());
                 article.setPublishUser(loginUser.getUserId());
                 article.setPublishTime(new Date());
-                if (StringUtils.isBlank(article.getArticleCover()) || !article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
-                    article.setArticleCover(null);
             }
+            if (StringUtils.isBlank(articleBackVO.getArticleCover()) || !articleBackVO.getArticleCover().startsWith(STATIC_RESOURCE_URL))
+                article.setArticleCover(null);
             articleMapper.insert(article);
             multiDirService.saveArticleDirById(article.getId());
         } else {
-            if ((Objects.nonNull(article.getArticleTitle()) && StringUtils.isBlank(article.getArticleTitle())) || (Objects.nonNull(article.getArticleContent()) && StringUtils.isBlank(article.getArticleContent())))
-                throw new OperationStatusException("文章标题或者内容不允许为空!");
+            boolean modFlag = false;
+            if (Objects.nonNull(articleBackVO.getArticleTitle())) {
+                if (StringUtils.isBlank(articleBackVO.getArticleTitle()))
+                    throw new OperationStatusException("文章标题不允许为空!");
+                modFlag = true;
+                article.setArticleTitle(articleBackVO.getArticleTitle());
+            }
+            if (Objects.nonNull(articleBackVO.getArticleContent())) {
+                if (StringUtils.isBlank(articleBackVO.getArticleContent()))
+                    throw new OperationStatusException("文章内容不允许为空!");
+                modFlag = true;
+                article.setArticleContent(articleBackVO.getArticleContent());
+            }
             Article articleOrigin = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
                     .select(Article::getId, Article::getUserId, Article::getPublishUser, Article::getArticleCover)
-                    .eq(Article::getId, article.getId())
+                    .eq(Article::getId, articleBackVO.getId())
                     .eq(Article::getDeletedFlag, false)
                     .eq(Article::getRecycleFlag, false)
                     .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
             if (Objects.isNull(articleOrigin))
                 throw new IllegalRequestException();
-            if (Objects.nonNull(article.getCategoryId())) {
+            if (Objects.nonNull(articleBackVO.getCategoryId())) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
-                        .eq(Category::getId, article.getCategoryId())
+                        .eq(Category::getId, articleBackVO.getCategoryId())
                         .eq(Category::getUserId, articleOrigin.getUserId())
                         .eq(Category::getDeletedFlag, false));
                 if (count != 1)
                     throw new IllegalRequestException();
+                modFlag = true;
+                article.setCategoryId(articleBackVO.getCategoryId());
             }
-            if (Objects.nonNull(article.getArticleCover())) {
-                if (StringUtils.isBlank(article.getArticleCover()) || !article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
-                    article.setArticleCover(null);
+            if (Objects.nonNull(articleBackVO.getArticleCover())) {
+                if (!articleBackVO.getArticleCover().startsWith(STATIC_RESOURCE_URL)) {
+                    modFlag = true;
+                    article.setArticleCover("");
+                }
                 if (articleOrigin.getArticleCover().startsWith(STATIC_RESOURCE_URL + articleOrigin.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + articleOrigin.getId()))
                     multiFileService.updateArticleImgBy(articleOrigin.getUserId(), articleOrigin.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1));
             }
@@ -195,12 +214,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         .eq(ArticleTag::getArticleId, articleOrigin.getId()));
             }
             if (Objects.isNull(articleOrigin.getPublishUser())) {
+                modFlag = true;
                 article.setPublishUser(loginUser.getUserId());
                 article.setPublishTime(new Date());
             }
-            article.setUpdateUser(loginUser.getUserId());
-            article.setUpdateTime(new Date());
-            articleMapper.updateById(article);
+            if (modFlag) {
+                article.setUpdateUser(loginUser.getUserId());
+                article.setUpdateTime(new Date());
+                article.setId(articleBackVO.getId());
+                articleMapper.updateById(article);
+            }
             article.setUserId(articleOrigin.getUserId());
         }
         if (CollectionUtils.isNotEmpty(articleBackVO.getTagIdList())) {
@@ -226,8 +249,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             condition.setDeletedFlag(false);
         else if (Objects.equals(condition.getDeletedFlag(), true) && loginUser.getRoleWeight() > 100)
             return new PagePojo<>();
-        if (Objects.nonNull(condition.getKeywords()))
-            condition.setKeywords(condition.getKeywords().trim());
         Integer count = articleMapper.selectArticlesBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count == 0)
             return new PagePojo<>();

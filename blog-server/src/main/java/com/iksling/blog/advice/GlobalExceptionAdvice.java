@@ -24,7 +24,7 @@ import static com.iksling.blog.constant.RedisConst.USER_ILLEGAL_OPERATION;
 import static com.iksling.blog.constant.StatusConst.*;
 
 @RestControllerAdvice
-public class ExceptionAdvice {
+public class GlobalExceptionAdvice {
     @Autowired
     private RedisTemplate redisTemplate;
     @Autowired

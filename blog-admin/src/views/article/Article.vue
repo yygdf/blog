@@ -25,6 +25,15 @@
       >
         发表文章
       </el-button>
+      <el-button
+        :disabled="modCount === 0"
+        type="warning"
+        size="medium"
+        style="margin-left:10px"
+        @click="exitWithNoSave"
+      >
+        不保存退出
+      </el-button>
     </div>
     <mavon-editor
       v-model="article.articleContent"
@@ -349,6 +358,13 @@ export default {
         return false;
       }
       this.addOrEditStatus = true;
+    },
+    exitWithNoSave() {
+      this.modCount = 0;
+      let tab = this.$store.state.currentTab;
+      this.$store.commit("removeTab", tab);
+      let tabList = this.$store.state.tabList;
+      this.$router.push({ path: tabList[tabList.length - 1].path });
     },
     saveArticleDraft() {
       if (this.article.articleTitle.trim() === "") {

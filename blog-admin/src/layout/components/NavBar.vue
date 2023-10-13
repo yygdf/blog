@@ -82,6 +82,7 @@ export default {
         name: tab.name
       };
       this.$router.push({ path: tab.path });
+      this.$store.commit("saveCurrentTab", tab);
     },
     trigger() {
       this.$store.commit("trigger");

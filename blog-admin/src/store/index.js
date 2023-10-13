@@ -17,13 +17,17 @@ export default new Vuex.Store({
     nickname: "",
     userMenuList: [],
     currentRoutePath: "/",
-    articleUserId: null
+    articleUserId: null,
+    currentTab: { name: "首页", path: "/" }
   },
   mutations: {
     saveTab(state, tab) {
       if (state.tabList.findIndex(item => item.path === tab.path) === -1) {
         state.tabList.push({ name: tab.name, path: tab.path });
       }
+    },
+    saveCurrentTab(state, tab) {
+      state.currentTab = tab;
     },
     removeTab(state, tab) {
       let index = state.tabList.findIndex(item => item.name === tab.name);

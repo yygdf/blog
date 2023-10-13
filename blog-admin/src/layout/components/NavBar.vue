@@ -56,16 +56,12 @@
 import { resetRouter } from "../../router";
 export default {
   created() {
-    let matched = this.$route.matched.filter(item => item.name);
-    const first = matched[0];
-    if (first && first.name !== "首页") {
-      matched = [{ path: "/", name: "首页" }].concat(matched);
-    }
     this.tab = {
       path: this.$route.path,
       name: this.$route.name
     };
-    this.breadcrumbList = matched;
+    this.$store.commit("saveCurrentTab", this.tab);
+    this.breadcrumbList = this.$route.matched.filter(item => item.name);
     this.$store.commit("saveTab", this.$route);
   },
   data: function() {

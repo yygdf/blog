@@ -218,10 +218,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 article.setPublishUser(loginUser.getUserId());
                 article.setPublishTime(new Date());
             }
+            article.setId(articleBackVO.getId());
             if (modFlag) {
                 article.setUpdateUser(loginUser.getUserId());
                 article.setUpdateTime(new Date());
-                article.setId(articleBackVO.getId());
                 articleMapper.updateById(article);
             }
             article.setUserId(articleOrigin.getUserId());

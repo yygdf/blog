@@ -4,9 +4,10 @@
     <div class="article-title-container">
       <el-input
         v-model="article.articleTitle"
-        :maxlength="50"
+        maxlength="50"
         size="medium"
         placeholder="输入文章标题"
+        show-word-limit
       />
       <el-button
         :disabled="modCount === 0"
@@ -453,7 +454,7 @@ export default {
       }
     },
     "article.articleTitle"(newVal) {
-      if (newVal !== this.articleOrigin.articleTitle) {
+      if (newVal.trim() !== this.articleOrigin.articleTitle) {
         this.modCount = this.modCount | 2;
         this.articleBackVO.articleTitle = newVal;
       } else {
@@ -462,7 +463,7 @@ export default {
       }
     },
     "article.articleCover"(newVal) {
-      if (newVal !== this.articleOrigin.articleCover) {
+      if (newVal.trim() !== this.articleOrigin.articleCover) {
         this.modCount = this.modCount | 4;
         this.articleBackVO.articleCover = newVal;
       } else {
@@ -471,7 +472,7 @@ export default {
       }
     },
     "article.articleContent"(newVal) {
-      if (newVal !== this.articleOrigin.articleContent) {
+      if (newVal.trim() !== this.articleOrigin.articleContent) {
         this.modCount = this.modCount | 8;
         this.articleBackVO.articleContent = newVal;
       } else {

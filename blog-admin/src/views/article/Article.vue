@@ -119,18 +119,18 @@
             inactive-color="#F4F4F5"
           />
         </el-form-item>
-        <el-form-item label="隐藏">
+        <el-form-item label="公开">
           <el-switch
-            v-model="article.hiddenFlag"
+            v-model="article.publicFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
           />
         </el-form-item>
-        <el-form-item label="公开">
+        <el-form-item label="隐藏">
           <el-switch
-            v-model="article.publicFlag"
+            v-model="article.hiddenFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -320,7 +320,7 @@ export default {
         this.article.articleTitle.trim() !== "" &&
         this.article.articleContent.trim() !== ""
       ) {
-        if (!this.article.draftFlag) {
+        if (this.article.draftFlag !== undefined && !this.article.draftFlag) {
           this.articleBackVO.draftFlag = true;
         }
         if (this.article.id !== undefined) {
@@ -376,7 +376,7 @@ export default {
         this.$message.error("文章内容不能为空");
         return false;
       }
-      if (!this.article.draftFlag) {
+      if (this.article.draftFlag !== undefined && !this.article.draftFlag) {
         this.articleBackVO.draftFlag = true;
       }
       if (this.article.id !== undefined) {
@@ -401,6 +401,7 @@ export default {
           }
         });
       this.modCount = 0;
+      this.articleCoverUploadFlag = false;
     },
     saveOrUpdateArticle() {
       if (!this.article.categoryId) {
@@ -408,7 +409,7 @@ export default {
         this.$refs.upload.clearFiles();
         return false;
       }
-      if (this.article.draftFlag) {
+      if (this.article.draftFlag === undefined || this.article.draftFlag) {
         this.articleBackVO.draftFlag = false;
       }
       if (this.article.id !== undefined) {
@@ -434,6 +435,7 @@ export default {
         });
       this.modCount = 0;
       this.addOrEditStatus = false;
+      this.articleCoverUploadFlag = false;
     },
     cancelSaveOrUpdateArticle() {
       if (this.articleCoverUploadFlag) {

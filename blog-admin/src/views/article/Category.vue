@@ -469,7 +469,7 @@ export default {
       this.listCategories(true);
     },
     deletedFlag() {
-      this.listFriendLinks(true);
+      this.listCategories(true);
     }
   }
 };
@@ -477,6 +477,6 @@ export default {
 
 <style scoped>
 .word-limit-input {
-  padding-right: 40px;
+  padding-right: 50px;
 }
 </style>

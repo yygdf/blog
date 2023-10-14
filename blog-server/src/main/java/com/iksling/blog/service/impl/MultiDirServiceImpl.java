@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.entity.MultiDir;
+import com.iksling.blog.entity.MultiFile;
 import com.iksling.blog.mapper.MultiDirMapper;
+import com.iksling.blog.mapper.MultiFileMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MultiDirService;
 import com.iksling.blog.util.MultiFileUtil;
@@ -27,6 +29,9 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
     implements MultiDirService{
     @Autowired
     private MultiDirMapper multiDirMapper;
+
+    @Autowired
+    private MultiFileMapper multiFileMapper;
 
     @Override
     public void saveArticleDirById(Integer id) {
@@ -75,6 +80,7 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
                             .select("id", "user_id", "dir_path_new")
                             .eq("dir_path", item));
                     multiDirMapper.deleteById((Integer) multiDirMap.get(0).get("id"));
+                    multiFileMapper.delete(new LambdaUpdateWrapper<MultiFile>().eq(MultiFile::getMultiDirId, multiDirMap.get(0).get("id")));
                     MultiFileUtil.delete(multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + item + "-" + multiDirMap.get(0).get("dir_path_new") + "-del");
                 }
         );

@@ -5,7 +5,6 @@ import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.CommonStatusVO;
-import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.ConditionVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -57,8 +56,8 @@ public class ArticleController {
     @ApiOperation(value = "批量更新文章状态")
     @ApiImplicitParam(name = "updateBatchVO", value = "批量更新VO", required = true, dataType = "UpdateBatchVO")
     @PutMapping("/back/articles")
-    public Result updateArticlesStatus(@Valid UpdateBatchVO updateBatchVO) {
-        articleService.updateArticlesStatus(updateBatchVO);
+    public Result updateArticlesStatus(@Valid @RequestBody CommonStatusVO commonStatusVO) {
+        articleService.updateArticlesStatus(commonStatusVO);
         return Result.success().message("操作成功");
     }
 

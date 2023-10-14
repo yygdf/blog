@@ -32,7 +32,6 @@ import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
-import com.iksling.blog.vo.UpdateBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -145,6 +144,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             article.setArticleTitle(articleBackVO.getArticleTitle());
             article.setArticleContent(articleBackVO.getArticleContent());
             article.setUserId(loginUser.getUserId());
+            article.setTopFlag(articleBackVO.getTopFlag());
+            article.setPublicFlag(articleBackVO.getPublicFlag());
+            article.setHiddenFlag(articleBackVO.getHiddenFlag());
+            article.setCommentableFlag(articleBackVO.getCommentableFlag());
             article.setIpAddress(IpUtil.getIpAddress(request));
             article.setIpSource(IpUtil.getIpSource(article.getIpAddress()));
             article.setCreateUser(loginUser.getUserId());
@@ -152,33 +155,32 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             if (Objects.nonNull(articleBackVO.getDraftFlag()) && !articleBackVO.getDraftFlag()) {
                 if (Objects.isNull(articleBackVO.getCategoryId()))
                     throw new OperationStatusException("文章分类不允许为空!");
+                article.setDraftFlag(false);
+                article.setPublishUser(loginUser.getUserId());
+                article.setPublishTime(new Date());
+            }
+            if (Objects.nonNull(articleBackVO.getCategoryId())) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                         .eq(Category::getId, articleBackVO.getCategoryId())
                         .eq(Category::getUserId, loginUser.getUserId())
                         .eq(Category::getDeletedFlag, false));
                 if (count != 1)
                     throw new IllegalRequestException();
-                article.setDraftFlag(false);
                 article.setCategoryId(articleBackVO.getCategoryId());
-                article.setPublishUser(loginUser.getUserId());
-                article.setPublishTime(new Date());
             }
             if (StringUtils.isBlank(articleBackVO.getArticleCover()) || !articleBackVO.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                 article.setArticleCover(null);
             articleMapper.insert(article);
             multiDirService.saveArticleDirById(article.getId());
         } else {
-            boolean modFlag = false;
             if (Objects.nonNull(articleBackVO.getArticleTitle())) {
                 if (StringUtils.isBlank(articleBackVO.getArticleTitle()))
                     throw new OperationStatusException("文章标题不允许为空!");
-                modFlag = true;
                 article.setArticleTitle(articleBackVO.getArticleTitle());
             }
             if (Objects.nonNull(articleBackVO.getArticleContent())) {
                 if (StringUtils.isBlank(articleBackVO.getArticleContent()))
                     throw new OperationStatusException("文章内容不允许为空!");
-                modFlag = true;
                 article.setArticleContent(articleBackVO.getArticleContent());
             }
             Article articleOrigin = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
@@ -196,14 +198,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         .eq(Category::getDeletedFlag, false));
                 if (count != 1)
                     throw new IllegalRequestException();
-                modFlag = true;
                 article.setCategoryId(articleBackVO.getCategoryId());
             }
             if (Objects.nonNull(articleBackVO.getArticleCover())) {
-                if (!articleBackVO.getArticleCover().startsWith(STATIC_RESOURCE_URL)) {
-                    modFlag = true;
+                if (!articleBackVO.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                     article.setArticleCover("");
-                }
+                else
+                    article.setArticleCover(articleBackVO.getArticleCover());
                 if (articleOrigin.getArticleCover().startsWith(STATIC_RESOURCE_URL + articleOrigin.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + articleOrigin.getId()))
                     multiFileService.updateArticleImgBy(articleOrigin.getUserId(), articleOrigin.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1));
             }
@@ -213,17 +214,25 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         .eq(ArticleTag::getDeletedFlag, false)
                         .eq(ArticleTag::getArticleId, articleOrigin.getId()));
             }
-            if (Objects.isNull(articleOrigin.getPublishUser())) {
-                modFlag = true;
-                article.setPublishUser(loginUser.getUserId());
-                article.setPublishTime(new Date());
+            if (Objects.nonNull(articleBackVO.getTopFlag()))
+                article.setTopFlag(articleBackVO.getTopFlag());
+            if (Objects.nonNull(articleBackVO.getDraftFlag())) {
+                article.setDraftFlag(articleBackVO.getDraftFlag());
+                if (Objects.isNull(articleOrigin.getPublishUser())) {
+                    article.setPublishUser(loginUser.getUserId());
+                    article.setPublishTime(new Date());
+                }
             }
+            if (Objects.nonNull(articleBackVO.getPublicFlag()))
+                article.setPublicFlag(articleBackVO.getPublicFlag());
+            if (Objects.nonNull(articleBackVO.getHiddenFlag()))
+                article.setHiddenFlag(articleBackVO.getHiddenFlag());
+            if (Objects.nonNull(articleBackVO.getCommentableFlag()))
+                article.setCommentableFlag(articleBackVO.getCommentableFlag());
             article.setId(articleBackVO.getId());
-            if (modFlag) {
-                article.setUpdateUser(loginUser.getUserId());
-                article.setUpdateTime(new Date());
-                articleMapper.updateById(article);
-            }
+            article.setUpdateUser(loginUser.getUserId());
+            article.setUpdateTime(new Date());
+            articleMapper.updateById(article);
             article.setUserId(articleOrigin.getUserId());
         }
         if (CollectionUtils.isNotEmpty(articleBackVO.getTagIdList())) {
@@ -245,9 +254,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public PagePojo<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (Objects.isNull(condition.getDeletedFlag()))
-            condition.setDeletedFlag(false);
-        else if (Objects.equals(condition.getDeletedFlag(), true) && loginUser.getRoleWeight() > 100)
+        if (Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100)
             return new PagePojo<>();
         Integer count = articleMapper.selectArticlesBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count == 0)
@@ -267,17 +274,32 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     @Transactional
-    public void updateArticlesStatus(UpdateBatchVO updateBatchVO) {
+    public void updateArticlesStatus(CommonStatusVO commonStatusVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        Integer count = articleMapper.updateArticlesStatus(updateBatchVO, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (count != updateBatchVO.getIdList().size())
+        LambdaUpdateWrapper<Article> lambdaUpdateWrapper = new LambdaUpdateWrapper<Article>()
+                .eq(loginUser.getRoleWeight() > 100, Article::getDeletedFlag, false)
+                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
+                .in(Article::getId, commonStatusVO.getIdList());
+        if (commonStatusVO.getType().equals(5))
+            lambdaUpdateWrapper.set(Article::getDraftFlag, true).set(Article::getRecycleFlag, true);
+        else if (commonStatusVO.getType().equals(6)) {
+            if (Objects.equals(commonStatusVO.getStatus(), true))
+                lambdaUpdateWrapper.set(Article::getRecycleFlag, false);
+            else
+                lambdaUpdateWrapper.set(Article::getDeletedFlag, true);
+        } else if (commonStatusVO.getType().equals(7) && loginUser.getRoleWeight() <= 100)
+            lambdaUpdateWrapper.set(Article::getDeletedFlag, false);
+        else
+            throw new OperationStatusException("参数异常!");
+        int count = articleMapper.update(null, lambdaUpdateWrapper);
+        if (count != commonStatusVO.getIdList().size())
             throw new IllegalRequestException();
-        if (updateBatchVO.getDeletedFlag()) {
+        if (commonStatusVO.getType().equals(6) && !Objects.equals(commonStatusVO.getStatus(), true)) {
             articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
                     .set(ArticleTag::getDeletedFlag, true)
                     .eq(ArticleTag::getDeletedFlag, false)
-                    .in(ArticleTag::getArticleId, updateBatchVO.getIdList()));
-            multiDirService.updateArticleDirByIdList(updateBatchVO.getIdList());
+                    .in(ArticleTag::getArticleId, commonStatusVO.getIdList()));
+            multiDirService.updateArticleDirByIdList(commonStatusVO.getIdList());
         }
     }
 
@@ -286,10 +308,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     public void deleteArticleIdList(List<Integer> articleIdList) {
         if (CollectionUtils.isEmpty(articleIdList))
             throw new IllegalRequestException();
-        int count = articleMapper.deleteBatchIds(articleIdList);
+        int count = articleMapper.delete(new LambdaUpdateWrapper<Article>()
+                .eq(Article::getDeletedFlag, true)
+                .in(Article::getId, articleIdList));
         if (count != articleIdList.size())
             throw new IllegalRequestException();
-        articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>()
+        articleTagMapper.delete(new LambdaUpdateWrapper<ArticleTag>()
                 .in(ArticleTag::getArticleId, articleIdList));
         multiDirService.removeArticleDirByIdList(articleIdList);
     }
@@ -298,14 +322,21 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Transactional
     public void updateArticleStatusVO(CommonStatusVO commonStatusVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        int count = articleMapper.update(null, new LambdaUpdateWrapper<Article>()
-                .set(Article::getTopFlag, commonStatusVO.getTopFlag())
-                .set(Article::getPublicFlag, commonStatusVO.getPublicFlag())
-                .set(Article::getHiddenFlag, commonStatusVO.getHiddenFlag())
-                .set(Article::getCommentableFlag, commonStatusVO.getCommentableFlag())
-                .eq(Article::getId, commonStatusVO.getId())
-                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
-                .eq(Article::getDraftFlag, false));
+        LambdaUpdateWrapper<Article> lambdaUpdateWrapper = new LambdaUpdateWrapper<Article>()
+                .in(Article::getId, commonStatusVO.getIdList())
+                .eq(Article::getDraftFlag, false)
+                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId());
+        if (commonStatusVO.getType().equals(1))
+            lambdaUpdateWrapper.setSql("top_flag = !top_flag");
+        else if (commonStatusVO.getType().equals(2))
+            lambdaUpdateWrapper.setSql("public_flag = !public_flag");
+        else if (commonStatusVO.getType().equals(3))
+            lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
+        else if (commonStatusVO.getType().equals(4))
+            lambdaUpdateWrapper.setSql("commentable_flag = !commentable_flag");
+        else
+            throw new OperationStatusException("参数异常!");
+        int count = articleMapper.update(null, lambdaUpdateWrapper);
         if (count != 1)
             throw new IllegalRequestException();
     }

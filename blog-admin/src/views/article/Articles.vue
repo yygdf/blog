@@ -11,12 +11,12 @@
         新增
       </el-button>
       <el-button
-        v-if="deletedFlag"
+        v-if="type !== 7"
         :disabled="articleIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="removeStatus = true"
+        @click="editStatus = true"
       >
         批量删除
       </el-button>
@@ -26,7 +26,7 @@
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="editStatus = true"
+        @click="removeStatus = true"
       >
         批量删除
       </el-button>
@@ -81,7 +81,7 @@
           />
         </el-select>
         <el-select
-          v-model="condition"
+          v-model="type"
           size="small"
           style="margin-right:1rem"
           placeholder="请选择"
@@ -203,25 +203,12 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.topFlag"
-            :disabled="optionIndex !== 0"
+            :disabled="type != null"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeArticleStatus(scope.row)"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
-        <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.hiddenFlag"
-            :disabled="optionIndex !== 0"
-            :active-value="true"
-            :inactive-value="false"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
-            @change="changeArticleStatus(scope.row)"
+            @change="changeArticleStatus(scope.row, 1)"
           />
         </template>
       </el-table-column>
@@ -229,12 +216,25 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.publicFlag"
-            :disabled="optionIndex !== 0"
+            :disabled="type != null"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeArticleStatus(scope.row)"
+            @change="changeArticleStatus(scope.row, 2)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.hiddenFlag"
+            :disabled="type != null"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            @change="changeArticleStatus(scope.row, 3)"
           />
         </template>
       </el-table-column>
@@ -247,19 +247,19 @@
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.commentableFlag"
-            :disabled="optionIndex !== 0"
+            :disabled="type != null"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeArticleStatus(scope.row)"
+            @change="changeArticleStatus(scope.row, 4)"
           />
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
           <el-button
-            v-if="optionIndex === 0 || optionIndex === 1"
+            v-if="type == null || type === 5"
             type="primary"
             size="mini"
             @click="editArticle(scope.row.id, scope.row.userId)"
@@ -267,25 +267,16 @@
             编辑
           </el-button>
           <el-popconfirm
-            v-if="optionIndex === 2"
+            v-else
             title="确定恢复吗？"
-            @confirm="updateArticlesStatus(scope.row.id, false)"
+            @confirm="updateArticlesStatus(scope.row.id, type === 6)"
           >
             <el-button type="success" size="mini" slot="reference">
               恢复
             </el-button>
           </el-popconfirm>
           <el-popconfirm
-            v-if="optionIndex === 3"
-            title="确定恢复吗？"
-            @confirm="updateArticlesStatus(scope.row.id)"
-          >
-            <el-button type="success" size="mini" slot="reference">
-              恢复
-            </el-button>
-          </el-popconfirm>
-          <el-popconfirm
-            v-if="optionIndex !== 3"
+            v-if="type !== 7"
             title="确定删除吗？"
             style="margin-left:10px"
             @confirm="updateArticlesStatus(scope.row.id)"
@@ -295,7 +286,7 @@
             </el-button>
           </el-popconfirm>
           <el-popconfirm
-            v-if="optionIndex === 3"
+            v-else
             title="确定彻底删除吗？"
             style="margin-left:10px"
             @confirm="deleteArticles(scope.row.id)"
@@ -346,16 +337,15 @@
 </template>
 
 <script>
-import qs from "qs";
 export default {
   created() {
     this.listArticles();
     this.listArticleOptions();
     if (this.checkWeight(100)) {
-      this.options[3] = {
-        value: '{"draftFlag":null,"recycleFlag":true,"deletedFlag":true}',
+      this.options.push({
+        value: 7,
         label: "已删除"
-      };
+      });
     }
     this.$nextTick(() => {
       this.$refs.input.focus();
@@ -365,19 +355,19 @@ export default {
     return {
       options: [
         {
-          value: '{"draftFlag":false,"recycleFlag":false,"deletedFlag":false}',
+          value: null,
           label: "已发表"
         },
         {
-          value: '{"draftFlag":true,"recycleFlag":false,"deletedFlag":false}',
+          value: 5,
           label: "草稿箱"
         },
         {
-          value: '{"draftFlag":null,"recycleFlag":true,"deletedFlag":false}',
+          value: 6,
           label: "回收站"
         }
       ],
-      condition: '{"draftFlag":false,"recycleFlag":false,"deletedFlag":false}',
+      type: null,
       tagList: [],
       tagIdList: [],
       articleList: [],
@@ -389,15 +379,11 @@ export default {
       categoryId: null,
       oldKeywords: null,
       loading: true,
-      draftFlag: false,
       editStatus: false,
-      recycleFlag: false,
-      deletedFlag: false,
       removeStatus: false,
       size: 10,
       count: 0,
-      current: 1,
-      optionIndex: 0
+      current: 1
     };
   },
   methods: {
@@ -437,18 +423,14 @@ export default {
         userId: this.userId,
         current: this.current,
         keywords: this.keywords,
-        draftFlag: this.draftFlag,
         tagIdList: this.tagIdList,
         categoryId: this.categoryId,
-        recycleFlag: this.recycleFlag,
-        deletedFlag: this.deletedFlag
+        type: this.type
       };
+      params = this.$filterObject.skipEmptyValue(params);
       this.axios
         .get("/api/back/articles", {
-          params,
-          paramsSerializer: params => {
-            return qs.stringify(params, { indices: false, skipNulls: true });
-          }
+          params
         })
         .then(({ data }) => {
           this.count = data.data.count;
@@ -504,32 +486,42 @@ export default {
         this.removeStatus = false;
       });
     },
-    changeArticleStatus(article) {
+    changeArticleStatus(article, type) {
       let param = {
-        id: article.id,
-        topFlag: article.topFlag,
-        publicFlag: article.publicFlag,
-        hiddenFlag: article.hiddenFlag,
-        commentableFlag: article.commentableFlag
+        idList: [article.id],
+        type: type
       };
-      this.axios.put("/api/back/article/status", param);
+      this.axios.put("/api/back/article/status", param).then(({ data }) => {
+        if (!data.flag) {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+          if (type === 1) {
+            article.topFlag = !article.topFlag;
+          } else if (type === 2) {
+            article.publicFlag = !article.publicFlag;
+          } else if (type === 3) {
+            article.hiddenFlag = !article.hiddenFlag;
+          } else if (type === 4) {
+            article.commentableFlag = !article.commentableFlag;
+          }
+        }
+      });
     },
-    updateArticlesStatus(id, isRec = true) {
-      let param = new URLSearchParams();
+    updateArticlesStatus(id, isRec = false) {
+      let param = {
+        type: this.type == null ? 5 : this.type
+      };
       if (id != null) {
-        param.append("idList", [id]);
+        param.idList = [id];
       } else {
-        param.append("idList", this.articleIdList);
+        param.idList = this.articleIdList;
       }
-      let recycleFlag = !this.recycleFlag;
-      let deletedFlag = this.deletedFlag;
-      if ((this.optionIndex === 2 && isRec) || this.optionIndex === 3) {
-        recycleFlag = this.recycleFlag;
-        deletedFlag = !this.deletedFlag;
+      if (isRec) {
+        param.status = true;
       }
-      param.append("recycleFlag", recycleFlag);
-      param.append("deletedFlag", deletedFlag);
-      if (param.get("idList").length === this.articleList.length) {
+      if (param.idList.length === this.articleList.length) {
         this.current = --this.current > 1 ? this.current : 1;
       }
       this.axios.put("/api/back/articles", param).then(({ data }) => {
@@ -550,20 +542,7 @@ export default {
     }
   },
   watch: {
-    condition() {
-      const condition = JSON.parse(this.condition);
-      this.draftFlag = condition.draftFlag;
-      this.recycleFlag = condition.recycleFlag;
-      this.deletedFlag = condition.deletedFlag;
-      if (this.deletedFlag) {
-        this.optionIndex = 3;
-      } else if (this.recycleFlag) {
-        this.optionIndex = 2;
-      } else if (this.draftFlag) {
-        this.optionIndex = 1;
-      } else {
-        this.optionIndex = 0;
-      }
+    type() {
       this.listArticles(true);
     },
     userId() {

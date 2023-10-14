@@ -73,10 +73,23 @@
             FROM
                 tb_article
             <where>
-                deleted_flag = #{condition.deletedFlag}
-                <if test="condition.recycleFlag != null">
-                    AND recycle_flag = #{condition.recycleFlag}
-                </if>
+                1 = 1
+                <choose>
+                    <when test="condition.type == 5">
+                        AND draft_flag = true
+                        AND recycle_flag = false
+                    </when>
+                    <when test="condition.type == 6">
+                        AND recycle_flag = true
+                        AND deleted_flag = false
+                    </when>
+                    <when test="condition.type == 7">
+                        AND deleted_flag = true
+                    </when>
+                    <otherwise>
+                        AND draft_flag = false
+                    </otherwise>
+                </choose>
                 <choose>
                     <when test="roleWeight > 300">
                         AND user_id = #{userId}
@@ -87,9 +100,6 @@
                         </if>
                     </otherwise>
                 </choose>
-                <if test="condition.draftFlag != null">
-                    AND draft_flag = #{condition.draftFlag}
-                </if>
                 <if test="condition.categoryId != null">
                     AND category_id = #{condition.categoryId}
                 </if>
@@ -127,64 +137,29 @@
             t.id ASC
     </select>
 
-    <update id="updateArticlesStatus">
-        UPDATE
-            tb_article
-        SET
-            deleted_flag = #{updateBatch.deletedFlag}
-            <choose>
-                <when test="updateBatch.deletedFlag">
-                    , recycle_flag = true, draft_flag = true
-                </when>
-                <otherwise>
-                    <if test="updateBatch.recycleFlag != null">
-                        , recycle_flag = #{updateBatch.recycleFlag}
-                        <if test="updateBatch.recycleFlag">
-                            , draft_flag = true
-                        </if>
-                    </if>
-                </otherwise>
-            </choose>
-        WHERE
-            id in
-            <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
-                #{id}
-            </foreach>
-            <if test="roleWeight > 300">
-                AND user_id = #{userId}
-            </if>
-            <if test="roleWeight > 100">
-                AND deleted_flag = false
-            </if>
-    </update>
-
-    <select id="selectCategoryArticleCount" resultType="com.iksling.blog.dto.CategoryArticleDTO">
-        SELECT
-            category_id categoryId,
-            count(*) articleCount
-        FROM
-            tb_article
-        WHERE
-            category_id != -1
-            AND deleted_flag = false
-            AND category_id in
-            <foreach collection="categoryIdList" item="categoryId" index="index" open="(" separator="," close=")">
-                #{categoryId}
-            </foreach>
-        GROUP BY
-            category_id;
-    </select>
-
     <select id="selectArticlesBackDTOCount" resultType="java.lang.Integer">
         SELECT
             count(1)
         FROM
             tb_article
         <where>
-            deleted_flag = #{condition.deletedFlag}
-            <if test="condition.recycleFlag != null">
-                AND recycle_flag = #{condition.recycleFlag}
-            </if>
+            1 = 1
+            <choose>
+                <when test="condition.type == 5">
+                    AND draft_flag = true
+                    AND recycle_flag = false
+                </when>
+                <when test="condition.type == 6">
+                    AND recycle_flag = true
+                    AND deleted_flag = false
+                </when>
+                <when test="condition.type == 7">
+                    AND deleted_flag = true
+                </when>
+                <otherwise>
+                    AND draft_flag = false
+                </otherwise>
+            </choose>
             <choose>
                 <when test="roleWeight > 300">
                     AND user_id = #{userId}
@@ -195,9 +170,6 @@
                     </if>
                 </otherwise>
             </choose>
-            <if test="condition.draftFlag != null">
-                AND draft_flag = #{condition.draftFlag}
-            </if>
             <if test="condition.categoryId != null">
                 AND category_id = #{condition.categoryId}
             </if>

@@ -6,6 +6,7 @@ import com.iksling.blog.service.CategoryService;
 import com.iksling.blog.vo.CategoryBackVO;
 import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -54,6 +55,15 @@ public class CategoryController {
     @PostMapping("/back/category")
     public Result saveOrUpdateBackCategory(@Valid @RequestBody CategoryBackVO categoryBackVO) {
         categoryService.saveOrUpdateCategoryBackVO(categoryBackVO);
+        return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "批量更新分类状态")
+    @ApiImplicitParam(name = "updateBatchVO", value = "批量更新VO", required = true, dataType = "UpdateBatchVO")
+    @PutMapping("/back/categories")
+    public Result updateCategoriesStatus(@Valid UpdateBatchVO updateBatchVO) {
+        categoryService.updateCategoriesStatus(updateBatchVO);
         return Result.success().message("操作成功");
     }
 }

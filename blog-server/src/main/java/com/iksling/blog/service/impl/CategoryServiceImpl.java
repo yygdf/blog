@@ -1,13 +1,13 @@
 package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.CategoriesBackDTO;
-import com.iksling.blog.dto.CategoryArticleDTO;
 import com.iksling.blog.entity.Article;
 import com.iksling.blog.entity.Category;
 import com.iksling.blog.entity.UserAuth;
@@ -24,6 +24,7 @@ import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.CategoryBackVO;
 import com.iksling.blog.vo.CommonStatusVO;
 import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.UpdateBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,9 +53,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
             condition.setDeletedFlag(false);
         else if (Objects.equals(condition.getDeletedFlag(), true) && loginUser.getRoleWeight() > 100)
             return new PagePojo<>();
-        if (Objects.nonNull(condition.getKeywords()))
-            condition.setKeywords(condition.getKeywords().trim());
-        if (loginUser.getRoleWeight() > 300)
+        if (loginUser.getRoleWeight() > 200)
             condition.setUserId(loginUser.getUserId());
         Page<Category> page = new Page<>(condition.getCurrent(), condition.getSize());
         Page<Category> categoryPage = categoryMapper.selectPage(page, new LambdaQueryWrapper<Category>()
@@ -68,22 +67,28 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         else if (categoryPage.getRecords().size() == 0)
             return new PagePojo<>((int) categoryPage.getTotal(), new ArrayList<>());
         List<CategoriesBackDTO> categoriesBackDTOList = BeanCopyUtil.copyList(categoryPage.getRecords(), CategoriesBackDTO.class);
-        List<Integer> categoryIdList = categoriesBackDTOList.stream().map(CategoriesBackDTO::getId).collect(Collectors.toList());
-        List<CategoryArticleDTO> categoryArticleDTOList = articleMapper.selectCategoryArticleCount(categoryIdList);
-        Map<Integer, Integer> categoryArticleMap = categoryArticleDTOList.stream().collect(Collectors.toMap(CategoryArticleDTO::getCategoryId, CategoryArticleDTO::getArticleCount, (k1, k2) -> k2));
         List<Integer> userIdList = categoriesBackDTOList.stream().map(CategoriesBackDTO::getUserId).distinct().collect(Collectors.toList());
-        List<UserAuth> userAuthList = userAuthMapper.selectList(new LambdaQueryWrapper<UserAuth>()
+        List<Map<String, Object>> mapList = userAuthMapper.selectMaps(new LambdaQueryWrapper<UserAuth>()
                 .select(UserAuth::getUserId, UserAuth::getUsername)
                 .in(UserAuth::getUserId, userIdList));
-        Map<Integer, String> userAuthMap = userAuthList.stream().collect(Collectors.toMap(UserAuth::getUserId, UserAuth::getUsername, (k1, k2) -> k2));
-        categoriesBackDTOList.forEach(c -> {
-            c.setArticleCount(checkIntegerIsNull(categoryArticleMap.get(c.getId())));
-            c.setUsername(userAuthMap.get(c.getUserId()));
-        });
+        Map<Integer, String> userIdNameMap = mapList.stream().collect(Collectors.toMap(ml -> (Integer) ml.get("user_id"), ml -> (String) ml.get("username")));
+        categoriesBackDTOList.forEach(c -> c.setUsername(userIdNameMap.get(c.getUserId())));
+        if (condition.getDeletedFlag())
+            categoriesBackDTOList.forEach(c -> c.setArticleCount(0));
+        else {
+            List<Integer> categoryIdList = categoriesBackDTOList.stream().map(CategoriesBackDTO::getId).collect(Collectors.toList());
+            mapList = articleMapper.selectMaps(new QueryWrapper<Article>()
+                    .select("category_id, count(1) articleCount")
+                    .eq("deleted_flag", false)
+                    .in("category_id", categoryIdList)
+                    .groupBy("category_id"));
+            Map<Integer, Integer> categoryArticleCountMap = mapList.stream().collect(Collectors.toMap(ml -> (Integer) ml.get("category_id"), ml -> (Integer) ml.get("articleCount")));
+            categoriesBackDTOList.forEach(c -> c.setArticleCount(castNull204Integer(categoryArticleCountMap.get(c.getId()))));
+        }
         return new PagePojo<>((int) categoryPage.getTotal(), categoriesBackDTOList.stream().sorted(Comparator.comparing(CategoriesBackDTO::getArticleCount).reversed()).collect(Collectors.toList()));
     }
 
-    private Integer checkIntegerIsNull(Integer num) {
+    private Integer castNull204Integer(Integer num) {
         return Objects.isNull(num) ? 0 : num;
     }
 
@@ -91,11 +96,17 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     @Transactional
     public void updateCategoryStatusVO(CommonStatusVO commonStatusVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        int count = categoryMapper.update(null, new LambdaUpdateWrapper<Category>()
-                .set(Category::getPublicFlag, commonStatusVO.getPublicFlag())
-                .set(Category::getHiddenFlag, commonStatusVO.getHiddenFlag())
+        LambdaUpdateWrapper<Category> lambdaUpdateWrapper = new LambdaUpdateWrapper<Category>()
                 .eq(Category::getId, commonStatusVO.getId())
-                .eq(loginUser.getRoleWeight() > 300, Category::getUserId, loginUser.getUserId()));
+                .eq(Category::getDeletedFlag, false)
+                .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId());
+        if (commonStatusVO.getType().equals(2))
+            lambdaUpdateWrapper.setSql("public_flag = !public_flag");
+        else if (commonStatusVO.getType().equals(3))
+            lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
+        else
+            throw new OperationStatusException("参数异常!");
+        int count = categoryMapper.update(null, lambdaUpdateWrapper);
         if (count != 1)
             throw new IllegalRequestException();
     }
@@ -106,13 +117,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         if (CollectionUtils.isEmpty(categoryIdList))
             throw new IllegalRequestException();
         LoginUser loginUser = UserUtil.getLoginUser();
-        Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
-                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
-                .eq(Article::getDeletedFlag, false)
-                .in(Article::getCategoryId, categoryIdList));
-        if (count > 0)
-            throw new IllegalRequestException();
-        count = categoryMapper.deleteCategoryIdList(categoryIdList, loginUser.getUserId(), loginUser.getRoleWeight());
+//        count = categoryMapper.deleteCategoryIdList(categoryIdList, loginUser.getUserId(), loginUser.getRoleWeight());
+        int count = categoryMapper.delete(new LambdaUpdateWrapper<Category>()
+                .eq(Category::getDeletedFlag, true)
+                .in(Category::getId, categoryIdList));
         if (count != categoryIdList.size())
             throw new IllegalRequestException();
         articleMapper.update(null, new LambdaUpdateWrapper<Article>()
@@ -155,6 +163,26 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
             if (count != 1)
                 throw new IllegalRequestException();
         }
+    }
+
+    @Override
+    public void updateCategoriesStatus(UpdateBatchVO updateBatchVO) {
+        if (CollectionUtils.isEmpty(updateBatchVO.getIdList()))
+            throw new IllegalRequestException();
+        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
+                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
+                .eq(Article::getDeletedFlag, false)
+                .in(Article::getCategoryId, updateBatchVO.getIdList()));
+        if (count > 0)
+            throw new IllegalRequestException();
+        count = categoryMapper.deleteCategoryIdList(updateBatchVO.getIdList(), loginUser.getUserId(), loginUser.getRoleWeight());
+        if (count != updateBatchVO.getIdList().size())
+            throw new IllegalRequestException();
+        articleMapper.update(null, new LambdaUpdateWrapper<Article>()
+                .set(Article::getCategoryId, -1)
+                .eq(Article::getDeletedFlag, true)
+                .in(Article::getCategoryId, updateBatchVO.getIdList()));
     }
 }
 

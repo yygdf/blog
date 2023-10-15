@@ -42,6 +42,7 @@
       style="height:calc(100vh - 260px)"
       @imgAdd="uploadArticleImg"
       @imgDel="updateArticleImg"
+      @save="saveArticleDraft"
     />
     <el-dialog
       :visible.sync="addOrEditStatus"
@@ -180,7 +181,7 @@ export default {
     this.listArticleOptions();
   },
   destroyed() {
-    this.autoSaveArticle();
+    this.saveArticleDraft();
   },
   data: function() {
     return {
@@ -312,35 +313,6 @@ export default {
       }
       this.uploadImg(null, form.file);
     },
-    autoSaveArticle() {
-      if (
-        this.modCount !== 0 &&
-        this.article.articleTitle.trim() !== "" &&
-        this.article.articleContent.trim() !== ""
-      ) {
-        if (this.article.draftFlag !== undefined && !this.article.draftFlag) {
-          this.articleBackVO.draftFlag = true;
-        }
-        if (this.article.id !== undefined) {
-          this.articleBackVO.id = this.article.id;
-        }
-        this.axios
-          .post("/api/back/article", this.articleBackVO)
-          .then(({ data }) => {
-            if (data.flag) {
-              this.$notify.success({
-                title: "成功",
-                message: "自动保存成功"
-              });
-            } else {
-              this.$notify.error({
-                title: "失败",
-                message: "自动保存失败"
-              });
-            }
-          });
-      }
-    },
     uploadArticleImg(pos, file) {
       this.uploadImg(pos, file);
     },
@@ -359,13 +331,24 @@ export default {
       this.addOrEditStatus = true;
     },
     exitWithNoSave() {
-      this.modCount = 0;
-      let tab = this.$store.state.currentTab;
-      this.$store.commit("removeTab", tab);
-      let tabList = this.$store.state.tabList;
-      this.$router.push({ path: tabList[tabList.length - 1].path });
+      this.$confirm("确定关闭吗?编辑的内容将不会保存!", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.modCount = 0;
+          let tab = this.$store.state.currentTab;
+          this.$store.commit("removeTab", tab);
+          let tabList = this.$store.state.tabList;
+          this.$router.push({ path: tabList[tabList.length - 1].path });
+        })
+        .catch(() => {});
     },
     saveArticleDraft() {
+      if (this.modCount === 0) {
+        return false;
+      }
       if (this.article.articleTitle.trim() === "") {
         this.$message.error("文章标题不能为空");
         return false;
@@ -391,6 +374,8 @@ export default {
               title: "成功",
               message: "保存草稿成功"
             });
+            this.modCount = 0;
+            this.articleCoverUploadFlag = false;
           } else {
             this.$notify.error({
               title: "失败",
@@ -398,8 +383,6 @@ export default {
             });
           }
         });
-      this.modCount = 0;
-      this.articleCoverUploadFlag = false;
     },
     saveOrUpdateArticle() {
       if (!this.article.categoryId) {
@@ -424,6 +407,9 @@ export default {
               title: "成功",
               message: data.message
             });
+            this.modCount = 0;
+            this.addOrEditStatus = false;
+            this.articleCoverUploadFlag = false;
           } else {
             this.$notify.error({
               title: "失败",
@@ -431,9 +417,6 @@ export default {
             });
           }
         });
-      this.modCount = 0;
-      this.addOrEditStatus = false;
-      this.articleCoverUploadFlag = false;
     },
     cancelSaveOrUpdateArticle() {
       if (this.articleCoverUploadFlag) {

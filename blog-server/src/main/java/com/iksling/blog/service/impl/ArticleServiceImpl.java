@@ -77,12 +77,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     private HttpServletRequest request;
 
     @Override
-    public ArticleBackDTO getArticleBackDTOById(Integer articleId) {
+    public ArticleBackDTO getArticleBackDTOById(Integer id) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Article article = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
                 .select(Article::getId, Article::getUserId, Article::getCategoryId, Article::getArticleTitle, Article::getArticleCover, Article::getArticleContent,
                         Article::getTopFlag, Article::getDraftFlag, Article::getPublicFlag, Article::getHiddenFlag, Article::getCommentableFlag)
-                .eq(Article::getId, articleId)
+                .eq(Article::getId, id)
                 .eq(Article::getRecycleFlag, false)
                 .eq(Article::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
@@ -90,7 +90,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             return new ArticleBackDTO();
         List<Integer> tagIdList = articleTagMapper.selectList(new LambdaQueryWrapper<ArticleTag>()
                 .select(ArticleTag::getTagId)
-                .eq(ArticleTag::getArticleId, articleId)
+                .eq(ArticleTag::getArticleId, id)
                 .eq(ArticleTag::getDeletedFlag, false))
                 .stream().map(ArticleTag::getTagId).collect(Collectors.toList());
         ArticleBackDTO articleBackDTO = BeanCopyUtil.copyObject(article, ArticleBackDTO.class);
@@ -305,17 +305,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     @Transactional
-    public void deleteArticleIdList(List<Integer> articleIdList) {
-        if (CollectionUtils.isEmpty(articleIdList))
+    public void deleteArticleIdList(List<Integer> idList) {
+        if (CollectionUtils.isEmpty(idList))
             throw new IllegalRequestException();
         int count = articleMapper.delete(new LambdaUpdateWrapper<Article>()
                 .eq(Article::getDeletedFlag, true)
-                .in(Article::getId, articleIdList));
-        if (count != articleIdList.size())
+                .in(Article::getId, idList));
+        if (count != idList.size())
             throw new IllegalRequestException();
         articleTagMapper.delete(new LambdaUpdateWrapper<ArticleTag>()
-                .in(ArticleTag::getArticleId, articleIdList));
-        multiDirService.removeArticleDirByIdList(articleIdList);
+                .in(ArticleTag::getArticleId, idList));
+        multiDirService.removeArticleDirByIdList(idList);
     }
 
     @Override

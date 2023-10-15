@@ -24,10 +24,10 @@ public class ArticleController {
     private ArticleService articleService;
 
     @ApiOperation(value = "根据文章id查找文章")
-    @ApiImplicitParam(name = "articleId", value = "文章id", required = true, dataType = "Integer")
-    @GetMapping("/back/article/{articleId}")
-    public Result getBackArticleById(@PathVariable Integer articleId) {
-        return Result.success().message("查询成功").data(articleService.getArticleBackDTOById(articleId));
+    @ApiImplicitParam(name = "id", value = "文章id", required = true, dataType = "Integer")
+    @GetMapping("/back/article/{id}")
+    public Result getBackArticleById(@PathVariable Integer id) {
+        return Result.success().message("查询成功").data(articleService.getArticleBackDTOById(id));
     }
 
     @ApiOperation(value = "查看文章选项")
@@ -54,7 +54,7 @@ public class ArticleController {
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "批量更新文章状态")
-    @ApiImplicitParam(name = "updateBatchVO", value = "批量更新VO", required = true, dataType = "UpdateBatchVO")
+    @ApiImplicitParam(name = "commonStatusVO", value = "通用状态VO", required = true, dataType = "CommonStatusVO")
     @PutMapping("/back/articles")
     public Result updateArticlesStatus(@Valid @RequestBody CommonStatusVO commonStatusVO) {
         articleService.updateArticlesStatus(commonStatusVO);
@@ -62,11 +62,11 @@ public class ArticleController {
     }
 
     @OptLog(optType = REMOVE)
-    @ApiOperation(value = "批量删除文章")
-    @ApiImplicitParam(name = "articleIdList", value = "文章idList", required = true, dataType = "List<Integer>")
+    @ApiOperation(value = "物理批量删除文章")
+    @ApiImplicitParam(name = "idList", value = "文章idList", required = true, dataType = "List<Integer>")
     @DeleteMapping("/back/articles")
-    public Result deleteBackArticles(@RequestBody List<Integer> articleIdList) {
-        articleService.deleteArticleIdList(articleIdList);
+    public Result deleteBackArticles(@RequestBody List<Integer> idList) {
+        articleService.deleteArticleIdList(idList);
         return Result.success().message("操作成功");
     }
 

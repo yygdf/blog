@@ -17,7 +17,7 @@ import java.util.List;
  */
 public interface ArticleService extends IService<Article> {
 
-    ArticleBackDTO getArticleBackDTOById(Integer articleId);
+    ArticleBackDTO getArticleBackDTOById(Integer id);
 
     ArticleOptionDTO getArticleOptionDTO(Integer userId);
 
@@ -27,7 +27,7 @@ public interface ArticleService extends IService<Article> {
 
     void updateArticlesStatus(CommonStatusVO commonStatusVO);
 
-    void deleteArticleIdList(List<Integer> articleIdList);
+    void deleteArticleIdList(List<Integer> idList);
 
     void updateArticleStatusVO(CommonStatusVO commonStatusVO);
 }

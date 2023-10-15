@@ -111,7 +111,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     public void updateArticleImgByFileName(Long fileName) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Map<String, Object> map = multiFileMapper.selectArticleImgFileByFileName(fileName, IMG_ARTICLE.getMark(), loginUser.getRoleWeight(), loginUser.getUserId());
-        if (map.isEmpty())
+        if (Objects.isNull(map))
             return;
         long fileNameNew = IdWorker.getId();
         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()

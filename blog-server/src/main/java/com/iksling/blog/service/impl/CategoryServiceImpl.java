@@ -82,7 +82,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                     .eq("deleted_flag", false)
                     .in("category_id", categoryIdList)
                     .groupBy("category_id"));
-            Map<Integer, Integer> categoryArticleCountMap = mapList.stream().collect(Collectors.toMap(ml -> (Integer) ml.get("category_id"), ml -> (Integer) ml.get("articleCount")));
+            Map<Integer, Integer> categoryArticleCountMap = mapList.stream().collect(Collectors.toMap(ml -> (Integer) ml.get("category_id"), ml -> ((Number) ml.get("articleCount")).intValue()));
             categoriesBackDTOList.forEach(c -> c.setArticleCount(castNull204Integer(categoryArticleCountMap.get(c.getId()))));
         }
         return new PagePojo<>((int) categoryPage.getTotal(), categoriesBackDTOList.stream().sorted(Comparator.comparing(CategoriesBackDTO::getArticleCount).reversed()).collect(Collectors.toList()));

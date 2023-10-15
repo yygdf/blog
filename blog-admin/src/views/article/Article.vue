@@ -181,7 +181,7 @@ export default {
     this.listArticleOptions();
   },
   destroyed() {
-    this.saveArticleDraft();
+    this.saveArticleDraft(false);
   },
   data: function() {
     return {
@@ -385,16 +385,20 @@ export default {
         })
         .catch(() => {});
     },
-    saveArticleDraft() {
+    saveArticleDraft(flag = true) {
       if (this.modCount === 0) {
         return false;
       }
       if (this.article.articleTitle.trim() === "") {
-        this.$message.error("文章标题不能为空");
+        if (flag) {
+          this.$message.error("文章标题不能为空");
+        }
         return false;
       }
       if (this.article.articleContent.trim() === "") {
-        this.$message.error("文章内容不能为空");
+        if (flag) {
+          this.$message.error("文章内容不能为空");
+        }
         return false;
       }
       if (this.article.draftFlag !== undefined && !this.article.draftFlag) {
@@ -574,5 +578,9 @@ export default {
 }
 .word-limit-input {
   padding-right: 60px;
+}
+>>> .add-image-link .title {
+  font-size: 16px !important;
+  margin-top: -20px !important;
 }
 </style>

@@ -4,7 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserConfigService;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.ConfigBackVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import io.swagger.annotations.Api;
@@ -28,7 +28,7 @@ public class UserConfigController {
     @ApiOperation(value = "查看后台用户配置列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/back/userConfigs")
-    public Result listBackUserConfigs(@Valid ConditionVO condition) {
+    public Result listBackUserConfigs(@Valid ConditionBackVO condition) {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("rootUserId", ROOT_USER_ID)
                 .set("rootUserIdList", ROOT_USER_ID_LIST)

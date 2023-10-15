@@ -19,7 +19,7 @@ import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.TagService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.TagBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,7 +43,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     private UserAuthMapper userAuthMapper;
 
     @Override
-    public PagePojo<TagsBackDTO> getPageTagsBackDTO(ConditionVO condition) {
+    public PagePojo<TagsBackDTO> getPageTagsBackDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
         String keywords = condition.getKeywords();
         if (Objects.nonNull(keywords))

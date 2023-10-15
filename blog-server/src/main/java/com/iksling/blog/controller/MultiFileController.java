@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 import static com.iksling.blog.constant.LogConst.UPDATE;
 import static com.iksling.blog.constant.LogConst.UPLOAD;
@@ -32,11 +33,11 @@ public class MultiFileController {
     }
 
     @OptLog(optType = UPDATE)
-    @ApiOperation(value = "更新文章图片删除状态")
-    @ApiImplicitParam(name = "fileName", value = "文章图片名", required = true, dataType = "Long")
+    @ApiOperation(value = "批量更新文章图片状态")
+    @ApiImplicitParam(name = "fileNameList", value = "文件名list", required = true, dataType = "List<Long>")
     @PutMapping("/back/article/image")
-    public Result updateBackArticleImage(@RequestParam Long fileName) {
-        multiFileService.updateArticleImgByFileName(fileName);
+    public Result updateBackArticleImages(@RequestBody List<Long> fileNameList) {
+        multiFileService.updateArticleImgByFileNameList(fileNameList);
         return Result.success().message("操作成功");
     }
 
@@ -50,7 +51,7 @@ public class MultiFileController {
     }
 
     @OptLog(optType = UPDATE)
-    @ApiOperation(value = "更新用户头像删除状态")
+    @ApiOperation(value = "更新用户头像状态")
     @ApiImplicitParam(name = "fileName", value = "用户头像名", required = true, dataType = "Long")
     @PutMapping("/back/user/avatar")
     public Result updateBackUserAvatar(@RequestParam Long fileName) {

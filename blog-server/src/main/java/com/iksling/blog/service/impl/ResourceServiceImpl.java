@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.dto.LabelDTO;
-import com.iksling.blog.dto.LabelsDTO;
+import com.iksling.blog.dto.LabelBackDTO;
+import com.iksling.blog.dto.LabelsBackDTO;
 import com.iksling.blog.dto.ResourcesBackDTO;
 import com.iksling.blog.entity.Resource;
 import com.iksling.blog.exception.IllegalRequestException;
@@ -16,7 +16,7 @@ import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.ResourceService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.CommonStatusVO;
+import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.ResourceBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,11 +51,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
 
     @Override
     @Transactional
-    public void updateResourceStatusVO(CommonStatusVO commonStatusVO) {
+    public void updateResourceStatusVO(StatusBackVO statusBackVO) {
         int count = resourceMapper.update(null, new LambdaUpdateWrapper<Resource>()
-                .set(Resource::getDisabledFlag, commonStatusVO.getHiddenFlag())
-                .set(Resource::getAnonymousFlag, commonStatusVO.getPublicFlag())
-                .eq(Resource::getId, commonStatusVO.getId()));
+                .set(Resource::getDisabledFlag, statusBackVO.getHiddenFlag())
+                .set(Resource::getAnonymousFlag, statusBackVO.getPublicFlag())
+                .eq(Resource::getId, statusBackVO.getId()));
         if (count != 1)
             throw new IllegalRequestException();
         filterInvocationSecurityMetadataSource.clearResourceRoleList();
@@ -109,7 +109,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     }
 
     @Override
-    public List<LabelsDTO> getResourcesDTO() {
+    public List<LabelsBackDTO> getResourcesDTO() {
         List<Resource> resourceList = resourceMapper.selectList(new LambdaQueryWrapper<Resource>()
                 .select(Resource::getId, Resource::getUserId, Resource::getParentId, Resource::getResourceName)
                 .orderByAsc(Resource::getId));
@@ -119,13 +119,13 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     }
 
     @Override
-    public List<LabelDTO> getBackResourceModuleNames() {
+    public List<LabelBackDTO> getBackResourceModuleNames() {
         List<Resource> resourceList = resourceMapper.selectList(new LambdaQueryWrapper<Resource>()
                 .select(Resource::getId, Resource::getResourceName)
                 .eq(Resource::getParentId, -1)
                 .orderByAsc(Resource::getId));
         return resourceList.stream()
-                .map(e -> LabelDTO.builder()
+                .map(e -> LabelBackDTO.builder()
                         .id(e.getId())
                         .label(e.getResourceName())
                         .build())
@@ -156,24 +156,24 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                 .collect(Collectors.toList());
     }
 
-    private List<LabelsDTO> convertResourcesDTOList(List<Resource> parentResourceList, Map<Integer, List<Resource>> childrenResourceMap) {
+    private List<LabelsBackDTO> convertResourcesDTOList(List<Resource> parentResourceList, Map<Integer, List<Resource>> childrenResourceMap) {
         return parentResourceList.stream()
                 .map(parentResource -> {
-                    LabelsDTO labelsDTO = LabelsDTO.builder()
+                    LabelsBackDTO labelsBackDTO = LabelsBackDTO.builder()
                             .id(parentResource.getId())
                             .userId(parentResource.getUserId())
                             .label(parentResource.getResourceName())
                             .build();
                     List<Resource> childrenResourceList = childrenResourceMap.get(parentResource.getId());
                     if (CollectionUtils.isNotEmpty(childrenResourceList)) {
-                        List<LabelsDTO> labelsDTOList = childrenResourceList.stream().map(childrenResource -> LabelsDTO.builder()
+                        List<LabelsBackDTO> labelsBackDTOList = childrenResourceList.stream().map(childrenResource -> LabelsBackDTO.builder()
                                 .id(childrenResource.getId())
                                 .userId(childrenResource.getUserId())
                                 .label(childrenResource.getResourceName())
                                 .build()).collect(Collectors.toList());
-                        labelsDTO.setChildren(labelsDTOList);
+                        labelsBackDTO.setChildren(labelsBackDTOList);
                     }
-                    return labelsDTO;
+                    return labelsBackDTO;
                 })
                 .collect(Collectors.toList());
     }

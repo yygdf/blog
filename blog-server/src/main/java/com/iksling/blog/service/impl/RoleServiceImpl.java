@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.dto.LabelDTO;
-import com.iksling.blog.dto.LabelsDTO;
-import com.iksling.blog.dto.RoleOptionDTO;
+import com.iksling.blog.dto.LabelBackDTO;
+import com.iksling.blog.dto.LabelsBackDTO;
+import com.iksling.blog.dto.RoleOptionBackDTO;
 import com.iksling.blog.dto.RolesBackDTO;
 import com.iksling.blog.entity.Role;
 import com.iksling.blog.entity.RoleMenu;
@@ -22,9 +22,9 @@ import com.iksling.blog.mapper.UserRoleMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.*;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.CommonStatusVO;
+import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.RoleBackVO;
-import com.iksling.blog.vo.RoleOptionVO;
+import com.iksling.blog.vo.RoleOptionBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -74,10 +74,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     }
 
     @Override
-    public RoleOptionDTO getRoleOptionDTO() {
-        List<LabelsDTO> menusDTOList = menuService.getMenusDTO();
-        List<LabelsDTO> resourcesDTOList = resourceService.getResourcesDTO();
-        return RoleOptionDTO.builder()
+    public RoleOptionBackDTO getRoleOptionDTO() {
+        List<LabelsBackDTO> menusDTOList = menuService.getMenusDTO();
+        List<LabelsBackDTO> resourcesDTOList = resourceService.getResourcesDTO();
+        return RoleOptionBackDTO.builder()
                 .userId(UserUtil.getLoginUser().getUserId())
                 .menusDTOList(menusDTOList)
                 .resourcesDTOList(resourcesDTOList)
@@ -86,18 +86,18 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
 
     @Override
     @Transactional
-    public void updateRoleStatusVO(CommonStatusVO commonStatusVO) {
-        if (commonStatusVO.getId().equals(ROOT_ROLE_ID))
+    public void updateRoleStatusVO(StatusBackVO statusBackVO) {
+        if (statusBackVO.getId().equals(ROOT_ROLE_ID))
             throw new IllegalRequestException();
         int count = roleMapper.update(null, new LambdaUpdateWrapper<Role>()
-                .set(Role::getDisabledFlag, commonStatusVO.getPublicFlag())
-                .eq(Role::getId, commonStatusVO.getId()));
+                .set(Role::getDisabledFlag, statusBackVO.getPublicFlag())
+                .eq(Role::getId, statusBackVO.getId()));
         if (count != 1)
             throw new IllegalRequestException();
-        if (commonStatusVO.getPublicFlag()) {
+        if (statusBackVO.getPublicFlag()) {
             Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>()
                     .select(Role::getRoleName)
-                    .eq(Role::getId, commonStatusVO.getId()));
+                    .eq(Role::getId, statusBackVO.getId()));
             offlineByRoleName(role.getRoleName());
         }
     }
@@ -159,25 +159,25 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
 
     @Override
     @Transactional
-    public void updateRoleOptionVO(RoleOptionVO roleOptionVO) {
-        if (Objects.nonNull(roleOptionVO.getMenuIdList())) {
+    public void updateRoleOptionVO(RoleOptionBackVO roleOptionBackVO) {
+        if (Objects.nonNull(roleOptionBackVO.getMenuIdList())) {
             roleMenuService.remove(new LambdaQueryWrapper<RoleMenu>()
-                    .eq(RoleMenu::getRoleId, roleOptionVO.getId()));
-            if (CollectionUtils.isNotEmpty(roleOptionVO.getMenuIdList()))
-                roleMenuService.saveBatch(roleOptionVO.getMenuIdList().stream()
+                    .eq(RoleMenu::getRoleId, roleOptionBackVO.getId()));
+            if (CollectionUtils.isNotEmpty(roleOptionBackVO.getMenuIdList()))
+                roleMenuService.saveBatch(roleOptionBackVO.getMenuIdList().stream()
                         .map(menuId -> RoleMenu.builder()
-                                .roleId(roleOptionVO.getId())
+                                .roleId(roleOptionBackVO.getId())
                                 .menuId(menuId)
                                 .build())
                         .collect(Collectors.toList()));
         }
-        if (Objects.nonNull(roleOptionVO.getResourceIdList())) {
+        if (Objects.nonNull(roleOptionBackVO.getResourceIdList())) {
             roleResourceService.remove(new LambdaQueryWrapper<RoleResource>()
-                    .eq(RoleResource::getRoleId, roleOptionVO.getId()));
-            if (CollectionUtils.isNotEmpty(roleOptionVO.getResourceIdList()))
-                roleResourceService.saveBatch(roleOptionVO.getResourceIdList().stream()
+                    .eq(RoleResource::getRoleId, roleOptionBackVO.getId()));
+            if (CollectionUtils.isNotEmpty(roleOptionBackVO.getResourceIdList()))
+                roleResourceService.saveBatch(roleOptionBackVO.getResourceIdList().stream()
                         .map(resourceId -> RoleResource.builder()
-                                .roleId(roleOptionVO.getId())
+                                .roleId(roleOptionBackVO.getId())
                                 .resourceId(resourceId)
                                 .build())
                         .collect(Collectors.toList()));
@@ -186,12 +186,12 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     }
 
     @Override
-    public List<LabelDTO> getBackRoleNames() {
+    public List<LabelBackDTO> getBackRoleNames() {
         List<Role> roleList = roleMapper.selectList(new LambdaQueryWrapper<Role>()
                 .select(Role::getId, Role::getRoleName, Role::getRoleWeight)
                 .orderByAsc(Role::getRoleWeight));
         return roleList.stream()
-                .map(e -> LabelDTO.builder()
+                .map(e -> LabelBackDTO.builder()
                         .id(e.getId())
                         .label(e.getRoleName())
                         .build())

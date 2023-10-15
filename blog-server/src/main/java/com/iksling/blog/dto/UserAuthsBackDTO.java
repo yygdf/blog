@@ -55,5 +55,5 @@ public class UserAuthsBackDTO {
     /**
      * 用户角色
      */
-    private List<LabelDTO> roleDTOList;
+    private List<LabelBackDTO> roleDTOList;
 }

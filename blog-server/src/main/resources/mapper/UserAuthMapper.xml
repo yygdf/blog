@@ -31,7 +31,7 @@
         <result column="disabled_flag" property="disabledFlag"/>
         <result column="ip_source" property="ipSource"/>
         <result column="ip_address" property="ipAddress"/>
-        <collection property="roleDTOList" ofType="com.iksling.blog.dto.LabelDTO">
+        <collection property="roleDTOList" ofType="com.iksling.blog.dto.LabelBackDTO">
             <id column="role_id" property="id"/>
             <result column="role_name" property="label"/>
         </collection>

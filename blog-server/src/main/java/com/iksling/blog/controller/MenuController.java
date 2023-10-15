@@ -4,7 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MenuService;
-import com.iksling.blog.vo.CommonStatusVO;
+import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.MenuBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -42,8 +42,8 @@ public class MenuController {
     @ApiOperation(value = "修改菜单状态")
     @ApiImplicitParam(name = "commonStatusVO", value = "通用状态VO", required = true, dataType = "CommonStatusVO")
     @PutMapping("/back/menu/status")
-    public Result updateMenuStatus(@Valid @RequestBody CommonStatusVO commonStatusVO) {
-        menuService.updateMenuStatusVO(commonStatusVO);
+    public Result updateMenuStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
+        menuService.updateMenuStatusVO(statusBackVO);
         return Result.success().message("操作成功");
     }
 

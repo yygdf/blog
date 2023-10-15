@@ -3,7 +3,7 @@ package com.iksling.blog.controller;
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ResourceService;
-import com.iksling.blog.vo.CommonStatusVO;
+import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.ResourceBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -32,8 +32,8 @@ public class ResourceController {
     @ApiOperation(value = "修改资源状态")
     @ApiImplicitParam(name = "commonStatusVO", value = "通用状态VO", required = true, dataType = "CommonStatusVO")
     @PutMapping("/back/resource/status")
-    public Result updateResourceStatus(@Valid @RequestBody CommonStatusVO commonStatusVO) {
-        resourceService.updateResourceStatusVO(commonStatusVO);
+    public Result updateResourceStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
+        resourceService.updateResourceStatusVO(statusBackVO);
         return Result.success().message("操作成功");
     }
 

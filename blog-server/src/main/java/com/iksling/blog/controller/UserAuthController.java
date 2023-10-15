@@ -4,8 +4,8 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserAuthService;
-import com.iksling.blog.vo.CommonStatusVO;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.UserAuthBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -37,7 +37,7 @@ public class UserAuthController {
     @ApiOperation(value = "查看后台账号列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/back/userAuths")
-    public Result listBackUserAuths(@Valid ConditionVO condition) {
+    public Result listBackUserAuths(@Valid ConditionBackVO condition) {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("rootRoleIdList", ROOT_ROLE_ID_LIST)
                 .set("pagePojo", userAuthService.getPageUserAuthsBackDTO(condition)));
@@ -47,8 +47,8 @@ public class UserAuthController {
     @ApiOperation(value = "修改账号状态")
     @ApiImplicitParam(name = "commonStatusVO", value = "通用状态VO", required = true, dataType = "CommonStatusVO")
     @PutMapping("/back/userAuth/status")
-    public Result updateUserAuthStatus(@Valid @RequestBody CommonStatusVO commonStatusVO) {
-        userAuthService.updateUserAuthStatusVO(commonStatusVO);
+    public Result updateUserAuthStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
+        userAuthService.updateUserAuthStatusVO(statusBackVO);
         return Result.success().message("操作成功");
     }
 

@@ -3,7 +3,7 @@ package com.iksling.blog.mapper;
 import com.iksling.blog.dto.LoginLogsBackDTO;
 import com.iksling.blog.entity.LoginLog;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -13,9 +13,9 @@ import java.util.List;
  */
 public interface LoginLogMapper extends BaseMapper<LoginLog> {
 
-    Integer selectLoginLogsBackDTOCount(@Param("condition") ConditionVO condition);
+    Integer selectLoginLogsBackDTOCount(@Param("condition") ConditionBackVO condition);
 
-    List<LoginLogsBackDTO> listLoginLogsBackDTO(@Param("condition") ConditionVO condition);
+    List<LoginLogsBackDTO> listLoginLogsBackDTO(@Param("condition") ConditionBackVO condition);
 }
 
 

@@ -11,19 +11,24 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleOptionDTO {
+public class ArticleOptionBackDTO {
     /**
      * 用户id
      */
     private Integer userId;
 
     /**
-     * 角色菜单集合
+     * 文章标签list
      */
-    private List<LabelsDTO> menusDTOList;
+    private List<LabelBackDTO> tagDTOList;
 
     /**
-     * 角色资源集合
+     * 文章分类list
      */
-    private List<LabelsDTO> resourcesDTOList;
+    private List<LabelBackDTO> categoryDTOList;
+
+    /**
+     * 静态资源根路径
+     */
+    private String staticResourceUrl;
 }

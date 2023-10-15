@@ -22,8 +22,8 @@ import com.iksling.blog.service.CategoryService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.CategoryBackVO;
-import com.iksling.blog.vo.CommonStatusVO;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,7 +47,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     private UserAuthMapper userAuthMapper;
 
     @Override
-    public PagePojo<CategoriesBackDTO> getPageCategoriesBackDTO(ConditionVO condition) {
+    public PagePojo<CategoriesBackDTO> getPageCategoriesBackDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
         if (Objects.isNull(condition.getDeletedFlag()))
             condition.setDeletedFlag(false);
@@ -94,15 +94,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
 
     @Override
     @Transactional
-    public void updateCategoryStatusVO(CommonStatusVO commonStatusVO) {
+    public void updateCategoryStatusVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         LambdaUpdateWrapper<Category> lambdaUpdateWrapper = new LambdaUpdateWrapper<Category>()
-                .eq(Category::getId, commonStatusVO.getId())
+                .eq(Category::getId, statusBackVO.getId())
                 .eq(Category::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId());
-        if (commonStatusVO.getType().equals(2))
+        if (statusBackVO.getType().equals(2))
             lambdaUpdateWrapper.setSql("public_flag = !public_flag");
-        else if (commonStatusVO.getType().equals(3))
+        else if (statusBackVO.getType().equals(3))
             lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
         else
             throw new OperationStatusException("参数异常!");

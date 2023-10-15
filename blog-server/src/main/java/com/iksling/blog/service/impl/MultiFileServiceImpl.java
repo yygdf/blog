@@ -108,21 +108,25 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
 
     @Override
     @Transactional
-    public void updateArticleImgByFileName(Long fileName) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        Map<String, Object> map = multiFileMapper.selectArticleImgFileByFileName(fileName, IMG_ARTICLE.getMark(), loginUser.getRoleWeight(), loginUser.getUserId());
-        if (Objects.isNull(map))
+    public void updateArticleImgByFileNameList(List<Long> fileNameList) {
+        if (CollectionUtils.isEmpty(fileNameList))
             return;
-        long fileNameNew = IdWorker.getId();
-        multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
-                .set(MultiFile::getFileNameNew, fileNameNew)
-                .set(MultiFile::getDeletedFlag, true)
-                .set(MultiFile::getUpdateUser, loginUser.getUserId())
-                .set(MultiFile::getUpdateTime, new Date())
-                .eq(MultiFile::getId, map.get("id")));
-        String frontPath = map.get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + map.get("dir_path") + "/" + fileName;
-        String fullExtension = "." + map.get("file_extension");
-        MultiFileUtil.rename(frontPath + fullExtension, frontPath + "-" + fileNameNew + "-del" + fullExtension);
+        LoginUser loginUser = UserUtil.getLoginUser();
+        List<Map<String, Object>> mapList = multiFileMapper.selectArticleImgFileByFileName(fileNameList, IMG_ARTICLE.getMark(), loginUser.getRoleWeight(), loginUser.getUserId());
+        if (CollectionUtils.isEmpty(mapList))
+            return;
+        mapList.forEach(map -> {
+            long fileNameNew = IdWorker.getId();
+            multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+                    .set(MultiFile::getFileNameNew, fileNameNew)
+                    .set(MultiFile::getDeletedFlag, true)
+                    .set(MultiFile::getUpdateUser, loginUser.getUserId())
+                    .set(MultiFile::getUpdateTime, new Date())
+                    .eq(MultiFile::getId, map.get("id")));
+            String frontPath = map.get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + map.get("dir_path") + "/" + map.get("file_name");
+            String fullExtension = "." + map.get("file_extension");
+            MultiFileUtil.rename(frontPath + fullExtension, frontPath + "-" + fileNameNew + "-del" + fullExtension);
+        });
     }
 
     @Override

@@ -4,8 +4,8 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.vo.ArticleBackVO;
-import com.iksling.blog.vo.CommonStatusVO;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -33,8 +33,8 @@ public class ArticleController {
     @ApiOperation(value = "查看文章选项")
     @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer")
     @GetMapping("/back/article/option")
-    public Result listBackArticleOption(Integer userId) {
-        return Result.success().message("查询成功").data(articleService.getArticleOptionDTO(userId));
+    public Result getBackArticleOption(Integer userId) {
+        return Result.success().message("查询成功").data(articleService.getArticleOptionBackDTO(userId));
     }
 
     @OptLog(optType = SAVE_OR_UPDATE)
@@ -46,18 +46,18 @@ public class ArticleController {
     }
 
     @ApiOperation(value = "查看后台文章列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
     @GetMapping("/back/articles")
-    public Result listBackArticles(@Valid ConditionVO condition) {
-        return Result.success().message("查询成功").data(articleService.getPageArticlesBackDTO(condition));
+    public Result getBackArticles(@Valid ConditionBackVO condition) {
+        return Result.success().message("查询成功").data(articleService.getArticlesBackDTO(condition));
     }
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "批量更新文章状态")
-    @ApiImplicitParam(name = "commonStatusVO", value = "通用状态VO", required = true, dataType = "CommonStatusVO")
-    @PutMapping("/back/articles")
-    public Result updateArticlesStatus(@Valid @RequestBody CommonStatusVO commonStatusVO) {
-        articleService.updateArticlesStatus(commonStatusVO);
+    @ApiImplicitParam(name = "StatusBackVO", value = "状态后台VO", required = true, dataType = "StatusBackVO")
+    @PutMapping("/back/articles/status")
+    public Result updateBackArticlesStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
+        articleService.updateArticlesStatusBackVO(statusBackVO);
         return Result.success().message("操作成功");
     }
 
@@ -65,17 +65,17 @@ public class ArticleController {
     @ApiOperation(value = "物理批量删除文章")
     @ApiImplicitParam(name = "idList", value = "文章idList", required = true, dataType = "List<Integer>")
     @DeleteMapping("/back/articles")
-    public Result deleteBackArticles(@RequestBody List<Integer> idList) {
-        articleService.deleteArticleIdList(idList);
+    public Result deleteBackArticlesByIdList(@RequestBody List<Integer> idList) {
+        articleService.deleteBackArticlesByIdList(idList);
         return Result.success().message("操作成功");
     }
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "修改文章状态")
-    @ApiImplicitParam(name = "commonStatusVO", value = "通用状态VO", required = true, dataType = "CommonStatusVO")
+    @ApiImplicitParam(name = "StatusBackVO", value = "状态后台VO", required = true, dataType = "StatusBackVO")
     @PutMapping("/back/article/status")
-    public Result updateArticleStatus(@Valid @RequestBody CommonStatusVO commonStatusVO) {
-        articleService.updateArticleStatusVO(commonStatusVO);
+    public Result updateBackArticleStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
+        articleService.updateArticleStatusBackVO(statusBackVO);
         return Result.success().message("操作成功");
     }
 }

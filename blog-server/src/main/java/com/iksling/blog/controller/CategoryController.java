@@ -4,8 +4,8 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.CategoryService;
 import com.iksling.blog.vo.CategoryBackVO;
-import com.iksling.blog.vo.CommonStatusVO;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -27,7 +27,7 @@ public class CategoryController {
     @ApiOperation(value = "查看后台分类列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/back/categories")
-    public Result listBackCategories(@Valid ConditionVO condition) {
+    public Result listBackCategories(@Valid ConditionBackVO condition) {
         return Result.success().message("查询成功").data(categoryService.getPageCategoriesBackDTO(condition));
     }
 
@@ -35,8 +35,8 @@ public class CategoryController {
     @ApiOperation(value = "修改分类状态")
     @ApiImplicitParam(name = "commonStatusVO", value = "通用状态VO", required = true, dataType = "CommonStatusVO")
     @PutMapping("/back/category/status")
-    public Result updateCategoryStatus(@Valid @RequestBody CommonStatusVO commonStatusVO) {
-        categoryService.updateCategoryStatusVO(commonStatusVO);
+    public Result updateCategoryStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
+        categoryService.updateCategoryStatusVO(statusBackVO);
         return Result.success().message("操作成功");
     }
 

@@ -5,13 +5,15 @@ import com.iksling.blog.entity.MultiFile;
 import com.iksling.blog.vo.ArticleImgBackVO;
 import com.iksling.blog.vo.UserAvatarBackVO;
 
+import java.util.List;
+
 /**
  *
  */
 public interface MultiFileService extends IService<MultiFile> {
     String saveArticleImgBackVO(ArticleImgBackVO articleImgBackVO);
 
-    void updateArticleImgByFileName(Long fileName);
+    void updateArticleImgByFileNameList(List<Long> fileNameList);
 
     String saveUserAvatarBackVO(UserAvatarBackVO userAvatarBackVO);
 

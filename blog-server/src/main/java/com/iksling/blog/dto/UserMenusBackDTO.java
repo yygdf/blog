@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class UserMenusDTO {
+public class UserMenusBackDTO {
     /**
      * 菜单id
      */
@@ -54,5 +54,5 @@ public class UserMenusDTO {
     /**
      * 子菜单集合
      */
-    private List<UserMenusDTO> children;
+    private List<UserMenusBackDTO> children;
 }

@@ -10,7 +10,7 @@ import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.CommentService;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -37,7 +37,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     private RedisTemplate redisTemplate;
 
     @Override
-    public PagePojo<CommentsBackDTO> getPageCommentsBackDTO(ConditionVO condition) {
+    public PagePojo<CommentsBackDTO> getPageCommentsBackDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
         if (loginUser.getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();

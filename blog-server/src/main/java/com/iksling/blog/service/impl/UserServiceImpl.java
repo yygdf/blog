@@ -20,7 +20,7 @@ import com.iksling.blog.service.UserService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.RegexUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserBackVO;
 import com.iksling.blog.vo.UserVO;
@@ -54,7 +54,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private SessionRegistry sessionRegistry;
 
     @Override
-    public PagePojo<UsersBackDTO> getPageUsersBackDTO(ConditionVO condition) {
+    public PagePojo<UsersBackDTO> getPageUsersBackDTO(ConditionBackVO condition) {
         if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
         if (Objects.nonNull(condition.getKeywords()))
@@ -151,7 +151,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public PagePojo<UserOnlinesBackDTO> getPageUserOnlinesBackDTO(ConditionVO condition) {
+    public PagePojo<UserOnlinesBackDTO> getPageUserOnlinesBackDTO(ConditionBackVO condition) {
         List<Integer> onlineUserIdList = sessionRegistry.getAllPrincipals().stream()
                 .filter(item -> sessionRegistry.getAllSessions(item, false).size() > 0)
                 .map(item -> BeanCopyUtil.copyObject(item, LoginUser.class))

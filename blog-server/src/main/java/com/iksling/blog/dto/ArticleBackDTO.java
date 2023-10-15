@@ -17,7 +17,7 @@ public class ArticleBackDTO {
     private Integer userId;
 
     /**
-     * 分类id
+     * 分类id，默认-1
      */
     private Integer categoryId;
 
@@ -27,7 +27,7 @@ public class ArticleBackDTO {
     private String articleTitle;
 
     /**
-     * 文章封面
+     * 文章封面，默认空串
      */
     private String articleCover;
 
@@ -37,32 +37,32 @@ public class ArticleBackDTO {
     private String articleContent;
 
     /**
-     * 0未置顶，1已置顶
+     * 0未置顶，1已置顶，默认0
      */
     private Boolean topFlag;
 
     /**
-     * 0是草稿，1不是草稿
+     * 0不是草稿，1是草稿，默认1
      */
     private Boolean draftFlag;
 
     /**
-     * 0未公开，1已公开
+     * 0未公开，1已公开，默认1
      */
     private Boolean publicFlag;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏，1已隐藏，默认0
      */
     private Boolean hiddenFlag;
 
     /**
-     * 0不可评论，1可评论
+     * 0不可评论，1可评论，默认1
      */
     private Boolean commentableFlag;
 
     /**
-     * 标签id集合
+     * 标签idList
      */
     private List<Integer> tagIdList;
 }

@@ -5,7 +5,7 @@ import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.pojo.PagePojo;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserBackVO;
 import com.iksling.blog.vo.UserVO;
@@ -17,7 +17,7 @@ import java.util.List;
  */
 public interface UserService extends IService<User> {
 
-    PagePojo<UsersBackDTO> getPageUsersBackDTO(ConditionVO condition);
+    PagePojo<UsersBackDTO> getPageUsersBackDTO(ConditionBackVO condition);
 
     void deleteUserIdList(List<Integer> userIdList);
 
@@ -27,7 +27,7 @@ public interface UserService extends IService<User> {
 
     void updateUsersStatus(UpdateBatchVO updateBatchVO);
 
-    PagePojo<UserOnlinesBackDTO> getPageUserOnlinesBackDTO(ConditionVO condition);
+    PagePojo<UserOnlinesBackDTO> getPageUserOnlinesBackDTO(ConditionBackVO condition);
 
     void deleteUserOnlineIdList(List<Integer> userOnlineIdList);
 

@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.ArticleBackDTO;
-import com.iksling.blog.dto.ArticleOptionDTO;
+import com.iksling.blog.dto.ArticleOptionBackDTO;
 import com.iksling.blog.dto.ArticlesBackDTO;
-import com.iksling.blog.dto.LabelDTO;
+import com.iksling.blog.dto.LabelBackDTO;
 import com.iksling.blog.entity.Article;
 import com.iksling.blog.entity.ArticleTag;
 import com.iksling.blog.entity.Category;
@@ -30,8 +30,8 @@ import com.iksling.blog.util.CommonUtil;
 import com.iksling.blog.util.IpUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ArticleBackVO;
-import com.iksling.blog.vo.CommonStatusVO;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -99,18 +99,18 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     @Override
-    public ArticleOptionDTO getArticleOptionDTO(Integer userId) {
+    public ArticleOptionBackDTO getArticleOptionBackDTO(Integer userId) {
         LoginUser loginUser = UserUtil.getLoginUser();
         if (Objects.isNull(userId))
             userId = loginUser.getUserId();
         else if (loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(userId))
-            return new ArticleOptionDTO();
+            return new ArticleOptionBackDTO();
         List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
             .select(Tag::getId, Tag::getTagName)
             .eq(Tag::getUserId, userId)
             .eq(Tag::getDeletedFlag, false));
-        List<LabelDTO> tagDTOList = tagList.stream()
-                .map(e -> LabelDTO.builder()
+        List<LabelBackDTO> tagDTOList = tagList.stream()
+                .map(e -> LabelBackDTO.builder()
                         .id(e.getId())
                         .label(e.getTagName())
                         .build())
@@ -119,13 +119,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .select(Category::getId, Category::getCategoryName)
                 .eq(Category::getUserId, userId)
                 .eq(Category::getDeletedFlag, false));
-        List<LabelDTO> categoryDTOList = categoryList.stream()
-                .map(e -> LabelDTO.builder()
+        List<LabelBackDTO> categoryDTOList = categoryList.stream()
+                .map(e -> LabelBackDTO.builder()
                         .id(e.getId())
                         .label(e.getCategoryName())
                         .build())
                 .collect(Collectors.toList());
-        return ArticleOptionDTO.builder()
+        return ArticleOptionBackDTO.builder()
                 .userId(userId)
                 .tagDTOList(tagDTOList)
                 .categoryDTOList(categoryDTOList)
@@ -252,7 +252,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     @Override
-    public PagePojo<ArticlesBackDTO> getPageArticlesBackDTO(ConditionVO condition) {
+    public PagePojo<ArticlesBackDTO> getArticlesBackDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
         if (Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100)
             return new PagePojo<>();
@@ -274,38 +274,38 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     @Transactional
-    public void updateArticlesStatus(CommonStatusVO commonStatusVO) {
+    public void updateArticlesStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         LambdaUpdateWrapper<Article> lambdaUpdateWrapper = new LambdaUpdateWrapper<Article>()
                 .eq(loginUser.getRoleWeight() > 100, Article::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
-                .in(Article::getId, commonStatusVO.getIdList());
-        if (commonStatusVO.getType().equals(5))
+                .in(Article::getId, statusBackVO.getIdList());
+        if (statusBackVO.getType().equals(5))
             lambdaUpdateWrapper.set(Article::getDraftFlag, true).set(Article::getRecycleFlag, true);
-        else if (commonStatusVO.getType().equals(6)) {
-            if (Objects.equals(commonStatusVO.getStatus(), true))
+        else if (statusBackVO.getType().equals(6)) {
+            if (Objects.equals(statusBackVO.getStatus(), true))
                 lambdaUpdateWrapper.set(Article::getRecycleFlag, false);
             else
                 lambdaUpdateWrapper.set(Article::getDeletedFlag, true);
-        } else if (commonStatusVO.getType().equals(7) && loginUser.getRoleWeight() <= 100)
+        } else if (statusBackVO.getType().equals(7) && loginUser.getRoleWeight() <= 100)
             lambdaUpdateWrapper.set(Article::getDeletedFlag, false);
         else
             throw new OperationStatusException("参数异常!");
         int count = articleMapper.update(null, lambdaUpdateWrapper);
-        if (count != commonStatusVO.getIdList().size())
+        if (count != statusBackVO.getIdList().size())
             throw new IllegalRequestException();
-        if (commonStatusVO.getType().equals(6) && !Objects.equals(commonStatusVO.getStatus(), true)) {
+        if (statusBackVO.getType().equals(6) && !Objects.equals(statusBackVO.getStatus(), true)) {
             articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
                     .set(ArticleTag::getDeletedFlag, true)
                     .eq(ArticleTag::getDeletedFlag, false)
-                    .in(ArticleTag::getArticleId, commonStatusVO.getIdList()));
-            multiDirService.updateArticleDirByIdList(commonStatusVO.getIdList());
+                    .in(ArticleTag::getArticleId, statusBackVO.getIdList()));
+            multiDirService.updateArticleDirByIdList(statusBackVO.getIdList());
         }
     }
 
     @Override
     @Transactional
-    public void deleteArticleIdList(List<Integer> idList) {
+    public void deleteBackArticlesByIdList(List<Integer> idList) {
         if (CollectionUtils.isEmpty(idList))
             throw new IllegalRequestException();
         int count = articleMapper.delete(new LambdaUpdateWrapper<Article>()
@@ -320,19 +320,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     @Transactional
-    public void updateArticleStatusVO(CommonStatusVO commonStatusVO) {
+    public void updateArticleStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         LambdaUpdateWrapper<Article> lambdaUpdateWrapper = new LambdaUpdateWrapper<Article>()
-                .in(Article::getId, commonStatusVO.getIdList())
+                .in(Article::getId, statusBackVO.getIdList())
                 .eq(Article::getDraftFlag, false)
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId());
-        if (commonStatusVO.getType().equals(1))
+        if (statusBackVO.getType().equals(1))
             lambdaUpdateWrapper.setSql("top_flag = !top_flag");
-        else if (commonStatusVO.getType().equals(2))
+        else if (statusBackVO.getType().equals(2))
             lambdaUpdateWrapper.setSql("public_flag = !public_flag");
-        else if (commonStatusVO.getType().equals(3))
+        else if (statusBackVO.getType().equals(3))
             lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
-        else if (commonStatusVO.getType().equals(4))
+        else if (statusBackVO.getType().equals(4))
             lambdaUpdateWrapper.setSql("commentable_flag = !commentable_flag");
         else
             throw new OperationStatusException("参数异常!");

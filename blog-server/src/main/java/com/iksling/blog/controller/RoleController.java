@@ -4,9 +4,9 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.RoleService;
-import com.iksling.blog.vo.CommonStatusVO;
+import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.RoleBackVO;
-import com.iksling.blog.vo.RoleOptionVO;
+import com.iksling.blog.vo.RoleOptionBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -43,8 +43,8 @@ public class RoleController {
     @ApiOperation(value = "修改角色状态")
     @ApiImplicitParam(name = "commonStatusVO", value = "通用状态VO", required = true, dataType = "CommonStatusVO")
     @PutMapping("/back/role/status")
-    public Result updateRoleStatus(@Valid @RequestBody CommonStatusVO commonStatusVO) {
-        roleService.updateRoleStatusVO(commonStatusVO);
+    public Result updateRoleStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
+        roleService.updateRoleStatusVO(statusBackVO);
         return Result.success().message("操作成功");
     }
 
@@ -70,8 +70,8 @@ public class RoleController {
     @ApiOperation(value = "修改角色选项")
     @ApiImplicitParam(name = "roleOptionVO", value = "角色选项VO", required = true, dataType = "RoleOptionVO")
     @PutMapping("/back/role/option")
-    public Result updateBackRole(@Valid @RequestBody RoleOptionVO roleOptionVO) {
-        roleService.updateRoleOptionVO(roleOptionVO);
+    public Result updateBackRole(@Valid @RequestBody RoleOptionBackVO roleOptionBackVO) {
+        roleService.updateRoleOptionVO(roleOptionBackVO);
         return Result.success().message("操作成功");
     }
 

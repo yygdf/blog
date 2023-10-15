@@ -10,7 +10,7 @@ import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.FriendLinkService;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.FriendLinkBackVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     private FriendLinkMapper friendLinkMapper;
 
     @Override
-    public PagePojo<FriendLinksBackDTO> getPageFriendLinksBackDTO(ConditionVO condition) {
+    public PagePojo<FriendLinksBackDTO> getPageFriendLinksBackDTO(ConditionBackVO condition) {
         if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
         if (Objects.nonNull(condition.getKeywords()))

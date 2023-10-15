@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 @ApiModel(description = "通用状态VO")
-public class CommonStatusVO {
+public class StatusBackVO {
     /**
      * id - 可删除
      */
@@ -54,12 +54,12 @@ public class CommonStatusVO {
      * type
      */
     @NotNull(message = "type不能为null")
-    @ApiModelProperty(name = "type", value = "type", required = true, dataType = "Integer")
+    @ApiModelProperty(name = "type", value = "类型", required = true, dataType = "Integer")
     private Integer type;
 
     /**
      * status
      */
-    @ApiModelProperty(name = "status", value = "status", dataType = "Boolean")
+    @ApiModelProperty(name = "status", value = "状态", dataType = "Boolean")
     private Boolean status;
 }

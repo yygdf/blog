@@ -6,7 +6,7 @@ import com.iksling.blog.entity.LoginLog;
 import com.iksling.blog.mapper.LoginLogMapper;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.LoginLogService;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class LoginLogServiceImpl extends ServiceImpl<LoginLogMapper, LoginLog>
     private LoginLogMapper loginLogMapper;
 
     @Override
-    public PagePojo<LoginLogsBackDTO> getPageLoginLogsBackDTO(ConditionVO condition) {
+    public PagePojo<LoginLogsBackDTO> getPageLoginLogsBackDTO(ConditionBackVO condition) {
         Integer count = loginLogMapper.selectLoginLogsBackDTOCount(condition);
         if (count == 0)
             return new PagePojo<>();

@@ -523,7 +523,7 @@ export default {
       if (param.idList.length === this.articleList.length) {
         this.current = --this.current > 1 ? this.current : 1;
       }
-      this.axios.put("/api/back/articles", param).then(({ data }) => {
+      this.axios.put("/api/back/articles/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",

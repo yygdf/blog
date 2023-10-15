@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleOptionVO {
+public class RoleOptionBackVO {
     /**
      * 角色id
      */

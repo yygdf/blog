@@ -3,7 +3,7 @@ package com.iksling.blog.controller;
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.SystemConfigService;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.ConfigBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -25,7 +25,7 @@ public class SystemConfigController {
     @ApiOperation(value = "查看后台系统配置列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/back/systemConfigs")
-    public Result listBackSystemConfigs(@Valid ConditionVO condition) {
+    public Result listBackSystemConfigs(@Valid ConditionBackVO condition) {
         return Result.success().message("查询成功").data(systemConfigService.getPageSystemConfigsBackDTO(condition));
     }
 

@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.dto.LabelsDTO;
+import com.iksling.blog.dto.LabelsBackDTO;
 import com.iksling.blog.dto.MenusBackDTO;
-import com.iksling.blog.dto.UserMenusDTO;
+import com.iksling.blog.dto.UserMenusBackDTO;
 import com.iksling.blog.entity.Menu;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.MenuMapper;
@@ -15,7 +15,7 @@ import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MenuService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.CommonStatusVO;
+import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.MenuBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     private RoleMenuMapper roleMenuMapper;
 
     @Override
-    public List<UserMenusDTO> getUserMenusDTO() {
+    public List<UserMenusBackDTO> getUserMenusDTO() {
         LoginUser loginUser = UserUtil.getLoginUser();
         List<Menu> menuList = menuMapper.listMenusByUserId(loginUser.getUserId(), loginUser.getRoleWeight());
         List<Menu> parentMenuList = getParentMenuList(menuList);
@@ -58,12 +58,12 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
 
     @Override
     @Transactional
-    public void updateMenuStatusVO(CommonStatusVO commonStatusVO) {
+    public void updateMenuStatusVO(StatusBackVO statusBackVO) {
         int count = menuMapper.update(null, new LambdaUpdateWrapper<Menu>()
-                .set(Menu::getHideFlag, commonStatusVO.getTopFlag())
-                .set(Menu::getHiddenFlag, commonStatusVO.getHiddenFlag())
-                .set(Menu::getDisabledFlag, commonStatusVO.getPublicFlag())
-                .eq(Menu::getId, commonStatusVO.getId()));
+                .set(Menu::getHideFlag, statusBackVO.getTopFlag())
+                .set(Menu::getHiddenFlag, statusBackVO.getHiddenFlag())
+                .set(Menu::getDisabledFlag, statusBackVO.getPublicFlag())
+                .eq(Menu::getId, statusBackVO.getId()));
         if (count != 1)
             throw new IllegalRequestException();
     }
@@ -117,7 +117,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     }
 
     @Override
-    public List<LabelsDTO> getMenusDTO() {
+    public List<LabelsBackDTO> getMenusDTO() {
         List<Menu> menuList = menuMapper.selectList(new LambdaQueryWrapper<Menu>()
                 .select(Menu::getId, Menu::getUserId, Menu::getParentId, Menu::getName)
                 .orderByAsc(Menu::getId));
@@ -138,14 +138,14 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                 .collect(Collectors.groupingBy(Menu::getParentId));
     }
 
-    private List<UserMenusDTO> convertUserMenuDTOList(List<Menu> parentMenuList, Map<Integer, List<Menu>> childrenMenuMap) {
+    private List<UserMenusBackDTO> convertUserMenuDTOList(List<Menu> parentMenuList, Map<Integer, List<Menu>> childrenMenuMap) {
         return parentMenuList.stream()
                 .map(parentMenu -> {
-                    UserMenusDTO userMenusDTO = BeanCopyUtil.copyObject(parentMenu, UserMenusDTO.class);
+                    UserMenusBackDTO userMenusBackDTO = BeanCopyUtil.copyObject(parentMenu, UserMenusBackDTO.class);
                     List<Menu> childrenMenuList = childrenMenuMap.get(parentMenu.getId());
                     if (CollectionUtils.isNotEmpty(childrenMenuList))
-                        userMenusDTO.setChildren(BeanCopyUtil.copyList(childrenMenuList, UserMenusDTO.class));
-                    return userMenusDTO;
+                        userMenusBackDTO.setChildren(BeanCopyUtil.copyList(childrenMenuList, UserMenusBackDTO.class));
+                    return userMenusBackDTO;
                 })
                 .collect(Collectors.toList());
     }
@@ -162,24 +162,24 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                 .collect(Collectors.toList());
     }
 
-    private List<LabelsDTO> convertMenusDTOList(List<Menu> parentMenuList, Map<Integer, List<Menu>> childrenMenuMap) {
+    private List<LabelsBackDTO> convertMenusDTOList(List<Menu> parentMenuList, Map<Integer, List<Menu>> childrenMenuMap) {
         return parentMenuList.stream()
                 .map(parentMenu -> {
-                    LabelsDTO labelsDTO = LabelsDTO.builder()
+                    LabelsBackDTO labelsBackDTO = LabelsBackDTO.builder()
                             .id(parentMenu.getId())
                             .userId(parentMenu.getUserId())
                             .label(parentMenu.getName())
                             .build();
                     List<Menu> childrenMenuList = childrenMenuMap.get(parentMenu.getId());
                     if (CollectionUtils.isNotEmpty(childrenMenuList)) {
-                        List<LabelsDTO> labelsDTOList = childrenMenuList.stream().map(childrenMenu -> LabelsDTO.builder()
+                        List<LabelsBackDTO> labelsBackDTOList = childrenMenuList.stream().map(childrenMenu -> LabelsBackDTO.builder()
                                 .id(childrenMenu.getId())
                                 .userId(childrenMenu.getUserId())
                                 .label(childrenMenu.getName())
                                 .build()).collect(Collectors.toList());
-                        labelsDTO.setChildren(labelsDTOList);
+                        labelsBackDTO.setChildren(labelsBackDTOList);
                     }
-                    return labelsDTO;
+                    return labelsBackDTO;
                 })
                 .collect(Collectors.toList());
     }

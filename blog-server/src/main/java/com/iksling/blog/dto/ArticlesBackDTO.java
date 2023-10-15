@@ -34,32 +34,32 @@ public class ArticlesBackDTO {
     private String articleTitle;
 
     /**
-     * 0未置顶，1已置顶
+     * 0未置顶，1已置顶，默认0
      */
     private Boolean topFlag;
 
     /**
-     * 0未公开，1已公开
+     * 0未公开，1已公开，默认1
      */
     private Boolean publicFlag;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏，1已隐藏，默认0
      */
     private Boolean hiddenFlag;
 
     /**
-     * 0不可评论，1可评论
+     * 0不可评论，1可评论，默认1
      */
     private Boolean commentableFlag;
 
     /**
-     * 发表时间
+     * 发表时间，默认null
      */
     private Date publishTime;
 
     /**
-     * 更新时间
+     * 更新时间，默认null
      */
     private Date updateTime;
 
@@ -79,7 +79,7 @@ public class ArticlesBackDTO {
     private String categoryName;
 
     /**
-     * 文章标签集合
+     * 文章标签list
      */
-    private List<LabelDTO> tagDTOList;
+    private List<LabelBackDTO> tagDTOList;
 }

@@ -4,7 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserService;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import com.iksling.blog.vo.UserBackVO;
 import com.iksling.blog.vo.UserVO;
@@ -30,7 +30,7 @@ public class UserController {
     @ApiOperation(value = "查看后台用户列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/back/users")
-    public Result listBackUsers(@Valid ConditionVO condition) {
+    public Result listBackUsers(@Valid ConditionBackVO condition) {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("rootUserId", ROOT_USER_ID)
                 .set("rootUserIdList", ROOT_USER_ID_LIST)
@@ -74,7 +74,7 @@ public class UserController {
     @ApiOperation(value = "查看后台在线用户列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/back/user/onlines")
-    public Result listBackUserOnlines(@Valid ConditionVO condition) {
+    public Result listBackUserOnlines(@Valid ConditionBackVO condition) {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("rootUserId", ROOT_USER_ID)
                 .set("rootUserIdList", ROOT_USER_ID_LIST)

@@ -5,8 +5,8 @@ import com.iksling.blog.dto.CategoriesBackDTO;
 import com.iksling.blog.entity.Category;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.vo.CategoryBackVO;
-import com.iksling.blog.vo.CommonStatusVO;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 
 import java.util.List;
@@ -16,9 +16,9 @@ import java.util.List;
  */
 public interface CategoryService extends IService<Category> {
 
-    PagePojo<CategoriesBackDTO> getPageCategoriesBackDTO(ConditionVO condition);
+    PagePojo<CategoriesBackDTO> getPageCategoriesBackDTO(ConditionBackVO condition);
 
-    void updateCategoryStatusVO(CommonStatusVO commonStatusVO);
+    void updateCategoryStatusVO(StatusBackVO statusBackVO);
 
     void deleteCategoryIdList(List<Integer> categoryIdList);
 

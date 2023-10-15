@@ -13,7 +13,7 @@ import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.MessageService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     private MessageMapper messageMapper;
 
     @Override
-    public PagePojo<MessagesBackDTO> getPageMessagesBackDTO(ConditionVO condition) {
+    public PagePojo<MessagesBackDTO> getPageMessagesBackDTO(ConditionBackVO condition) {
         if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
         String keywords = condition.getKeywords();

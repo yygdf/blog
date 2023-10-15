@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @ApiModel(description = "配置状态VO")
-public class ConfigStatusVO {
+public class ConfigStatusBackVO {
     /**
      * userId
      */

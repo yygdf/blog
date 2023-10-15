@@ -10,7 +10,7 @@ import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.UserConfigService;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.ConfigBackVO;
 import com.iksling.blog.vo.UpdateBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
     private UserConfigMapper userConfigMapper;
 
     @Override
-    public PagePojo<ConfigsBackDTO> getPageUserConfigsBackDTO(ConditionVO condition) {
+    public PagePojo<ConfigsBackDTO> getPageUserConfigsBackDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
         if (loginUser.getRoleWeight() > 100 && Objects.nonNull(condition.getDeletedFlag()) && condition.getDeletedFlag())
             throw new IllegalRequestException();

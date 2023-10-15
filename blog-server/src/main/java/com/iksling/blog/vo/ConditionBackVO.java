@@ -9,8 +9,8 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@ApiModel(description = "查询条件VO")
-public class ConditionVO {
+@ApiModel(description = "查询条件")
+public class ConditionBackVO {
     /**
      * 每页数量
      */
@@ -62,15 +62,15 @@ public class ConditionVO {
     private Integer categoryId;
 
     /**
-     * 标签id集合
+     * 标签idList
      */
-    @ApiModelProperty(name = "tagIdList", value = "标签id集合", dataType = "List<Integer>")
+    @ApiModelProperty(name = "tagIdList", value = "标签idList", dataType = "List<Integer>")
     private List<Integer> tagIdList;
 
     /**
      * type
      */
-    @ApiModelProperty(name = "type", value = "type", dataType = "Integer")
+    @ApiModelProperty(name = "type", value = "类型", dataType = "Integer")
     private Integer type;
 
     /**

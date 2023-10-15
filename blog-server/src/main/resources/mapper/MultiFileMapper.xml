@@ -34,14 +34,17 @@
 
     <select id="selectArticleImgFileByFileName" resultType="map">
         select
-            mf.id,mf.user_id,mf.file_extension,md.dir_path
+            mf.id,mf.user_id,mf.file_name,mf.file_extension,md.dir_path
         from
             tb_multi_file mf
         left join tb_multi_dir md on mf.multi_dir_id = md.id
         where
-            mf.file_name = #{fileName}
-            and mf.deleted_flag = false
+            mf.deleted_flag = false
             and mf.file_mark = #{fileMark}
+            and mf.file_name in
+            <foreach collection="fileNameList" item="fileName" index="index" open="(" separator="," close=")">
+                #{fileName}
+            </foreach>
             <if test="roleWeight > 300">
                 and mf.user_id = #{userId}
             </if>

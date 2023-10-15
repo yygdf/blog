@@ -5,11 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LabelDTO {
+public class LabelsBackDTO {
     /**
      * 标签id
      */
@@ -24,4 +26,9 @@ public class LabelDTO {
      * 标签名
      */
     private String label;
+
+    /**
+     * 子标签集合
+     */
+    private List<LabelsBackDTO> children;
 }

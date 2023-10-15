@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.dto.LabelDTO;
+import com.iksling.blog.dto.LabelBackDTO;
 import com.iksling.blog.dto.UserAuthsBackDTO;
 import com.iksling.blog.entity.Role;
 import com.iksling.blog.entity.UserAuth;
@@ -21,8 +21,8 @@ import com.iksling.blog.service.UserAuthService;
 import com.iksling.blog.service.UserConfigService;
 import com.iksling.blog.service.UserRoleService;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.CommonStatusVO;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.UserAuthBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
@@ -64,7 +64,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public List<LabelDTO> getBackUsernames(String keywords) {
+    public List<LabelBackDTO> getBackUsernames(String keywords) {
         if (Objects.nonNull(keywords))
             keywords = keywords.trim();
         List<UserAuth> userAuthList = userAuthMapper.selectList(new LambdaQueryWrapper<UserAuth>()
@@ -72,7 +72,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 .eq(UserUtil.getLoginUser().getRoleWeight() > 100, UserAuth::getDeletedFlag, false)
                 .likeRight(StringUtils.isNotBlank(keywords), UserAuth::getUsername, keywords));
         return userAuthList.stream()
-                .map(e -> LabelDTO.builder()
+                .map(e -> LabelBackDTO.builder()
                         .id(e.getId())
                         .userId(e.getUserId())
                         .label(e.getUsername())
@@ -81,7 +81,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     }
 
     @Override
-    public PagePojo<UserAuthsBackDTO> getPageUserAuthsBackDTO(ConditionVO condition) {
+    public PagePojo<UserAuthsBackDTO> getPageUserAuthsBackDTO(ConditionBackVO condition) {
         if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
             throw new IllegalRequestException();
         if (Objects.nonNull(condition.getKeywords()))
@@ -159,20 +159,20 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
 
     @Override
     @Transactional
-    public void updateUserAuthStatusVO(CommonStatusVO commonStatusVO) {
+    public void updateUserAuthStatusVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         // TODO: 这里直接用核心用户idList替代核心角色idList进行卡控，需保持核心用户都是核心角色
-        if (loginUser.getRoleWeight() > 100 && (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag()) || ROOT_USER_ID_LIST.contains(commonStatusVO.getId()))
+        if (loginUser.getRoleWeight() > 100 && (Objects.nonNull(statusBackVO.getTopFlag()) && statusBackVO.getTopFlag()) || ROOT_USER_ID_LIST.contains(statusBackVO.getId()))
                 throw new IllegalRequestException();
         int count = userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
-                .set(Objects.nonNull(commonStatusVO.getTopFlag()), UserAuth::getLockedFlag, commonStatusVO.getTopFlag())
-                .set(UserAuth::getDisabledFlag, commonStatusVO.getPublicFlag())
-                .eq(UserAuth::getUserId, commonStatusVO.getId())
+                .set(Objects.nonNull(statusBackVO.getTopFlag()), UserAuth::getLockedFlag, statusBackVO.getTopFlag())
+                .set(UserAuth::getDisabledFlag, statusBackVO.getPublicFlag())
+                .eq(UserAuth::getUserId, statusBackVO.getId())
                 .eq(loginUser.getRoleWeight() > 100, UserAuth::getDeletedFlag, false));
         if (count != 1)
             throw new IllegalRequestException();
-        if (commonStatusVO.getPublicFlag() || (Objects.nonNull(commonStatusVO.getTopFlag()) && commonStatusVO.getTopFlag()))
-            offlineByUserIdList(Collections.singletonList(commonStatusVO.getId()));
+        if (statusBackVO.getPublicFlag() || (Objects.nonNull(statusBackVO.getTopFlag()) && statusBackVO.getTopFlag()))
+            offlineByUserIdList(Collections.singletonList(statusBackVO.getId()));
     }
 
     private void offlineByUserIdList(List<Integer> idList) {

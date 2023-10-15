@@ -2,14 +2,11 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.ExceptionLogsBackDTO;
-import com.iksling.blog.dto.FriendLinksBackDTO;
 import com.iksling.blog.entity.ExceptionLog;
-import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.ExceptionLogService;
 import com.iksling.blog.mapper.ExceptionLogMapper;
-import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +23,7 @@ public class ExceptionLogServiceImpl extends ServiceImpl<ExceptionLogMapper, Exc
     private ExceptionLogMapper exceptionLogMapper;
 
     @Override
-    public PagePojo<ExceptionLogsBackDTO> getPageExceptionLogsBackDTO(ConditionVO condition) {
+    public PagePojo<ExceptionLogsBackDTO> getPageExceptionLogsBackDTO(ConditionBackVO condition) {
         if (Objects.nonNull(condition.getKeywords()))
             condition.setKeywords(condition.getKeywords().trim());
         Integer count = exceptionLogMapper.selectExceptionLogsBackDTOCount(condition);

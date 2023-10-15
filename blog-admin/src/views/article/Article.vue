@@ -209,6 +209,7 @@ export default {
       },
       articleUserId: null,
       tagList: [],
+      fileNameList: [],
       categoryList: [],
       articleBackVO: {},
       staticResourceUrl: "",
@@ -230,16 +231,31 @@ export default {
           this.staticResourceUrl = data.data.staticResourceUrl;
         });
     },
-    updateImg(url) {
+    splitFileNameByUrl(url) {
       let pathArr = url.split("/");
-      let fileName = pathArr[pathArr.length - 1].split(".")[0];
-      this.axios.put("/api/back/article/image", null, { params: { fileName } });
+      return pathArr[pathArr.length - 1].split(".")[0];
+    },
+    updateImg(url) {
+      let param;
+      if (url == null) {
+        param = this.fileNameList;
+      } else {
+        let fileName = this.splitFileNameByUrl(url);
+        let index = this.fileNameList.findIndex(item => item === fileName);
+        this.fileNameList.splice(index, 1);
+        param = [fileName];
+      }
+      this.axios.put("/api/back/article/image", param);
     },
     uploadImg(pos, file) {
       if (this.article.id === undefined) {
         if (this.article.articleTitle.trim() === "") {
           this.$message.error("文章标题不能为空");
           this.$refs.md.$img2Url(pos, "");
+          return false;
+        }
+        if (this.article.articleContent.trim() === "") {
+          this.$message.error("文章内容不能为空");
           return false;
         }
         this.axios
@@ -256,17 +272,30 @@ export default {
               this.axios
                 .post("/api/back/article/image", formData)
                 .then(({ data }) => {
-                  if (pos == null) {
-                    this.article.articleCover = data.data;
-                    this.articleCoverUploadFlag = true;
+                  if (data.flag) {
+                    if (pos == null) {
+                      this.article.articleCover = data.data;
+                      this.articleCoverUploadFlag = true;
+                    } else {
+                      this.$refs.md.$img2Url(pos, data.data);
+                    }
+                    this.fileNameList.push(this.splitFileNameByUrl(data.data));
                   } else {
-                    this.$refs.md.$img2Url(pos, data.data);
+                    this.$notify.error({
+                      title: "失败",
+                      message: "图片上传失败"
+                    });
+                    return false;
                   }
                 });
+              this.$notify.success({
+                title: "成功",
+                message: "保存草稿成功"
+              });
             } else {
               this.$notify.error({
                 title: "失败",
-                message: "图片上传失败"
+                message: "保存草稿失败"
               });
             }
           });
@@ -280,11 +309,19 @@ export default {
         this.axios
           .post("/api/back/article/image", formData)
           .then(({ data }) => {
-            if (pos == null) {
-              this.article.articleCover = data.data;
-              this.articleCoverUploadFlag = true;
+            if (data.flag) {
+              if (pos == null) {
+                this.article.articleCover = data.data;
+                this.articleCoverUploadFlag = true;
+              } else {
+                this.$refs.md.$img2Url(pos, data.data);
+              }
+              this.fileNameList.push(this.splitFileNameByUrl(data.data));
             } else {
-              this.$refs.md.$img2Url(pos, data.data);
+              this.$notify.error({
+                title: "失败",
+                message: "图片上传失败"
+              });
             }
           });
       }
@@ -338,6 +375,9 @@ export default {
       })
         .then(() => {
           this.modCount = 0;
+          if (this.fileNameList.length !== 0) {
+            this.updateImg(null);
+          }
           let tab = this.$store.state.currentTab;
           this.$store.commit("removeTab", tab);
           let tabList = this.$store.state.tabList;
@@ -375,6 +415,7 @@ export default {
               message: "保存草稿成功"
             });
             this.modCount = 0;
+            this.fileNameList = [];
             this.articleCoverUploadFlag = false;
           } else {
             this.$notify.error({
@@ -408,6 +449,7 @@ export default {
               message: data.message
             });
             this.modCount = 0;
+            this.fileNameList = [];
             this.addOrEditStatus = false;
             this.articleCoverUploadFlag = false;
           } else {

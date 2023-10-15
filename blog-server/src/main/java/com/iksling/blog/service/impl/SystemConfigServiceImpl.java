@@ -13,7 +13,7 @@ import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.SystemConfigService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.ConfigBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
     private SystemConfigMapper systemConfigMapper;
 
     @Override
-    public PagePojo<ConfigsBackDTO> getPageSystemConfigsBackDTO(ConditionVO condition) {
+    public PagePojo<ConfigsBackDTO> getPageSystemConfigsBackDTO(ConditionBackVO condition) {
         String[] keywords = new String[] {condition.getKeywords()};
         if (Objects.nonNull(keywords[0]))
             keywords[0] = keywords[0].trim();

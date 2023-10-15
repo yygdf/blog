@@ -14,11 +14,10 @@ import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.ArticleMapper;
 import com.iksling.blog.mapper.MultiDirMapper;
 import com.iksling.blog.mapper.MultiFileMapper;
-import com.iksling.blog.pojo.ArticleImgFile;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MultiFileService;
-import com.iksling.blog.util.MultiFileUtil;
 import com.iksling.blog.util.IpUtil;
+import com.iksling.blog.util.MultiFileUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ArticleImgBackVO;
 import com.iksling.blog.vo.UserAvatarBackVO;
@@ -29,7 +28,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.enums.FilePathEnum.IMG_ARTICLE;
@@ -108,8 +110,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     @Transactional
     public void updateArticleImgByFileName(Long fileName) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        ArticleImgFile articleImgFile = multiFileMapper.selectArticleImgFileByFileName(fileName, IMG_ARTICLE.getMark(), loginUser.getRoleWeight(), loginUser.getUserId());
-        if (Objects.isNull(articleImgFile))
+        Map<String, Object> map = multiFileMapper.selectArticleImgFileByFileName(fileName, IMG_ARTICLE.getMark(), loginUser.getRoleWeight(), loginUser.getUserId());
+        if (map.isEmpty())
             return;
         long fileNameNew = IdWorker.getId();
         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
@@ -117,9 +119,9 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .set(MultiFile::getDeletedFlag, true)
                 .set(MultiFile::getUpdateUser, loginUser.getUserId())
                 .set(MultiFile::getUpdateTime, new Date())
-                .eq(MultiFile::getId, articleImgFile.getId()));
-        String frontPath = articleImgFile.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + articleImgFile.getDirPath() + "/" + fileName;
-        String fullExtension = "." + articleImgFile.getFileExtension();
+                .eq(MultiFile::getId, map.get("id")));
+        String frontPath = map.get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + map.get("dir_path") + "/" + fileName;
+        String fullExtension = "." + map.get("file_extension");
         MultiFileUtil.rename(frontPath + fullExtension, frontPath + "-" + fileNameNew + "-del" + fullExtension);
     }
 

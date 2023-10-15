@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.mapper.RoleMapper;
 import com.iksling.blog.mapper.UserAuthMapper;
-import com.iksling.blog.pojo.LoginRole;
 import com.iksling.blog.pojo.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.DisabledException;
@@ -17,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -43,16 +43,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new LockedException("您的账号已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         if (userAuth.getDisabledFlag())
             throw new DisabledException("您的账号已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
-        List<LoginRole> roleList = roleMapper.listLoginRoleByUserId(userAuth.getUserId());
-        if (CollectionUtils.isEmpty(roleList))
+        List<Map<String, Object>> mapList = roleMapper.listLoginRoleByUserId(userAuth.getUserId());
+        if (CollectionUtils.isEmpty(mapList))
             throw new DisabledException("您的角色已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         return LoginUser.builder()
                 .userId(userAuth.getUserId())
                 .username(userAuth.getUsername())
                 .password(userAuth.getPassword())
-                .roleWeight(roleList.get(0).getRoleWeight())
-                .roleList(roleList.stream()
-                        .map(LoginRole::getRoleName)
+                .roleWeight((Integer) mapList.get(0).get("role_weight"))
+                .roleList(mapList.stream()
+                        .map(ml -> (String) ml.get("role_name"))
                         .collect(Collectors.toList()))
                 .build();
     }

@@ -32,7 +32,7 @@
         update_time
     </sql>
 
-    <select id="selectArticleImgFileByFileName" resultType="com.iksling.blog.pojo.ArticleImgFile">
+    <select id="selectArticleImgFileByFileName" resultType="map">
         select
             mf.id,mf.user_id,mf.file_extension,md.dir_path
         from

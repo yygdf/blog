@@ -164,11 +164,10 @@
 <script>
 export default {
   created() {
-    const path = this.$route.path;
-    const arr = path.split("/");
-    const articleId = arr[2];
-    if (articleId) {
-      this.axios.get("/api/back/article/" + articleId).then(({ data }) => {
+    const arr = this.$route.path.split("/");
+    if (arr[2]) {
+      this.articleUserId = arr[2];
+      this.axios.get("/api/back/article/" + arr[3]).then(({ data }) => {
         if (data.data.categoryId === -1) {
           data.data.categoryId = null;
         }
@@ -182,12 +181,11 @@ export default {
   },
   destroyed() {
     this.autoSaveArticle();
-    this.$store.commit("updateArticleUserId", null);
   },
   data: function() {
     return {
       article: {
-        articleId: null,
+        categoryId: null,
         articleTitle: "",
         articleCover: "",
         articleContent: "",
@@ -198,7 +196,7 @@ export default {
         tagIdList: []
       },
       articleOrigin: {
-        articleId: null,
+        categoryId: null,
         articleTitle: "",
         articleCover: "",
         articleContent: "",
@@ -208,6 +206,7 @@ export default {
         commentableFlag: true,
         tagIdList: []
       },
+      articleUserId: null,
       tagList: [],
       categoryList: [],
       articleBackVO: {},
@@ -219,15 +218,10 @@ export default {
     };
   },
   methods: {
-    checkArticleUserIdIsNull() {
-      return this.$store.state.articleUserId == null
-        ? ""
-        : this.$store.state.articleUserId;
-    },
     listArticleOptions() {
       this.axios
         .get("/api/back/article/option", {
-          params: { userId: this.$store.state.articleUserId }
+          params: { userId: this.articleUserId }
         })
         .then(({ data }) => {
           this.tagList = data.data.tagDTOList;
@@ -254,8 +248,10 @@ export default {
               this.article.id = data.data;
               let formData = new FormData();
               formData.append("file", file);
-              formData.append("userId", this.checkArticleUserIdIsNull());
               formData.append("articleId", this.article.id);
+              if (this.articleUserId != null) {
+                formData.append("userId", this.articleUserId);
+              }
               this.axios
                 .post("/api/back/article/image", formData)
                 .then(({ data }) => {
@@ -276,8 +272,10 @@ export default {
       } else {
         let formData = new FormData();
         formData.append("file", file);
-        formData.append("userId", this.checkArticleUserIdIsNull());
         formData.append("articleId", this.article.id);
+        if (this.articleUserId != null) {
+          formData.append("userId", this.articleUserId);
+        }
         this.axios
           .post("/api/back/article/image", formData)
           .then(({ data }) => {

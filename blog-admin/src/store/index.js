@@ -17,7 +17,6 @@ export default new Vuex.Store({
     nickname: "",
     userMenuList: [],
     currentRoutePath: "/",
-    articleUserId: null,
     currentTab: { name: "首页", path: "/" }
   },
   mutations: {
@@ -60,7 +59,6 @@ export default new Vuex.Store({
       state.website = "";
       state.nickname = "";
       state.userMenuList = [];
-      state.articleUserId = null;
     },
     updateAvatar(state, avatar) {
       state.avatar = avatar;
@@ -69,9 +67,6 @@ export default new Vuex.Store({
       state.intro = user.intro;
       state.website = user.website;
       state.nickname = user.nickname;
-    },
-    updateArticleUserId(state, userId) {
-      state.articleUserId = userId;
     }
   },
   actions: {},

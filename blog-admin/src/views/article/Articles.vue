@@ -398,8 +398,7 @@ export default {
       return this.$store.state.weight <= weight;
     },
     editArticle(id, userId) {
-      this.$router.push({ path: "/article/" + id });
-      this.$store.commit("updateArticleUserId", userId);
+      this.$router.push({ path: "/article/" + userId + "/" + id });
     },
     currentChange(current) {
       this.current = current;

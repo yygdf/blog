@@ -51,9 +51,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .username(userAuth.getUsername())
                 .password(userAuth.getPassword())
                 .roleWeight((Integer) mapList.get(0).get("role_weight"))
-                .roleList(mapList.stream()
-                        .map(ml -> (String) ml.get("role_name"))
-                        .collect(Collectors.toList()))
+                .roleList(mapList.stream().map(ml -> (String) ml.get("role_name")).collect(Collectors.toList()))
                 .build();
     }
 }

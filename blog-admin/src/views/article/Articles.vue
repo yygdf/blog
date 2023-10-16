@@ -466,15 +466,15 @@ export default {
       } else {
         param = { data: [id] };
       }
-      if (param.data.length === this.articleList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
-      }
       this.axios.delete("/api/back/articles", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
+          if (param.data.length === this.articleList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
           this.listArticles();
         } else {
           this.$notify.error({
@@ -520,15 +520,15 @@ export default {
       if (isRec) {
         param.status = true;
       }
-      if (param.idList.length === this.articleList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
-      }
       this.axios.put("/api/back/articles/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
+          if (param.idList.length === this.articleList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
           this.listArticles();
         } else {
           this.$notify.error({

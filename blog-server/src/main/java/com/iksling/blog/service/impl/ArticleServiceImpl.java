@@ -140,10 +140,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         Article article = new Article();
         if (Objects.isNull(articleBackVO.getId())) {
             if (StringUtils.isBlank(articleBackVO.getArticleTitle()) || StringUtils.isBlank(articleBackVO.getArticleContent()))
-                throw new OperationStatusException("文章标题或者内容不允许为空!");
+                throw new OperationStatusException();
+            article.setUserId(loginUser.getUserId());
             article.setArticleTitle(articleBackVO.getArticleTitle());
             article.setArticleContent(articleBackVO.getArticleContent());
-            article.setUserId(loginUser.getUserId());
             article.setTopFlag(articleBackVO.getTopFlag());
             article.setPublicFlag(articleBackVO.getPublicFlag());
             article.setHiddenFlag(articleBackVO.getHiddenFlag());
@@ -154,7 +154,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             article.setCreateTime(new Date());
             if (Objects.nonNull(articleBackVO.getDraftFlag()) && !articleBackVO.getDraftFlag()) {
                 if (Objects.isNull(articleBackVO.getCategoryId()))
-                    throw new OperationStatusException("文章分类不允许为空!");
+                    throw new OperationStatusException();
                 article.setDraftFlag(false);
                 article.setPublishUser(loginUser.getUserId());
                 article.setPublishTime(new Date());
@@ -165,22 +165,22 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         .eq(Category::getUserId, loginUser.getUserId())
                         .eq(Category::getDeletedFlag, false));
                 if (count != 1)
-                    throw new IllegalRequestException();
+                    throw new OperationStatusException();
                 article.setCategoryId(articleBackVO.getCategoryId());
             }
-            if (StringUtils.isBlank(articleBackVO.getArticleCover()) || !articleBackVO.getArticleCover().startsWith(STATIC_RESOURCE_URL))
-                article.setArticleCover(null);
+            if (Objects.nonNull(articleBackVO.getArticleCover()) && articleBackVO.getArticleCover().startsWith(STATIC_RESOURCE_URL))
+                article.setArticleCover(articleBackVO.getArticleCover());
             articleMapper.insert(article);
             multiDirService.saveArticleDirById(article.getId());
         } else {
             if (Objects.nonNull(articleBackVO.getArticleTitle())) {
                 if (StringUtils.isBlank(articleBackVO.getArticleTitle()))
-                    throw new OperationStatusException("文章标题不允许为空!");
+                    throw new OperationStatusException();
                 article.setArticleTitle(articleBackVO.getArticleTitle());
             }
             if (Objects.nonNull(articleBackVO.getArticleContent())) {
                 if (StringUtils.isBlank(articleBackVO.getArticleContent()))
-                    throw new OperationStatusException("文章内容不允许为空!");
+                    throw new OperationStatusException();
                 article.setArticleContent(articleBackVO.getArticleContent());
             }
             Article articleOrigin = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
@@ -190,7 +190,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     .eq(Article::getRecycleFlag, false)
                     .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
             if (Objects.isNull(articleOrigin))
-                throw new IllegalRequestException();
+                throw new OperationStatusException();
             if (Objects.nonNull(articleBackVO.getCategoryId())) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                         .eq(Category::getId, articleBackVO.getCategoryId())
@@ -201,10 +201,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 article.setCategoryId(articleBackVO.getCategoryId());
             }
             if (Objects.nonNull(articleBackVO.getArticleCover())) {
-                if (!articleBackVO.getArticleCover().startsWith(STATIC_RESOURCE_URL))
-                    article.setArticleCover("");
-                else
+                if (articleBackVO.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                     article.setArticleCover(articleBackVO.getArticleCover());
+                else
+                    article.setArticleCover("");
                 if (articleOrigin.getArticleCover().startsWith(STATIC_RESOURCE_URL + articleOrigin.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + articleOrigin.getId()))
                     multiFileService.updateArticleImgBy(articleOrigin.getUserId(), articleOrigin.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1));
             }
@@ -214,8 +214,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         .eq(ArticleTag::getDeletedFlag, false)
                         .eq(ArticleTag::getArticleId, articleOrigin.getId()));
             }
-            if (Objects.nonNull(articleBackVO.getTopFlag()))
-                article.setTopFlag(articleBackVO.getTopFlag());
             if (Objects.nonNull(articleBackVO.getDraftFlag())) {
                 article.setDraftFlag(articleBackVO.getDraftFlag());
                 if (Objects.isNull(articleOrigin.getPublishUser())) {
@@ -223,12 +221,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     article.setPublishTime(new Date());
                 }
             }
-            if (Objects.nonNull(articleBackVO.getPublicFlag()))
-                article.setPublicFlag(articleBackVO.getPublicFlag());
-            if (Objects.nonNull(articleBackVO.getHiddenFlag()))
-                article.setHiddenFlag(articleBackVO.getHiddenFlag());
-            if (Objects.nonNull(articleBackVO.getCommentableFlag()))
-                article.setCommentableFlag(articleBackVO.getCommentableFlag());
+            article.setTopFlag(articleBackVO.getTopFlag());
+            article.setPublicFlag(articleBackVO.getPublicFlag());
+            article.setHiddenFlag(articleBackVO.getHiddenFlag());
+            article.setCommentableFlag(articleBackVO.getCommentableFlag());
             article.setId(articleBackVO.getId());
             article.setUpdateUser(loginUser.getUserId());
             article.setUpdateTime(new Date());
@@ -241,7 +237,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     .eq(Tag::getUserId, article.getUserId())
                     .eq(Tag::getDeletedFlag, false));
             if (!tagList.stream().map(Tag::getId).collect(Collectors.toList()).containsAll(articleBackVO.getTagIdList()))
-                throw new IllegalRequestException();
+                throw new OperationStatusException();
             List<ArticleTag> articleTagList = articleBackVO.getTagIdList().stream().map(tagId -> ArticleTag.builder()
                     .tagId(tagId)
                     .articleId(article.getId())
@@ -290,10 +286,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         } else if (statusBackVO.getType().equals(7) && loginUser.getRoleWeight() <= 100)
             lambdaUpdateWrapper.set(Article::getDeletedFlag, false);
         else
-            throw new OperationStatusException("参数异常!");
+            throw new OperationStatusException();
         int count = articleMapper.update(null, lambdaUpdateWrapper);
         if (count != statusBackVO.getIdList().size())
-            throw new IllegalRequestException();
+            throw new OperationStatusException();
         if (statusBackVO.getType().equals(6) && !Objects.equals(statusBackVO.getStatus(), true)) {
             articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
                     .set(ArticleTag::getDeletedFlag, true)
@@ -335,10 +331,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         else if (statusBackVO.getType().equals(4))
             lambdaUpdateWrapper.setSql("commentable_flag = !commentable_flag");
         else
-            throw new OperationStatusException("参数异常!");
+            throw new OperationStatusException();
         int count = articleMapper.update(null, lambdaUpdateWrapper);
         if (count != 1)
-            throw new IllegalRequestException();
+            throw new OperationStatusException();
     }
 }
 

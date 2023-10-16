@@ -203,7 +203,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         long fileNameNew = IdWorker.getId();
         long fileNameOld = Long.parseLong(fileNameArr[0]);
         LoginUser loginUser = UserUtil.getLoginUser();
-        int count = multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+        multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                 .set(MultiFile::getFileNameNew, fileNameNew)
                 .set(MultiFile::getDeletedFlag, true)
                 .set(MultiFile::getUpdateUser, loginUser.getUserId())
@@ -211,8 +211,6 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .eq(MultiFile::getFileName, fileNameOld)
                 .eq(loginUser.getRoleWeight() > 300, MultiFile::getUserId, loginUser.getUserId())
                 .eq(MultiFile::getDeletedFlag, false));
-        if (count == 0)
-            return;
         String frontPath = userId + "/" + IMG_ARTICLE.getPath() + "/" + articleId + "/" + fileNameOld;
         String fullExtension = "." + fileNameArr[1];
         MultiFileUtil.rename(frontPath + fullExtension, frontPath + fileNameOld + "-" + fileNameNew + "-del" + fullExtension);

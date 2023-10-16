@@ -43,7 +43,7 @@ public class MultiFileController {
 
     @OptLog(optType = UPLOAD)
     @ApiOperation(value = "上传用户头像")
-    @ApiImplicitParam(name = "articleImageBackVO", value = "用户头像后台VO", required = true, dataType = "UserAvatarBackVO")
+    @ApiImplicitParam(name = "userAvatarBackVO", value = "用户头像后台VO", required = true, dataType = "UserAvatarBackVO")
     @PostMapping("/back/user/avatar")
     public Result saveBackUserAvatar(@Valid UserAvatarBackVO userAvatarBackVO) {
         String url = multiFileService.saveUserAvatarBackVO(userAvatarBackVO);

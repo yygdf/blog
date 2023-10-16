@@ -248,7 +248,7 @@ export default {
       this.axios.put("/api/back/article/image", param);
     },
     uploadImg(pos, file) {
-      if (this.article.id === undefined) {
+      if (this.article.id == null) {
         if (this.article.articleTitle.trim() === "") {
           this.$message.error("文章标题不能为空");
           this.$refs.md.$img2Url(pos, "");
@@ -401,10 +401,10 @@ export default {
         }
         return false;
       }
-      if (this.article.draftFlag !== undefined && !this.article.draftFlag) {
+      if (this.article.draftFlag === false) {
         this.articleBackVO.draftFlag = true;
       }
-      if (this.article.id !== undefined) {
+      if (this.article.id != null) {
         this.articleBackVO.id = this.article.id;
       }
       this.axios
@@ -435,10 +435,10 @@ export default {
         this.$refs.upload.clearFiles();
         return false;
       }
-      if (this.article.draftFlag === undefined || this.article.draftFlag) {
+      if (this.article.draftFlag !== false) {
         this.articleBackVO.draftFlag = false;
       }
-      if (this.article.id !== undefined) {
+      if (this.article.id != null) {
         this.articleBackVO.id = this.article.id;
       }
       this.axios

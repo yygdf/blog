@@ -311,7 +311,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             throw new IllegalRequestException();
         articleTagMapper.delete(new LambdaUpdateWrapper<ArticleTag>()
                 .in(ArticleTag::getArticleId, idList));
-        multiDirService.removeArticleDirByIdList(idList);
+        multiDirService.deleteArticleDirByIdList(idList);
     }
 
     @Override

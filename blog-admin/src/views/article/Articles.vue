@@ -101,14 +101,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入文章名"
           clearable
-          @keyup.enter.native="listArticles(true, true)"
+          @keyup.enter.native="listArticles"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listArticles(true, true)"
+          @click="listArticles"
         >
           搜索
         </el-button>
@@ -367,13 +367,13 @@ export default {
           label: "回收站"
         }
       ],
-      type: null,
       tagList: [],
       tagIdList: [],
       articleList: [],
       usernameList: [],
       categoryList: [],
       articleIdList: [],
+      type: null,
       userId: null,
       keywords: null,
       categoryId: null,
@@ -392,7 +392,7 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listArticles(true);
+      this.listArticles();
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
@@ -402,7 +402,7 @@ export default {
     },
     currentChange(current) {
       this.current = current;
-      this.listArticles(this.keywords !== this.oldKeywords);
+      this.listArticles();
     },
     selectionChange(articleList) {
       this.articleIdList = [];
@@ -410,13 +410,11 @@ export default {
         this.articleIdList.push(item.id);
       });
     },
-    listArticles(resetPageFlag = false, searchFlag = false) {
-      if (resetPageFlag) {
+    listArticles() {
+      if (this.keywords !== this.oldKeywords) {
         this.current = 1;
       }
-      if (searchFlag) {
-        this.oldKeywords = this.keywords;
-      }
+      this.oldKeywords = this.keywords;
       let params = {
         size: this.size,
         userId: this.userId,
@@ -427,15 +425,11 @@ export default {
         type: this.type
       };
       params = this.$filterObject.skipEmptyValue(params);
-      this.axios
-        .get("/api/back/articles", {
-          params
-        })
-        .then(({ data }) => {
-          this.count = data.data.count;
-          this.articleList = data.data.pageList;
-          this.loading = false;
-        });
+      this.axios.get("/api/back/articles", { params }).then(({ data }) => {
+        this.count = data.data.count;
+        this.articleList = data.data.pageList;
+        this.loading = false;
+      });
     },
     listAllUsername(keywords) {
       if (keywords.trim() === "") {
@@ -482,8 +476,8 @@ export default {
             message: data.message
           });
         }
-        this.removeStatus = false;
       });
+      this.removeStatus = false;
     },
     changeArticleStatus(article, type) {
       let param = {
@@ -509,14 +503,14 @@ export default {
       });
     },
     updateArticlesStatus(id, isRec = false) {
-      let param = {
-        type: this.type == null ? 5 : this.type
-      };
       if (id != null) {
         param.idList = [id];
       } else {
         param.idList = this.articleIdList;
       }
+      let param = {
+        type: this.type == null ? 5 : this.type
+      };
       if (isRec) {
         param.status = true;
       }
@@ -536,25 +530,25 @@ export default {
             message: data.message
           });
         }
-        this.editStatus = false;
       });
+      this.editStatus = false;
     }
   },
   watch: {
     type() {
-      this.listArticles(true);
+      this.listArticles();
     },
     userId() {
-      this.listArticles(true);
+      this.listArticles();
       this.listArticleOptions();
     },
     categoryId() {
-      this.listArticles(true);
+      this.listArticles();
     },
     tagIdList: {
       handler(newVal, oldVal) {
         if (newVal.length !== oldVal.length) {
-          this.listArticles(true);
+          this.listArticles();
         }
       },
       deep: true

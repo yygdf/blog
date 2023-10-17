@@ -13,5 +13,5 @@ public interface MultiDirService extends IService<MultiDir> {
 
     void updateArticleDirByIdList(List<Integer> idList);
 
-    void removeArticleDirByIdList(List<Integer> idList);
+    void deleteArticleDirByIdList(List<Integer> idList);
 }

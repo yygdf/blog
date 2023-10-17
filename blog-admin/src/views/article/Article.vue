@@ -172,8 +172,8 @@ export default {
         if (data.data.categoryId === -1) {
           data.data.categoryId = null;
         }
-        this.article = data.data;
-        this.articleOrigin = JSON.parse(JSON.stringify(data.data));
+        this.articleOrigin = data.data;
+        this.article = JSON.parse(JSON.stringify(data.data));
       });
     } else {
       this.article.articleTitle = this.$moment(new Date()).format("YYYY-MM-DD");
@@ -207,16 +207,16 @@ export default {
         commentableFlag: true,
         tagIdList: []
       },
-      articleUserId: null,
       tagList: [],
       fileNameList: [],
       categoryList: [],
       articleBackVO: {},
       staticResourceUrl: "",
       articleCoverUpload: "",
-      modCount: 0,
+      articleUserId: null,
       addOrEditStatus: false,
-      articleCoverUploadFlag: false
+      articleCoverUploadFlag: false,
+      modCount: 0
     };
   },
   methods: {
@@ -454,7 +454,6 @@ export default {
             });
             this.modCount = 0;
             this.fileNameList = [];
-            this.addOrEditStatus = false;
             this.articleCoverUploadFlag = false;
           } else {
             this.$notify.error({
@@ -463,6 +462,7 @@ export default {
             });
           }
         });
+      this.addOrEditStatus = false;
     },
     cancelSaveOrUpdateArticle() {
       if (this.articleCoverUploadFlag) {

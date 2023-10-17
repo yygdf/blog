@@ -6,6 +6,7 @@ import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.UserAuthMapper;
+import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,17 +34,16 @@ public class GlobalExceptionAdvice {
     /********** 非法请求异常 **********/
     @ExceptionHandler(value = IllegalRequestException.class)
     public Result exceptionAdvice(IllegalRequestException e) {
-        Integer userId = UserUtil.getLoginUser().getUserId();
-        String username = UserUtil.getLoginUser().getUsername();
+        LoginUser loginUser = UserUtil.getLoginUser();
         redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).expire(1, TimeUnit.DAYS);
-        redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).increment(userId.toString(), 1);
-        Integer count = (Integer) redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).get(userId.toString());
+        redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).increment(loginUser.getUserId().toString(), 1);
+        Integer count = (Integer) redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).get(loginUser.getUserId().toString());
         if (Objects.nonNull(count) && count >= 3) {
             userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                     .set(UserAuth::getLockedFlag, true)
                     .set(UserAuth::getDisabledFlag, true)
-                    .eq(UserAuth::getUserId, userId));
-            return Result.failure().code(ACCOUNT_LOCKED).message("账号[" + username + "]已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+                    .eq(UserAuth::getUserId, loginUser.getUserId()));
+            return Result.failure().code(ACCOUNT_LOCKED).message("账号[" + loginUser.getUsername() + "]已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         }
         return Result.failure().code(ILLEGAL_REQUEST).message(e.getMessage());
     }

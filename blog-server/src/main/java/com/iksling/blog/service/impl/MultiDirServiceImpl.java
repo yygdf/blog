@@ -73,7 +73,7 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
     }
 
     @Override
-    public void removeArticleDirByIdList(List<Integer> idList) {
+    public void deleteArticleDirByIdList(List<Integer> idList) {
         idList.forEach(
                 item -> {
                     List<Map<String, Object>> multiDirMap = multiDirMapper.selectMaps(new QueryWrapper<MultiDir>()

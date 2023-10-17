@@ -11,12 +11,12 @@
         新增
       </el-button>
       <el-button
-        v-if="deletedFlag"
+        v-if="type !== 7"
         :disabled="categoryIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="removeStatus = true"
+        @click="editStatus = true"
       >
         批量删除
       </el-button>
@@ -26,13 +26,13 @@
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="editStatus = true"
+        @click="removeStatus = true"
       >
         批量删除
       </el-button>
       <div style="margin-left:auto">
         <el-select
-          v-if="checkWeight(300)"
+          v-if="checkWeight"
           v-model="userId"
           size="small"
           style="margin-right:1rem"
@@ -51,7 +51,7 @@
         </el-select>
         <el-select
           v-if="checkWeight(100)"
-          v-model="deletedFlag"
+          v-model="type"
           size="small"
           style="margin-right:1rem"
           placeholder="请选择"
@@ -71,14 +71,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入分类名"
           clearable
-          @keyup.enter.native="listCategories(true, true)"
+          @keyup.enter.native="listCategories"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listCategories(true, true)"
+          @click="listCategories"
         >
           搜索
         </el-button>
@@ -132,47 +132,44 @@
           {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
-      <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
-        <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.hiddenFlag"
-            :active-value="true"
-            :inactive-value="false"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
-            @change="changeCategoryStatus(scope.row)"
-          />
-        </template>
-      </el-table-column>
       <el-table-column prop="publicFlag" label="公开" align="center" width="80">
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.publicFlag"
+            :disabled="type != null"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeCategoryStatus(scope.row)"
+            @change="changeCategoryStatus(scope.row, 2)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.hiddenFlag"
+            :disabled="type != null"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
+            @change="changeCategoryStatus(scope.row, 3)"
           />
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="openModel(scope.row)">
+          <el-button
+            :disabled="type != null"
+            type="primary"
+            size="mini"
+            @click="openModel(scope.row)"
+          >
             编辑
           </el-button>
           <el-popconfirm
-            v-if="deletedFlag"
-            title="确定彻底删除吗？"
-            style="margin-left:10px"
-            @confirm="deleteCategories(scope.row.id)"
-          >
-            <el-button type="danger" size="mini" slot="reference">
-              删除
-            </el-button>
-          </el-popconfirm>
-          <el-popconfirm
-            v-else
+            v-if="type !== 7"
             title="确定删除吗？"
             style="margin-left:10px"
             @confirm="updateCategoriesStatus(scope.row.id)"
@@ -183,6 +180,16 @@
               size="mini"
               slot="reference"
             >
+              删除
+            </el-button>
+          </el-popconfirm>
+          <el-popconfirm
+            v-else
+            title="确定彻底删除吗？"
+            style="margin-left:10px"
+            @confirm="deleteCategories(scope.row.id)"
+          >
+            <el-button type="danger" size="mini" slot="reference">
               删除
             </el-button>
           </el-popconfirm>
@@ -206,7 +213,7 @@
       </div>
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
-        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button @click="editStatus = false">取 消</el-button>
         <el-button type="primary" @click="updateCategoriesStatus(null)">
           确 定
         </el-button>
@@ -240,18 +247,18 @@
         </el-form-item>
       </el-form>
       <el-form :model="category" :inline="true" size="medium" label-width="80">
-        <el-form-item label="隐藏">
+        <el-form-item label="公开">
           <el-switch
-            v-model="category.hiddenFlag"
+            v-model="category.publicFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
           />
         </el-form-item>
-        <el-form-item label="公开">
+        <el-form-item label="隐藏">
           <el-switch
-            v-model="category.publicFlag"
+            v-model="category.hiddenFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -262,7 +269,7 @@
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
         <el-button
-          :disabled="!category.categoryName"
+          :disabled="modCount === 0"
           type="primary"
           @click="addOrEditCategory"
         >
@@ -285,48 +292,54 @@ export default {
     return {
       options: [
         {
-          value: false,
+          value: null,
           label: "未删除"
         },
         {
-          value: true,
+          value: 7,
           label: "已删除"
         }
       ],
       category: {},
+      categoryOrigin: {},
+      categoryBackVO: {},
       usernameList: [],
       categoryList: [],
       categoryIdList: [],
+      type: null,
       userId: null,
       keywords: null,
       oldKeywords: null,
       loading: true,
       editStatus: false,
-      deletedFlag: false,
       removeStatus: false,
       addOrEditStatus: false,
       size: 10,
       count: 0,
-      current: 1
+      current: 1,
+      modCount: 0
     };
   },
   methods: {
     openModel(category) {
       if (category != null) {
-        this.category = {
+        this.categoryOrigin = {
           id: category.id,
           categoryName: category.categoryName,
           publicFlag: category.publicFlag,
           hiddenFlag: category.hiddenFlag
         };
+        this.categoryBackVO.id = category.id;
         this.$refs.categoryTitle.innerHTML = "修改分类";
       } else {
-        this.category = {
+        this.categoryOrigin = {
           categoryName: "",
-          publicFlag: true
+          publicFlag: true,
+          hiddenFlag: false
         };
         this.$refs.categoryTitle.innerHTML = "添加分类";
       }
+      this.category = JSON.parse(JSON.stringify(this.categoryOrigin));
       this.$nextTick(() => {
         this.$refs.input.focus();
       });
@@ -334,14 +347,14 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listCategories(true);
+      this.listCategories();
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listCategories(this.keywords !== this.oldKeywords);
+      this.listCategories();
     },
     checkSelectable(row) {
       return !row.articleCount;
@@ -352,28 +365,24 @@ export default {
         this.categoryIdList.push(item.id);
       });
     },
-    listCategories(resetPageFlag = false, searchFlag = false) {
-      if (resetPageFlag) {
+    listCategories() {
+      if (this.keywords !== this.oldKeywords) {
         this.current = 1;
       }
-      if (searchFlag) {
-        this.oldKeywords = this.keywords;
-      }
-      this.axios
-        .get("/api/back/categories", {
-          params: {
-            size: this.size,
-            userId: this.userId,
-            current: this.current,
-            keywords: this.keywords,
-            deletedFlag: this.deletedFlag
-          }
-        })
-        .then(({ data }) => {
-          this.count = data.data.count;
-          this.categoryList = data.data.pageList;
-          this.loading = false;
-        });
+      this.oldKeywords = this.keywords;
+      let params = {
+        size: this.size,
+        userId: this.userId,
+        current: this.current,
+        keywords: this.keywords,
+        type: this.type
+      };
+      params = this.$filterObject.skipEmptyValue(params);
+      this.axios.get("/api/back/categories", { params }).then(({ data }) => {
+        this.count = data.data.count;
+        this.categoryList = data.data.pageList;
+        this.loading = false;
+      });
     },
     listAllUsername(keywords) {
       if (keywords.trim() === "") {
@@ -392,15 +401,15 @@ export default {
       } else {
         param = { data: [id] };
       }
-      if (param.data.length === this.categoryList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
-      }
       this.axios.delete("/api/back/categories", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
+          if (param.data.length === this.categoryList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
           this.listCategories();
         } else {
           this.$notify.error({
@@ -412,21 +421,23 @@ export default {
       });
     },
     addOrEditCategory() {
-      this.axios.post("/api/back/category", this.category).then(({ data }) => {
-        if (data.flag) {
-          this.$notify.success({
-            title: "成功",
-            message: data.message
-          });
-          this.listCategories();
-        } else {
-          this.$notify.error({
-            title: "失败",
-            message: data.message
-          });
-        }
-        this.addOrEditStatus = false;
-      });
+      this.axios
+        .post("/api/back/category", this.categoryBackVO)
+        .then(({ data }) => {
+          if (data.flag) {
+            this.$notify.success({
+              title: "成功",
+              message: data.message
+            });
+            this.listCategories();
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: data.message
+            });
+          }
+        });
+      this.addOrEditStatus = false;
     },
     updateCategoriesStatus(id) {
       let param = new URLSearchParams();
@@ -435,16 +446,15 @@ export default {
       } else {
         param.append("idList", this.categoryIdList);
       }
-      param.append("deletedFlag", !this.deletedFlag);
-      if (param.get("idList").length === this.categoryList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
-      }
       this.axios.put("/api/back/categories", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
+          if (param.get("idList").length === this.categoryList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
           this.listCategories();
         } else {
           this.$notify.error({
@@ -452,24 +462,35 @@ export default {
             message: data.message
           });
         }
-        this.editStatus = false;
       });
+      this.editStatus = false;
     },
-    changeCategoryStatus(category) {
+    changeCategoryStatus(category, type) {
       let param = {
-        id: category.id,
-        publicFlag: category.publicFlag,
-        hiddenFlag: category.hiddenFlag
+        idList: [category.id],
+        type: type
       };
-      this.axios.put("/api/back/category/status", param);
+      this.axios.put("/api/back/category/status", param).then(({ data }) => {
+        if (!data.flag) {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+          if (type === 2) {
+            category.publicFlag = !category.publicFlag;
+          } else if (type === 3) {
+            category.hiddenFlag = !category.hiddenFlag;
+          }
+        }
+      });
     }
   },
   watch: {
-    userId() {
-      this.listCategories(true);
+    type() {
+      this.listArticles();
     },
-    deletedFlag() {
-      this.listCategories(true);
+    userId() {
+      this.listCategories();
     }
   }
 };

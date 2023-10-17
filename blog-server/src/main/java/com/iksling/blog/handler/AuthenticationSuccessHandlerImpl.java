@@ -40,7 +40,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer userId = loginUser.getUserId();
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .select(User::getId, User::getNickname, User::getAvatar, User::getIntro, User::getEmail, User::getWebsite)
+                .select(User::getNickname, User::getAvatar, User::getIntro, User::getEmail, User::getWebsite)
                 .eq(User::getId, userId));
         Boolean loginPlatform = Boolean.parseBoolean(httpServletRequest.getHeader("Login-Platform"));
         Date loginTime = new Date();

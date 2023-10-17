@@ -34,7 +34,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (StringUtils.isBlank(username))
             throw new UsernameNotFoundException("用户名为空!");
         UserAuth userAuth = userAuthMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
-            .select(UserAuth::getId, UserAuth::getUserId, UserAuth::getUsername, UserAuth::getPassword, UserAuth::getLockedFlag, UserAuth::getDisabledFlag)
+            .select(UserAuth::getUserId, UserAuth::getUsername, UserAuth::getPassword, UserAuth::getLockedFlag, UserAuth::getDisabledFlag)
             .eq(UserAuth::getUsername, username.trim())
             .eq(UserAuth::getDeletedFlag, false));
         if (Objects.isNull(userAuth))

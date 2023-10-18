@@ -9,7 +9,6 @@ import com.iksling.blog.dto.CategoriesBackDTO;
 import com.iksling.blog.entity.Category;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
-import com.iksling.blog.mapper.ArticleMapper;
 import com.iksling.blog.mapper.CategoryMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
@@ -23,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -37,9 +35,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     @Autowired
     private CategoryMapper categoryMapper;
 
-    @Autowired
-    private ArticleMapper articleMapper;
-
     @Override
     public PagePojo<CategoriesBackDTO> getCategoriesBackDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
@@ -50,10 +45,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<CategoriesBackDTO> categoriesBackDTOList = categoryMapper.listCategoriesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (categoriesBackDTOList.size() == 0)
-            return new PagePojo<>(count, new ArrayList<>());
-        categoriesBackDTOList.forEach(item -> {
-        });
         return new PagePojo<>(count, categoriesBackDTOList);
     }
 
@@ -112,10 +103,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
             Category categoryOrigin = categoryMapper.selectOne(new LambdaQueryWrapper<Category>()
                     .select(Category::getUserId)
                     .eq(Category::getDeletedFlag, false)
-                    .eq(Category::getId, category.getId()));
+                    .eq(Category::getId, category.getId())
+                    .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId()));
             if (Objects.isNull(categoryOrigin))
-                throw new OperationStatusException();
-            if (!loginUser.getUserId().equals(categoryOrigin.getUserId()) && loginUser.getRoleWeight() > 200)
                 throw new OperationStatusException();
             if (Objects.nonNull(category.getCategoryName())) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
@@ -126,9 +116,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
             }
             category.setUpdateUser(loginUser.getUserId());
             category.setUpdateTime(new Date());
-            int count = categoryMapper.updateById(category);
-            if (count != 1)
-                throw new OperationStatusException();
+            categoryMapper.updateById(category);
         }
     }
 

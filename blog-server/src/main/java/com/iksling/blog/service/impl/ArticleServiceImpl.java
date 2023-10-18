@@ -137,95 +137,77 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Transactional(rollbackFor = Exception.class)
     public Integer saveOrUpdateArticleBackVO(ArticleBackVO articleBackVO) {
         LoginUser loginUser =  UserUtil.getLoginUser();
-        Article article = new Article();
-        if (Objects.isNull(articleBackVO.getId())) {
-            if (StringUtils.isBlank(articleBackVO.getArticleTitle()) || StringUtils.isBlank(articleBackVO.getArticleContent()))
+        Article article = BeanCopyUtil.copyObject(articleBackVO, Article.class);
+        if (Objects.isNull(article.getId())) {
+            if (StringUtils.isBlank(article.getArticleTitle()) || StringUtils.isBlank(article.getArticleContent()))
                 throw new OperationStatusException();
-            if (Objects.nonNull(articleBackVO.getDraftFlag()) && !articleBackVO.getDraftFlag()) {
-                if (Objects.isNull(articleBackVO.getCategoryId()))
+            if (Objects.nonNull(article.getDraftFlag()) && !article.getDraftFlag()) {
+                if (Objects.isNull(article.getCategoryId()))
                     throw new OperationStatusException();
-                article.setDraftFlag(false);
                 article.setPublishUser(loginUser.getUserId());
                 article.setPublishTime(new Date());
             }
-            if (Objects.nonNull(articleBackVO.getCategoryId())) {
+            if (Objects.nonNull(article.getCategoryId())) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
-                        .eq(Category::getId, articleBackVO.getCategoryId())
+                        .eq(Category::getId, article.getCategoryId())
                         .eq(Category::getUserId, loginUser.getUserId())
                         .eq(Category::getDeletedFlag, false));
                 if (count != 1)
                     throw new OperationStatusException();
-                article.setCategoryId(articleBackVO.getCategoryId());
             }
             article.setUserId(loginUser.getUserId());
-            article.setArticleTitle(articleBackVO.getArticleTitle());
-            article.setArticleContent(articleBackVO.getArticleContent());
-            article.setTopFlag(articleBackVO.getTopFlag());
-            article.setPublicFlag(articleBackVO.getPublicFlag());
-            article.setHiddenFlag(articleBackVO.getHiddenFlag());
-            article.setCommentableFlag(articleBackVO.getCommentableFlag());
             article.setIpAddress(IpUtil.getIpAddress(request));
             article.setIpSource(IpUtil.getIpSource(article.getIpAddress()));
             article.setCreateUser(loginUser.getUserId());
             article.setCreateTime(new Date());
-            if (Objects.nonNull(articleBackVO.getArticleCover()) && articleBackVO.getArticleCover().startsWith(STATIC_RESOURCE_URL))
-                article.setArticleCover(articleBackVO.getArticleCover());
+            if (Objects.nonNull(article.getArticleCover()))
+                if (!article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
+                    article.setArticleCover(null);
             articleMapper.insert(article);
             multiDirService.saveArticleDirById(article.getId());
         } else {
-            if (Objects.nonNull(articleBackVO.getArticleTitle())) {
-                if (StringUtils.isBlank(articleBackVO.getArticleTitle()))
+            if (Objects.nonNull(article.getArticleTitle())) {
+                if (StringUtils.isBlank(article.getArticleTitle()))
                     throw new OperationStatusException();
-                article.setArticleTitle(articleBackVO.getArticleTitle());
             }
-            if (Objects.nonNull(articleBackVO.getArticleContent())) {
-                if (StringUtils.isBlank(articleBackVO.getArticleContent()))
+            if (Objects.nonNull(article.getArticleContent())) {
+                if (StringUtils.isBlank(article.getArticleContent()))
                     throw new OperationStatusException();
-                article.setArticleContent(articleBackVO.getArticleContent());
             }
             Article articleOrigin = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
-                    .select(Article::getId, Article::getUserId, Article::getPublishUser, Article::getArticleCover)
-                    .eq(Article::getId, articleBackVO.getId())
+                    .select(Article::getUserId, Article::getPublishUser, Article::getArticleCover)
+                    .eq(Article::getId, article.getId())
                     .eq(Article::getDeletedFlag, false)
                     .eq(Article::getRecycleFlag, false)
                     .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
             if (Objects.isNull(articleOrigin))
                 throw new OperationStatusException();
-            if (Objects.nonNull(articleBackVO.getCategoryId())) {
+            if (Objects.nonNull(article.getCategoryId())) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
-                        .eq(Category::getId, articleBackVO.getCategoryId())
+                        .eq(Category::getId, article.getCategoryId())
                         .eq(Category::getUserId, articleOrigin.getUserId())
                         .eq(Category::getDeletedFlag, false));
                 if (count != 1)
                     throw new IllegalRequestException();
-                article.setCategoryId(articleBackVO.getCategoryId());
             }
-            if (Objects.nonNull(articleBackVO.getArticleCover())) {
-                if (articleBackVO.getArticleCover().startsWith(STATIC_RESOURCE_URL))
-                    article.setArticleCover(articleBackVO.getArticleCover());
-                else
+            if (Objects.nonNull(article.getArticleCover())) {
+                if (!article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                     article.setArticleCover("");
-                if (articleOrigin.getArticleCover().startsWith(STATIC_RESOURCE_URL + articleOrigin.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + articleOrigin.getId()))
-                    multiFileService.updateArticleImgBy(articleOrigin.getUserId(), articleOrigin.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1));
+                if (articleOrigin.getArticleCover().startsWith(STATIC_RESOURCE_URL + articleOrigin.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + article.getId()))
+                    multiFileService.updateArticleImgBy(articleOrigin.getUserId(), article.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1));
             }
             if (CollectionUtils.isNotEmpty(articleBackVO.getTagIdList())) {
                 articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
                         .set(ArticleTag::getDeletedFlag, true)
                         .eq(ArticleTag::getDeletedFlag, false)
-                        .eq(ArticleTag::getArticleId, articleOrigin.getId()));
+                        .eq(ArticleTag::getArticleId, article.getId()));
             }
-            if (Objects.nonNull(articleBackVO.getDraftFlag())) {
-                article.setDraftFlag(articleBackVO.getDraftFlag());
+            if (Objects.nonNull(article.getDraftFlag())) {
                 if (Objects.isNull(articleOrigin.getPublishUser())) {
                     article.setPublishUser(loginUser.getUserId());
                     article.setPublishTime(new Date());
                 }
             }
-            article.setTopFlag(articleBackVO.getTopFlag());
-            article.setPublicFlag(articleBackVO.getPublicFlag());
-            article.setHiddenFlag(articleBackVO.getHiddenFlag());
-            article.setCommentableFlag(articleBackVO.getCommentableFlag());
-            article.setId(articleBackVO.getId());
             article.setUpdateUser(loginUser.getUserId());
             article.setUpdateTime(new Date());
             articleMapper.updateById(article);

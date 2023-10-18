@@ -68,7 +68,7 @@ public class ConditionBackVO {
     private List<Integer> tagIdList;
 
     /**
-     * type
+     * 类型
      */
     @ApiModelProperty(name = "type", value = "类型", dataType = "Integer")
     private Integer type;

@@ -51,13 +51,13 @@ public class StatusBackVO {
     private List<Integer> idList;
 
     /**
-     * type
+     * 类型
      */
     @ApiModelProperty(name = "type", value = "类型", dataType = "Integer")
     private Integer type;
 
     /**
-     * status
+     * 状态
      */
     @ApiModelProperty(name = "status", value = "状态", dataType = "Boolean")
     private Boolean status;

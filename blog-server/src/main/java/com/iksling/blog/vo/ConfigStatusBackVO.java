@@ -12,10 +12,10 @@ import javax.validation.constraints.NotNull;
 @ApiModel(description = "配置状态VO")
 public class ConfigStatusBackVO {
     /**
-     * userId
+     * 用户id
      */
-    @NotNull(message = "userId不能为null")
-    @ApiModelProperty(name = "userId", value = "userId", required = true, dataType = "Integer")
+    @NotNull(message = "用户id不能为null")
+    @ApiModelProperty(name = "userId", value = "用户id", required = true, dataType = "Integer")
     private Integer userId;
 
     /**

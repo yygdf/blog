@@ -377,7 +377,7 @@ export default {
         keywords: this.keywords,
         type: this.type
       };
-      params = this.$filterObject.skipEmptyValue(params);
+      params = this.$commonMethod.skipEmptyValue(params);
       this.axios.get("/api/back/categories", { params }).then(({ data }) => {
         this.count = data.data.count;
         this.categoryList = data.data.pageList;

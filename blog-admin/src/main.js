@@ -21,7 +21,7 @@ import moment from "moment";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { generaMenu } from "./assets/js/menu";
-import filterObject from "./assets/js/filter";
+import commonMethod from "./assets/js/common";
 
 Vue.prototype.config = config;
 Vue.use(mavonEditor);
@@ -30,7 +30,7 @@ Vue.use(VueAxios, axios);
 Vue.use(ElementUI);
 Vue.config.productionTip = false;
 Vue.prototype.$moment = moment;
-Vue.prototype.$filterObject = filterObject;
+Vue.prototype.$commonMethod = commonMethod;
 
 Vue.filter("date", function(value, formatStr = "yyyy-MM-DD") {
   return moment(value).format(formatStr);

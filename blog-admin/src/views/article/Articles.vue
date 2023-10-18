@@ -424,7 +424,7 @@ export default {
         categoryId: this.categoryId,
         type: this.type
       };
-      params = this.$filterObject.skipEmptyValue(params);
+      params = this.$commonMethod.skipEmptyValue(params);
       this.axios.get("/api/back/articles", { params }).then(({ data }) => {
         this.count = data.data.count;
         this.articleList = data.data.pageList;
@@ -442,10 +442,12 @@ export default {
         });
     },
     listArticleOptions() {
+      let param = {};
+      if (this.userId != null && this.userId !== "") {
+        param.userId = this.userId;
+      }
       this.axios
-        .get("/api/back/article/option", {
-          params: { userId: this.userId }
-        })
+        .get("/api/back/article/option", { params: param })
         .then(({ data }) => {
           this.tagIdList = [];
           this.categoryId = null;

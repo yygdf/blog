@@ -10,7 +10,6 @@
         show-word-limit
       />
       <el-button
-        :disabled="modCount === 0"
         type="danger"
         size="medium"
         class="save-btn"
@@ -27,7 +26,6 @@
         发表文章
       </el-button>
       <el-button
-        :disabled="modCount === 0"
         type="warning"
         size="medium"
         style="margin-left:10px"
@@ -150,11 +148,7 @@
       </el-form>
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
-        <el-button
-          :disabled="modCount === 0 && !article.draftFlag"
-          type="danger"
-          @click="saveOrUpdateArticle"
-        >
+        <el-button type="danger" @click="saveOrUpdateArticle">
           发 表
         </el-button>
       </div>
@@ -169,11 +163,8 @@ export default {
     if (arr[2]) {
       this.articleUserId = arr[2];
       this.axios.get("/api/back/article/" + arr[3]).then(({ data }) => {
-        if (data.data.categoryId === -1) {
-          data.data.categoryId = null;
-        }
-        this.articleOrigin = data.data;
-        this.article = JSON.parse(JSON.stringify(data.data));
+        this.article = data.data;
+        this.articleOrigin = JSON.parse(JSON.stringify(data.data));
       });
     } else {
       this.article.articleTitle = this.$moment(new Date()).format("YYYY-MM-DD");
@@ -210,13 +201,11 @@ export default {
       tagList: [],
       fileNameList: [],
       categoryList: [],
-      articleBackVO: {},
       staticResourceUrl: "",
       articleCoverUpload: "",
       articleUserId: null,
       addOrEditStatus: false,
-      articleCoverUploadFlag: false,
-      modCount: 0
+      articleCoverUploadFlag: false
     };
   },
   methods: {
@@ -259,10 +248,17 @@ export default {
           return false;
         }
         this.axios
-          .post("/api/back/article", this.articleBackVO)
+          .post(
+            "/api/back/article",
+            this.$commonMethod.skipIdenticalValue(
+              this.article,
+              this.articleOrigin
+            )
+          )
           .then(({ data }) => {
             if (data.flag) {
               this.article.id = data.data;
+              this.articleOrigin = JSON.parse(JSON.stringify(this.article));
               let formData = new FormData();
               formData.append("file", file);
               formData.append("articleId", this.article.id);
@@ -374,7 +370,6 @@ export default {
         type: "warning"
       })
         .then(() => {
-          this.modCount = 0;
           if (this.fileNameList.length !== 0) {
             this.updateImg(null);
           }
@@ -386,9 +381,6 @@ export default {
         .catch(() => {});
     },
     saveArticleDraft(flag = true) {
-      if (this.modCount === 0) {
-        return false;
-      }
       if (this.article.articleTitle.trim() === "") {
         if (flag) {
           this.$message.error("文章标题不能为空");
@@ -401,33 +393,37 @@ export default {
         }
         return false;
       }
-      if (this.article.draftFlag === false) {
-        this.articleBackVO.draftFlag = true;
+      let param = this.$commonMethod.skipIdenticalValue(
+        this.article,
+        this.articleOrigin
+      );
+      if (Object.keys(param).length === 0) {
+        return false;
       }
       if (this.article.id != null) {
-        this.articleBackVO.id = this.article.id;
+        param.id = this.article.id;
       }
-      this.axios
-        .post("/api/back/article", this.articleBackVO)
-        .then(({ data }) => {
-          if (data.flag) {
-            this.article.id = data.data;
-            this.article.draftFlag = true;
-            this.articleOrigin = JSON.parse(JSON.stringify(this.article));
-            this.$notify.success({
-              title: "成功",
-              message: "保存草稿成功"
-            });
-            this.modCount = 0;
-            this.fileNameList = [];
-            this.articleCoverUploadFlag = false;
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: "保存草稿失败"
-            });
-          }
-        });
+      if (this.article.draftFlag === false) {
+        param.draftFlag = true;
+      }
+      this.axios.post("/api/back/article", param).then(({ data }) => {
+        if (data.flag) {
+          this.article.id = data.data;
+          this.article.draftFlag = true;
+          this.articleOrigin = JSON.parse(JSON.stringify(this.article));
+          this.$notify.success({
+            title: "成功",
+            message: "保存草稿成功"
+          });
+          this.fileNameList = [];
+          this.articleCoverUploadFlag = false;
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: "保存草稿失败"
+          });
+        }
+      });
     },
     saveOrUpdateArticle() {
       if (!this.article.categoryId) {
@@ -435,33 +431,37 @@ export default {
         this.$refs.upload.clearFiles();
         return false;
       }
-      if (this.article.draftFlag !== false) {
-        this.articleBackVO.draftFlag = false;
+      let param = this.$commonMethod.skipIdenticalValue(
+        this.article,
+        this.articleOrigin
+      );
+      if (Object.keys(param).length === 0) {
+        return false;
       }
       if (this.article.id != null) {
-        this.articleBackVO.id = this.article.id;
+        param.id = this.article.id;
       }
-      this.axios
-        .post("/api/back/article", this.articleBackVO)
-        .then(({ data }) => {
-          if (data.flag) {
-            this.article.id = data.data;
-            this.article.draftFlag = false;
-            this.articleOrigin = JSON.parse(JSON.stringify(this.article));
-            this.$notify.success({
-              title: "成功",
-              message: data.message
-            });
-            this.modCount = 0;
-            this.fileNameList = [];
-            this.articleCoverUploadFlag = false;
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: data.message
-            });
-          }
-        });
+      if (this.article.draftFlag !== false) {
+        param.draftFlag = false;
+      }
+      this.axios.post("/api/back/article", param).then(({ data }) => {
+        if (data.flag) {
+          this.article.id = data.data;
+          this.article.draftFlag = false;
+          this.articleOrigin = JSON.parse(JSON.stringify(this.article));
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.fileNameList = [];
+          this.articleCoverUploadFlag = false;
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+      });
       this.addOrEditStatus = false;
     },
     cancelSaveOrUpdateArticle() {
@@ -470,95 +470,6 @@ export default {
         this.$refs.upload.clearFiles();
         this.article.articleCover = this.articleOrigin.articleCover;
       }
-    }
-  },
-  watch: {
-    "article.categoryId"(newVal) {
-      if (newVal !== this.articleOrigin.categoryId) {
-        this.modCount = this.modCount | 1;
-        this.articleBackVO.categoryId = newVal;
-      } else {
-        this.modCount = this.modCount & 510;
-        delete this.articleBackVO.categoryId;
-      }
-    },
-    "article.articleTitle"(newVal) {
-      if (newVal.trim() !== this.articleOrigin.articleTitle) {
-        this.modCount = this.modCount | 2;
-        this.articleBackVO.articleTitle = newVal;
-      } else {
-        this.modCount = this.modCount & 509;
-        delete this.articleBackVO.articleTitle;
-      }
-    },
-    "article.articleCover"(newVal) {
-      if (newVal.trim() !== this.articleOrigin.articleCover) {
-        this.modCount = this.modCount | 4;
-        this.articleBackVO.articleCover = newVal;
-      } else {
-        this.modCount = this.modCount & 507;
-        delete this.articleBackVO.articleCover;
-      }
-    },
-    "article.articleContent"(newVal) {
-      if (newVal.trim() !== this.articleOrigin.articleContent) {
-        this.modCount = this.modCount | 8;
-        this.articleBackVO.articleContent = newVal;
-      } else {
-        this.modCount = this.modCount & 503;
-        delete this.articleBackVO.articleContent;
-      }
-    },
-    "article.topFlag"(newVal) {
-      if (newVal !== this.articleOrigin.topFlag) {
-        this.modCount = this.modCount | 16;
-        this.articleBackVO.topFlag = newVal;
-      } else {
-        this.modCount = this.modCount & 495;
-        delete this.articleBackVO.topFlag;
-      }
-    },
-    "article.publicFlag"(newVal) {
-      if (newVal !== this.articleOrigin.publicFlag) {
-        this.modCount = this.modCount | 32;
-        this.articleBackVO.publicFlag = newVal;
-      } else {
-        this.modCount = this.modCount & 479;
-        delete this.articleBackVO.publicFlag;
-      }
-    },
-    "article.hiddenFlag"(newVal) {
-      if (newVal !== this.articleOrigin.hiddenFlag) {
-        this.modCount = this.modCount | 64;
-        this.articleBackVO.hiddenFlag = newVal;
-      } else {
-        this.modCount = this.modCount & 447;
-        delete this.articleBackVO.hiddenFlag;
-      }
-    },
-    "article.commentableFlag"(newVal) {
-      if (newVal !== this.articleOrigin.commentableFlag) {
-        this.modCount = this.modCount | 128;
-        this.articleBackVO.commentableFlag = newVal;
-      } else {
-        this.modCount = this.modCount & 383;
-        delete this.articleBackVO.commentableFlag;
-      }
-    },
-    "article.tagIdList": {
-      handler(newVal) {
-        if (
-          JSON.stringify(newVal) !==
-          JSON.stringify(this.articleOrigin.tagIdList)
-        ) {
-          this.modCount = this.modCount | 256;
-          this.articleBackVO.tagIdList = newVal;
-        } else {
-          this.modCount = this.modCount & 255;
-          delete this.articleBackVO.tagIdList;
-        }
-      },
-      deep: true
     }
   }
 };

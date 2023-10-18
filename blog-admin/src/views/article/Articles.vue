@@ -208,7 +208,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeArticleStatus(scope.row, 1)"
+            @change="changeArticleStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -481,36 +481,39 @@ export default {
     },
     changeArticleStatus(article, type) {
       let param = {
-        idList: [article.id],
-        type: type
+        idList: [article.id]
       };
+      if (type != null) {
+        param.type = type;
+      }
       this.axios.put("/api/back/article/status", param).then(({ data }) => {
         if (!data.flag) {
           this.$notify.error({
             title: "失败",
             message: data.message
           });
-          if (type === 1) {
-            article.topFlag = !article.topFlag;
-          } else if (type === 2) {
+          if (type === 2) {
             article.publicFlag = !article.publicFlag;
           } else if (type === 3) {
             article.hiddenFlag = !article.hiddenFlag;
           } else if (type === 4) {
             article.commentableFlag = !article.commentableFlag;
+          } else {
+            article.topFlag = !article.topFlag;
           }
         }
       });
     },
     updateArticlesStatus(id, isRec = false) {
+      let param = {};
       if (id != null) {
         param.idList = [id];
       } else {
         param.idList = this.articleIdList;
       }
-      let param = {
-        type: this.type == null ? 5 : this.type
-      };
+      if (this.type != null) {
+        param.type = this.type;
+      }
       if (isRec) {
         param.status = true;
       }

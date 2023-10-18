@@ -28,21 +28,21 @@
             <result property="publishTime" column="publish_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-    <resultMap id="articlesBackResultMap" type="com.iksling.blog.dto.ArticlesBackDTO">
-        <id column="id" property="id"/>
-        <result column="user_id" property="userId"/>
-        <result column="username" property="username"/>
-        <result column="article_title" property="articleTitle"/>
-        <result column="top_flag" property="topFlag"/>
-        <result column="public_flag" property="publicFlag"/>
-        <result column="hidden_flag" property="hiddenFlag"/>
-        <result column="commentable_flag" property="commentableFlag"/>
-        <result column="publish_time" property="publishTime"/>
-        <result column="update_time" property="updateTime"/>
-        <result column="category_name" property="categoryName"/>
+    <resultMap id="articlesBackDTOResultMap" type="com.iksling.blog.dto.ArticlesBackDTO">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="articleTitle" column="article_title"/>
+        <result property="topFlag" column="top_flag"/>
+        <result property="publicFlag" column="public_flag"/>
+        <result property="hiddenFlag" column="hidden_flag"/>
+        <result property="commentableFlag" column="commentable_flag"/>
+        <result property="publishTime" column="publish_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="categoryName" column="category_name"/>
         <collection property="tagDTOList" ofType="com.iksling.blog.dto.LabelBackDTO">
-            <id column="tag_id" property="id"/>
-            <result column="tag_name" property="label"/>
+            <id property="id" column="tag_id"/>
+            <result property="label" column="tag_name"/>
         </collection>
     </resultMap>
 
@@ -56,7 +56,7 @@
         update_time,publish_user,publish_time
     </sql>
 
-    <select id="listArticlesBackDTO" resultMap="articlesBackResultMap">
+    <select id="listArticlesBackDTO" resultMap="articlesBackDTOResultMap">
         SELECT
             a.id,a.user_id,ua.username,
             a.article_title,a.top_flag,a.public_flag,
@@ -65,72 +65,72 @@
             t.tag_name
         FROM
             (
-            SELECT
-                id,user_id,category_id,
-                article_title,top_flag,public_flag,
-                hidden_flag,commentable_flag,publish_time,
-                update_time
-            FROM
-                tb_article
-            <where>
-                1 = 1
-                <choose>
-                    <when test="condition.type == 5">
-                        AND draft_flag = true
-                        AND recycle_flag = false
-                    </when>
-                    <when test="condition.type == 6">
-                        AND recycle_flag = true
-                        AND deleted_flag = false
-                    </when>
-                    <when test="condition.type == 7">
-                        AND deleted_flag = true
-                    </when>
-                    <otherwise>
-                        AND draft_flag = false
-                    </otherwise>
-                </choose>
-                <choose>
-                    <when test="roleWeight > 300">
-                        AND user_id = #{userId}
-                    </when>
-                    <otherwise>
-                        <if test="condition.userId != null">
-                            AND user_id = #{condition.userId}
-                        </if>
-                    </otherwise>
-                </choose>
-                <if test="condition.categoryId != null">
-                    AND category_id = #{condition.categoryId}
-                </if>
-                <if test="condition.keywords != null and condition.keywords != ''">
-                    AND article_title like concat('%', #{condition.keywords}, '%')
-                </if>
-                <if test="condition.tagIdList != null and condition.tagIdList.size() != 0">
-                    AND id in
-                        (
-                        SELECT
-                            ata.article_id
-                        FROM
-                            tb_article_tag ata
-                        WHERE
-                            ata.tag_id in
-                            <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
-                                #{tagId}
-                            </foreach>
-                        )
-                </if>
-            </where>
-            ORDER BY
-                top_flag DESC,
-                id DESC
-            LIMIT
-                #{condition.current}, #{condition.size}
+                SELECT
+                    id,user_id,category_id,
+                    article_title,top_flag,public_flag,
+                    hidden_flag,commentable_flag,publish_time,
+                    update_time
+                FROM
+                    tb_article
+                <where>
+                    1 = 1
+                    <choose>
+                        <when test="condition.type == 5">
+                            AND draft_flag = true
+                            AND recycle_flag = false
+                        </when>
+                        <when test="condition.type == 6">
+                            AND recycle_flag = true
+                            AND deleted_flag = false
+                        </when>
+                        <when test="condition.type == 7">
+                            AND deleted_flag = true
+                        </when>
+                        <otherwise>
+                            AND draft_flag = false
+                        </otherwise>
+                    </choose>
+                    <choose>
+                        <when test="roleWeight > 300">
+                            AND user_id = #{userId}
+                        </when>
+                        <otherwise>
+                            <if test="condition.userId != null">
+                                AND user_id = #{condition.userId}
+                            </if>
+                        </otherwise>
+                    </choose>
+                    <if test="condition.categoryId != null">
+                        AND category_id = #{condition.categoryId}
+                    </if>
+                    <if test="condition.keywords != null and condition.keywords != ''">
+                        AND article_title like concat('%', #{condition.keywords}, '%')
+                    </if>
+                    <if test="condition.tagIdList != null and condition.tagIdList.size() != 0">
+                        AND id in
+                            (
+                                SELECT
+                                    ata.article_id
+                                FROM
+                                    tb_article_tag ata
+                                WHERE
+                                    ata.tag_id in
+                                    <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
+                                        #{tagId}
+                                    </foreach>
+                            )
+                    </if>
+                </where>
+                ORDER BY
+                    top_flag DESC,
+                    id DESC
+                LIMIT
+                    #{condition.current}, #{condition.size}
             ) a
-            LEFT JOIN tb_category c ON a.category_id = c.id
-            LEFT JOIN tb_article_tag ata ON a.id = ata.article_id AND ata.deleted_flag = false
-            LEFT JOIN tb_tag t ON ata.tag_id = t.id
-            LEFT JOIN tb_user_auth ua ON a.user_id = ua.user_id
+        LEFT JOIN tb_category c ON a.category_id = c.id
+        LEFT JOIN tb_article_tag ata ON a.id = ata.article_id AND ata.deleted_flag = false
+        LEFT JOIN tb_tag t ON ata.tag_id = t.id
+        LEFT JOIN tb_user_auth ua ON a.user_id = ua.user_id
         ORDER BY
             a.top_flag DESC,
             a.id DESC,
@@ -178,17 +178,17 @@
             </if>
             <if test="condition.tagIdList != null and condition.tagIdList.size() != 0">
                 AND id in
-                (
-                    SELECT
-                        ata.article_id
-                    FROM
-                        tb_article_tag ata
-                    WHERE
-                        ata.tag_id in
-                        <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
-                            #{tagId}
-                        </foreach>
-                )
+                    (
+                        SELECT
+                            ata.article_id
+                        FROM
+                            tb_article_tag ata
+                        WHERE
+                            ata.tag_id in
+                            <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
+                                #{tagId}
+                            </foreach>
+                    )
             </if>
         </where>
     </select>

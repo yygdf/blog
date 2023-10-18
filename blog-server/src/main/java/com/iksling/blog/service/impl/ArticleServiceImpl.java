@@ -141,17 +141,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (Objects.isNull(articleBackVO.getId())) {
             if (StringUtils.isBlank(articleBackVO.getArticleTitle()) || StringUtils.isBlank(articleBackVO.getArticleContent()))
                 throw new OperationStatusException();
-            article.setUserId(loginUser.getUserId());
-            article.setArticleTitle(articleBackVO.getArticleTitle());
-            article.setArticleContent(articleBackVO.getArticleContent());
-            article.setTopFlag(articleBackVO.getTopFlag());
-            article.setPublicFlag(articleBackVO.getPublicFlag());
-            article.setHiddenFlag(articleBackVO.getHiddenFlag());
-            article.setCommentableFlag(articleBackVO.getCommentableFlag());
-            article.setIpAddress(IpUtil.getIpAddress(request));
-            article.setIpSource(IpUtil.getIpSource(article.getIpAddress()));
-            article.setCreateUser(loginUser.getUserId());
-            article.setCreateTime(new Date());
             if (Objects.nonNull(articleBackVO.getDraftFlag()) && !articleBackVO.getDraftFlag()) {
                 if (Objects.isNull(articleBackVO.getCategoryId()))
                     throw new OperationStatusException();
@@ -168,6 +157,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     throw new OperationStatusException();
                 article.setCategoryId(articleBackVO.getCategoryId());
             }
+            article.setUserId(loginUser.getUserId());
+            article.setArticleTitle(articleBackVO.getArticleTitle());
+            article.setArticleContent(articleBackVO.getArticleContent());
+            article.setTopFlag(articleBackVO.getTopFlag());
+            article.setPublicFlag(articleBackVO.getPublicFlag());
+            article.setHiddenFlag(articleBackVO.getHiddenFlag());
+            article.setCommentableFlag(articleBackVO.getCommentableFlag());
+            article.setIpAddress(IpUtil.getIpAddress(request));
+            article.setIpSource(IpUtil.getIpSource(article.getIpAddress()));
+            article.setCreateUser(loginUser.getUserId());
+            article.setCreateTime(new Date());
             if (Objects.nonNull(articleBackVO.getArticleCover()) && articleBackVO.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                 article.setArticleCover(articleBackVO.getArticleCover());
             articleMapper.insert(article);
@@ -276,17 +276,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .eq(loginUser.getRoleWeight() > 100, Article::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
                 .in(Article::getId, statusBackVO.getIdList());
-        if (statusBackVO.getType().equals(5))
-            lambdaUpdateWrapper.set(Article::getDraftFlag, true).set(Article::getRecycleFlag, true);
-        else if (statusBackVO.getType().equals(6)) {
+        if (statusBackVO.getType().equals(6)) {
             if (Objects.equals(statusBackVO.getStatus(), true))
                 lambdaUpdateWrapper.set(Article::getRecycleFlag, false);
             else
                 lambdaUpdateWrapper.set(Article::getDeletedFlag, true);
-        } else if (statusBackVO.getType().equals(7) && loginUser.getRoleWeight() <= 100)
-            lambdaUpdateWrapper.set(Article::getDeletedFlag, false);
+        } else if (statusBackVO.getType().equals(7)) {
+            if (loginUser.getRoleWeight() > 100)
+                throw new IllegalRequestException();
+            else
+                lambdaUpdateWrapper.set(Article::getDeletedFlag, false);
+        }
         else
-            throw new OperationStatusException();
+            lambdaUpdateWrapper.set(Article::getDraftFlag, true).set(Article::getRecycleFlag, true);
         int count = articleMapper.update(null, lambdaUpdateWrapper);
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
@@ -322,16 +324,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .in(Article::getId, statusBackVO.getIdList())
                 .eq(Article::getDraftFlag, false)
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId());
-        if (statusBackVO.getType().equals(1))
-            lambdaUpdateWrapper.setSql("top_flag = !top_flag");
-        else if (statusBackVO.getType().equals(2))
+        if (statusBackVO.getType().equals(2))
             lambdaUpdateWrapper.setSql("public_flag = !public_flag");
         else if (statusBackVO.getType().equals(3))
             lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
         else if (statusBackVO.getType().equals(4))
             lambdaUpdateWrapper.setSql("commentable_flag = !commentable_flag");
         else
-            throw new OperationStatusException();
+            lambdaUpdateWrapper.setSql("top_flag = !top_flag");
         int count = articleMapper.update(null, lambdaUpdateWrapper);
         if (count != 1)
             throw new OperationStatusException();

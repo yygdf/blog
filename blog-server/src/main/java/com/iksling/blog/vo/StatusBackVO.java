@@ -53,8 +53,7 @@ public class StatusBackVO {
     /**
      * type
      */
-    @NotNull(message = "type不能为null")
-    @ApiModelProperty(name = "type", value = "类型", required = true, dataType = "Integer")
+    @ApiModelProperty(name = "type", value = "类型", dataType = "Integer")
     private Integer type;
 
     /**

@@ -6,7 +6,6 @@ import com.iksling.blog.service.CategoryService;
 import com.iksling.blog.vo.CategoryBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.ConditionBackVO;
-import com.iksling.blog.vo.UpdateBatchVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -25,27 +24,27 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @ApiOperation(value = "查看后台分类列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
     @GetMapping("/back/categories")
     public Result listBackCategories(@Valid ConditionBackVO condition) {
-        return Result.success().message("查询成功").data(categoryService.getPageCategoriesBackDTO(condition));
+        return Result.success().message("查询成功").data(categoryService.getCategoriesBackDTO(condition));
     }
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "修改分类状态")
-    @ApiImplicitParam(name = "commonStatusVO", value = "通用状态VO", required = true, dataType = "CommonStatusVO")
+    @ApiImplicitParam(name = "statusBackVO", value = "状态后台VO", required = true, dataType = "StatusBackVO")
     @PutMapping("/back/category/status")
     public Result updateCategoryStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
-        categoryService.updateCategoryStatusVO(statusBackVO);
+        categoryService.updateCategoryStatusBackVO(statusBackVO);
         return Result.success().message("操作成功");
     }
 
     @OptLog(optType = REMOVE)
-    @ApiOperation(value = "批量删除分类")
-    @ApiImplicitParam(name = "categoryIdList", value = "分类idList", required = true, dataType = "List<Integer>")
+    @ApiOperation(value = "物理批量删除分类")
+    @ApiImplicitParam(name = "idList", value = "分类idList", required = true, dataType = "List<Integer>")
     @DeleteMapping("/back/categories")
-    public Result deleteBackCategories(@RequestBody List<Integer> categoryIdList) {
-        categoryService.deleteCategoryIdList(categoryIdList);
+    public Result deleteBackCategories(@RequestBody List<Integer> idList) {
+        categoryService.deleteBackCategoriesByIdList(idList);
         return Result.success().message("操作成功");
     }
 
@@ -60,10 +59,10 @@ public class CategoryController {
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "批量更新分类状态")
-    @ApiImplicitParam(name = "updateBatchVO", value = "批量更新VO", required = true, dataType = "UpdateBatchVO")
-    @PutMapping("/back/categories")
-    public Result updateCategoriesStatus(@Valid UpdateBatchVO updateBatchVO) {
-        categoryService.updateCategoriesStatus(updateBatchVO);
+    @ApiImplicitParam(name = "statusBackVO", value = "状态后台VO", required = true, dataType = "StatusBackVO")
+    @PutMapping("/back/categories/status")
+    public Result updateBackCategoriesStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
+        categoryService.updateCategoriesStatusBackVO(statusBackVO);
         return Result.success().message("操作成功");
     }
 }

@@ -64,7 +64,7 @@ public class MultiFile implements Serializable {
     private Long fileNameNew;
 
     /**
-     * 文件原始名称，默认空串
+     * 文件原始名称
      */
     private String fileNameOrigin;
 

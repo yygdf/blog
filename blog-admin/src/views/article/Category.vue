@@ -446,7 +446,7 @@ export default {
       } else {
         param.append("idList", this.categoryIdList);
       }
-      this.axios.put("/api/back/categories", param).then(({ data }) => {
+      this.axios.put("/api/back/categories/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",

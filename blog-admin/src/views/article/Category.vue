@@ -97,7 +97,7 @@
         :selectable="checkSelectable"
       />
       <el-table-column
-        v-if="checkWeight(300)"
+        v-if="checkWeight"
         prop="username"
         label="用户"
         align="center"
@@ -268,11 +268,7 @@
       </el-form>
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
-        <el-button
-          :disabled="modCount === 0"
-          type="primary"
-          @click="addOrEditCategory"
-        >
+        <el-button type="primary" @click="addOrEditCategory">
           确 定
         </el-button>
       </div>
@@ -302,7 +298,6 @@ export default {
       ],
       category: {},
       categoryOrigin: {},
-      categoryBackVO: {},
       usernameList: [],
       categoryList: [],
       categoryIdList: [],
@@ -316,30 +311,28 @@ export default {
       addOrEditStatus: false,
       size: 10,
       count: 0,
-      current: 1,
-      modCount: 0
+      current: 1
     };
   },
   methods: {
     openModel(category) {
       if (category != null) {
-        this.categoryOrigin = {
+        this.category = {
           id: category.id,
           categoryName: category.categoryName,
           publicFlag: category.publicFlag,
           hiddenFlag: category.hiddenFlag
         };
-        this.categoryBackVO.id = category.id;
         this.$refs.categoryTitle.innerHTML = "修改分类";
       } else {
-        this.categoryOrigin = {
+        this.category = {
           categoryName: "",
           publicFlag: true,
           hiddenFlag: false
         };
         this.$refs.categoryTitle.innerHTML = "添加分类";
       }
-      this.category = JSON.parse(JSON.stringify(this.categoryOrigin));
+      this.categoryOrigin = JSON.parse(JSON.stringify(this.category));
       this.$nextTick(() => {
         this.$refs.input.focus();
       });
@@ -421,30 +414,42 @@ export default {
       });
     },
     addOrEditCategory() {
-      this.axios
-        .post("/api/back/category", this.categoryBackVO)
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: "成功",
-              message: data.message
-            });
-            this.listCategories();
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: data.message
-            });
-          }
-        });
+      if (this.category.categoryName.trim() === "") {
+        this.$message.error("分类名不能为空");
+        return false;
+      }
+      let param = this.$commonMethod.skipIdenticalValue(
+        this.category,
+        this.categoryOrigin
+      );
+      if (Object.keys(param).length === 0) {
+        return false;
+      }
+      if (this.category.id != null) {
+        param.id = this.category.id;
+      }
+      this.axios.post("/api/back/category", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.listCategories();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+      });
       this.addOrEditStatus = false;
     },
     updateCategoriesStatus(id) {
-      let param = new URLSearchParams();
+      let param = {};
       if (id != null) {
-        param.append("idList", [id]);
+        param.idList = [id];
       } else {
-        param.append("idList", this.categoryIdList);
+        param.idList = this.articleIdList;
       }
       this.axios.put("/api/back/categories/status", param).then(({ data }) => {
         if (data.flag) {
@@ -487,7 +492,7 @@ export default {
   },
   watch: {
     type() {
-      this.listArticles();
+      this.listCategories();
     },
     userId() {
       this.listCategories();

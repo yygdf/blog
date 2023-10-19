@@ -2,8 +2,6 @@ package com.iksling.blog.dto;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 public class ArticleBackDTO {
     /**
@@ -62,7 +60,7 @@ public class ArticleBackDTO {
     private Boolean commentableFlag;
 
     /**
-     * 标签idList
+     * 标签idList字符串
      */
-    private List<Integer> tagIdList;
+    private String tagIdList;
 }

@@ -53,7 +53,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     public void updateCategoryStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         LambdaUpdateWrapper<Category> lambdaUpdateWrapper = new LambdaUpdateWrapper<Category>()
-                .eq(Category::getId, statusBackVO.getId())
+                .in(Category::getId, statusBackVO.getIdList())
                 .eq(Category::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId());
         if (statusBackVO.getType().equals(3))
@@ -110,7 +110,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
             if (Objects.nonNull(category.getCategoryName())) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                         .eq(Category::getCategoryName, category.getCategoryName())
-                        .eq(Category::getUserId, categoryOrigin.getUserId()));
+                        .eq(Category::getUserId, categoryOrigin.getUserId())
+                        .eq(Category::getDeletedFlag, false));
                 if (count > 0)
                     throw new OperationStatusException("分类名已存在!");
             }
@@ -126,7 +127,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         int count = categoryMapper.update(null, new LambdaUpdateWrapper<Category>()
                 .set(Category::getDeletedFlag, true)
                 .eq(Category::getDeletedFlag, false)
-                .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId()));
+                .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId())
+                .in(Category::getId, statusBackVO.getIdList()));
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
     }

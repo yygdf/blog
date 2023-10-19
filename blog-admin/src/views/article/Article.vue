@@ -163,6 +163,13 @@ export default {
     if (arr[2]) {
       this.articleUserId = arr[2];
       this.axios.get("/api/back/article/" + arr[3]).then(({ data }) => {
+        if (data.data.tagIdList == null) {
+          data.data.tagIdList = [];
+        } else {
+          data.data.tagIdList = data.data.tagIdList
+            .split(",")
+            .map(e => Number(e));
+        }
         this.article = data.data;
         this.articleOrigin = JSON.parse(JSON.stringify(data.data));
       });

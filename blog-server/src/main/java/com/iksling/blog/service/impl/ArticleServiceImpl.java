@@ -79,23 +79,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public ArticleBackDTO getArticleBackDTOById(Integer id) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        Article article = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
-                .select(Article::getId, Article::getUserId, Article::getCategoryId, Article::getArticleTitle, Article::getArticleCover, Article::getArticleContent,
-                        Article::getTopFlag, Article::getDraftFlag, Article::getPublicFlag, Article::getHiddenFlag, Article::getCommentableFlag)
-                .eq(Article::getId, id)
-                .eq(Article::getRecycleFlag, false)
-                .eq(Article::getDeletedFlag, false)
-                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
-        if(Objects.isNull(article))
-            return new ArticleBackDTO();
-        List<Integer> tagIdList = articleTagMapper.selectList(new LambdaQueryWrapper<ArticleTag>()
-                .select(ArticleTag::getTagId)
-                .eq(ArticleTag::getArticleId, id)
-                .eq(ArticleTag::getDeletedFlag, false))
-                .stream().map(ArticleTag::getTagId).collect(Collectors.toList());
-        ArticleBackDTO articleBackDTO = BeanCopyUtil.copyObject(article, ArticleBackDTO.class);
-        articleBackDTO.setTagIdList(tagIdList);
-        return articleBackDTO;
+        return articleMapper.selectArticleBackDTOById(id, loginUser.getUserId(), loginUser.getRoleWeight());
     }
 
     @Override
@@ -238,7 +222,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (count == 0)
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        List<ArticlesBackDTO> articlesBackDTOList = articleMapper.listArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        List<ArticlesBackDTO> articlesBackDTOList = articleMapper.selectArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (articlesBackDTOList.size() == 0)
             return new PagePojo<>(count, new ArrayList<>());
         Map<String, Integer> viewCountMap = redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).entries();

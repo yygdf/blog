@@ -14,7 +14,7 @@ import java.util.List;
 public interface CategoryMapper extends BaseMapper<Category> {
     Integer selectCategoriesBackDTOCount(@Param("condition") ConditionBackVO condition, Integer userId, Integer roleWeight);
 
-    List<CategoriesBackDTO> listCategoriesBackDTO(@Param("condition") ConditionBackVO condition, Integer userId, Integer roleWeight);
+    List<CategoriesBackDTO> selectCategoriesBackDTO(@Param("condition") ConditionBackVO condition, Integer userId, Integer roleWeight);
 }
 
 

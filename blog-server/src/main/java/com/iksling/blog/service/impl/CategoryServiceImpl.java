@@ -130,7 +130,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         if (count == 0)
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        List<CategoriesBackDTO> categoriesBackDTOList = categoryMapper.listCategoriesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        List<CategoriesBackDTO> categoriesBackDTOList = categoryMapper.selectCategoriesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         return new PagePojo<>(count, categoriesBackDTOList);
     }
 }

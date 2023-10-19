@@ -58,7 +58,7 @@
 
     <select id="selectArticleBackDTOById" resultType="com.iksling.blog.dto.ArticleBackDTO">
         SELECT
-        a.id,a.user_id,IF(a.category_id = -1,0,a.category_id) category_id,
+        a.id,a.user_id,IF(a.category_id = -1,null,a.category_id) category_id,
         a.article_title,a.article_cover,a.article_content,
         a.top_flag,a.draft_flag,a.public_flag,
         a.hidden_flag,a.commentable_flag,atg.tag_id tagIdList

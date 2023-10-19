@@ -55,7 +55,7 @@
         </where>
     </select>
 
-    <select id="listCategoriesBackDTO" resultType="com.iksling.blog.dto.CategoriesBackDTO">
+    <select id="selectCategoriesBackDTO" resultType="com.iksling.blog.dto.CategoriesBackDTO">
         SELECT
             c.id,c.user_id,ua.username,
             c.category_name,c.public_flag,c.hidden_flag,

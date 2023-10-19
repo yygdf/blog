@@ -28,24 +28,6 @@
             <result property="publishTime" column="publish_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-    <resultMap id="articlesBackDTOResultMap" type="com.iksling.blog.dto.ArticlesBackDTO">
-        <id property="id" column="id"/>
-        <result property="userId" column="user_id"/>
-        <result property="username" column="username"/>
-        <result property="articleTitle" column="article_title"/>
-        <result property="topFlag" column="top_flag"/>
-        <result property="publicFlag" column="public_flag"/>
-        <result property="hiddenFlag" column="hidden_flag"/>
-        <result property="commentableFlag" column="commentable_flag"/>
-        <result property="publishTime" column="publish_time"/>
-        <result property="updateTime" column="update_time"/>
-        <result property="categoryName" column="category_name"/>
-        <collection property="tagDTOList" ofType="com.iksling.blog.dto.LabelBackDTO">
-            <id property="id" column="tag_id"/>
-            <result property="label" column="tag_name"/>
-        </collection>
-    </resultMap>
-
     <sql id="Base_Column_List">
         id,user_id,category_id,
         article_title,article_cover,article_content,
@@ -58,19 +40,19 @@
 
     <select id="selectArticleBackDTOById" resultType="com.iksling.blog.dto.ArticleBackDTO">
         SELECT
-        a.id,a.user_id,IF(a.category_id = -1,null,a.category_id) category_id,
-        a.article_title,a.article_cover,a.article_content,
-        a.top_flag,a.draft_flag,a.public_flag,
-        a.hidden_flag,a.commentable_flag,atg.tag_id tagIdList
+            a.id,a.user_id,IF(a.category_id = -1,null,a.category_id) category_id,
+            a.article_title,a.article_cover,a.article_content,
+            a.top_flag,a.draft_flag,a.public_flag,
+            a.hidden_flag,a.commentable_flag,atg.tag_id tagIdList
         FROM
-        tb_article a
+            tb_article a
         LEFT JOIN (SELECT article_id, GROUP_CONCAT(tag_id) tag_id FROM tb_article_tag WHERE deleted_flag = false AND article_id = #{id} GROUP BY article_id) atg ON a.id = atg.article_id
         WHERE
-        a.id = #{id}
-        AND a.recycle_flag = false
-        <if test="roleWeight > 300">
-            AND user_id = #{userId}
-        </if>
+            a.id = #{id}
+            AND a.recycle_flag = false
+            <if test="roleWeight > 300">
+                AND user_id = #{userId}
+            </if>
     </select>
 
     <select id="selectArticlesBackDTOCount" resultType="java.lang.Integer">
@@ -129,13 +111,12 @@
         </where>
     </select>
 
-    <select id="selectArticlesBackDTO" resultMap="articlesBackDTOResultMap">
+    <select id="selectArticlesBackDTO" resultType="com.iksling.blog.dto.ArticlesBackDTO">
         SELECT
             a.id,a.user_id,ua.username,
             a.article_title,a.top_flag,a.public_flag,
             a.hidden_flag,a.commentable_flag,a.publish_time,
-            a.update_time,c.category_name,t.id tag_id,
-            t.tag_name
+            a.update_time,c.category_name,att.tag_name tagNameList
         FROM
             (
                 SELECT
@@ -201,12 +182,10 @@
                     #{condition.current}, #{condition.size}
             ) a
         LEFT JOIN tb_category c ON a.category_id = c.id
-        LEFT JOIN tb_article_tag ata ON a.id = ata.article_id AND ata.deleted_flag = false
-        LEFT JOIN tb_tag t ON ata.tag_id = t.id
+        LEFT JOIN (SELECT article_id, GROUP_CONCAT(t.tag_name) tag_name FROM tb_article_tag ata LEFT JOIN tb_tag t ON ata.tag_id = t.id WHERE ata.deleted_flag = FALSE AND t.deleted_flag = FALSE GROUP BY article_id) att ON a.id = att.article_id
         LEFT JOIN tb_user_auth ua ON a.user_id = ua.user_id
         ORDER BY
             a.top_flag DESC,
-            a.id DESC,
-            t.id ASC
+            a.id DESC
     </select>
 </mapper>

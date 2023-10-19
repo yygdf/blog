@@ -140,14 +140,16 @@
         align="center"
         width="120"
       />
-      <el-table-column prop="tagDTOList" label="标签" align="center">
+      <el-table-column prop="tagNameList" label="标签" align="center">
         <template slot-scope="scope">
           <el-tag
-            v-for="item of scope.row.tagDTOList"
-            :key="item.tagId"
+            v-for="item of scope.row.tagNameList == null
+              ? []
+              : scope.row.tagNameList.split(',')"
+            :key="item"
             style="margin-right:0.2rem;margin-top:0.2rem"
           >
-            {{ item.label }}
+            {{ item }}
           </el-tag>
         </template>
       </el-table-column>

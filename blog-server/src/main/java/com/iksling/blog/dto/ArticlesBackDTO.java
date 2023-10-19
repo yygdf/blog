@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
 @Builder
@@ -79,7 +78,7 @@ public class ArticlesBackDTO {
     private String categoryName;
 
     /**
-     * 标签list
+     * 标签名list字符串
      */
-    private List<LabelBackDTO> tagDTOList;
+    private String tagNameList;
 }

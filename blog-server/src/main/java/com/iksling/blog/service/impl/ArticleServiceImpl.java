@@ -163,7 +163,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     .eq(Tag::getDeletedFlag, false));
             if (!tagList.stream().map(Tag::getId).collect(Collectors.toList()).containsAll(articleBackVO.getTagIdList()))
                 throw new OperationStatusException();
-            List<ArticleTag> articleTagList = articleBackVO.getTagIdList().stream().map(tagId -> ArticleTag.builder()
+            List<ArticleTag> articleTagList = articleBackVO.getTagIdList().stream().distinct().map(tagId -> ArticleTag.builder()
                     .tagId(tagId)
                     .articleId(article.getId())
                     .build()).collect(Collectors.toList());

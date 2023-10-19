@@ -4,11 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.TagsBackDTO;
 import com.iksling.blog.entity.Tag;
-import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.ArticleTagMapper;
@@ -20,13 +18,15 @@ import com.iksling.blog.service.TagService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.TagBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -43,83 +43,85 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     private UserAuthMapper userAuthMapper;
 
     @Override
-    public PagePojo<TagsBackDTO> getPageTagsBackDTO(ConditionBackVO condition) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        String keywords = condition.getKeywords();
-        if (Objects.nonNull(keywords))
-            keywords = keywords.trim();
-        Page<Tag> page = new Page<>(condition.getCurrent(), condition.getSize());
-        Page<Tag> tagPage = tagMapper.selectPage(page, new LambdaQueryWrapper<Tag>()
-                .select(Tag::getId, Tag::getUserId, Tag::getTagName, Tag::getCreateTime, Tag::getUpdateTime)
-                .like(StringUtils.isNotBlank(keywords), Tag::getTagName, keywords)
-                .eq(Objects.nonNull(condition.getUserId()), Tag::getUserId, condition.getUserId())
-                .eq(loginUser.getRoleWeight() > 300, Tag::getUserId, loginUser.getUserId())
-                .orderByDesc(Tag::getId));
-        if (tagPage.getTotal() == 0)
-            return new PagePojo<>();
-        else if (tagPage.getRecords().size() == 0)
-            return new PagePojo<>((int) tagPage.getTotal(), new ArrayList<>());
-        List<TagsBackDTO> tagsBackDTOList = BeanCopyUtil.copyList(tagPage.getRecords(), TagsBackDTO.class);
-        List<Integer> userIdList = tagsBackDTOList.stream().map(TagsBackDTO::getUserId).distinct().collect(Collectors.toList());
-        List<UserAuth> userAuthList = userAuthMapper.selectList(new LambdaQueryWrapper<UserAuth>()
-                .select(UserAuth::getUserId, UserAuth::getUsername)
-                .in(UserAuth::getUserId, userIdList));
-        Map<Integer, String> userAuthMap = userAuthList.stream().collect(Collectors.toMap(UserAuth::getUserId, UserAuth::getUsername, (k1, k2) -> k2));
-        tagsBackDTOList.forEach(t -> t.setUsername(userAuthMap.get(t.getUserId())));
-        return new PagePojo<>((int) tagPage.getTotal(), tagsBackDTOList);
-    }
-
-    @Override
-    @Transactional
-    public void deleteTagIdList(List<Integer> tagIdList) {
-        if (CollectionUtils.isEmpty(tagIdList))
-            throw new IllegalRequestException();
-        LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() > 300) {
-            List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
-                    .select(Tag::getId)
-                    .eq(Tag::getUserId, loginUser.getUserId()));
-            if (!tagList.stream().map(Tag::getId).collect(Collectors.toList()).containsAll(tagIdList))
-                throw new IllegalRequestException();
-        }
-        int count = tagMapper.deleteTagIdList(tagIdList, UserUtil.getLoginUser().getUserId(), loginUser.getRoleWeight());
-        if (count != tagIdList.size())
-            throw new IllegalRequestException();
-        articleTagMapper.deleteByTagIdList(tagIdList);
-    }
-
-    @Override
     @Transactional
     public void saveOrUpdateTagBackVO(TagBackVO tagBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        tagBackVO.setTagName(tagBackVO.getTagName().trim());
-        if (Objects.isNull(tagBackVO.getId())) {
+        Tag tag = BeanCopyUtil.copyObject(tagBackVO, Tag.class);
+        if (Objects.isNull(tag.getId())) {
+            if (StringUtils.isBlank(tag.getTagName()))
+                throw new OperationStatusException();
             Integer count = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
-                    .eq(Tag::getTagName, tagBackVO.getTagName())
-                    .eq(Tag::getUserId, loginUser.getUserId()));
+                    .eq(Tag::getTagName, tag.getTagName())
+                    .eq(Tag::getUserId, loginUser.getUserId())
+                    .eq(Tag::getDeletedFlag, false));
             if (count > 0)
                 throw new OperationStatusException("标签名已存在!");
-            Tag tag = BeanCopyUtil.copyObject(tagBackVO, Tag.class);
             tag.setUserId(loginUser.getUserId());
             tag.setCreateUser(loginUser.getUserId());
             tag.setCreateTime(new Date());
             tagMapper.insert(tag);
         } else {
-            Integer count = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
-                    .eq(Tag::getTagName, tagBackVO.getTagName())
-                    .eq(Tag::getUserId, loginUser.getUserId())
-                    .ne(Tag::getId, tagBackVO.getId()));
-            if (count > 0)
-                throw new OperationStatusException("标签名已存在!");
-            count = tagMapper.update(null, new LambdaUpdateWrapper<Tag>()
-                    .set(Tag::getTagName, tagBackVO.getTagName())
-                    .set(Tag::getUpdateUser, loginUser.getUserId())
-                    .set(Tag::getUpdateTime, new Date())
-                    .eq(Tag::getId, tagBackVO.getId())
-                    .eq(loginUser.getRoleWeight() > 300, Tag::getUserId, loginUser.getUserId()));
-            if (count != 1)
-                throw new IllegalRequestException();
+            if (Objects.nonNull(tag.getTagName())) {
+                if (StringUtils.isBlank(tag.getTagName()))
+                    throw new OperationStatusException();
+            }
+            Tag tagOrigin = tagMapper.selectOne(new LambdaQueryWrapper<Tag>()
+                    .select(Tag::getUserId)
+                    .eq(Tag::getDeletedFlag, false)
+                    .eq(Tag::getId, tag.getId())
+                    .eq(loginUser.getRoleWeight() > 200, Tag::getUserId, loginUser.getUserId()));
+            if (Objects.isNull(tagOrigin))
+                throw new OperationStatusException();
+            if (Objects.nonNull(tag.getTagName())) {
+                Integer count = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
+                        .eq(Tag::getTagName, tag.getTagName())
+                        .eq(Tag::getUserId, tagOrigin.getUserId())
+                        .eq(Tag::getDeletedFlag, false));
+                if (count > 0)
+                    throw new OperationStatusException("标签名已存在!");
+            }
+            tag.setUpdateUser(loginUser.getUserId());
+            tag.setUpdateTime(new Date());
+            tagMapper.updateById(tag);
         }
+    }
+
+    @Override
+    @Transactional
+    public void deleteBackTagsByIdList(List<Integer> idList) {
+        if (CollectionUtils.isEmpty(idList))
+            throw new IllegalRequestException();
+        int count = tagMapper.delete(new LambdaUpdateWrapper<Tag>()
+                .eq(Tag::getDeletedFlag, true)
+                .in(Tag::getId, idList));
+        if (count != idList.size())
+            throw new IllegalRequestException();
+    }
+
+    @Override
+    @Transactional
+    public void updateTagsStatusBackVO(StatusBackVO statusBackVO) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        int count = tagMapper.update(null, new LambdaUpdateWrapper<Tag>()
+                .set(Tag::getDeletedFlag, true)
+                .eq(Tag::getDeletedFlag, false)
+                .eq(loginUser.getRoleWeight() > 200, Tag::getUserId, loginUser.getUserId())
+                .in(Tag::getId, statusBackVO.getIdList()));
+        if (count != statusBackVO.getIdList().size())
+            throw new OperationStatusException();
+    }
+
+    @Override
+    public PagePojo<TagsBackDTO> getTagsBackDTO(ConditionBackVO condition) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        if (Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100)
+            return new PagePojo<>();
+        Integer count = tagMapper.selectTagsBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (count == 0)
+            return new PagePojo<>();
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
+        List<TagsBackDTO> tagsBackDTOList = tagMapper.selectTagsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        return new PagePojo<>(count, tagsBackDTOList);
     }
 }
 

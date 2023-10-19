@@ -116,7 +116,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                 .set(Category::getDeletedFlag, true)
                 .eq(Category::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId())
-                .in(Category::getId, statusBackVO.getIdList()));
+                .in(Category::getId, statusBackVO.getIdList())
+                .notInSql(Category::getId,"select distinct category_id from tb_article where deleted_flag = false"));
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
     }

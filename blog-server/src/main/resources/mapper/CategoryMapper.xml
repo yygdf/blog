@@ -50,7 +50,7 @@
                 </otherwise>
             </choose>
             <if test="condition.keywords != null and condition.keywords != ''">
-                AND category_name like concat('%', #{condition.keywords}, '%')
+                AND category_name LIKE concat('%', #{condition.keywords}, '%')
             </if>
         </where>
     </select>
@@ -85,7 +85,7 @@
                 </otherwise>
             </choose>
             <if test="condition.keywords != null and condition.keywords != ''">
-                AND c.category_name like concat('%', #{condition.keywords}, '%')
+                AND c.category_name LIKE concat('%', #{condition.keywords}, '%')
             </if>
         </where>
         ORDER BY

@@ -35,7 +35,7 @@ public class ArticleController {
     @ApiOperation(value = "物理批量删除文章")
     @ApiImplicitParam(name = "idList", value = "文章idList", required = true, dataType = "List<Integer>")
     @DeleteMapping("/back/articles")
-    public Result deleteBackArticlesByIdList(@RequestBody List<Integer> idList) {
+    public Result deleteBackArticles(@RequestBody List<Integer> idList) {
         articleService.deleteBackArticlesByIdList(idList);
         return Result.success().message("操作成功");
     }

@@ -57,9 +57,9 @@
 
     <select id="selectArticlesBackDTOCount" resultType="java.lang.Integer">
         SELECT
-        count(1)
+            count(1)
         FROM
-        tb_article
+            tb_article
         <where>
             1 = 1
             <choose>
@@ -92,21 +92,21 @@
                 AND category_id = #{condition.categoryId}
             </if>
             <if test="condition.keywords != null and condition.keywords != ''">
-                AND article_title like concat('%', #{condition.keywords}, '%')
+                AND article_title LIKE concat('%', #{condition.keywords}, '%')
             </if>
             <if test="condition.tagIdList != null and condition.tagIdList.size() != 0">
-                AND id in
-                (
-                SELECT
-                ata.article_id
-                FROM
-                tb_article_tag ata
-                WHERE
-                ata.tag_id in
-                <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
-                    #{tagId}
-                </foreach>
-                )
+                AND id IN
+                    (
+                        SELECT
+                            ata.article_id
+                        FROM
+                            tb_article_tag ata
+                        WHERE
+                            ata.tag_id IN
+                            <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
+                                #{tagId}
+                            </foreach>
+                    )
             </if>
         </where>
     </select>
@@ -158,17 +158,17 @@
                         AND category_id = #{condition.categoryId}
                     </if>
                     <if test="condition.keywords != null and condition.keywords != ''">
-                        AND article_title like concat('%', #{condition.keywords}, '%')
+                        AND article_title LIKE concat('%', #{condition.keywords}, '%')
                     </if>
                     <if test="condition.tagIdList != null and condition.tagIdList.size() != 0">
-                        AND id in
+                        AND id IN
                             (
                                 SELECT
                                     ata.article_id
                                 FROM
                                     tb_article_tag ata
                                 WHERE
-                                    ata.tag_id in
+                                    ata.tag_id IN
                                     <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
                                         #{tagId}
                                     </foreach>

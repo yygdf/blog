@@ -21,18 +21,71 @@
         update_user,update_time
     </sql>
 
-    <delete id="deleteTagIdList">
-        DELETE
+    <select id="selectTagsBackDTOCount" resultType="java.lang.Integer">
+        SELECT
+            count(1)
         FROM
             tb_tag
-        WHERE
+        <where>
             1 = 1
-        <if test="roleWeight > 300">
-            user_id = #{userId}
-        </if>
-        AND id in
-            <foreach collection="tagIdList" item="id" index="index" open="(" separator="," close=")">
-                #{id}
-            </foreach>
-    </delete>
+            <choose>
+                <when test="condition.type == 7">
+                    AND deleted_flag = true
+                </when>
+                <otherwise>
+                    AND deleted_flag = false
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="roleWeight > 200">
+                    AND user_id = #{userId}
+                </when>
+                <otherwise>
+                    <if test="condition.userId != null">
+                        AND user_id = #{condition.userId}
+                    </if>
+                </otherwise>
+            </choose>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND tag_name LIKE concat('%', #{condition.keywords}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectTagsBackDTO" resultType="com.iksling.blog.dto.TagsBackDTO">
+        SELECT
+        t.id,t.user_id,ua.username,
+        t.tag_name,t.create_time,t.update_time
+        FROM
+        tb_tag t
+        LEFT JOIN tb_user_auth ua ON t.user_id = ua.user_id
+        <where>
+            1 = 1
+            <choose>
+                <when test="condition.type == 7">
+                    AND t.deleted_flag = true
+                </when>
+                <otherwise>
+                    AND t.deleted_flag = false
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="roleWeight > 200">
+                    AND t.user_id = #{userId}
+                </when>
+                <otherwise>
+                    <if test="condition.userId != null">
+                        AND t.user_id = #{condition.userId}
+                    </if>
+                </otherwise>
+            </choose>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND t.tag_name LIKE concat('%', #{condition.keywords}, '%')
+            </if>
+        </where>
+        ORDER BY
+            t.id DESC
+        LIMIT
+            #{condition.current}, #{condition.size}
+    </select>
 </mapper>

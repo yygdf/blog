@@ -1,8 +1,8 @@
-function skipEmptyValue(obj) {
+function skipEmptyValue(o) {
   let param = {};
-  Object.keys(obj).forEach(key => {
-    if (obj[key] != null && obj[key].length !== 0) {
-      param[key] = obj[key];
+  Object.keys(o).forEach(key => {
+    if (o[key] != null && o[key].length !== 0) {
+      param[key] = o[key];
     }
   });
   return param;

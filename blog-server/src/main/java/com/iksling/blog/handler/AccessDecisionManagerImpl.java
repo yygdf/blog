@@ -20,8 +20,8 @@ public class AccessDecisionManagerImpl implements AccessDecisionManager {
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-        for (ConfigAttribute item : collection) {
-            if (permissionList.contains(item.getAttribute())) {
+        for (ConfigAttribute e : collection) {
+            if (permissionList.contains(e.getAttribute())) {
                 return;
             }
         }

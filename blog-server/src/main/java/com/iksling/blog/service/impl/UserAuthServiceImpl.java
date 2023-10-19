@@ -144,10 +144,10 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                         .select(UserConfig::getConfigDesc, UserConfig::getConfigName, UserConfig::getConfigValue)
                         .eq(UserConfig::getUserId, ROOT_USER_ID));
                 userConfigService.saveBatch(userConfigList.stream()
-                        .peek(item -> {
-                            item.setUserId(userAuthBackVO.getId());
-                            item.setCreateUser(loginUser.getUserId());
-                            item.setCreateTime(new Date());
+                        .peek(e -> {
+                            e.setUserId(userAuthBackVO.getId());
+                            e.setCreateUser(loginUser.getUserId());
+                            e.setCreateTime(new Date());
                         })
                         .collect(Collectors.toList()));
                 userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
@@ -176,12 +176,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     }
 
     private void offlineByUserIdList(List<Integer> idList) {
-        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(item -> {
-            LoginUser loginUser = (LoginUser) item;
+        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(e -> {
+            LoginUser loginUser = (LoginUser) e;
             return idList.contains(loginUser.getUserId());
         }).collect(Collectors.toList());
         List<SessionInformation> allSessions = new ArrayList<>();
-        loginUserList.forEach(item -> allSessions.addAll(sessionRegistry.getAllSessions(item, false)));
+        loginUserList.forEach(e -> allSessions.addAll(sessionRegistry.getAllSessions(e, false)));
         allSessions.forEach(SessionInformation::expireNow);
     }
 }

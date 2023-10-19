@@ -216,20 +216,44 @@ export default {
     };
   },
   methods: {
-    listArticleOptions() {
-      this.axios
-        .get("/api/back/article/option", {
-          params: { userId: this.articleUserId }
+    publicArticle() {
+      if (this.article.articleTitle.trim() === "") {
+        this.$message.error("文章标题不能为空");
+        return false;
+      }
+      if (this.article.articleContent.trim() === "") {
+        this.$message.error("文章内容不能为空");
+        return false;
+      }
+      this.addOrEditStatus = true;
+    },
+    exitWithNoSave() {
+      this.$confirm("确定关闭吗?编辑的内容将不会保存!", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          if (this.fileNameList.length !== 0) {
+            this.updateImg(null);
+          }
+          let tab = this.$store.state.currentTab;
+          this.$store.commit("removeTab", tab);
+          let tabList = this.$store.state.tabList;
+          this.$router.push({ path: tabList[tabList.length - 1].path });
         })
-        .then(({ data }) => {
-          this.tagList = data.data.tagDTOList;
-          this.categoryList = data.data.categoryDTOList;
-          this.staticResourceUrl = data.data.staticResourceUrl;
-        });
+        .catch(() => {});
     },
     splitFileNameByUrl(url) {
       let pathArr = url.split("/");
       return pathArr[pathArr.length - 1].split(".")[0];
+    },
+    cancelSaveOrUpdateArticle() {
+      if (this.articleCoverUploadFlag) {
+        this.updateImg(this.article.articleCover);
+        this.$refs.upload.clearFiles();
+        this.article.articleCover = this.articleOrigin.articleCover;
+      }
     },
     updateImg(url) {
       let param;
@@ -237,7 +261,7 @@ export default {
         param = this.fileNameList;
       } else {
         let fileName = this.splitFileNameByUrl(url);
-        let index = this.fileNameList.findIndex(item => item === fileName);
+        let index = this.fileNameList.findIndex(e => e === fileName);
         this.fileNameList.splice(index, 1);
         param = [fileName];
       }
@@ -329,11 +353,6 @@ export default {
           });
       }
     },
-    changeCover(file, fileList) {
-      if (fileList.length > 1) {
-        fileList.splice(0, 1);
-      }
-    },
     updateCover(flag) {
       if (typeof flag == "boolean") {
         if (this.articleCoverUploadFlag) {
@@ -353,39 +372,16 @@ export default {
       }
       this.uploadImg(null, form.file);
     },
-    uploadArticleImg(pos, file) {
-      this.uploadImg(pos, file);
+    changeCover(file, fileList) {
+      if (fileList.length > 1) {
+        fileList.splice(0, 1);
+      }
     },
     updateArticleImg(pos) {
       this.updateImg(pos[0]);
     },
-    publicArticle() {
-      if (this.article.articleTitle.trim() === "") {
-        this.$message.error("文章标题不能为空");
-        return false;
-      }
-      if (this.article.articleContent.trim() === "") {
-        this.$message.error("文章内容不能为空");
-        return false;
-      }
-      this.addOrEditStatus = true;
-    },
-    exitWithNoSave() {
-      this.$confirm("确定关闭吗?编辑的内容将不会保存!", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          if (this.fileNameList.length !== 0) {
-            this.updateImg(null);
-          }
-          let tab = this.$store.state.currentTab;
-          this.$store.commit("removeTab", tab);
-          let tabList = this.$store.state.tabList;
-          this.$router.push({ path: tabList[tabList.length - 1].path });
-        })
-        .catch(() => {});
+    uploadArticleImg(pos, file) {
+      this.uploadImg(pos, file);
     },
     saveArticleDraft(flag = true) {
       if (this.article.articleTitle.trim() === "") {
@@ -432,6 +428,17 @@ export default {
         }
       });
     },
+    listArticleOptions() {
+      this.axios
+        .get("/api/back/article/option", {
+          params: { userId: this.articleUserId }
+        })
+        .then(({ data }) => {
+          this.tagList = data.data.tagDTOList;
+          this.categoryList = data.data.categoryDTOList;
+          this.staticResourceUrl = data.data.staticResourceUrl;
+        });
+    },
     saveOrUpdateArticle() {
       if (!this.article.categoryId) {
         this.$message.error("文章分类不能为空");
@@ -470,13 +477,6 @@ export default {
         }
       });
       this.addOrEditStatus = false;
-    },
-    cancelSaveOrUpdateArticle() {
-      if (this.articleCoverUploadFlag) {
-        this.updateImg(this.article.articleCover);
-        this.$refs.upload.clearFiles();
-        this.article.articleCover = this.articleOrigin.articleCover;
-      }
     }
   }
 };

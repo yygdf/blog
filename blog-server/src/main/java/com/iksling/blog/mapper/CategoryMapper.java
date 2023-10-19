@@ -12,9 +12,6 @@ import java.util.List;
  * @Entity com.iksling.blog.entity.Category
  */
 public interface CategoryMapper extends BaseMapper<Category> {
-
-    Integer deleteCategoryIdList(List<Integer> categoryIdList, Integer userId, Integer roleWeight);
-
     Integer selectCategoriesBackDTOCount(@Param("condition") ConditionBackVO condition, Integer userId, Integer roleWeight);
 
     List<CategoriesBackDTO> listCategoriesBackDTO(@Param("condition") ConditionBackVO condition, Integer userId, Integer roleWeight);

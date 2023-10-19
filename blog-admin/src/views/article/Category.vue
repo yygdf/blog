@@ -296,11 +296,11 @@ export default {
           label: "已删除"
         }
       ],
-      category: {},
-      categoryOrigin: {},
       usernameList: [],
       categoryList: [],
       categoryIdList: [],
+      category: {},
+      categoryOrigin: {},
       type: null,
       userId: null,
       keywords: null,
@@ -444,6 +444,25 @@ export default {
       });
       this.addOrEditStatus = false;
     },
+    changeCategoryStatus(category, type) {
+      let param = {
+        idList: [category.id],
+        type: type
+      };
+      this.axios.put("/api/back/category/status", param).then(({ data }) => {
+        if (!data.flag) {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+          if (type === 2) {
+            category.publicFlag = !category.publicFlag;
+          } else if (type === 3) {
+            category.hiddenFlag = !category.hiddenFlag;
+          }
+        }
+      });
+    },
     updateCategoriesStatus(id) {
       let param = {};
       if (id != null) {
@@ -469,25 +488,6 @@ export default {
         }
       });
       this.editStatus = false;
-    },
-    changeCategoryStatus(category, type) {
-      let param = {
-        idList: [category.id],
-        type: type
-      };
-      this.axios.put("/api/back/category/status", param).then(({ data }) => {
-        if (!data.flag) {
-          this.$notify.error({
-            title: "失败",
-            message: data.message
-          });
-          if (type === 2) {
-            category.publicFlag = !category.publicFlag;
-          } else if (type === 3) {
-            category.hiddenFlag = !category.hiddenFlag;
-          }
-        }
-      });
     }
   },
   watch: {

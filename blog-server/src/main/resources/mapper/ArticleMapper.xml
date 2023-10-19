@@ -56,6 +56,79 @@
         update_time,publish_user,publish_time
     </sql>
 
+    <select id="selectArticleBackDTOById" resultType="com.iksling.blog.dto.ArticleBackDTO">
+        SELECT
+        a.id,a.user_id,IF(a.category_id = -1,0,a.category_id) category_id,
+        a.article_title,a.article_cover,a.article_content,
+        a.top_flag,a.draft_flag,a.public_flag,
+        a.hidden_flag,a.commentable_flag,atg.tag_id tagIdList
+        FROM
+        tb_article a
+        LEFT JOIN (SELECT article_id, GROUP_CONCAT(tag_id) tag_id FROM tb_article_tag WHERE deleted_flag = false AND article_id = #{id} GROUP BY article_id) atg ON a.id = atg.article_id
+        WHERE
+        a.id = #{id}
+        AND a.recycle_flag = false
+        <if test="roleWeight > 300">
+            AND user_id = #{userId}
+        </if>
+    </select>
+
+    <select id="selectArticlesBackDTOCount" resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM
+        tb_article
+        <where>
+            1 = 1
+            <choose>
+                <when test="condition.type == 5">
+                    AND draft_flag = true
+                    AND recycle_flag = false
+                </when>
+                <when test="condition.type == 6">
+                    AND recycle_flag = true
+                    AND deleted_flag = false
+                </when>
+                <when test="condition.type == 7">
+                    AND deleted_flag = true
+                </when>
+                <otherwise>
+                    AND draft_flag = false
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="roleWeight > 300">
+                    AND user_id = #{userId}
+                </when>
+                <otherwise>
+                    <if test="condition.userId != null">
+                        AND user_id = #{condition.userId}
+                    </if>
+                </otherwise>
+            </choose>
+            <if test="condition.categoryId != null">
+                AND category_id = #{condition.categoryId}
+            </if>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND article_title like concat('%', #{condition.keywords}, '%')
+            </if>
+            <if test="condition.tagIdList != null and condition.tagIdList.size() != 0">
+                AND id in
+                (
+                SELECT
+                ata.article_id
+                FROM
+                tb_article_tag ata
+                WHERE
+                ata.tag_id in
+                <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
+                    #{tagId}
+                </foreach>
+                )
+            </if>
+        </where>
+    </select>
+
     <select id="selectArticlesBackDTO" resultMap="articlesBackDTOResultMap">
         SELECT
             a.id,a.user_id,ua.username,
@@ -135,78 +208,5 @@
             a.top_flag DESC,
             a.id DESC,
             t.id ASC
-    </select>
-
-    <select id="selectArticlesBackDTOCount" resultType="java.lang.Integer">
-        SELECT
-            count(1)
-        FROM
-            tb_article
-        <where>
-            1 = 1
-            <choose>
-                <when test="condition.type == 5">
-                    AND draft_flag = true
-                    AND recycle_flag = false
-                </when>
-                <when test="condition.type == 6">
-                    AND recycle_flag = true
-                    AND deleted_flag = false
-                </when>
-                <when test="condition.type == 7">
-                    AND deleted_flag = true
-                </when>
-                <otherwise>
-                    AND draft_flag = false
-                </otherwise>
-            </choose>
-            <choose>
-                <when test="roleWeight > 300">
-                    AND user_id = #{userId}
-                </when>
-                <otherwise>
-                    <if test="condition.userId != null">
-                        AND user_id = #{condition.userId}
-                    </if>
-                </otherwise>
-            </choose>
-            <if test="condition.categoryId != null">
-                AND category_id = #{condition.categoryId}
-            </if>
-            <if test="condition.keywords != null and condition.keywords != ''">
-                AND article_title like concat('%', #{condition.keywords}, '%')
-            </if>
-            <if test="condition.tagIdList != null and condition.tagIdList.size() != 0">
-                AND id in
-                    (
-                        SELECT
-                            ata.article_id
-                        FROM
-                            tb_article_tag ata
-                        WHERE
-                            ata.tag_id in
-                            <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
-                                #{tagId}
-                            </foreach>
-                    )
-            </if>
-        </where>
-    </select>
-
-    <select id="selectArticleBackDTOById" resultType="com.iksling.blog.dto.ArticleBackDTO">
-        SELECT
-            a.id,a.user_id,IF(a.category_id = -1,0,a.category_id) category_id,
-            a.article_title,a.article_cover,a.article_content,
-            a.top_flag,a.draft_flag,a.public_flag,
-            a.hidden_flag,a.commentable_flag,atg.tag_id tagIdList
-        FROM
-            tb_article a
-        LEFT JOIN (SELECT article_id, GROUP_CONCAT(tag_id) tag_id FROM tb_article_tag WHERE deleted_flag = false AND article_id = #{id} GROUP BY article_id) atg ON a.id = atg.article_id
-        WHERE
-            a.id = #{id}
-            AND a.recycle_flag = false
-            <if test="roleWeight > 300">
-                AND user_id = #{userId}
-            </if>
     </select>
 </mapper>

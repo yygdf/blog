@@ -394,11 +394,11 @@ export default {
       this.size = size;
       this.listArticles();
     },
-    checkWeight(weight = 200) {
-      return this.$store.state.weight <= weight;
-    },
     editArticle(id, userId) {
       this.$router.push({ path: "/article/" + userId + "/" + id });
+    },
+    checkWeight(weight = 200) {
+      return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
@@ -431,30 +431,6 @@ export default {
         this.loading = false;
       });
     },
-    listAllUsername(keywords) {
-      if (keywords.trim() === "") {
-        return;
-      }
-      this.axios
-        .get("/api/back/userAuth/usernames", { params: { keywords } })
-        .then(({ data }) => {
-          this.usernameList = data.data;
-        });
-    },
-    listArticleOptions() {
-      let param = {};
-      if (this.userId != null && this.userId !== "") {
-        param.userId = this.userId;
-      }
-      this.axios
-        .get("/api/back/article/option", { params: param })
-        .then(({ data }) => {
-          this.tagIdList = [];
-          this.categoryId = null;
-          this.tagList = data.data.tagDTOList;
-          this.categoryList = data.data.categoryDTOList;
-        });
-    },
     deleteArticles(id) {
       let param = {};
       if (id == null) {
@@ -480,6 +456,30 @@ export default {
         }
       });
       this.removeStatus = false;
+    },
+    listAllUsername(keywords) {
+      if (keywords.trim() === "") {
+        return;
+      }
+      this.axios
+        .get("/api/back/userAuth/usernames", { params: { keywords } })
+        .then(({ data }) => {
+          this.usernameList = data.data;
+        });
+    },
+    listArticleOptions() {
+      let param = {};
+      if (this.userId != null && this.userId !== "") {
+        param.userId = this.userId;
+      }
+      this.axios
+        .get("/api/back/article/option", { params: param })
+        .then(({ data }) => {
+          this.tagIdList = [];
+          this.categoryId = null;
+          this.tagList = data.data.tagDTOList;
+          this.categoryList = data.data.categoryDTOList;
+        });
     },
     changeArticleStatus(article, type) {
       let param = {

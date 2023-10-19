@@ -153,10 +153,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public PagePojo<UserOnlinesBackDTO> getPageUserOnlinesBackDTO(ConditionBackVO condition) {
         List<Integer> onlineUserIdList = sessionRegistry.getAllPrincipals().stream()
-                .filter(item -> sessionRegistry.getAllSessions(item, false).size() > 0)
-                .map(item -> BeanCopyUtil.copyObject(item, LoginUser.class))
-                .filter(item -> StringUtils.isBlank(condition.getKeywords()) || item.getUsername().contains(condition.getKeywords().trim()))
-                .filter(item -> Objects.isNull(condition.getDeletedFlag()) || item.getLoginPlatform().equals(condition.getDeletedFlag()))
+                .filter(e -> sessionRegistry.getAllSessions(e, false).size() > 0)
+                .map(e -> BeanCopyUtil.copyObject(e, LoginUser.class))
+                .filter(e -> StringUtils.isBlank(condition.getKeywords()) || e.getUsername().contains(condition.getKeywords().trim()))
+                .filter(e -> Objects.isNull(condition.getDeletedFlag()) || e.getLoginPlatform().equals(condition.getDeletedFlag()))
                 .sorted(Comparator.comparing(LoginUser::getLoginTime).reversed())
                 .map(LoginUser::getUserId)
                 .collect(Collectors.toList());
@@ -176,12 +176,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public void deleteUserOnlineIdList(List<Integer> userOnlineIdList) {
         if (userOnlineIdList.contains(ROOT_USER_ID) || (UserUtil.getLoginUser().getRoleWeight() > 100 && !Collections.disjoint(userOnlineIdList, ROOT_USER_ID_LIST)))
             throw new IllegalStateException();
-        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(item -> {
-            LoginUser loginUser = (LoginUser) item;
+        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(e -> {
+            LoginUser loginUser = (LoginUser) e;
             return userOnlineIdList.contains(loginUser.getUserId());
         }).collect(Collectors.toList());
         List<SessionInformation> allSessions = new ArrayList<>();
-        loginUserList.forEach(item -> allSessions.addAll(sessionRegistry.getAllSessions(item, false)));
+        loginUserList.forEach(e -> allSessions.addAll(sessionRegistry.getAllSessions(e, false)));
         allSessions.forEach(SessionInformation::expireNow);
     }
 

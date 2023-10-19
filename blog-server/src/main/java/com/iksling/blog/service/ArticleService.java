@@ -17,17 +17,17 @@ import java.util.List;
  */
 public interface ArticleService extends IService<Article> {
 
-    ArticleBackDTO getArticleBackDTOById(Integer id);
-
-    ArticleOptionBackDTO getArticleOptionBackDTO(Integer userId);
-
     Integer saveOrUpdateArticleBackVO(ArticleBackVO articleBackVO);
-
-    PagePojo<ArticlesBackDTO> getArticlesBackDTO(ConditionBackVO condition);
-
-    void updateArticlesStatusBackVO(StatusBackVO statusBackVO);
 
     void deleteBackArticlesByIdList(List<Integer> idList);
 
     void updateArticleStatusBackVO(StatusBackVO statusBackVO);
+
+    void updateArticlesStatusBackVO(StatusBackVO statusBackVO);
+
+    ArticleBackDTO getArticleBackDTOById(Integer id);
+
+    ArticleOptionBackDTO getArticleOptionBackDTO(Integer userId);
+
+    PagePojo<ArticlesBackDTO> getArticlesBackDTO(ConditionBackVO condition);
 }

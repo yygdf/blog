@@ -15,13 +15,13 @@ import java.util.List;
  */
 public interface CategoryService extends IService<Category> {
 
-    PagePojo<CategoriesBackDTO> getCategoriesBackDTO(ConditionBackVO condition);
-
-    void updateCategoryStatusBackVO(StatusBackVO statusBackVO);
+    void saveOrUpdateCategoryBackVO(CategoryBackVO categoryBackVO);
 
     void deleteBackCategoriesByIdList(List<Integer> idList);
 
-    void saveOrUpdateCategoryBackVO(CategoryBackVO categoryBackVO);
+    void updateCategoryStatusBackVO(StatusBackVO statusBackVO);
 
     void updateCategoriesStatusBackVO(StatusBackVO statusBackVO);
+
+    PagePojo<CategoriesBackDTO> getCategoriesBackDTO(ConditionBackVO condition);
 }

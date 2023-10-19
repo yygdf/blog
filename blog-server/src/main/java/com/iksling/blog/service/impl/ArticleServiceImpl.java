@@ -77,47 +77,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     private HttpServletRequest request;
 
     @Override
-    public ArticleBackDTO getArticleBackDTOById(Integer id) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        return articleMapper.selectArticleBackDTOById(id, loginUser.getUserId(), loginUser.getRoleWeight());
-    }
-
-    @Override
-    public ArticleOptionBackDTO getArticleOptionBackDTO(Integer userId) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        if (Objects.isNull(userId))
-            userId = loginUser.getUserId();
-        else if (loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(userId))
-            return new ArticleOptionBackDTO();
-        List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
-            .select(Tag::getId, Tag::getTagName)
-            .eq(Tag::getUserId, userId)
-            .eq(Tag::getDeletedFlag, false));
-        List<LabelBackDTO> tagDTOList = tagList.stream()
-                .map(e -> LabelBackDTO.builder()
-                        .id(e.getId())
-                        .label(e.getTagName())
-                        .build())
-                .collect(Collectors.toList());
-        List<Category> categoryList = categoryMapper.selectList(new LambdaQueryWrapper<Category>()
-                .select(Category::getId, Category::getCategoryName)
-                .eq(Category::getUserId, userId)
-                .eq(Category::getDeletedFlag, false));
-        List<LabelBackDTO> categoryDTOList = categoryList.stream()
-                .map(e -> LabelBackDTO.builder()
-                        .id(e.getId())
-                        .label(e.getCategoryName())
-                        .build())
-                .collect(Collectors.toList());
-        return ArticleOptionBackDTO.builder()
-                .userId(userId)
-                .tagDTOList(tagDTOList)
-                .categoryDTOList(categoryDTOList)
-                .staticResourceUrl(STATIC_RESOURCE_URL)
-                .build();
-    }
-
-    @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer saveOrUpdateArticleBackVO(ArticleBackVO articleBackVO) {
         LoginUser loginUser =  UserUtil.getLoginUser();
@@ -214,24 +173,39 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     @Override
-    public PagePojo<ArticlesBackDTO> getArticlesBackDTO(ConditionBackVO condition) {
+    @Transactional
+    public void deleteBackArticlesByIdList(List<Integer> idList) {
+        if (CollectionUtils.isEmpty(idList))
+            throw new IllegalRequestException();
+        int count = articleMapper.delete(new LambdaUpdateWrapper<Article>()
+                .eq(Article::getDeletedFlag, true)
+                .in(Article::getId, idList));
+        if (count != idList.size())
+            throw new IllegalRequestException();
+        articleTagMapper.delete(new LambdaUpdateWrapper<ArticleTag>()
+                .in(ArticleTag::getArticleId, idList));
+        multiDirService.deleteArticleDirByIdList(idList);
+    }
+
+    @Override
+    @Transactional
+    public void updateArticleStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100)
-            return new PagePojo<>();
-        Integer count = articleMapper.selectArticlesBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (count == 0)
-            return new PagePojo<>();
-        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        List<ArticlesBackDTO> articlesBackDTOList = articleMapper.selectArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (articlesBackDTOList.size() == 0)
-            return new PagePojo<>(count, new ArrayList<>());
-        Map<String, Integer> viewCountMap = redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).entries();
-        Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).entries();
-        articlesBackDTOList.forEach(item -> {
-            item.setViewCount(Objects.requireNonNull(viewCountMap).get(item.getId().toString()));
-            item.setLikeCount(Objects.requireNonNull(likeCountMap).get(item.getId().toString()));
-        });
-        return new PagePojo<>(count, articlesBackDTOList);
+        LambdaUpdateWrapper<Article> lambdaUpdateWrapper = new LambdaUpdateWrapper<Article>()
+                .in(Article::getId, statusBackVO.getIdList())
+                .eq(Article::getDraftFlag, false)
+                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId());
+        if (statusBackVO.getType().equals(2))
+            lambdaUpdateWrapper.setSql("public_flag = !public_flag");
+        else if (statusBackVO.getType().equals(3))
+            lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
+        else if (statusBackVO.getType().equals(4))
+            lambdaUpdateWrapper.setSql("commentable_flag = !commentable_flag");
+        else
+            lambdaUpdateWrapper.setSql("top_flag = !top_flag");
+        int count = articleMapper.update(null, lambdaUpdateWrapper);
+        if (count != 1)
+            throw new OperationStatusException();
     }
 
     @Override
@@ -268,39 +242,65 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     @Override
-    @Transactional
-    public void deleteBackArticlesByIdList(List<Integer> idList) {
-        if (CollectionUtils.isEmpty(idList))
-            throw new IllegalRequestException();
-        int count = articleMapper.delete(new LambdaUpdateWrapper<Article>()
-                .eq(Article::getDeletedFlag, true)
-                .in(Article::getId, idList));
-        if (count != idList.size())
-            throw new IllegalRequestException();
-        articleTagMapper.delete(new LambdaUpdateWrapper<ArticleTag>()
-                .in(ArticleTag::getArticleId, idList));
-        multiDirService.deleteArticleDirByIdList(idList);
+    public ArticleBackDTO getArticleBackDTOById(Integer id) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        return articleMapper.selectArticleBackDTOById(id, loginUser.getUserId(), loginUser.getRoleWeight());
     }
 
     @Override
-    @Transactional
-    public void updateArticleStatusBackVO(StatusBackVO statusBackVO) {
+    public ArticleOptionBackDTO getArticleOptionBackDTO(Integer userId) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        LambdaUpdateWrapper<Article> lambdaUpdateWrapper = new LambdaUpdateWrapper<Article>()
-                .in(Article::getId, statusBackVO.getIdList())
-                .eq(Article::getDraftFlag, false)
-                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId());
-        if (statusBackVO.getType().equals(2))
-            lambdaUpdateWrapper.setSql("public_flag = !public_flag");
-        else if (statusBackVO.getType().equals(3))
-            lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
-        else if (statusBackVO.getType().equals(4))
-            lambdaUpdateWrapper.setSql("commentable_flag = !commentable_flag");
-        else
-            lambdaUpdateWrapper.setSql("top_flag = !top_flag");
-        int count = articleMapper.update(null, lambdaUpdateWrapper);
-        if (count != 1)
-            throw new OperationStatusException();
+        if (Objects.isNull(userId))
+            userId = loginUser.getUserId();
+        else if (loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(userId))
+            return new ArticleOptionBackDTO();
+        List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
+            .select(Tag::getId, Tag::getTagName)
+            .eq(Tag::getUserId, userId)
+            .eq(Tag::getDeletedFlag, false));
+        List<LabelBackDTO> tagDTOList = tagList.stream()
+                .map(e -> LabelBackDTO.builder()
+                        .id(e.getId())
+                        .label(e.getTagName())
+                        .build())
+                .collect(Collectors.toList());
+        List<Category> categoryList = categoryMapper.selectList(new LambdaQueryWrapper<Category>()
+                .select(Category::getId, Category::getCategoryName)
+                .eq(Category::getUserId, userId)
+                .eq(Category::getDeletedFlag, false));
+        List<LabelBackDTO> categoryDTOList = categoryList.stream()
+                .map(e -> LabelBackDTO.builder()
+                        .id(e.getId())
+                        .label(e.getCategoryName())
+                        .build())
+                .collect(Collectors.toList());
+        return ArticleOptionBackDTO.builder()
+                .userId(userId)
+                .tagDTOList(tagDTOList)
+                .categoryDTOList(categoryDTOList)
+                .staticResourceUrl(STATIC_RESOURCE_URL)
+                .build();
+    }
+
+    @Override
+    public PagePojo<ArticlesBackDTO> getArticlesBackDTO(ConditionBackVO condition) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        if (Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100)
+            return new PagePojo<>();
+        Integer count = articleMapper.selectArticlesBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (count == 0)
+            return new PagePojo<>();
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
+        List<ArticlesBackDTO> articlesBackDTOList = articleMapper.selectArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (articlesBackDTOList.size() == 0)
+            return new PagePojo<>(count, new ArrayList<>());
+        Map<String, Integer> viewCountMap = redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).entries();
+        Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).entries();
+        articlesBackDTOList.forEach(e -> {
+            e.setViewCount(Objects.requireNonNull(viewCountMap).get(e.getId().toString()));
+            e.setLikeCount(Objects.requireNonNull(likeCountMap).get(e.getId().toString()));
+        });
+        return new PagePojo<>(count, articlesBackDTOList);
     }
 }
 

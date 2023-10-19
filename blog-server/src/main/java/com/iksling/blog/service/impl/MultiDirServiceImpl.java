@@ -55,10 +55,10 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
     @Override
     public void updateArticleDirByIdList(List<Integer> idList) {
         idList.forEach(
-                item -> {
+                e -> {
                     List<Map<String, Object>> multiDirMap = multiDirMapper.selectMaps(new QueryWrapper<MultiDir>()
                             .select("id", "user_id")
-                            .eq("dir_path", item));
+                            .eq("dir_path", e));
                     long dirPathNew = IdWorker.getId();
                     multiDirMapper.update(null, new LambdaUpdateWrapper<MultiDir>()
                             .set(MultiDir::getDirPathNew, dirPathNew)
@@ -66,7 +66,7 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
                             .set(MultiDir::getUpdateUser, UserUtil.getLoginUser().getUserId())
                             .set(MultiDir::getUpdateTime, new Date())
                             .eq(MultiDir::getId, multiDirMap.get(0).get("id")));
-                    String uri = multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + item;
+                    String uri = multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + e;
                     MultiFileUtil.rename(uri, uri + "-" + dirPathNew + "-del");
                 }
         );
@@ -75,13 +75,13 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
     @Override
     public void deleteArticleDirByIdList(List<Integer> idList) {
         idList.forEach(
-                item -> {
+                e -> {
                     List<Map<String, Object>> multiDirMap = multiDirMapper.selectMaps(new QueryWrapper<MultiDir>()
                             .select("id", "user_id", "dir_path_new")
-                            .eq("dir_path", item));
+                            .eq("dir_path", e));
                     multiDirMapper.deleteById((Integer) multiDirMap.get(0).get("id"));
                     multiFileMapper.delete(new LambdaUpdateWrapper<MultiFile>().eq(MultiFile::getMultiDirId, multiDirMap.get(0).get("id")));
-                    MultiFileUtil.delete(multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + item + "-" + multiDirMap.get(0).get("dir_path_new") + "-del");
+                    MultiFileUtil.delete(multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + e + "-" + multiDirMap.get(0).get("dir_path_new") + "-del");
                 }
         );
     }

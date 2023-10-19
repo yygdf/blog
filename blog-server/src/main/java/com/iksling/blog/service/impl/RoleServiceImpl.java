@@ -199,12 +199,12 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     }
 
     private void offlineByRoleName(String roleName) {
-        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(item -> {
-            LoginUser loginUser = (LoginUser) item;
+        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(e -> {
+            LoginUser loginUser = (LoginUser) e;
             return loginUser.getRoleList().contains(roleName);
         }).collect(Collectors.toList());
         List<SessionInformation> allSessions = new ArrayList<>();
-        loginUserList.forEach(item -> allSessions.addAll(sessionRegistry.getAllSessions(item, false)));
+        loginUserList.forEach(e -> allSessions.addAll(sessionRegistry.getAllSessions(e, false)));
         allSessions.forEach(SessionInformation::expireNow);
     }
 }

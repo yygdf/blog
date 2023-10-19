@@ -14,11 +14,11 @@ import java.util.List;
  */
 public interface ArticleMapper extends BaseMapper<Article> {
 
-    List<ArticlesBackDTO> selectArticlesBackDTO(@Param("condition") ConditionBackVO condition, Integer userId, Integer roleWeight);
+    ArticleBackDTO selectArticleBackDTOById(Integer id, Integer userId, Integer roleWeight);
 
     Integer selectArticlesBackDTOCount(@Param("condition") ConditionBackVO condition, Integer userId, Integer roleWeight);
 
-    ArticleBackDTO selectArticleBackDTOById(Integer id, Integer userId, Integer roleWeight);
+    List<ArticlesBackDTO> selectArticlesBackDTO(@Param("condition") ConditionBackVO condition, Integer userId, Integer roleWeight);
 }
 
 

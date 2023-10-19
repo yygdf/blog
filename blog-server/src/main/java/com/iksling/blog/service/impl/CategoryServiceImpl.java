@@ -36,48 +36,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     private CategoryMapper categoryMapper;
 
     @Override
-    public PagePojo<CategoriesBackDTO> getCategoriesBackDTO(ConditionBackVO condition) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        if (Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100)
-            return new PagePojo<>();
-        Integer count = categoryMapper.selectCategoriesBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (count == 0)
-            return new PagePojo<>();
-        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        List<CategoriesBackDTO> categoriesBackDTOList = categoryMapper.listCategoriesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        return new PagePojo<>(count, categoriesBackDTOList);
-    }
-
-    @Override
-    @Transactional
-    public void updateCategoryStatusBackVO(StatusBackVO statusBackVO) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        LambdaUpdateWrapper<Category> lambdaUpdateWrapper = new LambdaUpdateWrapper<Category>()
-                .in(Category::getId, statusBackVO.getIdList())
-                .eq(Category::getDeletedFlag, false)
-                .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId());
-        if (statusBackVO.getType().equals(3))
-            lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
-        else
-            lambdaUpdateWrapper.setSql("public_flag = !public_flag");
-        int count = categoryMapper.update(null, lambdaUpdateWrapper);
-        if (count != 1)
-            throw new OperationStatusException();
-    }
-
-    @Override
-    @Transactional
-    public void deleteBackCategoriesByIdList(List<Integer> idList) {
-        if (CollectionUtils.isEmpty(idList))
-            throw new IllegalRequestException();
-        int count = categoryMapper.delete(new LambdaUpdateWrapper<Category>()
-                .eq(Category::getDeletedFlag, true)
-                .in(Category::getId, idList));
-        if (count != idList.size())
-            throw new IllegalRequestException();
-    }
-
-    @Override
     @Transactional
     public void saveOrUpdateCategoryBackVO(CategoryBackVO categoryBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
@@ -122,6 +80,36 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     }
 
     @Override
+    @Transactional
+    public void deleteBackCategoriesByIdList(List<Integer> idList) {
+        if (CollectionUtils.isEmpty(idList))
+            throw new IllegalRequestException();
+        int count = categoryMapper.delete(new LambdaUpdateWrapper<Category>()
+                .eq(Category::getDeletedFlag, true)
+                .in(Category::getId, idList));
+        if (count != idList.size())
+            throw new IllegalRequestException();
+    }
+
+    @Override
+    @Transactional
+    public void updateCategoryStatusBackVO(StatusBackVO statusBackVO) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        LambdaUpdateWrapper<Category> lambdaUpdateWrapper = new LambdaUpdateWrapper<Category>()
+                .in(Category::getId, statusBackVO.getIdList())
+                .eq(Category::getDeletedFlag, false)
+                .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId());
+        if (statusBackVO.getType().equals(3))
+            lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
+        else
+            lambdaUpdateWrapper.setSql("public_flag = !public_flag");
+        int count = categoryMapper.update(null, lambdaUpdateWrapper);
+        if (count != 1)
+            throw new OperationStatusException();
+    }
+
+    @Override
+    @Transactional
     public void updateCategoriesStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         int count = categoryMapper.update(null, new LambdaUpdateWrapper<Category>()
@@ -131,6 +119,19 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                 .in(Category::getId, statusBackVO.getIdList()));
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
+    }
+
+    @Override
+    public PagePojo<CategoriesBackDTO> getCategoriesBackDTO(ConditionBackVO condition) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        if (Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100)
+            return new PagePojo<>();
+        Integer count = categoryMapper.selectCategoriesBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (count == 0)
+            return new PagePojo<>();
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
+        List<CategoriesBackDTO> categoriesBackDTOList = categoryMapper.listCategoriesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        return new PagePojo<>(count, categoriesBackDTOList);
     }
 }
 

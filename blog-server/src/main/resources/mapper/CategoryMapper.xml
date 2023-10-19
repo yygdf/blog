@@ -17,39 +17,12 @@
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-    <resultMap id="CategoriesBackDTOResultMap" type="com.iksling.blog.dto.CategoriesBackDTO">
-        <id property="id" column="id"/>
-        <result property="userId" column="user_id"/>
-        <result property="username" column="username"/>
-        <result property="categoryName" column="category_name"/>
-        <result property="publicFlag" column="public_flag"/>
-        <result property="hiddenFlag" column="hidden_flag"/>
-        <result property="createTime" column="create_time"/>
-        <result property="updateTime" column="update_time"/>
-        <result property="articleCount" column="article_count"/>
-    </resultMap>
-
     <sql id="Base_Column_List">
         id,user_id,category_name,
         public_flag,hidden_flag,deleted_flag,
         create_user,create_time,update_user,
         update_time
     </sql>
-
-    <delete id="deleteCategoryIdList">
-        DELETE
-        FROM
-            tb_category
-        WHERE
-            1 = 1
-        <if test="roleWeight > 300">
-            AND user_id = #{userId}
-        </if>
-            AND id in
-            <foreach collection="categoryIdList" item="id" index="index" open="(" separator="," close=")">
-                #{id}
-            </foreach>
-    </delete>
 
     <select id="selectCategoriesBackDTOCount" resultType="java.lang.Integer">
         SELECT
@@ -82,11 +55,11 @@
         </where>
     </select>
 
-    <select id="listCategoriesBackDTO" resultMap="CategoriesBackDTOResultMap">
+    <select id="listCategoriesBackDTO" resultType="com.iksling.blog.dto.CategoriesBackDTO">
         SELECT
             c.id,c.user_id,ua.username,
             c.category_name,c.public_flag,c.hidden_flag,
-            c.create_time,c.update_time,IFNULL(a.article_count,0) article_count
+            c.create_time,c.update_time,IFNULL(a.article_count,0) articleCount
         FROM
             tb_category c
         LEFT JOIN tb_user_auth ua ON c.user_id = ua.user_id

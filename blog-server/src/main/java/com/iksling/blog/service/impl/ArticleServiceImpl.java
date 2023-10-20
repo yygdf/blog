@@ -226,8 +226,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 throw new IllegalRequestException();
             else
                 lambdaUpdateWrapper.set(Article::getDeletedFlag, false);
-        }
-        else
+        } else
             lambdaUpdateWrapper.set(Article::getDraftFlag, true).set(Article::getRecycleFlag, true);
         int count = articleMapper.update(null, lambdaUpdateWrapper);
         if (count != statusBackVO.getIdList().size())

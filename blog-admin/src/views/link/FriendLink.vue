@@ -11,12 +11,12 @@
         新增
       </el-button>
       <el-button
-        v-if="deletedFlag"
+        v-if="type !== 7"
         :disabled="friendLinkIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="removeStatus = true"
+        @click="editStatus = true"
       >
         批量删除
       </el-button>
@@ -26,7 +26,7 @@
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="editStatus = true"
+        @click="removeStatus = true"
       >
         批量删除
       </el-button>
@@ -39,7 +39,7 @@
           remote
           clearable
           filterable
-          :remote-method="listAllUsername"
+          :remote-method="getUsernames"
         >
           <el-option
             v-for="item in usernameList"
@@ -70,14 +70,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入友链名"
           clearable
-          @keyup.enter.native="listFriendLinks(true, true)"
+          @keyup.enter.native="getFriendLinks"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listFriendLinks(true, true)"
+          @click="getFriendLinks"
         >
           搜索
         </el-button>
@@ -131,8 +131,16 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
+          <el-button
+            v-if="type !== 7"
+            type="primary"
+            size="mini"
+            @click="openModel(scope.row)"
+          >
+            编辑
+          </el-button>
           <el-popconfirm
-            v-if="deletedFlag"
+            v-else
             title="确定恢复吗？"
             style="margin-left:10px"
             @confirm="updateFriendLinksStatus(scope.row.id)"
@@ -141,19 +149,11 @@
               恢复
             </el-button>
           </el-popconfirm>
-          <el-button
-            v-else
-            type="primary"
-            size="mini"
-            @click="openModel(scope.row)"
-          >
-            编辑
-          </el-button>
           <el-popconfirm
-            v-if="deletedFlag"
-            title="确定彻底删除吗？"
+            v-if="type !== 7"
+            title="确定删除吗？"
             style="margin-left:10px"
-            @confirm="deleteFriendLinks(scope.row.id)"
+            @confirm="updateFriendLinksStatus(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">
               删除
@@ -161,9 +161,9 @@
           </el-popconfirm>
           <el-popconfirm
             v-else
-            title="确定删除吗？"
+            title="确定彻底删除吗？"
             style="margin-left:10px"
-            @confirm="updateFriendLinksStatus(scope.row.id)"
+            @confirm="deleteFriendLinks(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">
               删除
@@ -190,7 +190,7 @@
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
         <el-button @click="editStatus = false">取 消</el-button>
-        <el-button type="primary" @click="updateFriendLinksStatus(null)">
+        <el-button type="primary" @click="updateFriendLinksStatus">
           确 定
         </el-button>
       </div>
@@ -202,7 +202,7 @@
       <div style="font-size:1rem">是否彻底删除选中项？</div>
       <div slot="footer">
         <el-button @click="removeStatus = false">取 消</el-button>
-        <el-button type="primary" @click="deleteFriendLinks(null)">
+        <el-button type="primary" @click="deleteFriendLinks">
           确 定
         </el-button>
       </div>
@@ -219,7 +219,7 @@
             remote
             clearable
             filterable
-            :remote-method="query => listAllUsername(query, false)"
+            :remote-method="query => getUsernames(query, false)"
           >
             <el-option
               v-for="item in usernameListAdd"
@@ -234,34 +234,42 @@
           <el-input
             v-model="friendLink.linkName"
             :ref="friendLink.id ? 'input' : ''"
+            class="word-limit-input"
             style="width: 200px"
-            :maxLength="50"
+            maxlength="50"
+            placeholder="友链名称"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="友链描述">
           <el-input
             v-model="friendLink.linkDesc"
+            class="word-limit-input"
             style="width: 200px"
-            :maxLength="50"
+            maxlength="50"
+            placeholder="友链描述"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="友链图标">
           <el-input
             v-model="friendLink.linkLogo"
+            class="word-limit-input"
             style="width: 200px"
-            :maxLength="255"
+            maxlength="255"
+            placeholder="友链图标"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="友链地址">
           <el-input
             v-model="friendLink.linkUrl"
+            class="word-limit-input"
             style="width: 200px"
-            :maxLength="255"
+            maxlength="255"
+            placeholder="友链地址"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -277,7 +285,7 @@
 <script>
 export default {
   created() {
-    this.listFriendLinks();
+    this.getFriendLinks();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -286,25 +294,26 @@ export default {
     return {
       options: [
         {
-          value: false,
+          value: null,
           label: "未删除"
         },
         {
-          value: true,
+          value: 7,
           label: "已删除"
         }
       ],
-      friendLink: {},
       usernameList: [],
       friendLinkList: [],
       usernameListAdd: [],
       friendLinkIdList: [],
+      friendLink: {},
+      friendLinkOrigin: {},
+      type: null,
       userId: null,
       keywords: null,
       oldKeywords: null,
       loading: true,
       editStatus: false,
-      deletedFlag: false,
       removeStatus: false,
       addOrEditStatus: false,
       size: 10,
@@ -317,6 +326,7 @@ export default {
       if (friendLink != null) {
         this.friendLink = {
           id: friendLink.id,
+          userId: friendLink.userId,
           linkUrl: friendLink.linkUrl,
           linkDesc: friendLink.linkDesc,
           linkLogo: friendLink.linkLogo,
@@ -325,6 +335,7 @@ export default {
         this.$refs.friendLinkTitle.innerHTML = "修改友链";
       } else {
         this.friendLink = {
+          userId: null,
           linkUrl: "",
           linkDesc: "",
           linkLogo: "",
@@ -332,6 +343,7 @@ export default {
         };
         this.$refs.friendLinkTitle.innerHTML = "添加友链";
       }
+      this.friendLinkOrigin = JSON.parse(JSON.stringify(this.friendLink));
       this.$nextTick(() => {
         this.$refs.input.focus();
       });
@@ -339,14 +351,14 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listFriendLinks(true);
+      this.getFriendLinks();
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listFriendLinks(this.keywords !== this.oldKeywords);
+      this.getFriendLinks();
     },
     selectionChange(friendLinkList) {
       this.friendLinkIdList = [];
@@ -354,22 +366,22 @@ export default {
         this.friendLinkIdList.push(item.id);
       });
     },
-    listFriendLinks(resetPageFlag = false, searchFlag = false) {
-      if (resetPageFlag) {
+    getFriendLinks() {
+      if (this.keywords !== this.oldKeywords) {
         this.current = 1;
       }
-      if (searchFlag) {
-        this.oldKeywords = this.keywords;
-      }
+      this.oldKeywords = this.keywords;
+      let params = {
+        size: this.size,
+        userId: this.userId,
+        current: this.current,
+        keywords: this.keywords,
+        type: this.type
+      };
+      params = this.$commonMethod.skipEmptyValue(params);
       this.axios
         .get("/api/back/friendLinks", {
-          params: {
-            size: this.size,
-            userId: this.userId,
-            current: this.current,
-            keywords: this.keywords,
-            deletedFlag: this.deletedFlag
-          }
+          params
         })
         .then(({ data }) => {
           this.count = data.data.count;
@@ -377,7 +389,7 @@ export default {
           this.loading = false;
         });
     },
-    listAllUsername(keywords, flag = true) {
+    getUsernames(keywords, flag = true) {
       if (keywords.trim() === "") {
         return;
       }
@@ -412,23 +424,31 @@ export default {
         this.$message.error("友链地址不能为空");
         return false;
       }
-      this.axios
-        .post("/api/back/friendLink", this.friendLink)
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: "成功",
-              message: data.message
-            });
-            this.listFriendLinks();
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: data.message
-            });
-          }
-          this.addOrEditStatus = false;
-        });
+      let param = this.$commonMethod.skipIdenticalValue(
+        this.friendLink,
+        this.friendLinkOrigin
+      );
+      if (Object.keys(param).length === 0) {
+        return false;
+      }
+      if (this.friendLink.id != null) {
+        param.id = this.friendLink.id;
+      }
+      this.axios.post("/api/back/friendLink", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.getFriendLinks();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.addOrEditStatus = false;
+      });
     },
     deleteFriendLinks(id) {
       let param = {};
@@ -437,16 +457,16 @@ export default {
       } else {
         param = { data: [id] };
       }
-      if (param.data.length === this.friendLinkList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
-      }
       this.axios.delete("/api/back/friendLinks", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listFriendLinks();
+          if (param.data.length === this.friendLinkList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
+          this.getFriendLinks();
         } else {
           this.$notify.error({
             title: "失败",
@@ -456,24 +476,26 @@ export default {
         this.removeStatus = false;
       });
     },
-    updateFriendLinksStatus(id) {
-      let param = new URLSearchParams();
+    updateFriendLinksStatus(id = null) {
+      let param = {};
       if (id != null) {
-        param.append("idList", [id]);
+        param.idList = [id];
       } else {
-        param.append("idList", this.friendLinkIdList);
+        param.idList = this.friendLinkIdList;
       }
-      param.append("deletedFlag", !this.deletedFlag);
-      if (param.get("idList").length === this.friendLinkList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
+      if (this.type === 7) {
+        param.type = 7;
       }
-      this.axios.put("/api/back/friendLinks", param).then(({ data }) => {
+      this.axios.put("/api/back/friendLinks/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listFriendLinks();
+          if (param.idList.length === this.friendLinkList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
+          this.getFriendLinks();
         } else {
           this.$notify.error({
             title: "失败",
@@ -485,11 +507,11 @@ export default {
     }
   },
   watch: {
-    userId() {
-      this.listFriendLinks(true);
+    type() {
+      this.getFriendLinks();
     },
-    deletedFlag() {
-      this.listFriendLinks(true);
+    userId() {
+      this.getFriendLinks();
     }
   }
 };

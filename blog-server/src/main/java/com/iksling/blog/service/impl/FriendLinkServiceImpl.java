@@ -63,6 +63,7 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
                 if (StringUtils.isBlank(friendLink.getLinkName()))
                     throw new OperationStatusException();
             }
+            friendLink.setUserId(null);
             friendLink.setUpdateUser(loginUser.getUserId());
             friendLink.setUpdateTime(new Date());
             friendLinkMapper.updateById(friendLink);
@@ -84,10 +85,18 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     @Override
     @Transactional
     public void updateFriendLinksStatusBackVO(StatusBackVO statusBackVO) {
-        int count = friendLinkMapper.update(null, new LambdaUpdateWrapper<FriendLink>()
-                .set(FriendLink::getDeletedFlag, true)
-                .eq(FriendLink::getDeletedFlag, false)
-                .in(FriendLink::getId, statusBackVO.getIdList()));
+        LoginUser loginUser = UserUtil.getLoginUser();
+        LambdaUpdateWrapper<FriendLink> lambdaUpdateWrapper = new LambdaUpdateWrapper<FriendLink>()
+                .eq(loginUser.getRoleWeight() > 100, FriendLink::getDeletedFlag, false)
+                .in(FriendLink::getId, statusBackVO.getIdList());
+        if (statusBackVO.getType().equals(7)) {
+            if (loginUser.getRoleWeight() > 100)
+                throw new IllegalRequestException();
+            else
+                lambdaUpdateWrapper.set(FriendLink::getDeletedFlag, false);
+        } else
+            lambdaUpdateWrapper.set(FriendLink::getDeletedFlag, true);
+        int count = friendLinkMapper.update(null, lambdaUpdateWrapper);
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
     }

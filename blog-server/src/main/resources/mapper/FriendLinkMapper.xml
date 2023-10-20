@@ -65,16 +65,9 @@
                     t.deleted_flag = false
                 </otherwise>
             </choose>
-            <choose>
-                <when test="roleWeight > 200">
-                    AND t.user_id = #{userId}
-                </when>
-                <otherwise>
-                    <if test="condition.userId != null">
-                        AND t.user_id = #{condition.userId}
-                    </if>
-                </otherwise>
-            </choose>
+            <if test="condition.userId != null">
+                AND user_id = #{condition.userId}
+            </if>
             <if test="condition.keywords != null and condition.keywords != ''">
                 AND t.tag_name LIKE concat('%', #{condition.keywords}, '%')
             </if>

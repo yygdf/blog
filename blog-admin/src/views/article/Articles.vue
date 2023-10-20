@@ -6,7 +6,7 @@
         type="primary"
         size="small"
         icon="el-icon-plus"
-        @click="addArticle()"
+        @click="addArticle"
       >
         新增
       </el-button>
@@ -330,7 +330,7 @@
       <div style="font-size:1rem">是否彻底删除选中项？</div>
       <div slot="footer">
         <el-button @click="removeStatus = false">取 消</el-button>
-        <el-button type="primary" @click="deleteArticles(null)">
+        <el-button type="primary" @click="deleteArticles">
           确 定
         </el-button>
       </div>
@@ -433,7 +433,7 @@ export default {
         this.loading = false;
       });
     },
-    deleteArticles(id) {
+    deleteArticles(id = null) {
       let param = {};
       if (id == null) {
         param = { data: this.articleIdList };

@@ -11,6 +11,17 @@
         新增
       </el-button>
       <el-button
+        v-if="type !== 7"
+        :disabled="tagIdList.length === 0"
+        type="danger"
+        size="small"
+        icon="el-icon-minus"
+        @click="editStatus = true"
+      >
+        批量删除
+      </el-button>
+      <el-button
+        v-else
         :disabled="tagIdList.length === 0"
         type="danger"
         size="small"
@@ -21,7 +32,7 @@
       </el-button>
       <div style="margin-left:auto">
         <el-select
-          v-if="checkWeight(300)"
+          v-if="checkWeight"
           v-model="userId"
           size="small"
           style="margin-right:1rem"
@@ -38,6 +49,20 @@
             :label="item.label"
           />
         </el-select>
+        <el-select
+          v-if="checkWeight(100)"
+          v-model="type"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择"
+        >
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
+          />
+        </el-select>
         <el-input
           v-model="keywords"
           ref="input"
@@ -46,14 +71,14 @@
           placeholder="请输入标签名"
           prefix-icon="el-icon-search"
           clearable
-          @keyup.enter.native="listTags(true, true)"
+          @keyup.enter.native="listTags"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listTags(true, true)"
+          @click="listTags"
         >
           搜索
         </el-button>
@@ -104,11 +129,27 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="openModel(scope.row)">
+          <el-button
+            :disabled="type != null"
+            type="primary"
+            size="mini"
+            @click="openModel(scope.row)"
+          >
             编辑
           </el-button>
           <el-popconfirm
+            v-if="type !== 7"
             title="确定删除吗？"
+            style="margin-left:10px"
+            @confirm="updateTagsStatus(scope.row.id)"
+          >
+            <el-button type="danger" size="mini" slot="reference">
+              删除
+            </el-button>
+          </el-popconfirm>
+          <el-popconfirm
+            v-else
+            title="确定彻底删除吗？"
             style="margin-left:10px"
             @confirm="deleteTags(scope.row.id)"
           >
@@ -130,14 +171,26 @@
       @size-change="sizeChange"
       @current-change="currentChange"
     />
-    <el-dialog :visible.sync="removeStatus" width="30%">
+    <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
+        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button type="primary" @click="updateTagsStatus">
+          确 定
+        </el-button>
+      </div>
+    </el-dialog>
+    <el-dialog :visible.sync="removeStatus" width="30%">
+      <div class="dialog-title-container" slot="title">
+        <i class="el-icon-warning" style="color:#ff9900" />提示
+      </div>
+      <div style="font-size:1rem">是否彻底删除选中项？</div>
+      <div slot="footer">
         <el-button @click="removeStatus = false">取 消</el-button>
-        <el-button type="primary" @click="deleteTags(null)">
+        <el-button type="primary" @click="deleteTags">
           确 定
         </el-button>
       </div>
@@ -149,10 +202,12 @@
           <el-input
             v-model="tag.tagName"
             ref="input"
+            class="word-limit-input"
             style="width: 200px"
-            :maxLength="50"
+            maxlength="50"
+            placeholder="请输入标签名"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -175,14 +230,27 @@ export default {
   },
   data: function() {
     return {
-      tag: {},
+      options: [
+        {
+          value: null,
+          label: "未删除"
+        },
+        {
+          value: 7,
+          label: "已删除"
+        }
+      ],
       tagList: [],
       tagIdList: [],
       usernameList: [],
+      tag: {},
+      tagOrigin: {},
+      type: null,
       userId: null,
       keywords: null,
       oldKeywords: null,
       loading: true,
+      editStatus: false,
       removeStatus: false,
       addOrEditStatus: false,
       size: 10,
@@ -193,7 +261,10 @@ export default {
   methods: {
     openModel(tag) {
       if (tag != null) {
-        this.tag = { id: tag.id, tagName: tag.tagName };
+        this.tag = {
+          id: tag.id,
+          tagName: tag.tagName
+        };
         this.$refs.tagTitle.innerHTML = "修改标签";
       } else {
         this.tag = {
@@ -201,6 +272,7 @@ export default {
         };
         this.$refs.tagTitle.innerHTML = "添加标签";
       }
+      this.tagOrigin = JSON.parse(JSON.stringify(this.tag));
       this.$nextTick(() => {
         this.$refs.input.focus();
       });
@@ -208,14 +280,14 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listTags(true);
+      this.listTags();
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listTags(this.keywords !== this.oldKeywords);
+      this.listTags();
     },
     selectionChange(tagList) {
       this.tagIdList = [];
@@ -223,27 +295,24 @@ export default {
         this.tagIdList.push(item.id);
       });
     },
-    listTags(resetPageFlag = false, searchFlag = false) {
-      if (resetPageFlag) {
+    listTags() {
+      if (this.keywords !== this.oldKeywords) {
         this.current = 1;
       }
-      if (searchFlag) {
-        this.oldKeywords = this.keywords;
-      }
-      this.axios
-        .get("/api/back/tags", {
-          params: {
-            size: this.size,
-            userId: this.userId,
-            current: this.current,
-            keywords: this.keywords
-          }
-        })
-        .then(({ data }) => {
-          this.count = data.data.count;
-          this.tagList = data.data.pageList;
-          this.loading = false;
-        });
+      this.oldKeywords = this.keywords;
+      let params = {
+        size: this.size,
+        userId: this.userId,
+        current: this.current,
+        keywords: this.keywords,
+        type: this.type
+      };
+      params = this.$commonMethod.skipEmptyValue(params);
+      this.axios.get("/api/back/tags", { params }).then(({ data }) => {
+        this.count = data.data.count;
+        this.tagList = data.data.pageList;
+        this.loading = false;
+      });
     },
     listAllUsername(keywords) {
       if (keywords.trim() === "") {
@@ -255,15 +324,12 @@ export default {
           this.usernameList = data.data;
         });
     },
-    deleteTags(id) {
+    deleteTags(id = null) {
       let param = {};
       if (id == null) {
         param = { data: this.tagIdList };
       } else {
         param = { data: [id] };
-      }
-      if (param.data.length === this.tagList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
       }
       this.axios.delete("/api/back/tags", param).then(({ data }) => {
         if (data.flag) {
@@ -271,6 +337,9 @@ export default {
             title: "成功",
             message: data.message
           });
+          if (param.data.length === this.tagList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
           this.listTags();
         } else {
           this.$notify.error({
@@ -281,12 +350,48 @@ export default {
       });
       this.removeStatus = false;
     },
+    updateTagsStatus(id = null) {
+      let param = {};
+      if (id != null) {
+        param.idList = [id];
+      } else {
+        param.idList = this.tagIdList;
+      }
+      this.axios.put("/api/back/tags/status", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          if (param.idList.length === this.tagList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
+          this.listTags();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+      });
+      this.editStatus = false;
+    },
     addOrEditTag() {
       if (this.tag.tagName.trim() === "") {
         this.$message.error("标签名不能为空");
         return false;
       }
-      this.axios.post("/api/back/tag", this.tag).then(({ data }) => {
+      let param = this.$commonMethod.skipIdenticalValue(
+        this.tag,
+        this.tagOrigin
+      );
+      if (Object.keys(param).length === 0) {
+        return false;
+      }
+      if (this.tag.id != null) {
+        param.id = this.tag.id;
+      }
+      this.axios.post("/api/back/tag", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -304,9 +409,18 @@ export default {
     }
   },
   watch: {
+    type() {
+      this.listTags();
+    },
     userId() {
-      this.listTags(true);
+      this.listTags();
     }
   }
 };
 </script>
+
+<style scoped>
+.word-limit-input {
+  padding-right: 50px;
+}
+</style>

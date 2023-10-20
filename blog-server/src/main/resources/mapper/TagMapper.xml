@@ -27,13 +27,12 @@
         FROM
             tb_tag
         <where>
-            1 = 1
             <choose>
                 <when test="condition.type == 7">
-                    AND deleted_flag = true
+                    deleted_flag = true
                 </when>
                 <otherwise>
-                    AND deleted_flag = false
+                    deleted_flag = false
                 </otherwise>
             </choose>
             <choose>
@@ -60,13 +59,12 @@
         tb_tag t
         LEFT JOIN tb_user_auth ua ON t.user_id = ua.user_id
         <where>
-            1 = 1
             <choose>
                 <when test="condition.type == 7">
-                    AND t.deleted_flag = true
+                    t.deleted_flag = true
                 </when>
                 <otherwise>
-                    AND t.deleted_flag = false
+                    t.deleted_flag = false
                 </otherwise>
             </choose>
             <choose>

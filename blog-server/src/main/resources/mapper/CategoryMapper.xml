@@ -30,13 +30,12 @@
         FROM
             tb_category
         <where>
-            1 = 1
             <choose>
                 <when test="condition.type == 7">
-                    AND deleted_flag = true
+                    deleted_flag = true
                 </when>
                 <otherwise>
-                    AND deleted_flag = false
+                    deleted_flag = false
                 </otherwise>
             </choose>
             <choose>
@@ -65,13 +64,12 @@
         LEFT JOIN tb_user_auth ua ON c.user_id = ua.user_id
         LEFT JOIN ( SELECT category_id,count(1) article_count FROM tb_article WHERE deleted_flag = false GROUP BY category_id ) a ON c.id = a.category_id
         <where>
-            1 = 1
             <choose>
                 <when test="condition.type == 7">
-                    AND c.deleted_flag = true
+                    c.deleted_flag = true
                 </when>
                 <otherwise>
-                    AND c.deleted_flag = false
+                    c.deleted_flag = false
                 </otherwise>
             </choose>
             <choose>

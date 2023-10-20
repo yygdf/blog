@@ -214,7 +214,7 @@
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
         <el-button @click="editStatus = false">取 消</el-button>
-        <el-button type="primary" @click="updateCategoriesStatus(null)">
+        <el-button type="primary" @click="updateCategoriesStatus">
           确 定
         </el-button>
       </div>
@@ -226,7 +226,7 @@
       <div style="font-size:1rem">是否彻底删除选中项？</div>
       <div slot="footer">
         <el-button @click="removeStatus = false">取 消</el-button>
-        <el-button type="primary" @click="deleteCategories(null)">
+        <el-button type="primary" @click="deleteCategories">
           确 定
         </el-button>
       </div>
@@ -237,11 +237,11 @@
         <el-form-item label="名称">
           <el-input
             v-model="category.categoryName"
-            placeholder="请输入分类名"
-            class="word-limit-input"
             ref="input"
+            class="word-limit-input"
             style="width: 200px"
             maxlength="50"
+            placeholder="请输入分类名"
             show-word-limit
           />
         </el-form-item>
@@ -387,7 +387,7 @@ export default {
           this.usernameList = data.data;
         });
     },
-    deleteCategories(id) {
+    deleteCategories(id = null) {
       let param = {};
       if (id == null) {
         param = { data: this.categoryIdList };
@@ -463,7 +463,7 @@ export default {
         }
       });
     },
-    updateCategoriesStatus(id) {
+    updateCategoriesStatus(id = null) {
       let param = {};
       if (id != null) {
         param.idList = [id];
@@ -476,7 +476,7 @@ export default {
             title: "成功",
             message: data.message
           });
-          if (param.get("idList").length === this.categoryList.length) {
+          if (param.idList.length === this.categoryList.length) {
             this.current = --this.current > 1 ? this.current : 1;
           }
           this.listCategories();

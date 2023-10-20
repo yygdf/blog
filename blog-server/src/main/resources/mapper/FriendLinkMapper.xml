@@ -25,7 +25,30 @@
         update_user,update_time
     </sql>
 
-    <select id="listFriendLinksBackDTO" resultType="com.iksling.blog.dto.FriendLinksBackDTO">
+    <select id="selectFriendLinksBackDTOCount" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            tb_friend_link
+        <where>
+            <choose>
+                <when test="condition.type == 7">
+                    deleted_flag = true
+                </when>
+                <otherwise>
+                    deleted_flag = false
+                </otherwise>
+            </choose>
+            <if test="condition.userId != null">
+                AND user_id = #{condition.userId}
+            </if>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND link_name LIKE concat('%', #{condition.keywords}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectFriendLinksBackDTO" resultType="com.iksling.blog.dto.FriendLinksBackDTO">
         SELECT
             fl.id,fl.user_id,fl.link_url,
             fl.link_desc,fl.link_logo,fl.link_name,
@@ -34,15 +57,26 @@
             tb_friend_link fl
         LEFT JOIN tb_user_auth ua ON fl.user_id = ua.user_id
         <where>
-            1 = 1
-            <if test="condition.deletedFlag != null">
-                AND fl.deleted_flag = #{condition.deletedFlag}
-            </if>
-            <if test="condition.userId != null">
-                AND fl.user_id = #{condition.userId}
-            </if>
+            <choose>
+                <when test="condition.type == 7">
+                    t.deleted_flag = true
+                </when>
+                <otherwise>
+                    t.deleted_flag = false
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="roleWeight > 200">
+                    AND t.user_id = #{userId}
+                </when>
+                <otherwise>
+                    <if test="condition.userId != null">
+                        AND t.user_id = #{condition.userId}
+                    </if>
+                </otherwise>
+            </choose>
             <if test="condition.keywords != null and condition.keywords != ''">
-                AND fl.link_name like concat('%', #{condition.keywords}, '%')
+                AND t.tag_name LIKE concat('%', #{condition.keywords}, '%')
             </if>
         </where>
         ORDER BY
@@ -50,35 +84,4 @@
         LIMIT
             #{condition.current}, #{condition.size}
     </select>
-
-    <select id="selectFriendLinksBackDTOCount" resultType="java.lang.Integer">
-        SELECT
-            count(1)
-        FROM
-            tb_friend_link fl
-        <where>
-            1 = 1
-            <if test="condition.deletedFlag != null">
-                AND fl.deleted_flag = #{condition.deletedFlag}
-            </if>
-            <if test="condition.userId != null">
-                AND fl.user_id = #{condition.userId}
-            </if>
-            <if test="condition.keywords != null and condition.keywords != ''">
-                AND fl.link_name like concat('%', #{condition.keywords}, '%')
-            </if>
-        </where>
-    </select>
-
-    <update id="updateFriendLinksStatus">
-        UPDATE
-            tb_friend_link
-        SET
-            deleted_flag = #{updateBatch.deletedFlag}
-        WHERE
-            id in
-            <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
-                #{id}
-            </foreach>
-    </update>
 </mapper>

@@ -6,7 +6,7 @@ import com.iksling.blog.entity.FriendLink;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.FriendLinkBackVO;
-import com.iksling.blog.vo.UpdateBatchVO;
+import com.iksling.blog.vo.StatusBackVO;
 
 import java.util.List;
 
@@ -15,11 +15,11 @@ import java.util.List;
  */
 public interface FriendLinkService extends IService<FriendLink> {
 
-    PagePojo<FriendLinksBackDTO> getPageFriendLinksBackDTO(ConditionBackVO condition);
-
-    void updateFriendLinksStatus(UpdateBatchVO updateBatchVO);
-
-    void deleteFriendLinkIdList(List<Integer> friendLinkIdList);
-
     void saveOrUpdateFriendLinkBackVO(FriendLinkBackVO friendLinkBackVO);
+
+    void deleteFriendLinksByIdList(List<Integer> friendLinkIdList);
+
+    void updateFriendLinksStatusBackVO(StatusBackVO statusBackVO);
+
+    PagePojo<FriendLinksBackDTO> getFriendLinksBackDTO(ConditionBackVO condition);
 }

@@ -40,7 +40,7 @@
           remote
           clearable
           filterable
-          :remote-method="listAllUsername"
+          :remote-method="getUsernames"
         >
           <el-option
             v-for="item in usernameList"
@@ -71,14 +71,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入分类名"
           clearable
-          @keyup.enter.native="listCategories"
+          @keyup.enter.native="getCategories"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listCategories"
+          @click="getCategories"
         >
           搜索
         </el-button>
@@ -141,7 +141,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeCategoryStatus(scope.row, 2)"
+            @change="updateCategoryStatus(scope.row, 2)"
           />
         </template>
       </el-table-column>
@@ -154,7 +154,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeCategoryStatus(scope.row, 3)"
+            @change="updateCategoryStatus(scope.row, 3)"
           />
         </template>
       </el-table-column>
@@ -279,7 +279,7 @@
 <script>
 export default {
   created() {
-    this.listCategories();
+    this.getCategories();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -340,14 +340,14 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listCategories();
+      this.getCategories();
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listCategories();
+      this.getCategories();
     },
     checkSelectable(row) {
       return !row.articleCount;
@@ -358,7 +358,7 @@ export default {
         this.categoryIdList.push(item.id);
       });
     },
-    listCategories() {
+    getCategories() {
       if (this.keywords !== this.oldKeywords) {
         this.current = 1;
       }
@@ -377,7 +377,7 @@ export default {
         this.loading = false;
       });
     },
-    listAllUsername(keywords) {
+    getUsernames(keywords) {
       if (keywords.trim() === "") {
         return;
       }
@@ -403,7 +403,7 @@ export default {
           if (param.data.length === this.categoryList.length) {
             this.current = --this.current > 1 ? this.current : 1;
           }
-          this.listCategories();
+          this.getCategories();
         } else {
           this.$notify.error({
             title: "失败",
@@ -434,7 +434,7 @@ export default {
             title: "成功",
             message: data.message
           });
-          this.listCategories();
+          this.getCategories();
         } else {
           this.$notify.error({
             title: "失败",
@@ -444,7 +444,7 @@ export default {
       });
       this.addOrEditStatus = false;
     },
-    changeCategoryStatus(category, type) {
+    updateCategoryStatus(category, type) {
       let param = {
         idList: [category.id],
         type: type
@@ -479,7 +479,7 @@ export default {
           if (param.idList.length === this.categoryList.length) {
             this.current = --this.current > 1 ? this.current : 1;
           }
-          this.listCategories();
+          this.getCategories();
         } else {
           this.$notify.error({
             title: "失败",
@@ -492,10 +492,10 @@ export default {
   },
   watch: {
     type() {
-      this.listCategories();
+      this.getCategories();
     },
     userId() {
-      this.listCategories();
+      this.getCategories();
     }
   }
 };

@@ -40,7 +40,7 @@
           remote
           clearable
           filterable
-          :remote-method="listAllUsername"
+          :remote-method="getUsernames"
         >
           <el-option
             v-for="item in usernameList"
@@ -71,14 +71,14 @@
           placeholder="请输入标签名"
           prefix-icon="el-icon-search"
           clearable
-          @keyup.enter.native="listTags"
+          @keyup.enter.native="getTags"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listTags"
+          @click="getTags"
         >
           搜索
         </el-button>
@@ -223,7 +223,7 @@
 <script>
 export default {
   created() {
-    this.listTags();
+    this.getTags();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -280,14 +280,14 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listTags();
+      this.getTags();
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listTags();
+      this.getTags();
     },
     selectionChange(tagList) {
       this.tagIdList = [];
@@ -295,7 +295,7 @@ export default {
         this.tagIdList.push(item.id);
       });
     },
-    listTags() {
+    getTags() {
       if (this.keywords !== this.oldKeywords) {
         this.current = 1;
       }
@@ -314,7 +314,7 @@ export default {
         this.loading = false;
       });
     },
-    listAllUsername(keywords) {
+    getUsernames(keywords) {
       if (keywords.trim() === "") {
         return;
       }
@@ -340,7 +340,7 @@ export default {
           if (param.data.length === this.tagList.length) {
             this.current = --this.current > 1 ? this.current : 1;
           }
-          this.listTags();
+          this.getTags();
         } else {
           this.$notify.error({
             title: "失败",
@@ -366,7 +366,7 @@ export default {
           if (param.idList.length === this.tagList.length) {
             this.current = --this.current > 1 ? this.current : 1;
           }
-          this.listTags();
+          this.getTags();
         } else {
           this.$notify.error({
             title: "失败",
@@ -397,7 +397,7 @@ export default {
             title: "成功",
             message: data.message
           });
-          this.listTags();
+          this.getTags();
         } else {
           this.$notify.error({
             title: "失败",
@@ -410,10 +410,10 @@ export default {
   },
   watch: {
     type() {
-      this.listTags();
+      this.getTags();
     },
     userId() {
-      this.listTags();
+      this.getTags();
     }
   }
 };

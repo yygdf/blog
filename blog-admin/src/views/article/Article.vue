@@ -176,7 +176,7 @@ export default {
     } else {
       this.article.articleTitle = this.$moment(new Date()).format("YYYY-MM-DD");
     }
-    this.listArticleOptions();
+    this.getArticleOption();
   },
   destroyed() {
     this.saveArticleDraft(false);
@@ -428,7 +428,7 @@ export default {
         }
       });
     },
-    listArticleOptions() {
+    getArticleOption() {
       this.axios
         .get("/api/back/article/option", {
           params: { userId: this.articleUserId }

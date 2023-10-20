@@ -40,7 +40,7 @@
           remote
           clearable
           filterable
-          :remote-method="listAllUsername"
+          :remote-method="getUsernames"
         >
           <el-option
             v-for="item in usernameList"
@@ -101,14 +101,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入文章名"
           clearable
-          @keyup.enter.native="listArticles"
+          @keyup.enter.native="getArticles"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listArticles"
+          @click="getArticles"
         >
           搜索
         </el-button>
@@ -210,7 +210,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeArticleStatus(scope.row)"
+            @change="updateArticleStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -223,7 +223,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeArticleStatus(scope.row, 2)"
+            @change="updateArticleStatus(scope.row, 2)"
           />
         </template>
       </el-table-column>
@@ -236,7 +236,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeArticleStatus(scope.row, 3)"
+            @change="updateArticleStatus(scope.row, 3)"
           />
         </template>
       </el-table-column>
@@ -254,7 +254,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeArticleStatus(scope.row, 4)"
+            @change="updateArticleStatus(scope.row, 4)"
           />
         </template>
       </el-table-column>
@@ -341,8 +341,8 @@
 <script>
 export default {
   created() {
-    this.listArticles();
-    this.listArticleOptions();
+    this.getArticles();
+    this.getArticleOption();
     if (this.checkWeight(100)) {
       this.options.push({
         value: 7,
@@ -394,7 +394,7 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listArticles();
+      this.getArticles();
     },
     editArticle(id, userId) {
       this.$router.push({ path: "/article/" + userId + "/" + id });
@@ -404,7 +404,7 @@ export default {
     },
     currentChange(current) {
       this.current = current;
-      this.listArticles();
+      this.getArticles();
     },
     selectionChange(articleList) {
       this.articleIdList = [];
@@ -412,7 +412,7 @@ export default {
         this.articleIdList.push(item.id);
       });
     },
-    listArticles() {
+    getArticles() {
       if (this.keywords !== this.oldKeywords) {
         this.current = 1;
       }
@@ -449,7 +449,7 @@ export default {
           if (param.data.length === this.articleList.length) {
             this.current = --this.current > 1 ? this.current : 1;
           }
-          this.listArticles();
+          this.getArticles();
         } else {
           this.$notify.error({
             title: "失败",
@@ -459,7 +459,7 @@ export default {
       });
       this.removeStatus = false;
     },
-    listAllUsername(keywords) {
+    getUsernames(keywords) {
       if (keywords.trim() === "") {
         return;
       }
@@ -469,7 +469,7 @@ export default {
           this.usernameList = data.data;
         });
     },
-    listArticleOptions() {
+    getArticleOption() {
       let param = {};
       if (this.userId != null && this.userId !== "") {
         param.userId = this.userId;
@@ -483,7 +483,7 @@ export default {
           this.categoryList = data.data.categoryDTOList;
         });
     },
-    changeArticleStatus(article, type) {
+    updateArticleStatus(article, type) {
       let param = {
         idList: [article.id]
       };
@@ -530,7 +530,7 @@ export default {
           if (param.idList.length === this.articleList.length) {
             this.current = --this.current > 1 ? this.current : 1;
           }
-          this.listArticles();
+          this.getArticles();
         } else {
           this.$notify.error({
             title: "失败",
@@ -543,19 +543,19 @@ export default {
   },
   watch: {
     type() {
-      this.listArticles();
+      this.getArticles();
     },
     userId() {
-      this.listArticles();
-      this.listArticleOptions();
+      this.getArticles();
+      this.getArticleOption();
     },
     categoryId() {
-      this.listArticles();
+      this.getArticles();
     },
     tagIdList: {
       handler(newVal, oldVal) {
         if (newVal.length !== oldVal.length) {
-          this.listArticles();
+          this.getArticles();
         }
       },
       deep: true

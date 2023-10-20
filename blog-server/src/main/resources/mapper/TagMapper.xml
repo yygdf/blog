@@ -53,10 +53,10 @@
 
     <select id="selectTagsBackDTO" resultType="com.iksling.blog.dto.TagsBackDTO">
         SELECT
-        t.id,t.user_id,ua.username,
-        t.tag_name,t.create_time,t.update_time
+            t.id,t.user_id,ua.username,
+            t.tag_name,t.create_time,t.update_time
         FROM
-        tb_tag t
+            tb_tag t
         LEFT JOIN tb_user_auth ua ON t.user_id = ua.user_id
         <where>
             <choose>

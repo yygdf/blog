@@ -9,9 +9,7 @@ import com.iksling.blog.dto.TagsBackDTO;
 import com.iksling.blog.entity.Tag;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
-import com.iksling.blog.mapper.ArticleTagMapper;
 import com.iksling.blog.mapper.TagMapper;
-import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.TagService;
@@ -36,11 +34,6 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     implements TagService{
     @Autowired
     private TagMapper tagMapper;
-
-    @Autowired
-    private ArticleTagMapper articleTagMapper;
-    @Autowired
-    private UserAuthMapper userAuthMapper;
 
     @Override
     @Transactional

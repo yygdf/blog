@@ -1,18 +1,22 @@
 package com.iksling.blog.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.FriendLinksBackDTO;
 import com.iksling.blog.entity.FriendLink;
 import com.iksling.blog.exception.IllegalRequestException;
+import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.FriendLinkMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.FriendLinkService;
+import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.FriendLinkBackVO;
-import com.iksling.blog.vo.UpdateBatchVO;
+import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,59 +35,74 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     private FriendLinkMapper friendLinkMapper;
 
     @Override
-    public PagePojo<FriendLinksBackDTO> getPageFriendLinksBackDTO(ConditionBackVO condition) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100 && Objects.equals(condition.getDeletedFlag(), true))
+    @Transactional
+    public void saveOrUpdateFriendLinkBackVO(FriendLinkBackVO friendLinkBackVO) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        FriendLink friendLink = BeanCopyUtil.copyObject(friendLinkBackVO, FriendLink.class);
+        if (Objects.isNull(friendLink.getId())) {
+            if (StringUtils.isBlank(friendLink.getLinkUrl()) || StringUtils.isBlank(friendLink.getLinkDesc()) || StringUtils.isBlank(friendLink.getLinkLogo()) || StringUtils.isBlank(friendLink.getLinkName()))
+                throw new OperationStatusException();
+            friendLink.setUserId(loginUser.getUserId());
+            friendLink.setCreateUser(loginUser.getUserId());
+            friendLink.setCreateTime(new Date());
+            friendLinkMapper.insert(friendLink);
+        } else {
+            if (Objects.nonNull(friendLink.getLinkUrl())) {
+                if (StringUtils.isBlank(friendLink.getLinkUrl()))
+                    throw new OperationStatusException();
+            }
+            if (Objects.nonNull(friendLink.getLinkDesc())) {
+                if (StringUtils.isBlank(friendLink.getLinkDesc()))
+                    throw new OperationStatusException();
+            }
+            if (Objects.nonNull(friendLink.getLinkLogo())) {
+                if (StringUtils.isBlank(friendLink.getLinkLogo()))
+                    throw new OperationStatusException();
+            }
+            if (Objects.nonNull(friendLink.getLinkName())) {
+                if (StringUtils.isBlank(friendLink.getLinkName()))
+                    throw new OperationStatusException();
+            }
+            friendLink.setUpdateUser(loginUser.getUserId());
+            friendLink.setUpdateTime(new Date());
+            friendLinkMapper.updateById(friendLink);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteFriendLinksByIdList(List<Integer> idList) {
+        if (CollectionUtils.isEmpty(idList))
             throw new IllegalRequestException();
-        if (Objects.nonNull(condition.getKeywords()))
-            condition.setKeywords(condition.getKeywords().trim());
+        int count = friendLinkMapper.delete(new LambdaUpdateWrapper<FriendLink>()
+                .eq(FriendLink::getDeletedFlag, true)
+                .in(FriendLink::getId, idList));
+        if (count != idList.size())
+            throw new IllegalRequestException();
+    }
+
+    @Override
+    @Transactional
+    public void updateFriendLinksStatusBackVO(StatusBackVO statusBackVO) {
+        int count = friendLinkMapper.update(null, new LambdaUpdateWrapper<FriendLink>()
+                .set(FriendLink::getDeletedFlag, true)
+                .eq(FriendLink::getDeletedFlag, false)
+                .in(FriendLink::getId, statusBackVO.getIdList()));
+        if (count != statusBackVO.getIdList().size())
+            throw new OperationStatusException();
+    }
+
+    @Override
+    public PagePojo<FriendLinksBackDTO> getFriendLinksBackDTO(ConditionBackVO condition) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        if (Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100)
+            return new PagePojo<>();
         Integer count = friendLinkMapper.selectFriendLinksBackDTOCount(condition);
         if (count == 0)
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        List<FriendLinksBackDTO> friendLinksBackDTOList = friendLinkMapper.listFriendLinksBackDTO(condition);
+        List<FriendLinksBackDTO> friendLinksBackDTOList = friendLinkMapper.selectFriendLinksBackDTO(condition);
         return new PagePojo<>(count, friendLinksBackDTOList);
-    }
-
-    @Override
-    @Transactional
-    public void updateFriendLinksStatus(UpdateBatchVO updateBatchVO) {
-        if (UserUtil.getLoginUser().getRoleWeight() > 100 && !updateBatchVO.getDeletedFlag())
-            throw new IllegalRequestException();
-        Integer count = friendLinkMapper.updateFriendLinksStatus(updateBatchVO);
-        if (count != updateBatchVO.getIdList().size())
-            throw new IllegalRequestException();
-    }
-
-    @Override
-    @Transactional
-    public void deleteFriendLinkIdList(List<Integer> friendLinkIdList) {
-        if (CollectionUtils.isEmpty(friendLinkIdList))
-            throw new IllegalRequestException();
-        int count = friendLinkMapper.deleteBatchIds(friendLinkIdList);
-        if (count != friendLinkIdList.size())
-            throw new IllegalRequestException();
-    }
-
-    @Override
-    @Transactional
-    public void saveOrUpdateFriendLinkBackVO(FriendLinkBackVO friendLinkBackVO) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        FriendLink friendLink = FriendLink.builder()
-                .id(friendLinkBackVO.getId())
-                .userId(friendLinkBackVO.getUserId())
-                .linkUrl(friendLinkBackVO.getLinkUrl().trim())
-                .linkDesc(friendLinkBackVO.getLinkDesc().trim())
-                .linkLogo(friendLinkBackVO.getLinkLogo().trim())
-                .linkName(friendLinkBackVO.getLinkName().trim())
-                .build();
-        if (Objects.isNull(friendLinkBackVO.getId())) {
-            friendLink.setCreateUser(loginUser.getUserId());
-            friendLink.setCreateTime(new Date());
-        } else {
-            friendLink.setUpdateUser(loginUser.getUserId());
-            friendLink.setUpdateTime(new Date());
-        }
-        this.saveOrUpdate(friendLink);
     }
 }
 

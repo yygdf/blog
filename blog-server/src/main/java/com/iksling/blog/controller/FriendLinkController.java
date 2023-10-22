@@ -45,7 +45,7 @@ public class FriendLinkController {
     @ApiOperation(value = "批量更新友链状态")
     @ApiImplicitParam(name = "statusBackVO", value = "状态后台VO", required = true, dataType = "StatusBackVO")
     @PutMapping("/back/friendLinks/status")
-    public Result updateFriendLinksStatus(@Valid StatusBackVO statusBackVO) {
+    public Result updateFriendLinksStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         friendLinkService.updateFriendLinksStatusBackVO(statusBackVO);
         return Result.success().message("操作成功");
     }

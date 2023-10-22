@@ -59,17 +59,17 @@
         <where>
             <choose>
                 <when test="condition.type == 7">
-                    t.deleted_flag = true
+                    fl.deleted_flag = true
                 </when>
                 <otherwise>
-                    t.deleted_flag = false
+                    fl.deleted_flag = false
                 </otherwise>
             </choose>
             <if test="condition.userId != null">
-                AND user_id = #{condition.userId}
+                AND fl.user_id = #{condition.userId}
             </if>
             <if test="condition.keywords != null and condition.keywords != ''">
-                AND t.tag_name LIKE concat('%', #{condition.keywords}, '%')
+                AND fl.link_name LIKE concat('%', #{condition.keywords}, '%')
             </if>
         </where>
         ORDER BY

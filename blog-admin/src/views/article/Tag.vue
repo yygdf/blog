@@ -178,7 +178,7 @@
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
         <el-button @click="editStatus = false">取 消</el-button>
-        <el-button type="primary" @click="updateTagsStatus">
+        <el-button type="primary" @click="updateTagsStatus(null)">
           确 定
         </el-button>
       </div>
@@ -190,7 +190,7 @@
       <div style="font-size:1rem">是否彻底删除选中项？</div>
       <div slot="footer">
         <el-button @click="removeStatus = false">取 消</el-button>
-        <el-button type="primary" @click="deleteTags">
+        <el-button type="primary" @click="deleteTags(null)">
           确 定
         </el-button>
       </div>
@@ -324,7 +324,7 @@ export default {
           this.usernameList = data.data;
         });
     },
-    deleteTags(id = null) {
+    deleteTags(id) {
       let param = {};
       if (id == null) {
         param = { data: this.tagIdList };
@@ -350,7 +350,7 @@ export default {
       });
       this.removeStatus = false;
     },
-    updateTagsStatus(id = null) {
+    updateTagsStatus(id) {
       let param = {};
       if (id != null) {
         param.idList = [id];

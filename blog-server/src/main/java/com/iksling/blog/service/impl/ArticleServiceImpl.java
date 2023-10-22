@@ -195,11 +195,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .in(Article::getId, statusBackVO.getIdList())
                 .eq(Article::getDraftFlag, false)
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId());
-        if (statusBackVO.getType().equals(2))
+        if (Objects.equals(statusBackVO.getType(), 2))
             lambdaUpdateWrapper.setSql("public_flag = !public_flag");
-        else if (statusBackVO.getType().equals(3))
+        else if (Objects.equals(statusBackVO.getType(), 3))
             lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
-        else if (statusBackVO.getType().equals(4))
+        else if (Objects.equals(statusBackVO.getType(), 4))
             lambdaUpdateWrapper.setSql("commentable_flag = !commentable_flag");
         else
             lambdaUpdateWrapper.setSql("top_flag = !top_flag");
@@ -216,12 +216,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .eq(loginUser.getRoleWeight() > 100, Article::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
                 .in(Article::getId, statusBackVO.getIdList());
-        if (statusBackVO.getType().equals(6)) {
+        if (Objects.equals(statusBackVO.getType(), 6)) {
             if (Objects.equals(statusBackVO.getStatus(), true))
                 lambdaUpdateWrapper.set(Article::getRecycleFlag, false);
             else
                 lambdaUpdateWrapper.set(Article::getDeletedFlag, true);
-        } else if (statusBackVO.getType().equals(7)) {
+        } else if (Objects.equals(statusBackVO.getType(), 7)) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();
             else
@@ -231,7 +231,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         int count = articleMapper.update(null, lambdaUpdateWrapper);
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
-        if (statusBackVO.getType().equals(6) && !Objects.equals(statusBackVO.getStatus(), true)) {
+        if (Objects.equals(statusBackVO.getType(), 6) && !Objects.equals(statusBackVO.getStatus(), true)) {
             articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
                     .set(ArticleTag::getDeletedFlag, true)
                     .eq(ArticleTag::getDeletedFlag, false)

@@ -99,7 +99,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                 .in(Category::getId, statusBackVO.getIdList())
                 .eq(Category::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId());
-        if (statusBackVO.getType().equals(3))
+        if (Objects.equals(statusBackVO.getType(), 3))
             lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
         else
             lambdaUpdateWrapper.setSql("public_flag = !public_flag");

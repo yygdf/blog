@@ -50,7 +50,7 @@
         </el-select>
         <el-select
           v-if="checkWeight(100)"
-          v-model="deletedFlag"
+          v-model="type"
           size="small"
           style="margin-right:1rem"
           placeholder="请选择"
@@ -190,7 +190,7 @@
       <div style="font-size:1rem">是否删除选中项？</div>
       <div slot="footer">
         <el-button @click="editStatus = false">取 消</el-button>
-        <el-button type="primary" @click="updateFriendLinksStatus">
+        <el-button type="primary" @click="updateFriendLinksStatus(null)">
           确 定
         </el-button>
       </div>
@@ -202,7 +202,7 @@
       <div style="font-size:1rem">是否彻底删除选中项？</div>
       <div slot="footer">
         <el-button @click="removeStatus = false">取 消</el-button>
-        <el-button type="primary" @click="deleteFriendLinks">
+        <el-button type="primary" @click="deleteFriendLinks(null)">
           确 定
         </el-button>
       </div>
@@ -210,10 +210,11 @@
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="friendLinkTitle" />
       <el-form :model="friendLink" size="medium" label-width="80">
-        <el-form-item label="所属用户" v-if="!friendLink.id">
+        <el-form-item label="所属用户">
           <el-select
+            :disabled="friendLink.id != null"
             v-model="friendLink.userId"
-            ref="input"
+            :ref="friendLink.id ? '' : 'input'"
             style="width: 200px"
             placeholder="请选择用户"
             remote
@@ -237,7 +238,7 @@
             class="word-limit-input"
             style="width: 200px"
             maxlength="50"
-            placeholder="友链名称"
+            placeholder="请输入友链名称"
             show-word-limit
           />
         </el-form-item>
@@ -247,27 +248,27 @@
             class="word-limit-input"
             style="width: 200px"
             maxlength="50"
-            placeholder="友链描述"
+            placeholder="请输入友链描述"
             show-word-limit
           />
         </el-form-item>
         <el-form-item label="友链图标">
           <el-input
             v-model="friendLink.linkLogo"
-            class="word-limit-input"
+            class="word-limit-input2"
             style="width: 200px"
             maxlength="255"
-            placeholder="友链图标"
+            placeholder="请输入友链图标"
             show-word-limit
           />
         </el-form-item>
         <el-form-item label="友链地址">
           <el-input
             v-model="friendLink.linkUrl"
-            class="word-limit-input"
+            class="word-limit-input2"
             style="width: 200px"
             maxlength="255"
-            placeholder="友链地址"
+            placeholder="请输入友链地址"
             show-word-limit
           />
         </el-form-item>
@@ -326,7 +327,7 @@ export default {
       if (friendLink != null) {
         this.friendLink = {
           id: friendLink.id,
-          userId: friendLink.userId,
+          userId: friendLink.username,
           linkUrl: friendLink.linkUrl,
           linkDesc: friendLink.linkDesc,
           linkLogo: friendLink.linkLogo,
@@ -404,7 +405,7 @@ export default {
         });
     },
     addOrEditFriendLink() {
-      if (!this.friendLink.userId && !this.friendLink.id) {
+      if (!this.friendLink.userId) {
         this.$message.error("所属用户不能为空");
         return false;
       }
@@ -476,15 +477,15 @@ export default {
         this.removeStatus = false;
       });
     },
-    updateFriendLinksStatus(id = null) {
+    updateFriendLinksStatus(id) {
       let param = {};
       if (id != null) {
         param.idList = [id];
       } else {
         param.idList = this.friendLinkIdList;
       }
-      if (this.type === 7) {
-        param.type = 7;
+      if (this.type != null) {
+        param.type = this.type;
       }
       this.axios.put("/api/back/friendLinks/status", param).then(({ data }) => {
         if (data.flag) {
@@ -516,3 +517,12 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.word-limit-input {
+  padding-right: 50px;
+}
+.word-limit-input2 {
+  padding-right: 60px;
+}
+</style>

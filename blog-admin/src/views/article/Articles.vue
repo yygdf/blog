@@ -330,7 +330,7 @@
       <div style="font-size:1rem">是否彻底删除选中项？</div>
       <div slot="footer">
         <el-button @click="removeStatus = false">取 消</el-button>
-        <el-button type="primary" @click="deleteArticles">
+        <el-button type="primary" @click="deleteArticles(null)">
           确 定
         </el-button>
       </div>
@@ -433,7 +433,7 @@ export default {
         this.loading = false;
       });
     },
-    deleteArticles(id = null) {
+    deleteArticles(id) {
       let param = {};
       if (id == null) {
         param = { data: this.articleIdList };
@@ -515,7 +515,7 @@ export default {
       } else {
         param.idList = this.articleIdList;
       }
-      if (this.type != null) {
+      if (this.type != null && this.type !== 5) {
         param.type = this.type;
       }
       if (isRec) {

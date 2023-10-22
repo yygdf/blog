@@ -89,7 +89,7 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
         LambdaUpdateWrapper<FriendLink> lambdaUpdateWrapper = new LambdaUpdateWrapper<FriendLink>()
                 .eq(loginUser.getRoleWeight() > 100, FriendLink::getDeletedFlag, false)
                 .in(FriendLink::getId, statusBackVO.getIdList());
-        if (statusBackVO.getType().equals(7)) {
+        if (Objects.equals(statusBackVO.getType(), 7)) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();
             else

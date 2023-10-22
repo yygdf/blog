@@ -400,14 +400,14 @@ export default {
         this.article,
         this.articleOrigin
       );
+      if (this.article.draftFlag === false) {
+        param.draftFlag = true;
+      }
       if (Object.keys(param).length === 0) {
         return false;
       }
       if (this.article.id != null) {
         param.id = this.article.id;
-      }
-      if (this.article.draftFlag === false) {
-        param.draftFlag = true;
       }
       this.axios.post("/api/back/article", param).then(({ data }) => {
         if (data.flag) {
@@ -449,14 +449,14 @@ export default {
         this.article,
         this.articleOrigin
       );
+      if (this.article.draftFlag !== false) {
+        param.draftFlag = false;
+      }
       if (Object.keys(param).length === 0) {
         return false;
       }
       if (this.article.id != null) {
         param.id = this.article.id;
-      }
-      if (this.article.draftFlag !== false) {
-        param.draftFlag = false;
       }
       this.axios.post("/api/back/article", param).then(({ data }) => {
         if (data.flag) {

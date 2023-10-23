@@ -34,7 +34,7 @@ public class CategoryController {
 
     @OptLog(optType = REMOVE)
     @ApiOperation(value = "物理批量删除分类")
-    @ApiImplicitParam(name = "idList", value = "分类idList", required = true, dataType = "List<Integer>")
+    @ApiImplicitParam(name = "idList", value = "idList", required = true, dataType = "List<Integer>")
     @DeleteMapping("/back/categories")
     public Result deleteBackCategories(@RequestBody List<Integer> idList) {
         categoryService.deleteBackCategoriesByIdList(idList);

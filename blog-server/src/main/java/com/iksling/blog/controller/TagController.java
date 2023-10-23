@@ -34,7 +34,7 @@ public class TagController {
 
     @OptLog(optType = REMOVE)
     @ApiOperation(value = "物理批量删除标签")
-    @ApiImplicitParam(name = "idList", value = "标签idList", required = true, dataType = "List<Integer>")
+    @ApiImplicitParam(name = "idList", value = "idList", required = true, dataType = "List<Integer>")
     @DeleteMapping("/back/tags")
     public Result deleteBackTags(@RequestBody List<Integer> idList) {
         tagService.deleteBackTagsByIdList(idList);

@@ -34,7 +34,7 @@ public class FriendLinkController {
 
     @OptLog(optType = REMOVE)
     @ApiOperation(value = "物理批量删除友链")
-    @ApiImplicitParam(name = "idList", value = "友链idList", required = true, dataType = "List<Integer>")
+    @ApiImplicitParam(name = "idList", value = "idList", required = true, dataType = "List<Integer>")
     @DeleteMapping("/back/friendLinks")
     public Result deleteBackFriendLinks(@RequestBody List<Integer> idList) {
         friendLinkService.deleteFriendLinksByIdList(idList);

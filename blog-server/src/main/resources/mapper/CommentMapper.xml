@@ -26,7 +26,61 @@
         ip_address,create_user,create_time
     </sql>
 
-    <select id="listCommentsBackDTO" resultType="com.iksling.blog.dto.CommentsBackDTO">
+    <select id="selectCommentsBackDTOCount" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            tb_comment c
+        LEFT JOIN tb_article a ON c.article_id = a.id
+        <where>
+            1 = 1
+            <choose>
+                <when test="condition.type == 6">
+                    AND c.recycle_flag = true
+                    AND c.deleted_flag = false
+                </when>
+                <when test="condition.type == 7">
+                    AND c.deleted_flag = true
+                </when>
+                <otherwise>
+                    AND c.recycle_flag = false
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="roleWeight > 300">
+                    <choose>
+                        <when test="roleWeight lte 400">
+                            AND (c.user_id = #{userId} OR a.user_id = #{userId})
+                            <if test="condition.userId != null">
+                                AND c.user_id = #{condition.userId}
+                            </if>
+                        </when>
+                        <otherwise>
+                            AND c.user_id = #{userId}
+                        </otherwise>
+                    </choose>
+                </when>
+                <otherwise>
+                    <if test="condition.userId != null">
+                        AND c.user_id = #{condition.userId}
+                    </if>
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="condition.flag == null || !condition.draftFlag">
+                    AND a.article_title IS NOT NULL
+                    <if test="condition.keywords != null and condition.keywords != ''">
+                        AND a.article_title LIKE concat('%', #{condition.keywords}, '%')
+                    </if>
+                </when>
+                <otherwise>
+                    AND a.article_title IS NULL
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="selectCommentsBackDTO" resultType="com.iksling.blog.dto.CommentsBackDTO">
         SELECT
             c.id,c.user_id,ua.username,
             a.article_title,c.comment_content,c.create_time,
@@ -39,12 +93,18 @@
         LEFT JOIN tb_user u2 ON c.reply_id = u2.id
         <where>
             1 = 1
-            <if test="condition.recycleFlag != null">
-                AND c.recycle_flag = #{condition.recycleFlag}
-            </if>
-            <if test="condition.deletedFlag != null">
-                AND c.deleted_flag = #{condition.deletedFlag}
-            </if>
+            <choose>
+                <when test="condition.type == 6">
+                    AND c.recycle_flag = true
+                    AND c.deleted_flag = false
+                </when>
+                <when test="condition.type == 7">
+                    AND c.deleted_flag = true
+                </when>
+                <otherwise>
+                    AND c.recycle_flag = false
+                </otherwise>
+            </choose>
             <choose>
                 <when test="roleWeight > 300">
                     <choose>
@@ -66,10 +126,10 @@
                 </otherwise>
             </choose>
             <choose>
-                <when test="condition.draftFlag == null || !condition.draftFlag">
+                <when test="condition.flag == null || !condition.draftFlag">
                     AND a.article_title IS NOT NULL
                     <if test="condition.keywords != null and condition.keywords != ''">
-                        AND a.article_title like concat('%', #{condition.keywords}, '%')
+                        AND a.article_title LIKE concat('%', #{condition.keywords}, '%')
                     </if>
                 </when>
                 <otherwise>
@@ -82,83 +142,4 @@
         LIMIT
             #{condition.current}, #{condition.size}
     </select>
-
-    <select id="selectCommentsBackDTOCount" resultType="java.lang.Integer">
-        SELECT
-            count(1)
-        FROM
-            tb_comment c
-        LEFT JOIN tb_article a ON c.article_id = a.id
-        <where>
-            1 = 1
-            <if test="condition.recycleFlag != null">
-                AND c.recycle_flag = #{condition.recycleFlag}
-            </if>
-            <if test="condition.deletedFlag != null">
-                AND c.deleted_flag = #{condition.deletedFlag}
-            </if>
-            <choose>
-                <when test="roleWeight > 300">
-                    <choose>
-                        <when test="roleWeight lte 400">
-                            AND (c.user_id = #{userId} OR a.user_id = #{userId})
-                            <if test="condition.userId != null">
-                                AND c.user_id = #{condition.userId}
-                            </if>
-                        </when>
-                        <otherwise>
-                            AND c.user_id = #{userId}
-                        </otherwise>
-                    </choose>
-                </when>
-                <otherwise>
-                    <if test="condition.userId != null">
-                        AND c.user_id = #{condition.userId}
-                    </if>
-                </otherwise>
-            </choose>
-            <choose>
-                <when test="condition.draftFlag == null || !condition.draftFlag">
-                    AND a.article_title IS NOT NULL
-                    <if test="condition.keywords != null and condition.keywords != ''">
-                        AND a.article_title like concat('%', #{condition.keywords}, '%')
-                    </if>
-                </when>
-                <otherwise>
-                    AND a.article_title IS NULL
-                </otherwise>
-            </choose>
-        </where>
-    </select>
-
-    <update id="updateCommentsStatus">
-        UPDATE
-            tb_comment
-        SET
-            deleted_flag = #{updateBatch.deletedFlag}
-            <if test="updateBatch.recycleFlag != null">
-                , recycle_flag = #{updateBatch.recycleFlag}
-            </if>
-        WHERE
-            (
-                id in
-                <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
-                    #{id}
-                </foreach>
-                <if test="updateBatch.recycleFlag != null and updateBatch.recycleFlag">
-                    or parent_id in
-                    <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
-                        #{id}
-                    </foreach>
-                </if>
-            )
-            <if test="roleWeight > 300">
-                AND (
-                    user_id = #{userId} OR #{userId} = (SELECT a.user_id FROM tb_article a WHERE article_id = a.id)
-                )
-            </if>
-            <if test="roleWeight > 100">
-                AND deleted_flag = false
-            </if>
-    </update>
 </mapper>

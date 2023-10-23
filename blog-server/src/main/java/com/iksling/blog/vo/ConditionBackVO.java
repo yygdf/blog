@@ -74,6 +74,12 @@ public class ConditionBackVO {
     private Integer type;
 
     /**
+     * 标志
+     */
+    @ApiModelProperty(name = "flag", value = "标志", dataType = "Boolean")
+    private Boolean flag;
+
+    /**
      * 起始时间
      */
     @ApiModelProperty(name = "startTime", value = "起始时间", dataType = "Date")

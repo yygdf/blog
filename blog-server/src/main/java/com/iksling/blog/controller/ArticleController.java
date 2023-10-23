@@ -33,7 +33,7 @@ public class ArticleController {
 
     @OptLog(optType = REMOVE)
     @ApiOperation(value = "物理批量删除文章")
-    @ApiImplicitParam(name = "idList", value = "文章idList", required = true, dataType = "List<Integer>")
+    @ApiImplicitParam(name = "idList", value = "idList", required = true, dataType = "List<Integer>")
     @DeleteMapping("/back/articles")
     public Result deleteBackArticles(@RequestBody List<Integer> idList) {
         articleService.deleteBackArticlesByIdList(idList);

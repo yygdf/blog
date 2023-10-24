@@ -67,14 +67,14 @@
                 </otherwise>
             </choose>
             <choose>
-                <when test="condition.flag == null || !condition.draftFlag">
-                    AND a.article_title IS NOT NULL
+                <when test="condition.flag == null || !condition.flag">
+                    AND c.article_id != -1
                     <if test="condition.keywords != null and condition.keywords != ''">
                         AND a.article_title LIKE concat('%', #{condition.keywords}, '%')
                     </if>
                 </when>
                 <otherwise>
-                    AND a.article_title IS NULL
+                    AND c.article_id = -1
                 </otherwise>
             </choose>
         </where>
@@ -126,14 +126,14 @@
                 </otherwise>
             </choose>
             <choose>
-                <when test="condition.flag == null || !condition.draftFlag">
-                    AND a.article_title IS NOT NULL
+                <when test="condition.flag == null || !condition.flag">
+                    AND c.article_id != -1
                     <if test="condition.keywords != null and condition.keywords != ''">
                         AND a.article_title LIKE concat('%', #{condition.keywords}, '%')
                     </if>
                 </when>
                 <otherwise>
-                    AND a.article_title IS NULL
+                    AND c.article_id = -1
                 </otherwise>
             </choose>
         </where>

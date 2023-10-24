@@ -399,7 +399,7 @@ export default {
     editArticle(id, userId) {
       this.$router.push({ path: "/article/" + userId + "/" + id });
     },
-    checkWeight(weight = 200) {
+    checkWeight(weight) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {

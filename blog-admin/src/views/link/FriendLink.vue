@@ -354,7 +354,7 @@ export default {
       this.size = size;
       this.getFriendLinks();
     },
-    checkWeight(weight = 200) {
+    checkWeight(weight) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {

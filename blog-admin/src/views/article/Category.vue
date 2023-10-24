@@ -32,7 +32,7 @@
       </el-button>
       <div style="margin-left:auto">
         <el-select
-          v-if="checkWeight"
+          v-if="checkWeight(200)"
           v-model="userId"
           size="small"
           style="margin-right:1rem"
@@ -97,7 +97,7 @@
         :selectable="checkSelectable"
       />
       <el-table-column
-        v-if="checkWeight"
+        v-if="checkWeight(200)"
         prop="username"
         label="用户"
         align="center"
@@ -342,7 +342,7 @@ export default {
       this.size = size;
       this.getCategories();
     },
-    checkWeight(weight = 200) {
+    checkWeight(weight) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {

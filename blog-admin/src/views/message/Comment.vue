@@ -3,12 +3,12 @@
     <div class="title">{{ this.$route.name }}</div>
     <div class="operation-container">
       <el-button
-        v-if="deletedFlag"
+        v-if="type !== 7"
         :disabled="commentIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="removeStatus = true"
+        @click="editStatus = true"
       >
         批量删除
       </el-button>
@@ -18,7 +18,7 @@
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="editStatus = true"
+        @click="removeStatus = true"
       >
         批量删除
       </el-button>
@@ -32,7 +32,7 @@
           remote
           clearable
           filterable
-          :remote-method="listAllUsername"
+          :remote-method="getUsernames"
         >
           <el-option
             v-for="item in usernameList"
@@ -43,7 +43,7 @@
         </el-select>
         <el-select
           v-if="checkWeight(200)"
-          v-model="sourceFlag"
+          v-model="flag"
           size="small"
           style="margin-right:1rem"
           placeholder="请选择来源"
@@ -56,7 +56,8 @@
           />
         </el-select>
         <el-select
-          v-model="condition"
+          v-if="checkWeight(300)"
+          v-model="type"
           size="small"
           style="margin-right:1rem"
           placeholder="请选择"
@@ -70,22 +71,22 @@
         </el-select>
         <el-input
           v-model="keywords"
-          :disabled="sourceFlag"
+          :disabled="flag"
           ref="input"
           size="small"
           style="width: 200px"
           prefix-icon="el-icon-search"
           placeholder="请输入文章标题"
           clearable
-          @keyup.enter.native="listComments(true, true)"
+          @keyup.enter.native="getComments"
         />
         <el-button
-          :disabled="sourceFlag"
+          :disabled="flag"
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listComments(true, true)"
+          @click="getComments"
         >
           搜索
         </el-button>
@@ -176,25 +177,22 @@
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
           <el-popconfirm
-            v-if="optionIndex === 1"
+            v-if="checkWeight(300)"
             title="确定恢复吗？"
-            @confirm="updateCommentsStatus(scope.row.id, false)"
+            style="margin-left:10px"
+            @confirm="updateCommentsStatus(scope.row.id, type === 6)"
           >
-            <el-button type="success" size="mini" slot="reference">
+            <el-button
+              :disabled="type == null"
+              type="success"
+              size="mini"
+              slot="reference"
+            >
               恢复
             </el-button>
           </el-popconfirm>
           <el-popconfirm
-            v-if="optionIndex === 2"
-            title="确定恢复吗？"
-            @confirm="updateCommentsStatus(scope.row.id)"
-          >
-            <el-button type="success" size="mini" slot="reference">
-              恢复
-            </el-button>
-          </el-popconfirm>
-          <el-popconfirm
-            v-if="optionIndex !== 2"
+            v-if="type !== 7"
             title="确定删除吗？"
             style="margin-left:10px"
             @confirm="updateCommentsStatus(scope.row.id)"
@@ -204,7 +202,7 @@
             </el-button>
           </el-popconfirm>
           <el-popconfirm
-            v-if="optionIndex === 2"
+            v-else
             title="确定彻底删除吗？"
             style="margin-left:10px"
             @confirm="deleteComments(scope.row.id)"
@@ -257,12 +255,12 @@
 <script>
 export default {
   created() {
-    this.listComments();
+    this.getComments();
     if (this.checkWeight(100)) {
-      this.options[2] = {
-        value: '{"recycleFlag":true,"deletedFlag":true}',
+      this.options.push({
+        value: 7,
         label: "已删除"
-      };
+      });
     }
     this.$nextTick(() => {
       this.$refs.input.focus();
@@ -272,7 +270,7 @@ export default {
     return {
       source: [
         {
-          value: false,
+          value: null,
           label: "文章"
         },
         {
@@ -282,44 +280,41 @@ export default {
       ],
       options: [
         {
-          value: '{"recycleFlag":false,"deletedFlag":false}',
+          value: null,
           label: "已发表"
         },
         {
-          value: '{"recycleFlag":true,"deletedFlag":false}',
+          value: 6,
           label: "回收站"
         }
       ],
-      condition: '{"recycleFlag":false,"deletedFlag":false}',
       commentList: [],
       usernameList: [],
       commentIdList: [],
+      flag: null,
+      type: null,
       userId: null,
       keywords: null,
       oldKeywords: null,
       loading: true,
-      sourceFlag: false,
       editStatus: false,
-      recycleFlag: false,
-      deletedFlag: false,
       removeStatus: false,
       size: 10,
       count: 0,
-      current: 1,
-      optionIndex: 0
+      current: 1
     };
   },
   methods: {
     sizeChange(size) {
       this.size = size;
-      this.listComments(true);
+      this.getComments();
     },
-    checkWeight(weight = 200) {
+    checkWeight(weight) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listComments(this.keywords !== this.oldKeywords);
+      this.getComments();
     },
     selectionChange(commentList) {
       this.commentIdList = [];
@@ -327,24 +322,23 @@ export default {
         this.commentIdList.push(item.id);
       });
     },
-    listComments(resetPageFlag = false, searchFlag = false) {
-      if (resetPageFlag) {
+    getComments() {
+      if (this.keywords !== this.oldKeywords) {
         this.current = 1;
       }
-      if (searchFlag) {
-        this.oldKeywords = this.keywords;
-      }
+      this.oldKeywords = this.keywords;
+      let params = {
+        size: this.size,
+        userId: this.userId,
+        current: this.current,
+        keywords: this.keywords,
+        flag: this.flag,
+        type: this.type
+      };
+      params = this.$commonMethod.skipEmptyValue(params);
       this.axios
         .get("/api/back/comments", {
-          params: {
-            size: this.size,
-            userId: this.userId,
-            current: this.current,
-            keywords: this.keywords,
-            draftFlag: this.sourceFlag,
-            recycleFlag: this.recycleFlag,
-            deletedFlag: this.deletedFlag
-          }
+          params
         })
         .then(({ data }) => {
           this.count = data.data.count;
@@ -352,7 +346,7 @@ export default {
           this.loading = false;
         });
     },
-    listAllUsername(keywords) {
+    getUsernames(keywords) {
       if (keywords.trim() === "") {
         return;
       }
@@ -369,16 +363,16 @@ export default {
       } else {
         param = { data: [id] };
       }
-      if (param.data.length === this.commentList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
-      }
       this.axios.delete("/api/back/comments", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listComments();
+          if (param.data.length === this.commentList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
+          this.getComments();
         } else {
           this.$notify.error({
             title: "失败",
@@ -388,31 +382,29 @@ export default {
         this.removeStatus = false;
       });
     },
-    updateCommentsStatus(id, isRec = true) {
-      let param = new URLSearchParams();
+    updateCommentsStatus(id, isRec = false) {
+      let param = {};
       if (id != null) {
-        param.append("idList", [id]);
+        param.idList = [id];
       } else {
-        param.append("idList", this.commentIdList);
+        param.idList = this.commentIdList;
       }
-      let recycleFlag = !this.recycleFlag;
-      let deletedFlag = this.deletedFlag;
-      if ((this.optionIndex === 1 && isRec) || this.optionIndex === 2) {
-        recycleFlag = this.recycleFlag;
-        deletedFlag = !this.deletedFlag;
+      if (this.type != null) {
+        param.type = this.type;
       }
-      param.append("recycleFlag", recycleFlag);
-      param.append("deletedFlag", deletedFlag);
-      if (param.get("idList").length === this.commentList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
+      if (isRec) {
+        param.status = true;
       }
-      this.axios.put("/api/back/comments", param).then(({ data }) => {
+      this.axios.put("/api/back/comments/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listComments();
+          if (param.idList.length === this.commentList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
+          this.getComments();
         } else {
           this.$notify.error({
             title: "失败",
@@ -424,24 +416,14 @@ export default {
     }
   },
   watch: {
-    condition() {
-      const condition = JSON.parse(this.condition);
-      this.recycleFlag = condition.recycleFlag;
-      this.deletedFlag = condition.deletedFlag;
-      if (this.deletedFlag) {
-        this.optionIndex = 2;
-      } else if (this.recycleFlag) {
-        this.optionIndex = 1;
-      } else {
-        this.optionIndex = 0;
-      }
-      this.listComments(true);
+    flag() {
+      this.getComments();
+    },
+    type() {
+      this.getComments();
     },
     userId() {
-      this.listComments(true);
-    },
-    sourceFlag() {
-      this.listComments(true);
+      this.getComments();
     }
   }
 };

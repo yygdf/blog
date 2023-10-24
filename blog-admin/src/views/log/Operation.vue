@@ -11,7 +11,7 @@
           remote
           clearable
           filterable
-          :remote-method="listAllUsername"
+          :remote-method="getUsernames"
         >
           <el-option
             v-for="item in usernameList"
@@ -58,7 +58,7 @@
           placeholder="起始时间"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
-          @change="listOperationLogs(true)"
+          @change="getOperationLogs(true)"
         >
         </el-date-picker>
         <el-date-picker
@@ -70,7 +70,7 @@
           placeholder="结束时间"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
-          @change="listOperationLogs(true)"
+          @change="getOperationLogs(true)"
         >
         </el-date-picker>
       </div>
@@ -205,8 +205,8 @@
 <script>
 export default {
   created() {
-    this.listOperationLogs();
-    this.listAllModuleName();
+    this.getOperationLogs();
+    this.getModuleNames();
   },
   data: function() {
     return {
@@ -254,10 +254,10 @@ export default {
           }
         ]
       },
-      operationLog: {},
       usernameList: [],
       moduleNameList: [],
       operationLogList: [],
+      operationLog: {},
       userId: null,
       endTime: null,
       optType: null,
@@ -277,27 +277,29 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listOperationLogs(true);
+      this.getOperationLogs(true);
     },
     currentChange(current) {
       this.current = current;
-      this.listOperationLogs();
+      this.getOperationLogs();
     },
-    listOperationLogs(resetPageFlag = false) {
-      if (resetPageFlag) {
+    getOperationLogs(resetCurrentPage = false) {
+      if (resetCurrentPage) {
         this.current = 1;
       }
+      let params = {
+        size: this.size,
+        userId: this.userId,
+        endTime: this.endTime,
+        current: this.current,
+        keywords: this.optModule,
+        startTime: this.startTime,
+        categoryId: this.optType
+      };
+      params = this.$commonMethod.skipEmptyValue(params);
       this.axios
         .get("/api/back/operationLogs", {
-          params: {
-            size: this.size,
-            userId: this.userId,
-            endTime: this.endTime,
-            current: this.current,
-            keywords: this.optModule,
-            startTime: this.startTime,
-            categoryId: this.optType
-          }
+          params
         })
         .then(({ data }) => {
           this.count = data.data.count;
@@ -305,12 +307,12 @@ export default {
           this.loading = false;
         });
     },
-    listAllModuleName() {
+    getModuleNames() {
       this.axios.get("/api/back/resource/moduleNames").then(({ data }) => {
         this.moduleNameList = data.data;
       });
     },
-    listAllUsername(keywords) {
+    getUsernames(keywords) {
       if (keywords.trim() === "") {
         return;
       }
@@ -323,13 +325,13 @@ export default {
   },
   watch: {
     userId() {
-      this.listOperationLogs(true);
+      this.getOperationLogs(true);
     },
     optType() {
-      this.listOperationLogs(true);
+      this.getOperationLogs(true);
     },
     optModule() {
-      this.listOperationLogs(true);
+      this.getOperationLogs(true);
     }
   },
   computed: {

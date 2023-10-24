@@ -19,9 +19,9 @@ public class LoginLogController {
     private LoginLogService loginLogService;
 
     @ApiOperation(value = "查看后台登录日志列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
     @GetMapping("/back/loginLogs")
-    public Result listBackLoginLogs(@Valid ConditionBackVO condition) {
-        return Result.success().message("查询成功").data(loginLogService.getPageLoginLogsBackDTO(condition));
+    public Result getBackLoginLogs(@Valid ConditionBackVO condition) {
+        return Result.success().message("查询成功").data(loginLogService.getLoginLogsBackDTO(condition));
     }
 }

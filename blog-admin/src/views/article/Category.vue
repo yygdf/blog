@@ -71,14 +71,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入分类名"
           clearable
-          @keyup.enter.native="getCategories"
+          @keyup.enter.native="getCategories(false)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="getCategories"
+          @click="getCategories(false)"
         >
           搜索
         </el-button>
@@ -340,7 +340,7 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.getCategories();
+      this.getCategories(true);
     },
     checkWeight(weight) {
       return this.$store.state.weight <= weight;
@@ -358,17 +358,17 @@ export default {
         this.categoryIdList.push(item.id);
       });
     },
-    getCategories() {
-      if (this.keywords !== this.oldKeywords) {
+    getCategories(resetCurrentPage = false) {
+      if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
+        this.oldKeywords = this.keywords;
       }
-      this.oldKeywords = this.keywords;
       let params = {
         size: this.size,
+        type: this.type,
         userId: this.userId,
         current: this.current,
-        keywords: this.keywords,
-        type: this.type
+        keywords: this.keywords
       };
       params = this.$commonMethod.skipEmptyValue(params);
       this.axios.get("/api/back/categories", { params }).then(({ data }) => {
@@ -492,10 +492,10 @@ export default {
   },
   watch: {
     type() {
-      this.getCategories();
+      this.getCategories(true);
     },
     userId() {
-      this.getCategories();
+      this.getCategories(true);
     }
   }
 };

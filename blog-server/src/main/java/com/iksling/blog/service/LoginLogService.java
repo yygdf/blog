@@ -11,5 +11,5 @@ import com.iksling.blog.vo.ConditionBackVO;
  */
 public interface LoginLogService extends IService<LoginLog> {
 
-     PagePojo<LoginLogsBackDTO> getPageLoginLogsBackDTO(ConditionBackVO condition);
+     PagePojo<LoginLogsBackDTO> getLoginLogsBackDTO(ConditionBackVO condition);
 }

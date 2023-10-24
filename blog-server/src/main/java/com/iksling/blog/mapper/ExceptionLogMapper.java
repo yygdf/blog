@@ -15,7 +15,7 @@ public interface ExceptionLogMapper extends BaseMapper<ExceptionLog> {
 
     Integer selectExceptionLogsBackDTOCount(@Param("condition") ConditionBackVO condition);
 
-    List<ExceptionLogsBackDTO> listExceptionLogsBackDTO(@Param("condition") ConditionBackVO condition);
+    List<ExceptionLogsBackDTO> selectExceptionLogsBackDTO(@Param("condition") ConditionBackVO condition);
 }
 
 

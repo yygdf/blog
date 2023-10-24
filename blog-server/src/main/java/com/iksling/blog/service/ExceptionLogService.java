@@ -11,5 +11,5 @@ import com.iksling.blog.vo.ConditionBackVO;
  */
 public interface ExceptionLogService extends IService<ExceptionLog> {
 
-    PagePojo<ExceptionLogsBackDTO> getPageExceptionLogsBackDTO(ConditionBackVO condition);
+    PagePojo<ExceptionLogsBackDTO> getExceptionLogsBackDTO(ConditionBackVO condition);
 }

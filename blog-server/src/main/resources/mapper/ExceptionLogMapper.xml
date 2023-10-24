@@ -34,31 +34,31 @@
         SELECT
             count(1)
         FROM
-            tb_exception_log el
+            tb_exception_log
         <where>
             1 = 1
-            <if test="condition.deletedFlag != null">
-                AND el.illegal_flag = #{condition.deletedFlag}
+            <if test="condition.flag != null">
+                AND illegal_flag = #{condition.flag}
             </if>
             <if test="condition.userId != null">
-                AND el.user_id = #{condition.userId}
+                AND user_id = #{condition.userId}
             </if>
             <if test="condition.categoryId != null">
-                AND el.opt_type = #{condition.categoryId}
+                AND opt_type = #{condition.categoryId}
             </if>
             <if test="condition.startTime != null">
-                AND el.create_time >= #{condition.startTime}
+                AND create_time >= #{condition.startTime}
             </if>
             <if test="condition.endTime != null">
-                AND el.create_time &lt;= #{condition.endTime}
+                AND create_time &lt;= #{condition.endTime}
             </if>
             <if test="condition.keywords != null and condition.keywords != ''">
-                AND el.opt_module = #{condition.keywords}
+                AND opt_module = #{condition.keywords}
             </if>
         </where>
     </select>
 
-    <select id="listExceptionLogsBackDTO" resultType="com.iksling.blog.dto.ExceptionLogsBackDTO">
+    <select id="selectExceptionLogsBackDTO" resultType="com.iksling.blog.dto.ExceptionLogsBackDTO">
         SELECT
             el.id,el.user_id,ua.username,
             el.opt_uri,el.opt_type,el.opt_desc,
@@ -70,8 +70,8 @@
         LEFT JOIN tb_user_auth ua ON el.user_id = ua.user_id
         <where>
             1 = 1
-            <if test="condition.deletedFlag != null">
-                AND el.illegal_flag = #{condition.deletedFlag}
+            <if test="condition.flag != null">
+                AND el.illegal_flag = #{condition.flag}
             </if>
             <if test="condition.userId != null">
                 AND el.user_id = #{condition.userId}

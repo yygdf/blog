@@ -11,7 +11,7 @@
           remote
           clearable
           filterable
-          :remote-method="listAllUsername"
+          :remote-method="getUsernames"
         >
           <el-option
             v-for="item in usernameList"
@@ -26,7 +26,6 @@
           style="margin-right:1rem"
           placeholder="请选择模块"
           clearable
-          filterable
         >
           <el-option
             v-for="item in moduleNameList"
@@ -72,7 +71,7 @@
           placeholder="起始时间"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
-          @change="listExceptionLogs(true)"
+          @change="getExceptionLogs(true)"
         >
         </el-date-picker>
         <el-date-picker
@@ -84,7 +83,7 @@
           placeholder="结束时间"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
-          @change="listExceptionLogs(true)"
+          @change="getExceptionLogs(true)"
         >
         </el-date-picker>
       </div>
@@ -226,8 +225,8 @@
 <script>
 export default {
   created() {
-    this.listExceptionLogs();
-    this.listAllModuleName();
+    this.getExceptionLogs();
+    this.getModuleNames();
   },
   data: function() {
     return {
@@ -313,28 +312,30 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listExceptionLogs(true);
+      this.getExceptionLogs(true);
     },
     currentChange(current) {
       this.current = current;
-      this.listExceptionLogs();
+      this.getExceptionLogs();
     },
-    listExceptionLogs(resetPageFlag = false) {
-      if (resetPageFlag) {
+    getExceptionLogs(resetCurrentPage = false) {
+      if (resetCurrentPage) {
         this.current = 1;
       }
+      let params = {
+        flag: this.illegalFlag,
+        size: this.size,
+        userId: this.userId,
+        endTime: this.endTime,
+        current: this.current,
+        keywords: this.optModule,
+        startTime: this.startTime,
+        categoryId: this.optType
+      };
+      params = this.$commonMethod.skipEmptyValue(params);
       this.axios
         .get("/api/back/exceptionLogs", {
-          params: {
-            size: this.size,
-            userId: this.userId,
-            endTime: this.endTime,
-            current: this.current,
-            keywords: this.optModule,
-            startTime: this.startTime,
-            categoryId: this.optType,
-            deletedFlag: this.illegalFlag
-          }
+          params
         })
         .then(({ data }) => {
           this.count = data.data.count;
@@ -342,12 +343,12 @@ export default {
           this.loading = false;
         });
     },
-    listAllModuleName() {
+    getModuleNames() {
       this.axios.get("/api/back/resource/moduleNames").then(({ data }) => {
         this.moduleNameList = data.data;
       });
     },
-    listAllUsername(keywords) {
+    getUsernames(keywords) {
       if (keywords.trim() === "") {
         return;
       }
@@ -360,16 +361,16 @@ export default {
   },
   watch: {
     userId() {
-      this.listExceptionLogs(true);
+      this.getExceptionLogs(true);
     },
     optType() {
-      this.listExceptionLogs(true);
+      this.getExceptionLogs(true);
     },
     optModule() {
-      this.listExceptionLogs(true);
+      this.getExceptionLogs(true);
     },
     illegalFlag() {
-      this.listExceptionLogs(true);
+      this.getExceptionLogs(true);
     }
   },
   computed: {

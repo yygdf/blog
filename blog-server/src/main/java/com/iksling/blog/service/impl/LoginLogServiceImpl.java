@@ -22,12 +22,12 @@ public class LoginLogServiceImpl extends ServiceImpl<LoginLogMapper, LoginLog>
     private LoginLogMapper loginLogMapper;
 
     @Override
-    public PagePojo<LoginLogsBackDTO> getPageLoginLogsBackDTO(ConditionBackVO condition) {
+    public PagePojo<LoginLogsBackDTO> getLoginLogsBackDTO(ConditionBackVO condition) {
         Integer count = loginLogMapper.selectLoginLogsBackDTOCount(condition);
         if (count == 0)
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        List<LoginLogsBackDTO> loginLogsBackDTOList = loginLogMapper.listLoginLogsBackDTO(condition);
+        List<LoginLogsBackDTO> loginLogsBackDTOList = loginLogMapper.selectLoginLogsBackDTO(condition);
         return new PagePojo<>(count, loginLogsBackDTOList);
     }
 }

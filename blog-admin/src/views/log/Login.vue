@@ -11,7 +11,7 @@
           remote
           clearable
           filterable
-          :remote-method="listAllUsername"
+          :remote-method="getUsernames"
         >
           <el-option
             v-for="item in usernameList"
@@ -57,7 +57,7 @@
           placeholder="起始时间"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
-          @change="listLoginLogs(true)"
+          @change="getLoginLogs(true)"
         >
         </el-date-picker>
         <el-date-picker
@@ -69,7 +69,7 @@
           placeholder="结束时间"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
-          @change="listLoginLogs(true)"
+          @change="getLoginLogs(true)"
         >
         </el-date-picker>
       </div>
@@ -149,7 +149,7 @@
 <script>
 export default {
   created() {
-    this.listLoginLogs();
+    this.getLoginLogs();
   },
   data: function() {
     return {
@@ -225,27 +225,29 @@ export default {
   methods: {
     sizeChange(size) {
       this.size = size;
-      this.listLoginLogs(true);
+      this.getLoginLogs(true);
     },
     currentChange(current) {
       this.current = current;
-      this.listLoginLogs();
+      this.getLoginLogs();
     },
-    listLoginLogs(resetPageFlag = false) {
-      if (resetPageFlag) {
+    getLoginLogs(resetCurrentPage = false) {
+      if (resetCurrentPage) {
         this.current = 1;
       }
+      let params = {
+        flag: this.loginPlatform,
+        size: this.size,
+        userId: this.userId,
+        endTime: this.endTime,
+        current: this.current,
+        startTime: this.startTime,
+        categoryId: this.loginMethod
+      };
+      params = this.$commonMethod.skipEmptyValue(params);
       this.axios
         .get("/api/back/loginLogs", {
-          params: {
-            size: this.size,
-            userId: this.userId,
-            endTime: this.endTime,
-            current: this.current,
-            startTime: this.startTime,
-            categoryId: this.loginMethod,
-            deletedFlag: this.loginPlatform
-          }
+          params
         })
         .then(({ data }) => {
           this.count = data.data.count;
@@ -253,7 +255,7 @@ export default {
           this.loading = false;
         });
     },
-    listAllUsername(keywords) {
+    getUsernames(keywords) {
       if (keywords.trim() === "") {
         return;
       }
@@ -266,13 +268,13 @@ export default {
   },
   watch: {
     userId() {
-      this.listLoginLogs(true);
+      this.getLoginLogs(true);
     },
     loginMethod() {
-      this.listLoginLogs(true);
+      this.getLoginLogs(true);
     },
     loginPlatform() {
-      this.listLoginLogs(true);
+      this.getLoginLogs(true);
     }
   },
   computed: {

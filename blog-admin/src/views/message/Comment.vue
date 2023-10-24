@@ -78,7 +78,7 @@
           prefix-icon="el-icon-search"
           placeholder="请输入文章标题"
           clearable
-          @keyup.enter.native="getComments"
+          @keyup.enter.native="getComments(false)"
         />
         <el-button
           :disabled="flag"
@@ -86,7 +86,7 @@
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="getComments"
+          @click="getComments(false)"
         >
           搜索
         </el-button>
@@ -306,7 +306,7 @@ export default {
   methods: {
     sizeChange(size) {
       this.size = size;
-      this.getComments();
+      this.getComments(true);
     },
     checkWeight(weight) {
       return this.$store.state.weight <= weight;
@@ -321,18 +321,18 @@ export default {
         this.commentIdList.push(item.id);
       });
     },
-    getComments() {
-      if (this.keywords !== this.oldKeywords) {
+    getComments(resetCurrentPage = false) {
+      if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
+        this.oldKeywords = this.keywords;
       }
-      this.oldKeywords = this.keywords;
       let params = {
+        flag: this.flag,
         size: this.size,
+        type: this.type,
         userId: this.userId,
         current: this.current,
-        keywords: this.keywords,
-        flag: this.flag,
-        type: this.type
+        keywords: this.keywords
       };
       params = this.$commonMethod.skipEmptyValue(params);
       this.axios
@@ -416,13 +416,13 @@ export default {
   },
   watch: {
     flag() {
-      this.getComments();
+      this.getComments(true);
     },
     type() {
-      this.getComments();
+      this.getComments(true);
     },
     userId() {
-      this.getComments();
+      this.getComments(true);
     }
   }
 };

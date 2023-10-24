@@ -70,14 +70,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入友链名"
           clearable
-          @keyup.enter.native="getFriendLinks"
+          @keyup.enter.native="getFriendLinks(false)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="getFriendLinks"
+          @click="getFriendLinks(false)"
         >
           搜索
         </el-button>
@@ -351,7 +351,7 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.getFriendLinks();
+      this.getFriendLinks(true);
     },
     checkWeight(weight) {
       return this.$store.state.weight <= weight;
@@ -366,17 +366,17 @@ export default {
         this.friendLinkIdList.push(item.id);
       });
     },
-    getFriendLinks() {
-      if (this.keywords !== this.oldKeywords) {
+    getFriendLinks(resetCurrentPage = false) {
+      if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
+        this.oldKeywords = this.keywords;
       }
-      this.oldKeywords = this.keywords;
       let params = {
         size: this.size,
+        type: this.type,
         userId: this.userId,
         current: this.current,
-        keywords: this.keywords,
-        type: this.type
+        keywords: this.keywords
       };
       params = this.$commonMethod.skipEmptyValue(params);
       this.axios
@@ -508,10 +508,10 @@ export default {
   },
   watch: {
     type() {
-      this.getFriendLinks();
+      this.getFriendLinks(true);
     },
     userId() {
-      this.getFriendLinks();
+      this.getFriendLinks(true);
     }
   }
 };

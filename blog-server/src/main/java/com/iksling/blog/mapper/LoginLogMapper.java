@@ -15,7 +15,7 @@ public interface LoginLogMapper extends BaseMapper<LoginLog> {
 
     Integer selectLoginLogsBackDTOCount(@Param("condition") ConditionBackVO condition);
 
-    List<LoginLogsBackDTO> listLoginLogsBackDTO(@Param("condition") ConditionBackVO condition);
+    List<LoginLogsBackDTO> selectLoginLogsBackDTO(@Param("condition") ConditionBackVO condition);
 }
 
 

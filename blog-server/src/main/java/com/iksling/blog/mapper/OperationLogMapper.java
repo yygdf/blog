@@ -15,7 +15,7 @@ public interface OperationLogMapper extends BaseMapper<OperationLog> {
 
     Integer selectOperationLogsBackDTOCount(@Param("condition") ConditionBackVO condition);
 
-    List<OperationLogsBackDTO> listOperationLogsBackDTO(@Param("condition") ConditionBackVO condition);
+    List<OperationLogsBackDTO> selectOperationLogsBackDTO(@Param("condition") ConditionBackVO condition);
 }
 
 

@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  *
@@ -23,14 +22,12 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     private OperationLogMapper operationLogMapper;
 
     @Override
-    public PagePojo<OperationLogsBackDTO> getPageOperationLogsBackDTO(ConditionBackVO condition) {
-        if (Objects.nonNull(condition.getKeywords()))
-            condition.setKeywords(condition.getKeywords().trim());
+    public PagePojo<OperationLogsBackDTO> getOperationLogsBackDTO(ConditionBackVO condition) {
         Integer count = operationLogMapper.selectOperationLogsBackDTOCount(condition);
         if (count == 0)
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        List<OperationLogsBackDTO> operationLogsBackDTOList = operationLogMapper.listOperationLogsBackDTO(condition);
+        List<OperationLogsBackDTO> operationLogsBackDTOList = operationLogMapper.selectOperationLogsBackDTO(condition);
         return new PagePojo<>(count, operationLogsBackDTOList);
     }
 }

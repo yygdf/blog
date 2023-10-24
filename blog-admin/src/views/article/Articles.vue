@@ -101,14 +101,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入文章名"
           clearable
-          @keyup.enter.native="getArticles"
+          @keyup.enter.native="getArticles(false)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="getArticles"
+          @click="getArticles(false)"
         >
           搜索
         </el-button>
@@ -394,7 +394,7 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.getArticles();
+      this.getArticles(true);
     },
     editArticle(id, userId) {
       this.$router.push({ path: "/article/" + userId + "/" + id });
@@ -412,19 +412,19 @@ export default {
         this.articleIdList.push(item.id);
       });
     },
-    getArticles() {
-      if (this.keywords !== this.oldKeywords) {
+    getArticles(resetCurrentPage = false) {
+      if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
+        this.oldKeywords = this.keywords;
       }
-      this.oldKeywords = this.keywords;
       let params = {
         size: this.size,
+        type: this.type,
         userId: this.userId,
         current: this.current,
         keywords: this.keywords,
         tagIdList: this.tagIdList,
-        categoryId: this.categoryId,
-        type: this.type
+        categoryId: this.categoryId
       };
       params = this.$commonMethod.skipEmptyValue(params);
       this.axios.get("/api/back/articles", { params }).then(({ data }) => {
@@ -543,19 +543,19 @@ export default {
   },
   watch: {
     type() {
-      this.getArticles();
+      this.getArticles(true);
     },
     userId() {
-      this.getArticles();
+      this.getArticles(true);
       this.getArticleOption();
     },
     categoryId() {
-      this.getArticles();
+      this.getArticles(true);
     },
     tagIdList: {
       handler(newVal, oldVal) {
         if (newVal.length !== oldVal.length) {
-          this.getArticles();
+          this.getArticles(true);
         }
       },
       deep: true

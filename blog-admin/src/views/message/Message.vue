@@ -45,14 +45,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入用户昵称"
           clearable
-          @keyup.enter.native="getMessages"
+          @keyup.enter.native="getMessages(false)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="getMessages"
+          @click="getMessages(false)"
         >
           搜索
         </el-button>
@@ -217,7 +217,7 @@ export default {
   methods: {
     sizeChange(size) {
       this.size = size;
-      this.getMessages();
+      this.getMessages(true);
     },
     checkWeight(weight) {
       return this.$store.state.weight <= weight;
@@ -232,16 +232,16 @@ export default {
         this.messageIdList.push(item.id);
       });
     },
-    getMessages() {
-      if (this.keywords !== this.oldKeywords) {
+    getMessages(resetCurrentPage = false) {
+      if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
+        this.oldKeywords = this.keywords;
       }
-      this.oldKeywords = this.keywords;
       let params = {
         size: this.size,
+        type: this.type,
         current: this.current,
-        keywords: this.keywords,
-        type: this.type
+        keywords: this.keywords
       };
       params = this.$commonMethod.skipEmptyValue(params);
       this.axios
@@ -312,7 +312,7 @@ export default {
   },
   watch: {
     type() {
-      this.getMessages();
+      this.getMessages(true);
     }
   }
 };

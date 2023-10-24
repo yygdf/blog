@@ -71,14 +71,14 @@
           placeholder="请输入标签名"
           prefix-icon="el-icon-search"
           clearable
-          @keyup.enter.native="getTags"
+          @keyup.enter.native="getTags(false)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="getTags"
+          @click="getTags(false)"
         >
           搜索
         </el-button>
@@ -280,7 +280,7 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.getTags();
+      this.getTags(true);
     },
     checkWeight(weight) {
       return this.$store.state.weight <= weight;
@@ -295,17 +295,17 @@ export default {
         this.tagIdList.push(item.id);
       });
     },
-    getTags() {
-      if (this.keywords !== this.oldKeywords) {
+    getTags(resetCurrentPage = false) {
+      if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
+        this.oldKeywords = this.keywords;
       }
-      this.oldKeywords = this.keywords;
       let params = {
         size: this.size,
+        type: this.type,
         userId: this.userId,
         current: this.current,
-        keywords: this.keywords,
-        type: this.type
+        keywords: this.keywords
       };
       params = this.$commonMethod.skipEmptyValue(params);
       this.axios.get("/api/back/tags", { params }).then(({ data }) => {
@@ -410,10 +410,10 @@ export default {
   },
   watch: {
     type() {
-      this.getTags();
+      this.getTags(true);
     },
     userId() {
-      this.getTags();
+      this.getTags(true);
     }
   }
 };

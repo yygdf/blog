@@ -19,9 +19,9 @@ public class OperationLogController {
     private OperationLogService operationLogService;
 
     @ApiOperation(value = "查看后台操作日志列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
     @GetMapping("/back/operationLogs")
-    public Result listBackOperationLogs(@Valid ConditionBackVO condition) {
-        return Result.success().message("查询成功").data(operationLogService.getPageOperationLogsBackDTO(condition));
+    public Result getBackOperationLogs(@Valid ConditionBackVO condition) {
+        return Result.success().message("查询成功").data(operationLogService.getOperationLogsBackDTO(condition));
     }
 }

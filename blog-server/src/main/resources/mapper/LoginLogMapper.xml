@@ -23,31 +23,33 @@
         login_system,login_browser,ip_source,
         ip_address
     </sql>
+
     <select id="selectLoginLogsBackDTOCount" resultType="java.lang.Integer">
         SELECT
             count(1)
         FROM
-            tb_login_log ll
+            tb_login_log
         <where>
             1 = 1
-            <if test="condition.deletedFlag != null">
-                AND ll.login_platform = #{condition.deletedFlag}
+            <if test="condition.flag != null">
+                AND login_platform = #{condition.flag}
             </if>
             <if test="condition.userId != null">
-                AND ll.user_id = #{condition.userId}
+                AND user_id = #{condition.userId}
             </if>
             <if test="condition.categoryId != null">
-                AND ll.login_method = #{condition.categoryId}
+                AND login_method = #{condition.categoryId}
             </if>
             <if test="condition.startTime != null">
-                AND ll.login_time >= #{condition.startTime}
+                AND login_time >= #{condition.startTime}
             </if>
             <if test="condition.endTime != null">
-                AND ll.login_time &lt;= #{condition.endTime}
+                AND login_time &lt;= #{condition.endTime}
             </if>
         </where>
     </select>
-    <select id="listLoginLogsBackDTO" resultType="com.iksling.blog.dto.LoginLogsBackDTO">
+
+    <select id="selectLoginLogsBackDTO" resultType="com.iksling.blog.dto.LoginLogsBackDTO">
         SELECT
             ll.id,ll.user_id,ua.username,
             ll.login_method,ll.login_time,ll.login_device,
@@ -58,8 +60,8 @@
         LEFT JOIN tb_user_auth ua ON ll.user_id = ua.user_id
         <where>
             1 = 1
-            <if test="condition.deletedFlag != null">
-                AND ll.login_platform = #{condition.deletedFlag}
+            <if test="condition.flag != null">
+                AND ll.login_platform = #{condition.flag}
             </if>
             <if test="condition.userId != null">
                 AND ll.user_id = #{condition.userId}

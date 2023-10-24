@@ -13,9 +13,9 @@ import java.util.List;
  *
  */
 public interface CommentService extends IService<Comment> {
-    void deleteBackCommentsByIdList(List<Integer> commentIdList);
+    void deleteBackCommentsByIdList(List<Integer> idList);
 
     void updateCommentsStatusBackVO(StatusBackVO statusBackVO);
 
-    PagePojo<CommentsBackDTO> getPageCommentsBackDTO(ConditionBackVO condition);
+    PagePojo<CommentsBackDTO> getCommentsBackDTO(ConditionBackVO condition);
 }

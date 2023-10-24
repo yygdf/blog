@@ -24,19 +24,4 @@
         deleted_flag,ip_source,ip_address,
         create_user,create_time
     </sql>
-
-    <update id="updateMessagesStatus">
-        UPDATE
-            tb_message
-        SET
-            deleted_flag = #{updateBatch.deletedFlag}
-        WHERE
-            id in
-            <foreach collection="updateBatch.idList" item="id" index="index" open="(" separator="," close=")">
-                #{id}
-            </foreach>
-            <if test="roleWeight > 100">
-                AND deleted_flag = false
-            </if>
-    </update>
 </mapper>

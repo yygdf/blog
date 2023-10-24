@@ -19,6 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -75,7 +76,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     }
 
     @Override
-    public PagePojo<CommentsBackDTO> getPageCommentsBackDTO(ConditionBackVO condition) {
+    public PagePojo<CommentsBackDTO> getCommentsBackDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
         if ((Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100) || (Objects.equals(condition.getFlag(), true) && loginUser.getRoleWeight() > 200))
             return new PagePojo<>();
@@ -84,10 +85,10 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<CommentsBackDTO> commentsBackDTOList = commentMapper.selectCommentsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (commentsBackDTOList.size() == 0)
+            return new PagePojo<>(count, new ArrayList<>());
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
-        commentsBackDTOList.forEach(e -> {
-            e.setLikeCount(Objects.requireNonNull(likeCountMap).get(e.getId().toString()));
-        });
+        commentsBackDTOList.forEach(e -> e.setLikeCount(Objects.requireNonNull(likeCountMap).get(e.getId().toString())));
         return new PagePojo<>(count, commentsBackDTOList);
     }
 }

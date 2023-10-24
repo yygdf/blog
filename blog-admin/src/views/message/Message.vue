@@ -3,12 +3,12 @@
     <div class="title">{{ this.$route.name }}</div>
     <div class="operation-container">
       <el-button
-        v-if="deletedFlag"
+        v-if="type !== 7"
         :disabled="messageIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="removeStatus = true"
+        @click="editStatus = true"
       >
         批量删除
       </el-button>
@@ -18,14 +18,14 @@
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="editStatus = true"
+        @click="removeStatus = true"
       >
         批量删除
       </el-button>
       <div style="margin-left:auto">
         <el-select
           v-if="checkWeight(100)"
-          v-model="deletedFlag"
+          v-model="type"
           size="small"
           style="margin-right:1rem"
           placeholder="请选择"
@@ -45,14 +45,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入用户昵称"
           clearable
-          @keyup.enter.native="listMessages(true, true)"
+          @keyup.enter.native="getMessages"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listMessages(true, true)"
+          @click="getMessages"
         >
           搜索
         </el-button>
@@ -107,19 +107,24 @@
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
           <el-popconfirm
-            v-if="deletedFlag"
+            v-if="checkWeight(100)"
             title="确定恢复吗？"
             @confirm="updateMessagesStatus(scope.row.id)"
           >
-            <el-button type="success" size="mini" slot="reference">
+            <el-button
+              :disabled="type == null"
+              type="success"
+              size="mini"
+              slot="reference"
+            >
               恢复
             </el-button>
           </el-popconfirm>
           <el-popconfirm
-            v-if="deletedFlag"
-            title="确定彻底删除吗？"
+            v-if="type !== 7"
+            title="确定删除吗？"
             style="margin-left:10px"
-            @confirm="deleteMessages(scope.row.id)"
+            @confirm="updateMessagesStatus(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">
               删除
@@ -127,8 +132,9 @@
           </el-popconfirm>
           <el-popconfirm
             v-else
-            title="确定删除吗？"
-            @confirm="updateMessagesStatus(scope.row.id)"
+            title="确定彻底删除吗？"
+            style="margin-left:10px"
+            @confirm="deleteMessages(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">
               删除
@@ -178,7 +184,7 @@
 <script>
 export default {
   created() {
-    this.listMessages();
+    this.getMessages();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -187,21 +193,21 @@ export default {
     return {
       options: [
         {
-          value: false,
+          value: null,
           label: "已发送"
         },
         {
-          value: true,
+          value: 7,
           label: "已删除"
         }
       ],
       messageList: [],
       messageIdList: [],
+      type: null,
       keywords: null,
       oldKeywords: null,
       loading: true,
       editStatus: false,
-      deletedFlag: false,
       removeStatus: false,
       size: 10,
       count: 0,
@@ -211,14 +217,14 @@ export default {
   methods: {
     sizeChange(size) {
       this.size = size;
-      this.listMessages(true);
+      this.getMessages();
     },
-    checkWeight(weight = 200) {
+    checkWeight(weight) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listMessages(this.keywords !== this.oldKeywords);
+      this.getMessages();
     },
     selectionChange(messageList) {
       this.messageIdList = [];
@@ -226,21 +232,21 @@ export default {
         this.messageIdList.push(item.id);
       });
     },
-    listMessages(resetPageFlag = false, searchFlag = false) {
-      if (resetPageFlag) {
+    getMessages() {
+      if (this.keywords !== this.oldKeywords) {
         this.current = 1;
       }
-      if (searchFlag) {
-        this.oldKeywords = this.keywords;
-      }
+      this.oldKeywords = this.keywords;
+      let params = {
+        size: this.size,
+        current: this.current,
+        keywords: this.keywords,
+        type: this.type
+      };
+      params = this.$commonMethod.skipEmptyValue(params);
       this.axios
         .get("/api/back/messages", {
-          params: {
-            size: this.size,
-            current: this.current,
-            keywords: this.keywords,
-            deletedFlag: this.deletedFlag
-          }
+          params
         })
         .then(({ data }) => {
           this.count = data.data.count;
@@ -250,13 +256,10 @@ export default {
     },
     deleteMessages(id) {
       let param = {};
-      if (id != null) {
-        param = { data: [id] };
-      } else {
+      if (id == null) {
         param = { data: this.messageIdList };
-      }
-      if (param.data.length === this.messageList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
+      } else {
+        param = { data: [id] };
       }
       this.axios.delete("/api/back/messages", param).then(({ data }) => {
         if (data.flag) {
@@ -264,47 +267,52 @@ export default {
             title: "成功",
             message: data.message
           });
-          this.listMessages();
+          if (param.data.length === this.messageList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
+          this.getMessages();
         } else {
           this.$notify.error({
             title: "失败",
             message: data.message
           });
         }
-        this.removeStatus = false;
       });
+      this.removeStatus = false;
     },
     updateMessagesStatus(id) {
-      let param = new URLSearchParams();
+      let param = {};
       if (id != null) {
-        param.append("idList", [id]);
+        param.idList = [id];
       } else {
-        param.append("idList", this.messageIdList);
+        param.idList = this.messageIdList;
       }
-      param.append("deletedFlag", !this.deletedFlag);
-      if (param.get("idList").length === this.messageList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
+      if (this.type != null) {
+        param.type = this.type;
       }
-      this.axios.put("/api/back/messages", param).then(({ data }) => {
+      this.axios.put("/api/back/messages/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listMessages();
+          if (param.idList.length === this.messageList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
+          this.getMessages();
         } else {
           this.$notify.error({
             title: "失败",
             message: data.message
           });
         }
-        this.editStatus = false;
       });
+      this.editStatus = false;
     }
   },
   watch: {
-    deletedFlag() {
-      this.listMessages(true);
+    type() {
+      this.getMessages();
     }
   }
 };

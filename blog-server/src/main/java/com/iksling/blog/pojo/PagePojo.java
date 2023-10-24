@@ -2,12 +2,11 @@ package com.iksling.blog.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class PagePojo<T> {
     /**
@@ -19,4 +18,9 @@ public class PagePojo<T> {
      * 分页列表
      */
     private List<T> pageList;
+
+    public PagePojo() {
+        this.count = 0;
+        this.pageList = new ArrayList<>();
+    }
 }

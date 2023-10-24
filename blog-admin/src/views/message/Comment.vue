@@ -179,7 +179,6 @@
           <el-popconfirm
             v-if="checkWeight(300)"
             title="确定恢复吗？"
-            style="margin-left:10px"
             @confirm="updateCommentsStatus(scope.row.id, type === 6)"
           >
             <el-button
@@ -379,8 +378,8 @@ export default {
             message: data.message
           });
         }
-        this.removeStatus = false;
       });
+      this.removeStatus = false;
     },
     updateCommentsStatus(id, isRec = false) {
       let param = {};
@@ -411,8 +410,8 @@ export default {
             message: data.message
           });
         }
-        this.editStatus = false;
       });
+      this.editStatus = false;
     }
   },
   watch: {

@@ -45,6 +45,6 @@ public class CommentController {
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
     @GetMapping("/back/comments")
     public Result getBackComments(@Valid ConditionBackVO condition) {
-        return Result.success().message("查询成功").data(commentService.getPageCommentsBackDTO(condition));
+        return Result.success().message("查询成功").data(commentService.getCommentsBackDTO(condition));
     }
 }

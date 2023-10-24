@@ -142,7 +142,6 @@
           <el-popconfirm
             v-else
             title="确定恢复吗？"
-            style="margin-left:10px"
             @confirm="updateFriendLinksStatus(scope.row.id)"
           >
             <el-button type="success" size="mini" slot="reference">
@@ -448,8 +447,8 @@ export default {
             message: data.message
           });
         }
-        this.addOrEditStatus = false;
       });
+      this.addOrEditStatus = false;
     },
     deleteFriendLinks(id) {
       let param = {};
@@ -474,8 +473,8 @@ export default {
             message: data.message
           });
         }
-        this.removeStatus = false;
       });
+      this.removeStatus = false;
     },
     updateFriendLinksStatus(id) {
       let param = {};
@@ -503,8 +502,8 @@ export default {
             message: data.message
           });
         }
-        this.editStatus = false;
       });
+      this.editStatus = false;
     }
   },
   watch: {

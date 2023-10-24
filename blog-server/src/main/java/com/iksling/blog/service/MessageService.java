@@ -1,11 +1,11 @@
 package com.iksling.blog.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.iksling.blog.dto.MessagesBackDTO;
 import com.iksling.blog.entity.Message;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.vo.ConditionBackVO;
-import com.iksling.blog.vo.UpdateBatchVO;
+import com.iksling.blog.vo.StatusBackVO;
 
 import java.util.List;
 
@@ -14,9 +14,9 @@ import java.util.List;
  */
 public interface MessageService extends IService<Message> {
 
-    PagePojo<MessagesBackDTO> getPageMessagesBackDTO(ConditionBackVO condition);
+    void deleteBackMessagesByIdList(List<Integer> idList);
 
-    void updateMessagesStatus(UpdateBatchVO updateBatchVO);
+    void updateMessagesStatusBackVO(StatusBackVO statusBackVO);
 
-    void deleteMessageIdList(List<Integer> messageIdList);
+    PagePojo<MessagesBackDTO> getMessagesBackDTO(ConditionBackVO condition);
 }

@@ -410,8 +410,8 @@ export default {
             message: data.message
           });
         }
-        this.removeStatus = false;
       });
+      this.removeStatus = false;
     },
     addOrEditCategory() {
       if (this.category.categoryName.trim() === "") {

@@ -290,7 +290,7 @@
           >
             <i class="el-icon-upload" v-if="!user.avatar" />
             <div class="el-upload__text" v-if="!user.avatar">
-              将文件拖到此处，或<em>点击上传</em>
+              将文件拖到此处, 或<em>点击上传</em>
             </div>
             <img v-else :src="user.avatar" width="200" height="200" />
           </el-upload>

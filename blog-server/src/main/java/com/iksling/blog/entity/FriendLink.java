@@ -54,7 +54,7 @@ public class FriendLink implements Serializable {
     private String linkName;
 
     /**
-     * 0未删除，1已删除，默认0
+     * 0未删除, 1已删除, 默认0
      */
     private Boolean deletedFlag;
 
@@ -69,12 +69,12 @@ public class FriendLink implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人，默认null
+     * 更新人, 默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间，默认null
+     * 更新时间, 默认null
      */
     private Date updateTime;
 

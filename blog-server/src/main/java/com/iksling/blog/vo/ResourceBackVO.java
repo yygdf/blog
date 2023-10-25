@@ -45,14 +45,14 @@ public class ResourceBackVO {
     private String resourceRequestMethod;
 
     /**
-     * 0未禁用，1已禁用
+     * 0未禁用, 1已禁用
      */
-    @ApiModelProperty(name = "disabledFlag", value = "0未禁用，1已禁用", dataType = "Boolean")
+    @ApiModelProperty(name = "disabledFlag", value = "0未禁用, 1已禁用", dataType = "Boolean")
     private Boolean disabledFlag;
 
     /**
-     * 0未匿名，1已匿名
+     * 0未匿名, 1已匿名
      */
-    @ApiModelProperty(name = "anonymousFlag", value = "0未匿名，1已匿名", dataType = "Boolean")
+    @ApiModelProperty(name = "anonymousFlag", value = "0未匿名, 1已匿名", dataType = "Boolean")
     private Boolean anonymousFlag;
 }

@@ -42,8 +42,8 @@ public class RoleBackVO {
     private Integer roleWeight;
 
     /**
-     * 0未禁用，1已禁用
+     * 0未禁用, 1已禁用
      */
-    @ApiModelProperty(name = "disabledFlag", value = "0未禁用，1已禁用", dataType = "Boolean")
+    @ApiModelProperty(name = "disabledFlag", value = "0未禁用, 1已禁用", dataType = "Boolean")
     private Boolean disabledFlag;
 }

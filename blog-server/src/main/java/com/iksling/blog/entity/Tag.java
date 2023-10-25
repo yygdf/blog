@@ -33,7 +33,7 @@ public class Tag implements Serializable {
     private String tagName;
 
     /**
-     * 0未删除，1已删除，默认0
+     * 0未删除, 1已删除, 默认0
      */
     private Boolean deletedFlag;
 
@@ -48,12 +48,12 @@ public class Tag implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人，默认null
+     * 更新人, 默认null
      */
     private Integer updateUser;
 
     /**
-     * 修改时间，默认null
+     * 修改时间, 默认null
      */
     private Date updateTime;
 

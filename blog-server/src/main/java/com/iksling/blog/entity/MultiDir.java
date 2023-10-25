@@ -34,7 +34,7 @@ public class MultiDir implements Serializable {
     private Integer userId;
 
     /**
-     * 父id，默认-1
+     * 父id, 默认-1
      */
     private Integer parentId;
 
@@ -44,7 +44,7 @@ public class MultiDir implements Serializable {
     private Long dirPath;
 
     /**
-     * 目录描述，默认空串
+     * 目录描述, 默认空串
      */
     private String dirDesc;
 
@@ -54,32 +54,32 @@ public class MultiDir implements Serializable {
     private String dirName;
 
     /**
-     * 目录封面，默认空串
+     * 目录封面, 默认空串
      */
     private String dirCover;
 
     /**
-     * 目录新路径，默认-1
+     * 目录新路径, 默认-1
      */
     private Long dirPathNew;
 
     /**
-     * 0未公开，1已公开，默认1
+     * 0未公开, 1已公开, 默认1
      */
     private Boolean publicFlag;
 
     /**
-     * 0未隐藏，1已隐藏，默认0
+     * 0未隐藏, 1已隐藏, 默认0
      */
     private Boolean hiddenFlag;
 
     /**
-     * 0未删除，1已删除，默认0
+     * 0未删除, 1已删除, 默认0
      */
     private Boolean deletedFlag;
 
     /**
-     * 0不可删除，1可删除，默认1
+     * 0不可删除, 1可删除, 默认1
      */
     private Boolean deletableFlag;
 
@@ -94,12 +94,12 @@ public class MultiDir implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人，默认null
+     * 更新人, 默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间，默认null
+     * 更新时间, 默认null
      */
     private Date updateTime;
 

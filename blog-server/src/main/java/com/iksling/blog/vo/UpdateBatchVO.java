@@ -19,15 +19,15 @@ public class UpdateBatchVO {
     private List<Integer> idList;
 
     /**
-     * 0未回收，1已回收，默认0
+     * 0未回收, 1已回收
      */
-    @ApiModelProperty(name = "recycleFlag", value = "0未回收，1已回收，默认0", dataType = "Boolean")
+    @ApiModelProperty(name = "recycleFlag", value = "0未回收, 1已回收", dataType = "Boolean")
     private Boolean recycleFlag;
 
     /**
-     * 0未删除，1已删除，默认0
+     * 0未删除, 1已删除
      */
     @NotNull(message = "删除标志不能为null")
-    @ApiModelProperty(name = "deletedFlag", value = "0未删除，1已删除，默认0", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "deletedFlag", value = "0未删除, 1已删除", required = true, dataType = "Boolean")
     private Boolean deletedFlag;
 }

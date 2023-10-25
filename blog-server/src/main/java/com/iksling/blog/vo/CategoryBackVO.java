@@ -23,14 +23,14 @@ public class CategoryBackVO {
     private String categoryName;
 
     /**
-     * 0未公开，1已公开，默认1
+     * 0未公开, 1已公开
      */
-    @ApiModelProperty(name = "publicFlag", value = "0未公开，1已公开，默认1", dataType = "Boolean")
+    @ApiModelProperty(name = "publicFlag", value = "0未公开, 1已公开", dataType = "Boolean")
     private Boolean publicFlag;
 
     /**
-     * 0未隐藏，1已隐藏，默认0
+     * 0未隐藏, 1已隐藏
      */
-    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏，默认0", dataType = "Boolean")
+    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏, 1已隐藏", dataType = "Boolean")
     private Boolean hiddenFlag;
 }

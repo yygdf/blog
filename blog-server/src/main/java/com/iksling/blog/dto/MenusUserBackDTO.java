@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class UserMenusBackDTO {
+public class MenusUserBackDTO {
     /**
      * 菜单id
      */
@@ -37,22 +37,22 @@ public class UserMenusBackDTO {
     private String component;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏, 1已隐藏
      */
     private Boolean hideFlag;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏, 1已隐藏
      */
     private Boolean hiddenFlag;
 
     /**
-     * 0未禁用，1已禁用
+     * 0未禁用, 1已禁用
      */
     private Boolean disabledFlag;
 
     /**
      * 子菜单集合
      */
-    private List<UserMenusBackDTO> children;
+    private List<MenusUserBackDTO> children;
 }

@@ -39,12 +39,12 @@ public class OperationLog implements Serializable {
     private String optUri;
 
     /**
-     * 操作类型，1上传，2删除，3修改，5新增或修改
+     * 操作类型, 1上传, 2删除, 3修改, 5新增或修改
      */
     private Integer optType;
 
     /**
-     * 操作描述，默认空串
+     * 操作描述, 默认空串
      */
     private String optDesc;
 
@@ -69,12 +69,12 @@ public class OperationLog implements Serializable {
     private String responseData;
 
     /**
-     * ip来源，默认空串
+     * ip来源, 默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址，默认空串
+     * ip地址, 默认空串
      */
     private String ipAddress;
 

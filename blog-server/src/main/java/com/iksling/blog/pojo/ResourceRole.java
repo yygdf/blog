@@ -22,12 +22,12 @@ public class ResourceRole {
     private String resourceRequestMethod;
 
     /**
-     * 0未禁用，1已禁用
+     * 0未禁用, 1已禁用
      */
     private Boolean disabledFlag;
 
     /**
-     * 0未匿名，1已匿名
+     * 0未匿名, 1已匿名
      */
     private Boolean anonymousFlag;
 

@@ -48,22 +48,22 @@ public class MenusBackDTO {
     private String component;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏, 1已隐藏
      */
     private Boolean hideFlag;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏, 1已隐藏
      */
     private Boolean hiddenFlag;
 
     /**
-     * 0未禁用，1已禁用
+     * 0未禁用, 1已禁用
      */
     private Boolean disabledFlag;
 
     /**
-     * 0不可删除，1可删除
+     * 0不可删除, 1可删除
      */
     private Boolean deletableFlag;
 

@@ -37,7 +37,7 @@ public class ConfigsBackDTO {
     private String configName;
 
     /**
-     * 0不可删除，1可删除
+     * 0不可删除, 1可删除
      */
     private Boolean deletableFlag;
 

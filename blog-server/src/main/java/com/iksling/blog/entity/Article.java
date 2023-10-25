@@ -28,7 +28,7 @@ public class Article implements Serializable {
     private Integer userId;
 
     /**
-     * 分类id，默认-1
+     * 分类id, 默认-1
      */
     private Integer categoryId;
 
@@ -38,7 +38,7 @@ public class Article implements Serializable {
     private String articleTitle;
 
     /**
-     * 文章封面，默认空串
+     * 文章封面, 默认空串
      */
     private String articleCover;
 
@@ -48,47 +48,47 @@ public class Article implements Serializable {
     private String articleContent;
 
     /**
-     * 0未置顶，1已置顶，默认0
+     * 0未置顶, 1已置顶, 默认0
      */
     private Boolean topFlag;
 
     /**
-     * 0不是草稿，1是草稿，默认1
+     * 0不是草稿, 1是草稿, 默认1
      */
     private Boolean draftFlag;
 
     /**
-     * 0未公开，1已公开，默认1
+     * 0未公开, 1已公开, 默认1
      */
     private Boolean publicFlag;
 
     /**
-     * 0未隐藏，1已隐藏，默认0
+     * 0未隐藏, 1已隐藏, 默认0
      */
     private Boolean hiddenFlag;
 
     /**
-     * 0未回收，1已回收，默认0
+     * 0未回收, 1已回收, 默认0
      */
     private Boolean recycleFlag;
 
     /**
-     * 0未删除，1已删除，默认0
+     * 0未删除, 1已删除, 默认0
      */
     private Boolean deletedFlag;
 
     /**
-     * 0不可评论，1可评论，默认1
+     * 0不可评论, 1可评论, 默认1
      */
     private Boolean commentableFlag;
 
     /**
-     * ip来源，默认空串
+     * ip来源, 默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址，默认空串
+     * ip地址, 默认空串
      */
     private String ipAddress;
 
@@ -103,22 +103,22 @@ public class Article implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人，默认null
+     * 更新人, 默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间，默认null
+     * 更新时间, 默认null
      */
     private Date updateTime;
 
     /**
-     * 发表人，默认null
+     * 发表人, 默认null
      */
     private Integer publishUser;
 
     /**
-     * 发表时间，默认null
+     * 发表时间, 默认null
      */
     private Date publishTime;
 

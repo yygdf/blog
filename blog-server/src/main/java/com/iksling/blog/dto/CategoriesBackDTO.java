@@ -27,12 +27,12 @@ public class CategoriesBackDTO {
     private String categoryName;
 
     /**
-     * 0未公开，1已公开
+     * 0未公开, 1已公开
      */
     private Boolean publicFlag;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏, 1已隐藏
      */
     private Boolean hiddenFlag;
 

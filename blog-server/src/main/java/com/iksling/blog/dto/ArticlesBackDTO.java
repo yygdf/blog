@@ -33,22 +33,22 @@ public class ArticlesBackDTO {
     private String articleTitle;
 
     /**
-     * 0未置顶，1已置顶
+     * 0未置顶, 1已置顶
      */
     private Boolean topFlag;
 
     /**
-     * 0未公开，1已公开
+     * 0未公开, 1已公开
      */
     private Boolean publicFlag;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏, 1已隐藏
      */
     private Boolean hiddenFlag;
 
     /**
-     * 0不可评论，1可评论
+     * 0不可评论, 1可评论
      */
     private Boolean commentableFlag;
 

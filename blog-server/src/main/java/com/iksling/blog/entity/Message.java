@@ -48,17 +48,17 @@ public class Message implements Serializable {
     private String messageContent;
 
     /**
-     * 0未删除，1已删除，默认0
+     * 0未删除, 1已删除, 默认0
      */
     private Boolean deletedFlag;
 
     /**
-     * ip来源，默认空串
+     * ip来源, 默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址，默认空串
+     * ip地址, 默认空串
      */
     private String ipAddress;
 

@@ -48,17 +48,17 @@ public class ChatRecord implements Serializable {
     private String chatContent;
 
     /**
-     * 0未撤回，1已撤回，默认0
+     * 0未撤回, 1已撤回, 默认0
      */
     private Boolean recalledFlag;
 
     /**
-     * ip来源，默认空串
+     * ip来源, 默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址，默认空串
+     * ip地址, 默认空串
      */
     private String ipAddress;
 

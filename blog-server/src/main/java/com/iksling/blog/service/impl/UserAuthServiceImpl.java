@@ -106,7 +106,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Transactional
     public void updateUserAuthBackVO(UserAuthBackVO userAuthBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        // TODO: 这里直接用核心用户idList替代核心角色idList进行卡控，需保持核心用户都是核心角色
+        // TODO: 这里直接用核心用户idList替代核心角色idList进行卡控, 需保持核心用户都是核心角色
         if (loginUser.getRoleWeight() > 100 && (userAuthBackVO.getLockedFlag() || ROOT_USER_ID_LIST.contains(userAuthBackVO.getId()) || !Collections.disjoint(ROOT_ROLE_ID_LIST, userAuthBackVO.getRoleIdList())))
             throw new IllegalRequestException();
         if (StringUtils.isNotBlank(userAuthBackVO.getPassword()))
@@ -161,7 +161,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Transactional
     public void updateUserAuthStatusVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        // TODO: 这里直接用核心用户idList替代核心角色idList进行卡控，需保持核心用户都是核心角色
+        // TODO: 这里直接用核心用户idList替代核心角色idList进行卡控, 需保持核心用户都是核心角色
         if (loginUser.getRoleWeight() > 100 && (Objects.nonNull(statusBackVO.getTopFlag()) && statusBackVO.getTopFlag()) || ROOT_USER_ID_LIST.contains(statusBackVO.getId()))
                 throw new IllegalRequestException();
         int count = userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()

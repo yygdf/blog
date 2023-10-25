@@ -27,12 +27,12 @@ public class ExceptionLogsBackDTO {
     private String optUri;
 
     /**
-     * 操作类型，1上传，2删除，3修改，4查询，5新增或修改
+     * 操作类型, 1上传, 2删除, 3修改, 4查询, 5新增或修改
      */
     private Integer optType;
 
     /**
-     * 操作描述，默认空串
+     * 操作描述, 默认空串
      */
     private String optDesc;
 
@@ -62,12 +62,12 @@ public class ExceptionLogsBackDTO {
     private String exceptionStackTrace;
 
     /**
-     * ip来源，默认空串
+     * ip来源, 默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址，默认空串
+     * ip地址, 默认空串
      */
     private String ipAddress;
 

@@ -75,11 +75,11 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
 
     @Override
     public RoleOptionBackDTO getRoleOptionDTO() {
-        List<LabelsBackDTO> menusDTOList = menuService.getMenusDTO();
+        List<LabelsBackDTO> menusRoleDTOList = menuService.getMenusRoleBackDTO();
         List<LabelsBackDTO> resourcesDTOList = resourceService.getResourcesDTO();
         return RoleOptionBackDTO.builder()
                 .userId(UserUtil.getLoginUser().getUserId())
-                .menusDTOList(menusDTOList)
+                .menusRoleDTOList(menusRoleDTOList)
                 .resourcesDTOList(resourcesDTOList)
                 .build();
     }

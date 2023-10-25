@@ -17,7 +17,7 @@ public class ArticleBackVO {
     private Integer id;
 
     /**
-     * 分类id，默认-1
+     * 分类id
      */
     @ApiModelProperty(name = "categoryId", value = "分类id", dataType = "Integer")
     private Integer categoryId;
@@ -30,7 +30,7 @@ public class ArticleBackVO {
     private String articleTitle;
 
     /**
-     * 文章封面，默认空串
+     * 文章封面
      */
     @Max(message = "文章封面最大长度", value = 255)
     @ApiModelProperty(name = "articleCover", value = "文章封面", dataType = "String")
@@ -43,33 +43,33 @@ public class ArticleBackVO {
     private String articleContent;
 
     /**
-     * 0未置顶，1已置顶，默认0
+     * 0未置顶, 1已置顶
      */
-    @ApiModelProperty(name = "topFlag", value = "0未置顶，1已置顶，默认0", dataType = "Boolean")
+    @ApiModelProperty(name = "topFlag", value = "0未置顶, 1已置顶", dataType = "Boolean")
     private Boolean topFlag;
 
     /**
-     * 0不是草稿，1是草稿，默认1
+     * 0不是草稿, 1是草稿
      */
-    @ApiModelProperty(name = "draftFlag", value = "0不是草稿，1是草稿，默认1", dataType = "Boolean")
+    @ApiModelProperty(name = "draftFlag", value = "0不是草稿, 1是草稿", dataType = "Boolean")
     private Boolean draftFlag;
 
     /**
-     * 0未公开，1已公开，默认1
+     * 0未公开, 1已公开
      */
-    @ApiModelProperty(name = "publicFlag", value = "0未公开，1已公开，默认1", dataType = "Boolean")
+    @ApiModelProperty(name = "publicFlag", value = "0未公开, 1已公开", dataType = "Boolean")
     private Boolean publicFlag;
 
     /**
-     * 0未隐藏，1已隐藏，默认0
+     * 0未隐藏, 1已隐藏
      */
-    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏，默认0", dataType = "Boolean")
+    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏, 1已隐藏", dataType = "Boolean")
     private Boolean hiddenFlag;
 
     /**
-     * 0不可评论，1可评论，默认1
+     * 0不可评论, 1可评论
      */
-    @ApiModelProperty(name = "commentableFlag", value = "0不可评论，1可评论，默认1", dataType = "Boolean")
+    @ApiModelProperty(name = "commentableFlag", value = "0不可评论, 1可评论", dataType = "Boolean")
     private Boolean commentableFlag;
 
     /**

@@ -43,17 +43,17 @@ public class QQAuth implements Serializable {
     private String accessToken;
 
     /**
-     * 0未锁定，1已锁定，默认0
+     * 0未锁定, 1已锁定, 默认0
      */
     private Boolean lockedFlag;
 
     /**
-     * 0未删除，1已删除，默认0
+     * 0未删除, 1已删除, 默认0
      */
     private Boolean deletedFlag;
 
     /**
-     * 0未禁用，1已禁用，默认0
+     * 0未禁用, 1已禁用, 默认0
      */
     private Boolean disabledFlag;
 
@@ -68,12 +68,12 @@ public class QQAuth implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人，默认null
+     * 更新人, 默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间，默认null
+     * 更新时间, 默认null
      */
     private Date updateTime;
 

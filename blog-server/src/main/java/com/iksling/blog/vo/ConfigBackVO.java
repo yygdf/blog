@@ -41,8 +41,8 @@ public class ConfigBackVO {
     private String configName;
 
     /**
-     * 0不同步，1需同步
+     * 0不同步, 1需同步
      */
-    @ApiModelProperty(name = "assimilateFlag", value = "0不同步，1需同步", dataType = "Boolean")
+    @ApiModelProperty(name = "assimilateFlag", value = "0不同步, 1需同步", dataType = "Boolean")
     private Boolean assimilateFlag;
 }

@@ -27,17 +27,17 @@ public class Comment implements Serializable {
     private Integer userId;
 
     /**
-     * 回复用户id，默认-1
+     * 回复用户id, 默认-1
      */
     private Integer replyId;
 
     /**
-     * 文章id，默认-1
+     * 文章id, 默认-1
      */
     private Integer articleId;
 
     /**
-     * 父评论id，默认-1
+     * 父评论id, 默认-1
      */
     private Integer parentId;
 
@@ -47,22 +47,22 @@ public class Comment implements Serializable {
     private String commentContent;
 
     /**
-     * 0未回收，1已回收，默认0
+     * 0未回收, 1已回收, 默认0
      */
     private Boolean recycleFlag;
 
     /**
-     * 0未删除，1已删除，默认0
+     * 0未删除, 1已删除, 默认0
      */
     private Boolean deletedFlag;
 
     /**
-     * ip来源，默认空串
+     * ip来源, 默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址，默认空串
+     * ip地址, 默认空串
      */
     private String ipAddress;
 

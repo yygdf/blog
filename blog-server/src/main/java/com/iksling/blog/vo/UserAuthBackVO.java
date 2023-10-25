@@ -26,17 +26,17 @@ public class UserAuthBackVO {
     private String password;
 
     /**
-     * 0未锁定，1已锁定
+     * 0未锁定, 1已锁定
      */
     @NotNull(message = "锁定标志不能为null")
-    @ApiModelProperty(name = "lockedFlag", value = "0未锁定，1已锁定", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "lockedFlag", value = "0未锁定, 1已锁定", required = true, dataType = "Boolean")
     private Boolean lockedFlag;
 
     /**
-     * 0未禁用，1已禁用
+     * 0未禁用, 1已禁用
      */
     @NotNull(message = "禁用标志不能为null")
-    @ApiModelProperty(name = "disabledFlag", value = "0未禁用，1已禁用", required = true, dataType = "Boolean")
+    @ApiModelProperty(name = "disabledFlag", value = "0未禁用, 1已禁用", required = true, dataType = "Boolean")
     private Boolean disabledFlag;
 
     /**

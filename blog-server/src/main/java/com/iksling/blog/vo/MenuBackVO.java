@@ -37,7 +37,7 @@ public class MenuBackVO {
      */
     @NotNull(message = "排序指标不能为空")
     @Min(message = "排序指标最小值", value = 1)
-    @Max(message = "排序指标最大值", value = 127)
+    @Max(message = "排序指标最大值", value = 100)
     @ApiModelProperty(name = "rank", value = "排序指标", required = true, dataType = "Integer")
     private Integer rank;
 
@@ -66,20 +66,20 @@ public class MenuBackVO {
     private String component;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏, 1已隐藏
      */
-    @ApiModelProperty(name = "hideFlag", value = "0未隐藏，1已隐藏", dataType = "Boolean")
+    @ApiModelProperty(name = "hideFlag", value = "0未隐藏, 1已隐藏", dataType = "Boolean")
     private Boolean hideFlag;
 
     /**
-     * 0未隐藏，1已隐藏
+     * 0未隐藏, 1已隐藏
      */
-    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏，1已隐藏", dataType = "Boolean")
+    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏, 1已隐藏", dataType = "Boolean")
     private Boolean hiddenFlag;
 
     /**
-     * 0未禁用，1已禁用
+     * 0未禁用, 1已禁用
      */
-    @ApiModelProperty(name = "disabledFlag", value = "0未禁用，1已禁用", dataType = "Boolean")
+    @ApiModelProperty(name = "disabledFlag", value = "0未禁用, 1已禁用", dataType = "Boolean")
     private Boolean disabledFlag;
 }

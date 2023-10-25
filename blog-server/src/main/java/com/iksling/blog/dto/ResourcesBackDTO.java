@@ -38,17 +38,17 @@ public class ResourcesBackDTO {
     private String resourceRequestMethod;
 
     /**
-     * 0未禁用，1已禁用
+     * 0未禁用, 1已禁用
      */
     private Boolean disabledFlag;
 
     /**
-     * 0不可删除，1可删除
+     * 0不可删除, 1可删除
      */
     private Boolean deletableFlag;
 
     /**
-     * 0未匿名，1已匿名
+     * 0未匿名, 1已匿名
      */
     private Boolean anonymousFlag;
 

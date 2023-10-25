@@ -20,7 +20,7 @@ public class RoleOptionBackDTO {
     /**
      * 角色菜单集合
      */
-    private List<LabelsBackDTO> menusDTOList;
+    private List<LabelsBackDTO> menusRoleDTOList;
 
     /**
      * 角色资源集合

@@ -34,7 +34,7 @@ public class SystemConfig implements Serializable {
     private Integer userId;
 
     /**
-     * 配置描述，默认空串
+     * 配置描述, 默认空串
      */
     private String configDesc;
 
@@ -49,7 +49,7 @@ public class SystemConfig implements Serializable {
     private String configName;
 
     /**
-     * 0不可删除，1可删除，默认1
+     * 0不可删除, 1可删除, 默认1
      */
     private Boolean deletableFlag;
 
@@ -64,12 +64,12 @@ public class SystemConfig implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人，默认null
+     * 更新人, 默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间，默认null
+     * 更新时间, 默认null
      */
     private Date updateTime;
 

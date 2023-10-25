@@ -39,12 +39,12 @@ public class MultiFile implements Serializable {
     private Integer multiDirId;
 
     /**
-     * 文件描述，默认空串
+     * 文件描述, 默认空串
      */
     private String fileDesc;
 
     /**
-     * 文件标识，默认0
+     * 文件标识, 默认0
      */
     private Integer fileMark;
 
@@ -59,7 +59,7 @@ public class MultiFile implements Serializable {
     private String fileExtension;
 
     /**
-     * 文件新名称，默认-1
+     * 文件新名称, 默认-1
      */
     private Long fileNameNew;
 
@@ -69,17 +69,17 @@ public class MultiFile implements Serializable {
     private String fileNameOrigin;
 
     /**
-     * 0未删除，1已删除，默认0
+     * 0未删除, 1已删除, 默认0
      */
     private Boolean deletedFlag;
 
     /**
-     * ip来源，默认空串
+     * ip来源, 默认空串
      */
     private String ipSource;
 
     /**
-     * ip地址，默认空串
+     * ip地址, 默认空串
      */
     private String ipAddress;
 
@@ -94,12 +94,12 @@ public class MultiFile implements Serializable {
     private Date createTime;
 
     /**
-     * 更新人，默认null
+     * 更新人, 默认null
      */
     private Integer updateUser;
 
     /**
-     * 更新时间，默认null
+     * 更新时间, 默认null
      */
     private Date updateTime;
 

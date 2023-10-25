@@ -33,12 +33,12 @@ public class UserAuthsBackDTO {
     private Integer loginMethod;
 
     /**
-     * 0未锁定，1已锁定
+     * 0未锁定, 1已锁定
      */
     private Boolean lockedFlag;
 
     /**
-     * 0未禁用，1已禁用
+     * 0未禁用, 1已禁用
      */
     private Boolean disabledFlag;
 

@@ -32,7 +32,7 @@
         update_time
     </sql>
 
-    <select id="listMenusByUserId" resultType="com.iksling.blog.entity.Menu">
+    <select id="selectMenusUserBackDTO" resultType="com.iksling.blog.entity.Menu">
         SELECT DISTINCT
             m.id,m.user_id,m.parent_id,
             m.icon,m.path,m.name,
@@ -44,34 +44,8 @@
             LEFT JOIN tb_menu m ON rm.menu_id = m.id
         WHERE
             ur.user_id = #{userId}
-            <if test="roleWeight > 200">
+            <if test="roleWeight > 100">
                 AND m.hidden_flag = false
-            </if>
-        ORDER BY
-            m.rank ASC,
-            m.id ASC
-    </select>
-
-    <select id="listMenusByKeywords" resultType="com.iksling.blog.entity.Menu">
-        SELECT
-            m.id,m.user_id,m.parent_id,
-            m.icon,m.rank,m.path,
-            m.name,m.component,m.hide_flag,
-            m.hidden_flag,m.disabled_flag,m.deletable_flag,
-            m.create_time,m.update_time
-        FROM
-            tb_menu m
-            <if test="keywords != null and keywords != ''">
-                WHERE
-                    m.name like concat('%', #{keywords}, '%')
-                OR id IN (
-                    SELECT
-                        parent_id id
-                    FROM
-                        tb_menu
-                    WHERE
-                        name like concat('%', #{keywords}, '%')
-                )
             </if>
         ORDER BY
             m.rank ASC,

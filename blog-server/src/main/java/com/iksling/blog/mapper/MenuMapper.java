@@ -10,9 +10,7 @@ import java.util.List;
  */
 public interface MenuMapper extends BaseMapper<Menu> {
 
-    List<Menu> listMenusByUserId(Integer userId, Integer roleWeight);
-
-    List<Menu> listMenusByKeywords(String keywords);
+    List<Menu> selectMenusUserBackDTO(Integer userId, Integer roleWeight);
 }
 
 

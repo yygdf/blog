@@ -320,7 +320,7 @@ export default {
     },
     listRoleOptions() {
       this.axios.get("/api/back/role/option").then(({ data }) => {
-        this.menuList = data.data.menusDTOList;
+        this.menuList = data.data.menusRoleDTOList;
         this.resourceList = data.data.resourcesDTOList;
       });
     },

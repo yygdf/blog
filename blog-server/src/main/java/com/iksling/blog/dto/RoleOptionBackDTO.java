@@ -18,12 +18,12 @@ public class RoleOptionBackDTO {
     private Integer userId;
 
     /**
-     * 角色菜单集合
+     * 角色菜单list
      */
     private List<LabelsBackDTO> menusRoleDTOList;
 
     /**
-     * 角色资源集合
+     * 角色资源list
      */
     private List<LabelsBackDTO> resourcesDTOList;
 }

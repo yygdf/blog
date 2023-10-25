@@ -6,8 +6,6 @@ import lombok.Data;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
 @ApiModel(description = "菜单后台VO")
@@ -27,42 +25,37 @@ public class MenuBackVO {
     /**
      * 菜单图标
      */
-    @NotBlank(message = "菜单图标不能为空")
     @Max(message = "菜单图标最大长度", value = 50)
-    @ApiModelProperty(name = "icon", value = "菜单图标", required = true, dataType = "String")
+    @ApiModelProperty(name = "icon", value = "菜单图标", dataType = "String")
     private String icon;
 
     /**
      * 排序指标
      */
-    @NotNull(message = "排序指标不能为空")
     @Min(message = "排序指标最小值", value = 1)
     @Max(message = "排序指标最大值", value = 100)
-    @ApiModelProperty(name = "rank", value = "排序指标", required = true, dataType = "Integer")
+    @ApiModelProperty(name = "rank", value = "排序指标", dataType = "Integer")
     private Integer rank;
 
     /**
      * 菜单路径
      */
-    @NotBlank(message = "菜单路径不能为空")
     @Max(message = "菜单路径最大长度", value = 50)
-    @ApiModelProperty(name = "path", value = "菜单路径", required = true, dataType = "String")
+    @ApiModelProperty(name = "path", value = "菜单路径", dataType = "String")
     private String path;
 
     /**
      * 菜单名称
      */
-    @NotBlank(message = "菜单名称不能为空")
     @Max(message = "菜单名称最大长度", value = 50)
-    @ApiModelProperty(name = "name", value = "菜单名称", required = true, dataType = "String")
+    @ApiModelProperty(name = "name", value = "菜单名称", dataType = "String")
     private String name;
 
     /**
      * 菜单组件
      */
-    @NotBlank(message = "菜单组件不能为空")
     @Max(message = "菜单组件最大长度", value = 50)
-    @ApiModelProperty(name = "component", value = "菜单组件", required = true, dataType = "String")
+    @ApiModelProperty(name = "component", value = "菜单组件", dataType = "String")
     private String component;
 
     /**

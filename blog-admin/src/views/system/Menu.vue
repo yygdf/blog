@@ -19,14 +19,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入菜单名"
           clearable
-          @keyup.enter.native="listMenus"
+          @keyup.enter.native="getMenus"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listMenus"
+          @click="getMenus"
         >
           搜索
         </el-button>
@@ -55,7 +55,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeMenuStatus(scope.row)"
+            @change="changeMenuStatus(scope.row, 8)"
           />
         </template>
       </el-table-column>
@@ -84,7 +84,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeMenuStatus(scope.row)"
+            @change="changeMenuStatus(scope.row, 9)"
           />
         </template>
       </el-table-column>
@@ -172,17 +172,20 @@
         <el-form-item label="菜单名称">
           <el-input
             v-model="menu.name"
-            :maxlength="50"
             ref="input"
+            class="word-limit-input"
             style="width: 200px"
+            maxlength="50"
+            placeholder="请输入菜单名称"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="菜单图标">
           <el-input
             v-model="menu.icon"
             :prefix-icon="menu.icon"
             style="width: 200px"
+            placeholder="请选择菜单图标"
             @focus="showIcon = true"
             @blur="showIcon = false"
           />
@@ -202,22 +205,30 @@
           </div>
         </el-form-item>
         <el-form-item label="菜单路径">
-          <el-input v-model="menu.path" :maxlength="50" style="width: 200px" />
-          <span style="color: red;"> *</span>
+          <el-input
+            v-model="menu.path"
+            class="word-limit-input"
+            style="width: 200px"
+            maxlength="50"
+            placeholder="请输入菜单路径"
+            show-word-limit
+          />
         </el-form-item>
         <el-form-item label="菜单组件">
           <el-input
             v-model="menu.component"
-            :maxlength="50"
+            class="word-limit-input"
             style="width: 200px"
+            maxlength="50"
+            placeholder="请输入菜单组件"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="排序指标">
           <el-input-number
             v-model="menu.rank"
             :min="1"
-            :max="127"
+            :max="100"
             value="1"
             controls-position="right"
           />
@@ -265,7 +276,7 @@
 <script>
 export default {
   created() {
-    this.listMenus();
+    this.getMenus();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -284,8 +295,9 @@ export default {
         "el-icon-ice-drink",
         "el-icon-milk-tea"
       ],
-      menu: {},
       menuList: [],
+      menu: {},
+      menuOrigin: {},
       keywords: null,
       homeMenuId: null,
       loading: true,
@@ -307,7 +319,10 @@ export default {
           icon: "",
           path: "",
           component: "Layout",
-          rank: 127
+          rank: 100,
+          hideFlag: false,
+          hiddenFlag: false,
+          disabledFlag: false
         };
         this.$refs.menuTitle.innerHTML = "添加菜单";
       } else {
@@ -315,11 +330,11 @@ export default {
           this.menu = {
             id: menu.id,
             parentId: menu.parentId,
-            icon: menu.icon,
-            rank: menu.rank,
-            path: menu.path,
             name: menu.name,
+            icon: menu.icon,
+            path: menu.path,
             component: menu.component,
+            rank: menu.rank,
             hideFlag: menu.hideFlag,
             hiddenFlag: menu.hiddenFlag,
             disabledFlag: menu.disabledFlag
@@ -328,23 +343,26 @@ export default {
         } else {
           if (flag) {
             this.menu = {
+              parentId: menu.id,
               name: "",
               icon: "",
               path: "",
               component: "",
-              rank: 127,
-              parentId: menu.id
+              rank: 100,
+              hideFlag: menu.hideFlag,
+              hiddenFlag: menu.hiddenFlag,
+              disabledFlag: menu.disabledFlag
             };
             this.$refs.menuTitle.innerHTML = "添加子菜单";
           } else {
             this.menu = {
               id: menu.id,
               parentId: null,
-              icon: menu.icon,
-              rank: menu.rank,
-              path: menu.path,
               name: menu.name,
+              icon: menu.icon,
+              path: menu.path,
               component: menu.component,
+              rank: menu.rank,
               hideFlag: menu.hideFlag,
               hiddenFlag: menu.hiddenFlag,
               disabledFlag: menu.disabledFlag
@@ -353,12 +371,13 @@ export default {
           }
         }
       }
+      this.menuOrigin = JSON.parse(JSON.stringify(this.menu));
       this.$nextTick(() => {
         this.$refs.input.focus();
       });
       this.addOrEditStatus = true;
     },
-    listMenus() {
+    getMenus() {
       this.axios
         .get("/api/back/menus", {
           params: {
@@ -379,7 +398,7 @@ export default {
             title: "成功",
             message: data.message
           });
-          this.listMenus();
+          this.getMenus();
         } else {
           this.$notify.error({
             title: "失败",
@@ -405,30 +424,54 @@ export default {
         this.$message.error("菜单组件不能为空");
         return false;
       }
-      this.axios.post("/api/back/menu", this.menu).then(({ data }) => {
+      let param = this.$commonMethod.skipIdenticalValue(
+        this.menu,
+        this.menuOrigin
+      );
+      if (Object.keys(param).length === 0) {
+        return false;
+      }
+      if (this.menu.id != null) {
+        param.id = this.menu.id;
+      }
+      this.axios.post("/api/back/menu", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listMenus();
+          this.getMenus();
         } else {
           this.$notify.error({
             title: "失败",
             message: data.message
           });
         }
-        this.addOrEditStatus = false;
       });
+      this.addOrEditStatus = false;
     },
-    changeMenuStatus(menu) {
+    changeMenuStatus(menu, type) {
       let param = {
-        id: menu.id,
-        topFlag: menu.hideFlag,
-        hiddenFlag: menu.hiddenFlag,
-        publicFlag: menu.disabledFlag
+        id: menu.id
       };
-      this.axios.put("/api/back/menu/status", param);
+      if (type != null) {
+        param.type = type;
+      }
+      this.axios.put("/api/back/menu/status", param).then(({ data }) => {
+        if (!data.flag) {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+          if (type === 8) {
+            menu.hideFlag = !menu.hideFlag;
+          } else if (type === 9) {
+            menu.disabledFlag = !menu.disabledFlag;
+          } else {
+            menu.hiddenFlag = !menu.hiddenFlag;
+          }
+        }
+      });
     }
   }
 };
@@ -455,8 +498,10 @@ export default {
 .menu-container div {
   cursor: pointer;
 }
-
 .smallerBtn {
   padding: 5px;
+}
+.word-limit-input {
+  padding-right: 50px;
 }
 </style>

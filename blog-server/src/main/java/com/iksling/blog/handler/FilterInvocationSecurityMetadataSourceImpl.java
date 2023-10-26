@@ -1,5 +1,6 @@
 package com.iksling.blog.handler;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.iksling.blog.mapper.ResourceMapper;
 import com.iksling.blog.pojo.ResourceRole;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +52,9 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
                     throw new AccessDeniedException("该请求已被禁用!");
                 if (resourceRole.getAnonymousFlag())
                     return null;
-                List<String> roleList = resourceRole.getRoleList();
-                return SecurityConfig.createList(roleList.toArray(new String[]{}));
+                if (StringUtils.isBlank(resourceRole.getRoleList()))
+                    throw new AccessDeniedException("该请求无法访问!");
+                return SecurityConfig.createList(resourceRole.getRoleList().split(","));
             }
         }
         throw new AccessDeniedException("该请求已经被喵星人劫持了!");

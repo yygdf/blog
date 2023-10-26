@@ -19,14 +19,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入资源名"
           clearable
-          @keyup.enter.native="listResources"
+          @keyup.enter.native="getResources"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listResources"
+          @click="getResources"
         >
           搜索
         </el-button>
@@ -37,6 +37,7 @@
       :data="resourceList"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       row-key="id"
+      height="720"
     >
       <el-table-column prop="resourceName" label="资源名称" />
       <el-table-column prop="resourceUri" label="资源路径" />
@@ -81,7 +82,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeResourceStatus(scope.row)"
+            @change="changeResourceStatus(scope.row, 10)"
           />
         </template>
       </el-table-column>
@@ -129,7 +130,7 @@
           <el-popconfirm
             title="确定删除吗？"
             style="margin-left:10px"
-            @confirm="deleteResource(scope.row.id)"
+            @confirm="deleteResources(scope.row.id)"
           >
             <el-button
               :disabled="
@@ -169,19 +170,23 @@
         <el-form-item label="资源名称">
           <el-input
             v-model="resource.resourceName"
-            :maxlength="50"
             ref="input"
+            class="word-limit-input"
             style="width: 200px"
+            maxlength="50"
+            placeholder="请输入资源名称"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item v-if="resource.parentId" label="资源路径">
           <el-input
             v-model="resource.resourceUri"
-            :maxlength="50"
+            class="word-limit-input"
             style="width: 200px"
+            maxlength="50"
+            placeholder="请输入资源路径"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item v-if="resource.parentId" label="请求方式">
           <el-radio-group v-model="resource.resourceRequestMethod">
@@ -225,7 +230,7 @@
 <script>
 export default {
   created() {
-    this.listResources();
+    this.getResources();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -233,8 +238,9 @@ export default {
   data() {
     return {
       resource: {},
+      resourceOrigin: {},
       resourceList: [],
-      keywords: null,
+      keywords: "",
       loading: true,
       addOrEditStatus: false
     };
@@ -244,7 +250,9 @@ export default {
       if (resource == null) {
         this.resource = {
           parentId: null,
-          resourceName: ""
+          resourceName: "",
+          disabledFlag: false,
+          anonymousFlag: false
         };
         this.$refs.resourceTitle.innerHTML = "添加模块";
       } else {
@@ -265,7 +273,9 @@ export default {
               parentId: resource.id,
               resourceUri: "",
               resourceName: "",
-              resourceRequestMethod: "GET"
+              resourceRequestMethod: "GET",
+              disabledFlag: resource.disabledFlag,
+              anonymousFlag: resource.anonymousFlag
             };
             this.$refs.resourceTitle.innerHTML = "添加资源";
           } else {
@@ -276,37 +286,39 @@ export default {
               disabledFlag: resource.disabledFlag,
               anonymousFlag: resource.anonymousFlag
             };
-            this.resource.parentId = null;
             this.$refs.resourceTitle.innerHTML = "修改模块";
           }
         }
       }
+      this.resourceOrigin = JSON.parse(JSON.stringify(this.resource));
       this.$nextTick(() => {
         this.$refs.input.focus();
       });
       this.addOrEditStatus = true;
     },
-    listResources() {
+    getResources() {
+      let params = {};
+      if (this.keywords.trim() !== "") {
+        params.keywords = this.keywords;
+      }
       this.axios
         .get("/api/back/resources", {
-          params: {
-            keywords: this.keywords
-          }
+          params
         })
         .then(({ data }) => {
           this.resourceList = data.data;
           this.loading = false;
         });
     },
-    deleteResource(id) {
-      let param = { data: id };
-      this.axios.delete("/api/back/resource", param).then(({ data }) => {
+    deleteResources(id) {
+      let param = { data: [id] };
+      this.axios.delete("/api/back/resources", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listResources();
+          this.getResources();
         } else {
           this.$notify.error({
             title: "失败",
@@ -329,29 +341,57 @@ export default {
         this.$message.error("资源路径不能为空");
         return false;
       }
-      this.axios.post("/api/back/resource", this.resource).then(({ data }) => {
+
+      let param = this.$commonMethod.skipIdenticalValue(
+        this.resource,
+        this.resourceOrigin
+      );
+      if (Object.keys(param).length === 0) {
+        return false;
+      }
+      if (this.resource.id != null) {
+        param.id = this.resource.id;
+      } else {
+        if (this.resource.parentId != null) {
+          param.parentId = this.resource.parentId;
+        }
+      }
+      this.axios.post("/api/back/resource", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listResources();
+          this.getResources();
         } else {
           this.$notify.error({
             title: "失败",
             message: data.message
           });
         }
-        this.addOrEditStatus = false;
       });
+      this.addOrEditStatus = false;
     },
-    changeResourceStatus(resource) {
+    changeResourceStatus(resource, type) {
       let param = {
-        id: resource.id,
-        hiddenFlag: resource.disabledFlag,
-        publicFlag: resource.anonymousFlag
+        idList: [resource.id]
       };
-      this.axios.put("/api/back/resource/status", param);
+      if (type != null) {
+        param.type = type;
+      }
+      this.axios.put("/api/back/resource/status", param).then(({ data }) => {
+        if (!data.flag) {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+          if (type === 10) {
+            resource.anonymousFlag = !resource.anonymousFlag;
+          } else {
+            resource.disabledFlag = !resource.disabledFlag;
+          }
+        }
+      });
     }
   },
   computed: {

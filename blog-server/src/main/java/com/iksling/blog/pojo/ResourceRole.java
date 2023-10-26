@@ -2,8 +2,6 @@ package com.iksling.blog.pojo;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 public class ResourceRole {
     /**
@@ -32,7 +30,7 @@ public class ResourceRole {
     private Boolean anonymousFlag;
 
     /**
-     * 允许访问的角色
+     * 角色集合字符串
      */
-    private List<String> roleList;
+    private String roleList;
 }

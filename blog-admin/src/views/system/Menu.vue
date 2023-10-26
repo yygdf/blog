@@ -35,9 +35,9 @@
     <el-table
       v-loading="loading"
       :data="menuList"
+      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       row-key="id"
       height="720"
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
       <el-table-column prop="name" label="菜单名称" width="120" />
       <el-table-column prop="icon" label="菜单图标" align="center" width="80">

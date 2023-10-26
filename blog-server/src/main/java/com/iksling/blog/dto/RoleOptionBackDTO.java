@@ -25,5 +25,5 @@ public class RoleOptionBackDTO {
     /**
      * 角色资源list
      */
-    private List<LabelsBackDTO> resourcesDTOList;
+    private List<LabelsBackDTO> resourcesRoleDTOList;
 }

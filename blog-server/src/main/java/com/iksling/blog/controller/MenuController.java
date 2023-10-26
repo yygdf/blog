@@ -38,7 +38,7 @@ public class MenuController {
     @ApiImplicitParam(name = "idList", value = "idList", required = true, dataType = "List<Integer>")
     @DeleteMapping("/back/menus")
     public Result deleteBackMenus(@RequestBody List<Integer> idList) {
-        menuService.deleteBackMenuByIdList(idList);
+        menuService.deleteBackMenusByIdList(idList);
         return Result.success().message("操作成功");
     }
 
@@ -51,12 +51,6 @@ public class MenuController {
         return Result.success().message("操作成功");
     }
 
-    @ApiOperation(value = "查看用户菜单")
-    @GetMapping("/back/menus/user")
-    public Result getBackMenusUser() {
-        return Result.success().message("查询成功").data(menuService.getMenusUserBackDTO());
-    }
-
     @ApiOperation(value = "查看后台菜单列表")
     @ApiImplicitParam(name = "keywords", value = "关键字(菜单名称)", dataType = "String")
     @GetMapping("/back/menus")
@@ -64,5 +58,11 @@ public class MenuController {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("homeMenuId", HOME_MENU_ID)
                 .set("dataList",menuService.getMenusBackDTO(keywords)));
+    }
+
+    @ApiOperation(value = "查看用户菜单")
+    @GetMapping("/back/menus/user")
+    public Result getBackMenusUser() {
+        return Result.success().message("查询成功").data(menuService.getMenusUserBackDTO());
     }
 }

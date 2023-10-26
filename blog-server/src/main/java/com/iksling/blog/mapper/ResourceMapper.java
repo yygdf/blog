@@ -11,9 +11,7 @@ import java.util.List;
  */
 public interface ResourceMapper extends BaseMapper<Resource> {
 
-    List<ResourceRole> listResourceRoles();
-
-    List<Resource> listResourcesByKeywords(String keywords);
+    List<ResourceRole> getResourceRole();
 }
 
 

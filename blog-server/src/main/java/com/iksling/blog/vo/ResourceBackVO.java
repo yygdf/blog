@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.Max;
-import javax.validation.constraints.NotBlank;
 
 @Data
 @ApiModel(description = "资源后台VO")
@@ -32,9 +31,8 @@ public class ResourceBackVO {
     /**
      * 资源名称
      */
-    @NotBlank(message = "资源名称不能为空")
     @Max(message = "资源名称最大长度", value = 50)
-    @ApiModelProperty(name = "resourceName", value = "资源名称", required = true, dataType = "String")
+    @ApiModelProperty(name = "resourceName", value = "资源名称", dataType = "String")
     private String resourceName;
 
     /**

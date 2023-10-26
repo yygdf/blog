@@ -41,7 +41,7 @@
         update_time
     </sql>
 
-    <select id="listResourceRoles" resultMap="ResourceRoleMap">
+    <select id="getResourceRole" resultMap="ResourceRoleMap">
         SELECT
             re.id,re.resource_uri,re.resource_request_method,
             re.disabled_flag,re.anonymous_flag,r.role_name
@@ -51,29 +51,5 @@
             LEFT JOIN tb_role r ON rre.role_id = r.id
         WHERE
             re.parent_id != -1
-    </select>
-
-    <select id="listResourcesByKeywords" resultType="com.iksling.blog.entity.Resource">
-        SELECT
-            r.id,r.user_id,r.parent_id,
-            r.resource_uri,r.resource_name,r.resource_request_method,
-            r.disabled_flag,r.deletable_flag,r.anonymous_flag,
-            r.create_time,r.update_time
-        FROM
-            tb_resource r
-            <if test="keywords != null and keywords != ''">
-                WHERE
-                    r.resource_name like concat('%', #{keywords}, '%')
-                OR id IN (
-                    SELECT
-                        parent_id id
-                    FROM
-                        tb_resource
-                    WHERE
-                        resource_name like concat('%', #{keywords}, '%')
-                )
-            </if>
-        ORDER BY
-            r.id ASC
     </select>
 </mapper>

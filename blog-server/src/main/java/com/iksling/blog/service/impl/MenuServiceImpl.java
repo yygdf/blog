@@ -63,7 +63,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
 
     @Override
     @Transactional
-    public void deleteBackMenuByIdList(List<Integer> idList) {
+    public void deleteBackMenusByIdList(List<Integer> idList) {
         if (CollectionUtils.isEmpty(idList))
             throw new IllegalRequestException();
         StringBuilder sb = new StringBuilder();
@@ -94,15 +94,6 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     }
 
     @Override
-    public List<MenusUserBackDTO> getMenusUserBackDTO() {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        List<Menu> menuList = menuMapper.selectMenusUserBackDTO(loginUser.getUserId(), loginUser.getRoleWeight());
-        List<Menu> parentMenuList = getParentMenuList(menuList);
-        Map<Integer, List<Menu>> childrenMenuMap = getChildrenMenuMap(menuList);
-        return convertMenusUserBackDTOList(parentMenuList, childrenMenuMap);
-    }
-
-    @Override
     public List<MenusBackDTO> getMenusBackDTO(String keywords) {
         List<Menu> menuList = menuMapper.selectList(new LambdaQueryWrapper<Menu>()
                 .select(Menu::getId, Menu::getUserId, Menu::getParentId, Menu::getIcon, Menu::getRank, Menu::getPath,
@@ -116,6 +107,15 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
         List<Menu> parentMenuList = getParentMenuList(menuList);
         Map<Integer, List<Menu>> childrenMenuMap = getChildrenMenuMap(menuList);
         return convertMenusBackDTOList(parentMenuList, childrenMenuMap);
+    }
+
+    @Override
+    public List<MenusUserBackDTO> getMenusUserBackDTO() {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        List<Menu> menuList = menuMapper.selectMenusUserBackDTO(loginUser.getUserId(), loginUser.getRoleWeight());
+        List<Menu> parentMenuList = getParentMenuList(menuList);
+        Map<Integer, List<Menu>> childrenMenuMap = getChildrenMenuMap(menuList);
+        return convertMenusUserBackDTOList(parentMenuList, childrenMenuMap);
     }
 
     @Override

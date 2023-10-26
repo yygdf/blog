@@ -17,13 +17,13 @@ public interface MenuService extends IService<Menu> {
 
     void saveOrUpdateMenuBackVO(MenuBackVO menuBackVO);
 
-    void deleteBackMenuByIdList(List<Integer> idList);
+    void deleteBackMenusByIdList(List<Integer> idList);
 
     void updateMenuStatusBackVO(StatusBackVO statusBackVO);
 
-    List<MenusUserBackDTO> getMenusUserBackDTO();
-
     List<MenusBackDTO> getMenusBackDTO(String keywords);
+
+    List<MenusUserBackDTO> getMenusUserBackDTO();
 
     List<LabelsBackDTO> getMenusRoleBackDTO();
 }

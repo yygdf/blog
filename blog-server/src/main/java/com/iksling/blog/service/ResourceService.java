@@ -15,15 +15,15 @@ import java.util.List;
  */
 public interface ResourceService extends IService<Resource> {
 
-    List<ResourcesBackDTO> getResourcesBackDTO(String keywords);
-
-    void updateResourceStatusVO(StatusBackVO statusBackVO);
-
-    void deleteResourceById(String id);
-
     void saveOrUpdateResourceBackVO(ResourceBackVO resourceBackVO);
 
-    List<LabelsBackDTO> getResourcesDTO();
+    void deleteBackResourcesByIdList(List<Integer> idList);
+
+    void updateResourceStatusBackVO(StatusBackVO statusBackVO);
+
+    List<ResourcesBackDTO> getResourcesBackDTO(String keywords);
 
     List<LabelBackDTO> getBackResourceModuleNames();
+
+    List<LabelsBackDTO> getResourcesRoleBackDTO();
 }

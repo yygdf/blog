@@ -4,8 +4,8 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MenuService;
-import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.MenuBackVO;
+import com.iksling.blog.vo.StatusBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 import static com.iksling.blog.constant.CommonConst.HOME_MENU_ID;
 import static com.iksling.blog.constant.LogConst.*;
@@ -33,11 +34,11 @@ public class MenuController {
     }
 
     @OptLog(optType = REMOVE)
-    @ApiOperation(value = "物理删除菜单")
-    @ApiImplicitParam(name = "id", value = "id", required = true, dataType = "Integer")
-    @DeleteMapping("/back/menu")
-    public Result deleteBackMenu(@RequestBody Integer id) {
-        menuService.deleteBackMenuById(id);
+    @ApiOperation(value = "物理批量删除菜单")
+    @ApiImplicitParam(name = "idList", value = "idList", required = true, dataType = "List<Integer>")
+    @DeleteMapping("/back/menus")
+    public Result deleteBackMenus(@RequestBody List<Integer> idList) {
+        menuService.deleteBackMenuByIdList(idList);
         return Result.success().message("操作成功");
     }
 

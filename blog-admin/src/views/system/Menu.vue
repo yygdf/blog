@@ -36,6 +36,7 @@
       v-loading="loading"
       :data="menuList"
       row-key="id"
+      height="720"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
       <el-table-column prop="name" label="菜单名称" width="120" />
@@ -132,7 +133,7 @@
           <el-popconfirm
             title="确定删除吗？"
             style="margin-left:10px"
-            @confirm="deleteMenu(scope.row.id)"
+            @confirm="deleteMenus(scope.row.id)"
           >
             <el-button
               :disabled="
@@ -284,21 +285,21 @@ export default {
   data() {
     return {
       iconList: [
-        "el-icon-grape",
-        "el-icon-watermelon",
-        "el-icon-cherry",
-        "el-icon-apple",
         "el-icon-pear",
-        "el-icon-orange",
+        "el-icon-apple",
+        "el-icon-grape",
+        "el-icon-cherry",
         "el-icon-coffee",
+        "el-icon-orange",
         "el-icon-ice-tea",
+        "el-icon-milk-tea",
         "el-icon-ice-drink",
-        "el-icon-milk-tea"
+        "el-icon-watermelon"
       ],
       menuList: [],
       menu: {},
       menuOrigin: {},
-      keywords: null,
+      keywords: "",
       homeMenuId: null,
       loading: true,
       showIcon: false,
@@ -378,11 +379,13 @@ export default {
       this.addOrEditStatus = true;
     },
     getMenus() {
+      let params = {};
+      if (this.keywords.trim() !== "") {
+        params.keywords = this.keywords;
+      }
       this.axios
         .get("/api/back/menus", {
-          params: {
-            keywords: this.keywords
-          }
+          params
         })
         .then(({ data }) => {
           this.homeMenuId = data.data.homeMenuId;
@@ -390,9 +393,9 @@ export default {
           this.loading = false;
         });
     },
-    deleteMenu(id) {
-      let param = { data: id };
-      this.axios.delete("/api/back/menu", param).then(({ data }) => {
+    deleteMenus(id) {
+      let param = { data: [id] };
+      this.axios.delete("/api/back/menus", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -433,6 +436,10 @@ export default {
       }
       if (this.menu.id != null) {
         param.id = this.menu.id;
+      } else {
+        if (this.menu.parentId != null) {
+          param.parentId = this.menu.parentId;
+        }
       }
       this.axios.post("/api/back/menu", param).then(({ data }) => {
         if (data.flag) {
@@ -452,7 +459,7 @@ export default {
     },
     changeMenuStatus(menu, type) {
       let param = {
-        id: menu.id
+        idList: [menu.id]
       };
       if (type != null) {
         param.type = type;

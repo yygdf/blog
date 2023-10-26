@@ -17,7 +17,7 @@ public interface FriendLinkService extends IService<FriendLink> {
 
     void saveOrUpdateFriendLinkBackVO(FriendLinkBackVO friendLinkBackVO);
 
-    void deleteFriendLinksByIdList(List<Integer> idList);
+    void deleteBackFriendLinksByIdList(List<Integer> idList);
 
     void updateFriendLinksStatusBackVO(StatusBackVO statusBackVO);
 

@@ -9,6 +9,7 @@ import com.iksling.blog.dto.LabelsBackDTO;
 import com.iksling.blog.dto.MenusBackDTO;
 import com.iksling.blog.dto.MenusUserBackDTO;
 import com.iksling.blog.entity.Menu;
+import com.iksling.blog.entity.RoleMenu;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.MenuMapper;
@@ -62,14 +63,18 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
 
     @Override
     @Transactional
-    public void deleteBackMenuById(Integer id) {
-        int count = menuMapper.delete(new LambdaQueryWrapper<Menu>()
-                .eq(Menu::getId, id)
-                .eq(Menu::getDeletableFlag, true)
-                .notExists("select id from tb_menu where parent_id = " + id));
-        if (count != 1)
+    public void deleteBackMenuByIdList(List<Integer> idList) {
+        if (CollectionUtils.isEmpty(idList))
             throw new IllegalRequestException();
-        roleMenuMapper.deleteByMap(Collections.singletonMap("menu_id", id));
+        StringBuilder sb = new StringBuilder();
+        idList.forEach(e -> sb.append(e).append(","));
+        int count = menuMapper.delete(new LambdaQueryWrapper<Menu>()
+                .in(Menu::getId, idList)
+                .eq(Menu::getDeletableFlag, true)
+                .notExists("select a.id from (select id from tb_menu where parent_id in (" + sb.replace(sb.length() - 1, sb.length(), ")") + ") a"));
+        if (count != idList.size())
+            throw new IllegalRequestException();
+        roleMenuMapper.delete(new LambdaUpdateWrapper<RoleMenu>().in(RoleMenu::getMenuId, idList));
     }
 
     @Override

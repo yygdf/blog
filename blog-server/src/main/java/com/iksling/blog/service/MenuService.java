@@ -17,7 +17,7 @@ public interface MenuService extends IService<Menu> {
 
     void saveOrUpdateMenuBackVO(MenuBackVO menuBackVO);
 
-    void deleteBackMenuById(Integer id);
+    void deleteBackMenuByIdList(List<Integer> idList);
 
     void updateMenuStatusBackVO(StatusBackVO statusBackVO);
 

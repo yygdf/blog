@@ -37,7 +37,7 @@ public class FriendLinkController {
     @ApiImplicitParam(name = "idList", value = "idList", required = true, dataType = "List<Integer>")
     @DeleteMapping("/back/friendLinks")
     public Result deleteBackFriendLinks(@RequestBody List<Integer> idList) {
-        friendLinkService.deleteFriendLinksByIdList(idList);
+        friendLinkService.deleteBackFriendLinksByIdList(idList);
         return Result.success().message("操作成功");
     }
 

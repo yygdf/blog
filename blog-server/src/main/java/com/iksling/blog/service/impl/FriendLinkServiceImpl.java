@@ -72,7 +72,7 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
 
     @Override
     @Transactional
-    public void deleteFriendLinksByIdList(List<Integer> idList) {
+    public void deleteBackFriendLinksByIdList(List<Integer> idList) {
         if (CollectionUtils.isEmpty(idList))
             throw new IllegalRequestException();
         int count = friendLinkMapper.delete(new LambdaUpdateWrapper<FriendLink>()

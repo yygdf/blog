@@ -4,11 +4,11 @@ import store from "../../store";
 import axios from "axios";
 
 export async function generaMenu() {
-  await axios.get("/api/back/user/menus").then(({ data }) => {
+  await axios.get("/api/back/menus/user").then(({ data }) => {
     if (data.flag) {
       let userMenuList = data.data;
       userMenuList.forEach(item => {
-        if (!item.children) {
+        if (item.children.length === 0) {
           item.children = [
             {
               name: item.name,

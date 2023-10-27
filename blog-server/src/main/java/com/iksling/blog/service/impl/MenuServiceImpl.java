@@ -24,7 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.HOME_MENU_ID;
@@ -48,13 +51,37 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
         LoginUser loginUser = UserUtil.getLoginUser();
         Menu menu = BeanCopyUtil.copyObject(menuBackVO, Menu.class);
         if (Objects.isNull(menu.getId())) {
-            if (Objects.isNull(menu.getIcon()) || Objects.isNull(menu.getPath()) || Objects.isNull(menu.getName()) || Objects.isNull(menu.getComponent()))
-                throw new OperationStatusException();
+            if (StringUtils.isBlank(menu.getIcon()) || StringUtils.isBlank(menu.getPath()) || StringUtils.isBlank(menu.getName()) || StringUtils.isBlank(menu.getComponent()))
+                throw new IllegalRequestException();
+            Integer count = menuMapper.selectCount(new LambdaQueryWrapper<Menu>()
+                    .eq(Menu::getPath, menu.getPath()));
+            if (count > 0)
+                throw new OperationStatusException("该菜单路径已存在!");
             menu.setUserId(loginUser.getUserId());
             menu.setCreateUser(loginUser.getUserId());
             menu.setCreateTime(new Date());
             menuMapper.insert(menu);
         } else {
+            if (Objects.nonNull(menu.getIcon())) {
+                if (StringUtils.isBlank(menu.getIcon()))
+                    throw new IllegalRequestException();
+            }
+            if (Objects.nonNull(menu.getName())) {
+                if (StringUtils.isBlank(menu.getName()))
+                    throw new IllegalRequestException();
+            }
+            if (Objects.nonNull(menu.getComponent())) {
+                if (StringUtils.isBlank(menu.getComponent()))
+                    throw new IllegalRequestException();
+            }
+            if (Objects.nonNull(menu.getPath())) {
+                if (StringUtils.isBlank(menu.getPath()))
+                    throw new IllegalRequestException();
+                Integer count = menuMapper.selectCount(new LambdaQueryWrapper<Menu>()
+                        .eq(Menu::getPath, menu.getPath()));
+                if (count > 0)
+                    throw new OperationStatusException("该菜单路径已存在!");
+            }
             menu.setUpdateUser(loginUser.getUserId());
             menu.setUpdateTime(new Date());
             menuMapper.updateById(menu);

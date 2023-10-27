@@ -58,7 +58,7 @@
         align="center"
         width="80"
       >
-        <template slot-scope="scope">
+        <template v-if="scope.row.parentId !== -1" slot-scope="scope">
           <el-switch
             v-model="scope.row.disabledFlag"
             :active-value="true"
@@ -75,7 +75,7 @@
         align="center"
         width="80"
       >
-        <template slot-scope="scope">
+        <template v-if="scope.row.parentId !== -1" slot-scope="scope">
           <el-switch
             v-model="scope.row.anonymousFlag"
             :active-value="true"
@@ -197,7 +197,13 @@
           </el-radio-group>
         </el-form-item>
       </el-form>
-      <el-form :model="resource" :inline="true" size="medium" label-width="80">
+      <el-form
+        v-if="resource.parentId"
+        :model="resource"
+        :inline="true"
+        size="medium"
+        label-width="80"
+      >
         <el-form-item label="禁用">
           <el-switch
             v-model="resource.disabledFlag"
@@ -250,9 +256,7 @@ export default {
       if (resource == null) {
         this.resource = {
           parentId: null,
-          resourceName: "",
-          disabledFlag: false,
-          anonymousFlag: false
+          resourceName: ""
         };
         this.$refs.resourceTitle.innerHTML = "添加模块";
       } else {
@@ -282,9 +286,7 @@ export default {
             this.resource = {
               id: resource.id,
               parentId: null,
-              resourceName: resource.resourceName,
-              disabledFlag: resource.disabledFlag,
-              anonymousFlag: resource.anonymousFlag
+              resourceName: resource.resourceName
             };
             this.$refs.resourceTitle.innerHTML = "修改模块";
           }
@@ -341,7 +343,6 @@ export default {
         this.$message.error("资源路径不能为空");
         return false;
       }
-
       let param = this.$commonMethod.skipIdenticalValue(
         this.resource,
         this.resourceOrigin
@@ -416,5 +417,8 @@ export default {
 <style scoped>
 .smallerBtn {
   padding: 5px;
+}
+.word-limit-input {
+  padding-right: 50px;
 }
 </style>

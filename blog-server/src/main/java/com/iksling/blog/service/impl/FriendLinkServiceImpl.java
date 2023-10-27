@@ -40,9 +40,8 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
         LoginUser loginUser = UserUtil.getLoginUser();
         FriendLink friendLink = BeanCopyUtil.copyObject(friendLinkBackVO, FriendLink.class);
         if (Objects.isNull(friendLink.getId())) {
-            if (StringUtils.isBlank(friendLink.getLinkUrl()) || StringUtils.isBlank(friendLink.getLinkDesc()) || StringUtils.isBlank(friendLink.getLinkLogo()) || StringUtils.isBlank(friendLink.getLinkName()))
+            if (Objects.isNull(friendLink.getUserId()) || StringUtils.isBlank(friendLink.getLinkUrl()) || StringUtils.isBlank(friendLink.getLinkDesc()) || StringUtils.isBlank(friendLink.getLinkLogo()) || StringUtils.isBlank(friendLink.getLinkName()))
                 throw new OperationStatusException();
-            friendLink.setUserId(loginUser.getUserId());
             friendLink.setCreateUser(loginUser.getUserId());
             friendLink.setCreateTime(new Date());
             friendLinkMapper.insert(friendLink);

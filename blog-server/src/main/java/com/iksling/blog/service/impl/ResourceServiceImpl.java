@@ -25,10 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -51,8 +48,18 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
         LoginUser loginUser = UserUtil.getLoginUser();
         Resource resource = BeanCopyUtil.copyObject(resourceBackVO, Resource.class);
         if (Objects.isNull(resource.getId())) {
-            if (Objects.nonNull(resource.getParentId())) {
-                if (Objects.isNull(resource.getResourceUri()) || Objects.isNull(resource.getResourceRequestMethod()))
+            if (StringUtils.isBlank(resource.getResourceName()))
+                throw new IllegalRequestException();
+            if (Objects.isNull(resource.getParentId())) {
+                Integer count = resourceMapper.selectCount(new LambdaQueryWrapper<Resource>()
+                        .eq(Resource::getResourceName, resource.getResourceName())
+                        .eq(Resource::getParentId, -1));
+                if (count > 0)
+                    throw new OperationStatusException("该资源名称已存在!");
+            } else {
+                if (StringUtils.isBlank(resource.getResourceRequestMethod()))
+                    resource.setResourceRequestMethod("GET");
+                if (StringUtils.isBlank(resource.getResourceUri()))
                     throw new IllegalRequestException();
                 Integer count = resourceMapper.selectCount(new LambdaQueryWrapper<Resource>()
                         .eq(Resource::getResourceUri, resource.getResourceUri())
@@ -65,32 +72,43 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
             resource.setCreateTime(new Date());
             resourceMapper.insert(resource);
         } else {
-            if (Objects.nonNull(resource.getResourceUri())) {
+            List<Map<String, Object>> mapList = resourceMapper.selectMaps(new LambdaQueryWrapper<Resource>()
+                    .select(Resource::getParentId, Resource::getResourceUri, Resource::getResourceRequestMethod)
+                    .eq(Resource::getId, resource.getId()));
+            if (CollectionUtils.isEmpty(mapList))
+                throw new IllegalRequestException();
+            if ((int) mapList.get(0).get("parent_id") == -1) {
+                if (StringUtils.isBlank(resource.getResourceName()))
+                    throw new IllegalRequestException();
+                Integer count = resourceMapper.selectCount(new LambdaQueryWrapper<Resource>()
+                        .eq(Resource::getResourceName, resource.getResourceName())
+                        .eq(Resource::getParentId, -1));
+                if (count > 0)
+                    throw new OperationStatusException("该资源名称已存在!");
+            } else {
+                if (Objects.nonNull(resource.getResourceName()))
+                    if (StringUtils.isBlank(resource.getResourceName()))
+                        throw new IllegalRequestException();
+                boolean flag = false;
+                if (Objects.nonNull(resource.getResourceUri())) {
+                    if (StringUtils.isBlank(resource.getResourceUri()))
+                        throw new IllegalRequestException();
+                    mapList.get(0).put("resource_uri", resource.getResourceUri());
+                    flag = true;
+                }
                 if (Objects.nonNull(resource.getResourceRequestMethod())) {
+                    if (StringUtils.isBlank(resource.getResourceRequestMethod()))
+                        throw new IllegalRequestException();
+                    mapList.get(0).put("resource_request_method", resource.getResourceRequestMethod());
+                    flag = true;
+                }
+                if (flag) {
                     Integer count = resourceMapper.selectCount(new LambdaQueryWrapper<Resource>()
-                            .eq(Resource::getResourceUri, resource.getResourceUri())
-                            .eq(Resource::getResourceRequestMethod, resource.getResourceRequestMethod()));
-                    if (count > 0)
-                        throw new OperationStatusException("该资源已存在!");
-                } else {
-                    List<Object> objectList = resourceMapper.selectObjs(new LambdaQueryWrapper<Resource>()
-                            .select(Resource::getResourceRequestMethod)
-                            .eq(Resource::getId, resource.getId()));
-                    Integer count = resourceMapper.selectCount(new LambdaQueryWrapper<Resource>()
-                            .eq(Resource::getResourceUri, resource.getResourceUri())
-                            .eq(Resource::getResourceRequestMethod, objectList.get(0)));
+                            .eq(Resource::getResourceUri, mapList.get(0).get("resource_uri"))
+                            .eq(Resource::getResourceRequestMethod, mapList.get(0).get("resource_request_method")));
                     if (count > 0)
                         throw new OperationStatusException("该资源已存在!");
                 }
-            } else if (Objects.nonNull(resource.getResourceRequestMethod())) {
-                List<Object> objectList = resourceMapper.selectObjs(new LambdaQueryWrapper<Resource>()
-                        .select(Resource::getResourceUri)
-                        .eq(Resource::getId, resource.getId()));
-                Integer count = resourceMapper.selectCount(new LambdaQueryWrapper<Resource>()
-                        .eq(Resource::getResourceUri, objectList.get(0))
-                        .eq(Resource::getResourceRequestMethod, resource.getResourceRequestMethod()));
-                if (count > 0)
-                    throw new OperationStatusException("该资源已存在!");
             }
             resource.setUpdateUser(loginUser.getUserId());
             resource.setUpdateTime(new Date());
@@ -185,7 +203,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
         return parentResourceList.stream()
                 .map(parentResource -> {
                     ResourcesBackDTO resourcesBackDTO = BeanCopyUtil.copyObject(parentResource, ResourcesBackDTO.class);
-                    resourcesBackDTO.setChildren(BeanCopyUtil.copyList(childrenResourceMap.get(parentResource.getId()), ResourcesBackDTO.class);
+                    resourcesBackDTO.setChildren(BeanCopyUtil.copyList(childrenResourceMap.get(parentResource.getId()), ResourcesBackDTO.class));
                     return resourcesBackDTO;
                 })
                 .collect(Collectors.toList());

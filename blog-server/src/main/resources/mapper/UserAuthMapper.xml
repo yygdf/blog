@@ -93,7 +93,7 @@
 
     <select id="selectUserAuthsBackDTOCount" resultType="java.lang.Integer">
         SELECT
-            count(1)
+            COUNT(1)
         FROM
             tb_user_auth ua
         LEFT JOIN tb_user_role ur ON ua.user_id = ur.user_id

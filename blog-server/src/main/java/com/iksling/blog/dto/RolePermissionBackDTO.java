@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleOptionBackDTO {
+public class RolePermissionBackDTO {
     /**
      * 用户id
      */

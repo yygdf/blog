@@ -27,7 +27,7 @@
 
     <select id="selectFriendLinksBackDTOCount" resultType="java.lang.Integer">
         SELECT
-            count(1)
+            COUNT(1)
         FROM
             tb_friend_link
         <where>

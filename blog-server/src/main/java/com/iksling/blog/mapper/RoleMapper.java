@@ -13,9 +13,9 @@ import java.util.Map;
 public interface RoleMapper extends BaseMapper<Role> {
 
     @SuppressWarnings("MybatisXMapperMethodInspection")
-    List<Map<String, Object>> listLoginRoleByUserId(Integer userId);
+    List<Map<String, Object>> selectLoginRoleByUserId(Integer userId);
 
-    List<RolesBackDTO> listRolesBackDTO(String keywords);
+    List<RolesBackDTO> selectRolesBackDTO(String keywords);
 }
 
 

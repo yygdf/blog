@@ -104,7 +104,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         else
             lambdaUpdateWrapper.setSql("public_flag = !public_flag");
         int count = categoryMapper.update(null, lambdaUpdateWrapper);
-        if (count != 1)
+        if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
     }
 

@@ -1,7 +1,6 @@
 package com.iksling.blog.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.mapper.RoleMapper;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.ADMIN_CONTACT;
@@ -37,21 +35,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             .select(UserAuth::getUserId, UserAuth::getUsername, UserAuth::getPassword, UserAuth::getLockedFlag, UserAuth::getDisabledFlag)
             .eq(UserAuth::getUsername, username.trim())
             .eq(UserAuth::getDeletedFlag, false));
-        if (Objects.isNull(userAuth))
+        if (userAuth == null)
             throw new UsernameNotFoundException("用户名不存在!");
         if (userAuth.getLockedFlag())
             throw new LockedException("您的账号已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         if (userAuth.getDisabledFlag())
             throw new DisabledException("您的账号已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
-        List<Map<String, Object>> mapList = roleMapper.listLoginRoleByUserId(userAuth.getUserId());
-        if (CollectionUtils.isEmpty(mapList))
+        List<Map<String, Object>> mapList = roleMapper.selectLoginRoleByUserId(userAuth.getUserId());
+        if (mapList.isEmpty())
             throw new DisabledException("您的角色已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         return LoginUser.builder()
                 .userId(userAuth.getUserId())
                 .username(userAuth.getUsername())
                 .password(userAuth.getPassword())
                 .roleWeight((Integer) mapList.get(0).get("role_weight"))
-                .roleList(mapList.stream().map(ml -> (String) ml.get("role_name")).collect(Collectors.toList()))
+                .roleIdList(mapList.stream().map(ml -> ml.get("id").toString()).collect(Collectors.toList()))
                 .build();
     }
 }

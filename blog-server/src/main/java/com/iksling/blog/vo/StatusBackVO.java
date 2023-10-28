@@ -46,7 +46,7 @@ public class StatusBackVO {
     /**
      * id列表
      */
-    @NotEmpty(message = "id列表不能为空")
+    @NotEmpty(message = "'idList':{'min':1}")
     @ApiModelProperty(name = "idList", value = "id列表", required = true, dataType = "List<Integer>")
     private List<Integer> idList;
 

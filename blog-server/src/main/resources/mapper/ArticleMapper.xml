@@ -57,7 +57,7 @@
 
     <select id="selectArticlesBackDTOCount" resultType="java.lang.Integer">
         SELECT
-            count(1)
+            COUNT(1)
         FROM
             tb_article
         <where>

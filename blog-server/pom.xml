@@ -30,7 +30,7 @@
         <mybatis-plus-boot-starter-version>3.3.0</mybatis-plus-boot-starter-version>
         <UserAgentUtils-version>1.20</UserAgentUtils-version>
         <commons-net-version>3.3</commons-net-version>
-        <hibernate-validator-version>7.0.0.Final</hibernate-validator-version>
+        <hibernate-validator-version>6.2.0.Final</hibernate-validator-version>
     </properties>
 
     <dependencies>

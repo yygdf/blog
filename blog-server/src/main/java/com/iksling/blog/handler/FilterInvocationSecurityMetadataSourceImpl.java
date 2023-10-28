@@ -1,8 +1,8 @@
 package com.iksling.blog.handler;
 
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.iksling.blog.mapper.ResourceMapper;
 import com.iksling.blog.pojo.ResourceRole;
+import com.iksling.blog.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -12,9 +12,9 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,14 +32,14 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
     }
 
     public void clearResourceRoleList() {
-        resourceRoleList = null;
+        resourceRoleList = new ArrayList<>();
     }
 
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
-        if (CollectionUtils.isEmpty(resourceRoleList)) {
+        if (resourceRoleList.isEmpty()) {
             this.loadResourceRoleList();
-            if (CollectionUtils.isEmpty(resourceRoleList))
+            if (resourceRoleList.isEmpty())
                 throw new AuthenticationServiceException("服务器繁忙, 请稍后再试!");
         }
         FilterInvocation fi = (FilterInvocation) object;
@@ -52,9 +52,9 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
                     throw new AccessDeniedException("该请求已被禁用!");
                 if (resourceRole.getAnonymousFlag())
                     return null;
-                if (StringUtils.isBlank(resourceRole.getRoleList()))
+                if (CommonUtil.isBlank(resourceRole.getRoleIdList()))
                     throw new AccessDeniedException("该请求无法访问!");
-                return SecurityConfig.createList(resourceRole.getRoleList().split(","));
+                return SecurityConfig.createList(resourceRole.getRoleIdList().split(","));
             }
         }
         throw new AccessDeniedException("该请求已经被喵星人劫持了!");

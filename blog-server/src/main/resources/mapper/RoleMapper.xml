@@ -25,9 +25,9 @@
         update_user,update_time
     </sql>
 
-    <select id="listLoginRoleByUserId" resultType="map">
+    <select id="selectLoginRoleByUserId" resultType="map">
         SELECT
-            r.role_name,r.role_weight
+            r.id,r.role_weight
         FROM
             tb_user_role ur
         LEFT JOIN tb_role r ON ur.role_id = r.id
@@ -38,11 +38,11 @@
             r.role_weight ASC
     </select>
 
-    <select id="listRolesBackDTO" resultType="com.iksling.blog.dto.RolesBackDTO">
+    <select id="selectRolesBackDTO" resultType="com.iksling.blog.dto.RolesBackDTO">
         SELECT
             r.id,r.user_id,r.role_desc,
             r.role_name,r.role_weight,r.disabled_flag,
-            r.deletable_flag,r.create_time,IFNULL(uc.user_count, 0) user_count,
+            r.deletable_flag,r.create_time,IFNULL(uc.user_count,0) user_count,
             rm.menu_id menuIdList,rr.resource_id resourceIdList
         FROM
             (
@@ -54,13 +54,13 @@
                     tb_role
                     <where>
                         <if test="keywords != null and keywords != ''">
-                            role_name like concat('%', #{keywords}, '%')
+                            role_name LIKE concat('%', #{keywords}, '%')
                         </if>
                     </where>
              ) r
         LEFT JOIN (SELECT role_id, GROUP_CONCAT(menu_id) menu_id FROM tb_role_menu GROUP BY role_id) rm ON r.id = rm.role_id
         LEFT JOIN (SELECT role_id, GROUP_CONCAT(resource_id) resource_id FROM tb_role_resource GROUP BY role_id) rr ON r.id = rr.role_id
-        LEFT JOIN (SELECT role_id, count( role_id ) user_count FROM tb_user_role GROUP BY role_id ) uc ON r.id = uc.role_id
+        LEFT JOIN (SELECT role_id, COUNT(role_id) user_count FROM tb_user_role GROUP BY role_id ) uc ON r.id = uc.role_id
         ORDER BY
             r.id ASC
     </select>

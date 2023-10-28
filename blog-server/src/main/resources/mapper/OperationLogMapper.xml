@@ -30,7 +30,7 @@
 
     <select id="selectOperationLogsBackDTOCount" resultType="java.lang.Integer">
         SELECT
-            count(1)
+            COUNT(1)
         FROM
             tb_operation_log
         <where>

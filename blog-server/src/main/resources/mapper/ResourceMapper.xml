@@ -31,10 +31,10 @@
     <select id="getResourceRole" resultType="com.iksling.blog.pojo.ResourceRole">
         SELECT
             re.id,re.resource_uri,re.resource_request_method,
-            re.disabled_flag,re.anonymous_flag,r.role_name roleList
+            re.disabled_flag,re.anonymous_flag,r.id roleIdList
         FROM
             tb_resource re
-        LEFT JOIN (SELECT rre.resource_id,GROUP_CONCAT( r.role_name ) role_name FROM tb_role_resource rre LEFT JOIN tb_role r ON rre.role_id = r.id GROUP BY rre.resource_id ) r ON re.id = r.resource_id
+        LEFT JOIN (SELECT rre.resource_id,GROUP_CONCAT(r.id) id FROM tb_role_resource rre LEFT JOIN tb_role r ON rre.role_id = r.id GROUP BY rre.resource_id ) r ON re.id = r.resource_id
         WHERE
             re.parent_id != -1
     </select>

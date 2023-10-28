@@ -23,7 +23,7 @@
 
     <select id="selectTagsBackDTOCount" resultType="java.lang.Integer">
         SELECT
-            count(1)
+            COUNT(1)
         FROM
             tb_tag
         <where>

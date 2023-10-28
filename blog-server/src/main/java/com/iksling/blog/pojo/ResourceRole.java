@@ -30,7 +30,7 @@ public class ResourceRole {
     private Boolean anonymousFlag;
 
     /**
-     * 角色集合字符串
+     * 角色idList字符串
      */
-    private String roleList;
+    private String roleIdList;
 }

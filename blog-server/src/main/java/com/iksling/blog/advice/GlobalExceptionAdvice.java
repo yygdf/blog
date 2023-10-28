@@ -53,8 +53,8 @@ public class GlobalExceptionAdvice {
     public Result exceptionAdvice(MethodArgumentNotValidException e) {
         String message = e.getBindingResult().getFieldErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.joining(", "));
-        return Result.failure().code(FAILURE).message(message);
+                .collect(Collectors.joining(","));
+        return Result.failure().code(FAILURE).message("{" + message + "}");
     }
 
     /********** 文件状态异常 **********/

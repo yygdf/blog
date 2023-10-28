@@ -7,29 +7,32 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleOptionBackVO {
+public class RolePermissionBackVO {
     /**
      * 角色id
      */
-    @NotNull(message = "角色id不能为空")
+    @NotNull(message = "'id':'NotNull'")
     @ApiModelProperty(name = "id", value = "角色id", dataType = "Integer")
     private Integer id;
 
     /**
-     * 菜单id集合
+     * 菜单idList
      */
-    @ApiModelProperty(name = "menuIdList", value = "菜单id集合", dataType = "List<Integer>")
+    @Size(min = 1, message = "'menuIdList':{'min':1}")
+    @ApiModelProperty(name = "menuIdList", value = "菜单idList", dataType = "List<Integer>")
     private List<Integer> menuIdList;
 
     /**
-     * 资源id集合
+     * 资源idList
      */
-    @ApiModelProperty(name = "resourceIdList", value = "资源id集合", dataType = "List<Integer>")
+    @Size(min = 1, message = "'resourceIdList':{'min':1}")
+    @ApiModelProperty(name = "resourceIdList", value = "资源idList", dataType = "List<Integer>")
     private List<Integer> resourceIdList;
 }

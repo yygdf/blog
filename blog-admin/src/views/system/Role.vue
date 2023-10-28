@@ -94,7 +94,7 @@
           <el-popconfirm
             title="确定删除吗？"
             style="margin-left:10px"
-            @confirm="deleteRole(scope.row.id)"
+            @confirm="deleteRoles(scope.row.id)"
           >
             <el-button
               :disabled="!scope.row.deletableFlag || scope.row.userCount !== 0"
@@ -210,7 +210,7 @@
 export default {
   created() {
     this.listRoles();
-    this.listRoleOptions();
+    this.getRolePermission();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -318,15 +318,15 @@ export default {
           this.loading = false;
         });
     },
-    listRoleOptions() {
-      this.axios.get("/api/back/role/option").then(({ data }) => {
+    getRolePermission() {
+      this.axios.get("/api/back/role/permission").then(({ data }) => {
         this.menuList = data.data.menusRoleDTOList;
         this.resourceList = data.data.resourcesDTOList;
       });
     },
-    deleteRole(id) {
-      let param = { data: id };
-      this.axios.delete("/api/back/role", param).then(({ data }) => {
+    deleteRoles(id) {
+      let param = { data: [id] };
+      this.axios.delete("/api/back/roles", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",

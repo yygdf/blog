@@ -45,9 +45,9 @@ public class LoginUser implements UserDetails {
     private Boolean loginPlatform;
 
     /**
-     * 用户角色
+     * 角色idList
      */
-    private List<String> roleList;
+    private List<String> roleIdList;
 
     /**
      * 角色权重
@@ -56,7 +56,7 @@ public class LoginUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roleList.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
+        return this.roleIdList.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
     }
 
     @Override

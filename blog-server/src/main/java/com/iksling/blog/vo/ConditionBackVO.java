@@ -14,16 +14,16 @@ public class ConditionBackVO {
     /**
      * 每页数量
      */
-    @Min(message = "每页数量最小值", value = 1)
-    @ApiModelProperty(name = "size", value = "每页数量", required = true, dataType = "Integer")
-    private Integer size;
+    @Min(value = 1, message = "'size':{'minvalue':1}")
+    @ApiModelProperty(name = "size", value = "每页数量", dataType = "Integer")
+    private Integer size = 10;
 
     /**
      * 当前页码
      */
-    @Min(message = "当前页码最小值", value = 1)
-    @ApiModelProperty(name = "current", value = "当前页码", required = true, dataType = "Integer")
-    private Integer current;
+    @Min(value = 1, message = "'current':{'minvalue':1}")
+    @ApiModelProperty(name = "current", value = "当前页码", dataType = "Integer")
+    private Integer current = 1;
 
     /**
      * 搜索关键字

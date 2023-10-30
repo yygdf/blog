@@ -19,20 +19,20 @@
           prefix-icon="el-icon-search"
           placeholder="请输入角色名"
           clearable
-          @keyup.enter.native="listRoles"
+          @keyup.enter.native="getRoles"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listRoles"
+          @click="getRoles"
         >
           搜索
         </el-button>
       </div>
     </div>
-    <el-table border :data="roleList" v-loading="loading">
+    <el-table v-loading="loading" :data="roleList" height="720" border>
       <el-table-column prop="roleName" label="角色名称" align="center" />
       <el-table-column prop="roleDesc" label="角色描述" align="center" />
       <el-table-column
@@ -114,21 +114,23 @@
         <el-form-item label="角色名称">
           <el-input
             v-model="role.roleName"
-            :disabled="role.id != null"
-            :ref="role.id ? '' : 'input'"
-            :maxlength="50"
+            ref="input"
+            class="word-limit-input"
             style="width: 200px"
+            maxlength="50"
+            placeholder="请输入角色名称"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="角色描述">
           <el-input
             v-model="role.roleDesc"
-            :ref="role.id ? 'input' : ''"
-            :maxlength="50"
+            class="word-limit-input"
             style="width: 200px"
+            maxlength="50"
+            placeholder="请输入角色描述"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="角色权重">
           <el-input-number
@@ -209,7 +211,7 @@
 <script>
 export default {
   created() {
-    this.listRoles();
+    this.getRoles();
     this.getRolePermission();
     this.$nextTick(() => {
       this.$refs.input.focus();
@@ -217,11 +219,12 @@ export default {
   },
   data: function() {
     return {
-      role: {},
       roleList: [],
       menuList: [],
       resourceList: [],
-      keywords: null,
+      role: {},
+      roleOrigin: {},
+      keywords: "",
       rootRoleId: null,
       loading: true,
       addOrEditStatus: false,
@@ -235,7 +238,8 @@ export default {
         this.role = {
           roleName: "",
           roleDesc: "",
-          roleWeight: 1000
+          roleWeight: 1000,
+          disabledFlag: false
         };
         this.$refs.roleTitle.innerHTML = "新增角色";
       } else {
@@ -248,6 +252,7 @@ export default {
         };
         this.$refs.roleTitle.innerHTML = "修改角色";
       }
+      this.roleOrigin = JSON.parse(JSON.stringify(this.role));
       this.$nextTick(() => {
         this.$refs.input.focus();
       });
@@ -305,12 +310,14 @@ export default {
       };
       this.editRoleResourceStatus = true;
     },
-    listRoles() {
+    getRoles() {
+      let params = {};
+      if (this.keywords.trim() !== "") {
+        params.keywords = this.keywords;
+      }
       this.axios
         .get("/api/back/roles", {
-          params: {
-            keywords: this.keywords
-          }
+          params
         })
         .then(({ data }) => {
           this.rootRoleId = data.data.rootRoleId;
@@ -321,7 +328,7 @@ export default {
     getRolePermission() {
       this.axios.get("/api/back/role/permission").then(({ data }) => {
         this.menuList = data.data.menusRoleDTOList;
-        this.resourceList = data.data.resourcesDTOList;
+        this.resourceList = data.data.resourcesRoleDTOList;
       });
     },
     deleteRoles(id) {
@@ -332,7 +339,7 @@ export default {
             title: "成功",
             message: data.message
           });
-          this.listRoles();
+          this.getRoles();
         } else {
           this.$notify.error({
             title: "失败",
@@ -347,7 +354,7 @@ export default {
         .getCheckedKeys()
         .concat(this.$refs.menuTree.getHalfCheckedKeys());
       this.axios
-        .put("/api/back/role/option", {
+        .put("/api/back/role/permission", {
           id,
           menuIdList
         })
@@ -357,15 +364,15 @@ export default {
               title: "成功",
               message: data.message
             });
-            this.listRoles();
+            this.getRoles();
           } else {
             this.$notify.error({
               title: "失败",
               message: data.message
             });
           }
-          this.editRoleMenuStatus = false;
         });
+      this.editRoleMenuStatus = false;
     },
     addOrEditRole() {
       if (this.role.roleName.trim() === "") {
@@ -376,21 +383,31 @@ export default {
         this.$message.error("角色描述不能为空");
         return false;
       }
-      this.axios.post("/api/back/role", this.role).then(({ data }) => {
+      let param = this.$commonMethod.skipIdenticalValue(
+        this.role,
+        this.roleOrigin
+      );
+      if (Object.keys(param).length === 0) {
+        return false;
+      }
+      if (this.role.id != null) {
+        param.id = this.role.id;
+      }
+      this.axios.post("/api/back/role", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listRoles();
+          this.getRoles();
         } else {
           this.$notify.error({
             title: "失败",
             message: data.message
           });
         }
-        this.addOrEditStatus = false;
       });
+      this.addOrEditStatus = false;
     },
     changeRoleStatus(role) {
       let disabledFlag = role.disabledFlag;
@@ -401,10 +418,21 @@ export default {
         type: "warning"
       })
         .then(() => {
-          role.disabledFlag = !disabledFlag;
-          this.axios.put("/api/back/role/status", {
-            id: role.id,
-            publicFlag: !disabledFlag
+          let param = {
+            idList: [role.id]
+          };
+          if (!disabledFlag) {
+            param.status = true;
+          }
+          this.axios.put("/api/back/role/status", param).then(({ data }) => {
+            if (data.flag) {
+              role.disabledFlag = !disabledFlag;
+            } else {
+              this.$notify.error({
+                title: "失败",
+                message: data.message
+              });
+            }
           });
         })
         .catch(() => {});
@@ -415,7 +443,7 @@ export default {
         .getCheckedKeys()
         .concat(this.$refs.resourceTree.getHalfCheckedKeys());
       this.axios
-        .put("/api/back/role/option", {
+        .put("/api/back/role/permission", {
           id,
           resourceIdList
         })
@@ -425,16 +453,22 @@ export default {
               title: "成功",
               message: data.message
             });
-            this.listRoles();
+            this.getRoles();
           } else {
             this.$notify.error({
               title: "失败",
               message: data.message
             });
           }
-          this.editRoleResourceStatus = false;
         });
+      this.editRoleResourceStatus = false;
     }
   }
 };
 </script>
+
+<style scoped>
+.word-limit-input {
+  padding-right: 50px;
+}
+</style>

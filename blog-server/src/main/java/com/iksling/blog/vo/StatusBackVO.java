@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -14,7 +13,6 @@ public class StatusBackVO {
     /**
      * id - 可删除
      */
-    @NotNull(message = "id不能为null")
     @ApiModelProperty(name = "id", value = "id", required = true, dataType = "Integer")
     private Integer id;
 
@@ -27,7 +25,6 @@ public class StatusBackVO {
     /**
      * 0未公开, 1已公开 - 可删除
      */
-    @NotNull(message = "公开标志不能为null")
     @ApiModelProperty(name = "publicFlag", value = "0未公开, 1已公开", required = true, dataType = "Boolean")
     private Boolean publicFlag;
 

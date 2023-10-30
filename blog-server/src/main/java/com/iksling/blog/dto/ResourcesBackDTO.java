@@ -63,7 +63,7 @@ public class ResourcesBackDTO {
     private Date updateTime;
 
     /**
-     * 子资源集合
+     * 子资源
      */
     private List<ResourcesBackDTO> children;
 }

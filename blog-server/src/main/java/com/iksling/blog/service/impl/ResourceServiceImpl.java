@@ -47,19 +47,19 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     public void saveOrUpdateResourceBackVO(ResourceBackVO resourceBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Resource resource = BeanCopyUtil.copyObject(resourceBackVO, Resource.class);
-        if (Objects.isNull(resource.getId())) {
-            if (StringUtils.isBlank(resource.getResourceName()))
+        if (resource.getId() == null) {
+            if (resource.getResourceName() == null)
                 throw new IllegalRequestException();
-            if (Objects.isNull(resource.getParentId())) {
+            if (resource.getParentId() == null) {
                 Integer count = resourceMapper.selectCount(new LambdaQueryWrapper<Resource>()
                         .eq(Resource::getResourceName, resource.getResourceName())
                         .eq(Resource::getParentId, -1));
                 if (count > 0)
                     throw new OperationStatusException("该资源名称已存在!");
             } else {
-                if (StringUtils.isBlank(resource.getResourceRequestMethod()))
+                if (resource.getResourceRequestMethod() == null)
                     resource.setResourceRequestMethod("GET");
-                if (StringUtils.isBlank(resource.getResourceUri()))
+                if (resource.getResourceUri() == null)
                     throw new IllegalRequestException();
                 Integer count = resourceMapper.selectCount(new LambdaQueryWrapper<Resource>()
                         .eq(Resource::getResourceUri, resource.getResourceUri())
@@ -75,10 +75,10 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
             List<Map<String, Object>> mapList = resourceMapper.selectMaps(new LambdaQueryWrapper<Resource>()
                     .select(Resource::getParentId, Resource::getResourceUri, Resource::getResourceRequestMethod)
                     .eq(Resource::getId, resource.getId()));
-            if (CollectionUtils.isEmpty(mapList))
+            if (mapList.isEmpty())
                 throw new IllegalRequestException();
             if ((int) mapList.get(0).get("parent_id") == -1) {
-                if (StringUtils.isBlank(resource.getResourceName()))
+                if (resource.getResourceName() == null)
                     throw new IllegalRequestException();
                 Integer count = resourceMapper.selectCount(new LambdaQueryWrapper<Resource>()
                         .eq(Resource::getResourceName, resource.getResourceName())
@@ -86,19 +86,12 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                 if (count > 0)
                     throw new OperationStatusException("该资源名称已存在!");
             } else {
-                if (Objects.nonNull(resource.getResourceName()))
-                    if (StringUtils.isBlank(resource.getResourceName()))
-                        throw new IllegalRequestException();
                 boolean flag = false;
-                if (Objects.nonNull(resource.getResourceUri())) {
-                    if (StringUtils.isBlank(resource.getResourceUri()))
-                        throw new IllegalRequestException();
+                if (resource.getResourceUri() != null) {
                     mapList.get(0).put("resource_uri", resource.getResourceUri());
                     flag = true;
                 }
-                if (Objects.nonNull(resource.getResourceRequestMethod())) {
-                    if (StringUtils.isBlank(resource.getResourceRequestMethod()))
-                        throw new IllegalRequestException();
+                if (resource.getResourceRequestMethod() != null) {
                     mapList.get(0).put("resource_request_method", resource.getResourceRequestMethod());
                     flag = true;
                 }

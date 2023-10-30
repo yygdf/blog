@@ -52,12 +52,12 @@ public class RolesBackDTO {
     private Integer userCount;
 
     /**
-     * 菜单id集合字符串
+     * 菜单idList
      */
     private String menuIdList;
 
     /**
-     * 资源id集合字符串
+     * 资源idList
      */
     private String resourceIdList;
 }

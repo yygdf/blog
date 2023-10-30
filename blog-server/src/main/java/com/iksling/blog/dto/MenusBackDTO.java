@@ -78,7 +78,7 @@ public class MenusBackDTO {
     private Date updateTime;
 
     /**
-     * 子菜单集合
+     * 子菜单
      */
     private List<MenusBackDTO> children;
 }

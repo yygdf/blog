@@ -10,7 +10,6 @@ import com.iksling.blog.dto.RolesBackDTO;
 import com.iksling.blog.entity.Role;
 import com.iksling.blog.entity.RoleMenu;
 import com.iksling.blog.entity.RoleResource;
-import com.iksling.blog.entity.UserRole;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.handler.FilterInvocationSecurityMetadataSourceImpl;
@@ -34,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID;
@@ -114,7 +112,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
                 .notInSql(Role::getId,"select distinct role_id from tb_user_role"));
         if (count != idList.size())
             throw new IllegalRequestException();
-        userRoleMapper.delete(new LambdaUpdateWrapper<UserRole>().in(UserRole::getRoleId, idList));
         roleMenuMapper.delete(new LambdaUpdateWrapper<RoleMenu>().in(RoleMenu::getRoleId, idList));
         roleResourceMapper.delete(new LambdaUpdateWrapper<RoleResource>().in(RoleResource::getRoleId, idList));
     }
@@ -140,7 +137,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     @Override
     @Transactional
     public void updateRolePermissionBackVO(RolePermissionBackVO rolePermissionBackVO) {
-        if (Objects.nonNull(rolePermissionBackVO.getMenuIdList())) {
+        if (rolePermissionBackVO.getMenuIdList() != null) {
             roleMenuService.remove(new LambdaQueryWrapper<RoleMenu>()
                     .eq(RoleMenu::getRoleId, rolePermissionBackVO.getId()));
             roleMenuService.saveBatch(rolePermissionBackVO.getMenuIdList().stream()
@@ -150,7 +147,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
                             .build())
                     .collect(Collectors.toList()));
         }
-        if (Objects.nonNull(rolePermissionBackVO.getResourceIdList())) {
+        if (rolePermissionBackVO.getResourceIdList() != null) {
             roleResourceService.remove(new LambdaQueryWrapper<RoleResource>()
                     .eq(RoleResource::getRoleId, rolePermissionBackVO.getId()));
             roleResourceService.saveBatch(rolePermissionBackVO.getResourceIdList().stream()

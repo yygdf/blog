@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.Max;
+import javax.validation.constraints.Size;
 
 @Data
 @ApiModel(description = "分类后台VO")
@@ -18,7 +18,7 @@ public class CategoryBackVO {
     /**
      * 分类名
      */
-    @Max(message = "分类名最大长度", value = 50)
+    @Size(min = 1, max = 50, message = "'categoryName':{'minlength':1,'maxlength':50}")
     @ApiModelProperty(name = "categoryName", value = "分类名", dataType = "String")
     private String categoryName;
 

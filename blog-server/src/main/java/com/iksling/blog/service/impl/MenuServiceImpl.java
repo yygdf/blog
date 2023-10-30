@@ -2,8 +2,6 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.LabelsBackDTO;
 import com.iksling.blog.dto.MenusBackDTO;
@@ -17,6 +15,7 @@ import com.iksling.blog.mapper.RoleMenuMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MenuService;
 import com.iksling.blog.util.BeanCopyUtil;
+import com.iksling.blog.util.CommonUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.MenuBackVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -27,10 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.HOME_MENU_ID;
+import static com.iksling.blog.constant.FlagConst.DISABLED;
+import static com.iksling.blog.constant.FlagConst.HIDE;
 
 /**
  *
@@ -46,12 +46,12 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     @Override
     @Transactional
     public void saveOrUpdateMenuBackVO(MenuBackVO menuBackVO) {
-        if (Objects.nonNull(menuBackVO.getParentId()) && menuBackVO.getParentId().equals(HOME_MENU_ID))
+        if (HOME_MENU_ID.equals(menuBackVO.getParentId()))
             throw new IllegalRequestException();
         LoginUser loginUser = UserUtil.getLoginUser();
         Menu menu = BeanCopyUtil.copyObject(menuBackVO, Menu.class);
-        if (Objects.isNull(menu.getId())) {
-            if (StringUtils.isBlank(menu.getIcon()) || StringUtils.isBlank(menu.getPath()) || StringUtils.isBlank(menu.getName()) || StringUtils.isBlank(menu.getComponent()))
+        if (menu.getId() == null) {
+            if (menu.getIcon() == null || menu.getPath() == null || menu.getName() == null || menu.getComponent() == null)
                 throw new IllegalRequestException();
             Integer count = menuMapper.selectCount(new LambdaQueryWrapper<Menu>()
                     .eq(Menu::getPath, menu.getPath()));
@@ -62,21 +62,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
             menu.setCreateTime(new Date());
             menuMapper.insert(menu);
         } else {
-            if (Objects.nonNull(menu.getIcon())) {
-                if (StringUtils.isBlank(menu.getIcon()))
-                    throw new IllegalRequestException();
-            }
-            if (Objects.nonNull(menu.getName())) {
-                if (StringUtils.isBlank(menu.getName()))
-                    throw new IllegalRequestException();
-            }
-            if (Objects.nonNull(menu.getComponent())) {
-                if (StringUtils.isBlank(menu.getComponent()))
-                    throw new IllegalRequestException();
-            }
-            if (Objects.nonNull(menu.getPath())) {
-                if (StringUtils.isBlank(menu.getPath()))
-                    throw new IllegalRequestException();
+            if (menu.getPath() != null) {
                 Integer count = menuMapper.selectCount(new LambdaQueryWrapper<Menu>()
                         .eq(Menu::getPath, menu.getPath()));
                 if (count > 0)
@@ -91,7 +77,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     @Override
     @Transactional
     public void deleteBackMenusByIdList(List<Integer> idList) {
-        if (CollectionUtils.isEmpty(idList))
+        if (idList.isEmpty())
             throw new IllegalRequestException();
         StringBuilder sb = new StringBuilder();
         idList.forEach(e -> sb.append(e).append(","));
@@ -109,9 +95,9 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     public void updateMenuStatusBackVO(StatusBackVO statusBackVO) {
         LambdaUpdateWrapper<Menu> lambdaUpdateWrapper = new LambdaUpdateWrapper<Menu>()
                 .in(Menu::getId, statusBackVO.getIdList());
-        if (Objects.equals(statusBackVO.getType(), 8))
+        if (HIDE.equals(statusBackVO.getType()))
             lambdaUpdateWrapper.setSql("hide_flag = !hide_flag");
-        else if (Objects.equals(statusBackVO.getType(), 9))
+        else if (DISABLED.equals(statusBackVO.getType()))
             lambdaUpdateWrapper.setSql("disabled_flag = !disabled_flag");
         else
             lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
@@ -126,7 +112,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                 .select(Menu::getId, Menu::getUserId, Menu::getParentId, Menu::getIcon, Menu::getRank, Menu::getPath,
                         Menu::getName, Menu::getComponent, Menu::getHideFlag, Menu::getHiddenFlag, Menu::getDisabledFlag,
                         Menu::getDeletableFlag, Menu::getCreateTime, Menu::getUpdateTime)
-                .and(StringUtils.isNotBlank(keywords), e -> e.like(Menu::getName, keywords)
+                .and(CommonUtil.isNotEmpty(keywords), e -> e.like(Menu::getName, keywords)
                         .or()
                         .inSql(Menu::getId, "select distinct parent_id from tb_menu where name like '%"+keywords+"%'"))
                 .orderByAsc(Menu::getRank)
@@ -195,15 +181,11 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                             .userId(parentMenu.getUserId())
                             .label(parentMenu.getName())
                             .build();
-                    List<Menu> childrenMenuList = childrenMenuMap.get(parentMenu.getId());
-                    if (CollectionUtils.isNotEmpty(childrenMenuList)) {
-                        List<LabelsBackDTO> labelsBackDTOList = childrenMenuList.stream().map(childrenMenu -> LabelsBackDTO.builder()
-                                .id(childrenMenu.getId())
-                                .userId(childrenMenu.getUserId())
-                                .label(childrenMenu.getName())
-                                .build()).collect(Collectors.toList());
-                        labelsBackDTO.setChildren(labelsBackDTOList);
-                    }
+                    labelsBackDTO.setChildren(childrenMenuMap.get(parentMenu.getId()).stream().map(childrenMenu -> LabelsBackDTO.builder()
+                            .id(childrenMenu.getId())
+                            .userId(childrenMenu.getUserId())
+                            .label(childrenMenu.getName())
+                            .build()).collect(Collectors.toList()));
                     return labelsBackDTO;
                 })
                 .collect(Collectors.toList());

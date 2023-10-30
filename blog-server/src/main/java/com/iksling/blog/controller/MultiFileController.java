@@ -3,7 +3,7 @@ package com.iksling.blog.controller;
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MultiFileService;
-import com.iksling.blog.vo.ArticleImgBackVO;
+import com.iksling.blog.vo.ArticleImageBackVO;
 import com.iksling.blog.vo.UserAvatarBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -27,18 +27,9 @@ public class MultiFileController {
     @ApiOperation(value = "上传文章图片")
     @ApiImplicitParam(name = "articleImageBackVO", value = "文章图片后台VO", required = true, dataType = "ArticleImageBackVO")
     @PostMapping("/back/article/image")
-    public Result saveBackArticleImage(@Valid ArticleImgBackVO articleImgBackVO) {
-        String url = multiFileService.saveArticleImgBackVO(articleImgBackVO);
+    public Result saveBackArticleImage(@Valid ArticleImageBackVO articleImageBackVO) {
+        String url = multiFileService.saveArticleImageBackVO(articleImageBackVO);
         return Result.success().message("上传成功").data(url);
-    }
-
-    @OptLog(optType = UPDATE)
-    @ApiOperation(value = "批量更新文章图片状态")
-    @ApiImplicitParam(name = "fileNameList", value = "文件名list", required = true, dataType = "List<Long>")
-    @PutMapping("/back/article/image")
-    public Result updateBackArticleImages(@RequestBody List<Long> fileNameList) {
-        multiFileService.updateArticleImgByFileNameList(fileNameList);
-        return Result.success().message("操作成功");
     }
 
     @OptLog(optType = UPLOAD)
@@ -51,8 +42,17 @@ public class MultiFileController {
     }
 
     @OptLog(optType = UPDATE)
+    @ApiOperation(value = "批量更新文章图片状态")
+    @ApiImplicitParam(name = "fileNameList", value = "文件名list", required = true, dataType = "List<Long>")
+    @PutMapping("/back/article/images")
+    public Result updateBackArticleImages(@RequestBody List<Long> fileNameList) {
+        multiFileService.updateBackArticleImagesByFileNameList(fileNameList);
+        return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = UPDATE)
     @ApiOperation(value = "更新用户头像状态")
-    @ApiImplicitParam(name = "fileName", value = "用户头像名", required = true, dataType = "Long")
+    @ApiImplicitParam(name = "fileName", value = "文件名", required = true, dataType = "Long")
     @PutMapping("/back/user/avatar")
     public Result updateBackUserAvatar(@RequestParam Long fileName) {
         multiFileService.updateUserAvatarByFileName(fileName);

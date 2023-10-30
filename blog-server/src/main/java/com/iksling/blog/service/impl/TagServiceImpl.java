@@ -2,13 +2,13 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.TagsBackDTO;
+import com.iksling.blog.entity.ArticleTag;
 import com.iksling.blog.entity.Tag;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
+import com.iksling.blog.mapper.ArticleTagMapper;
 import com.iksling.blog.mapper.TagMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
@@ -24,7 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
+
+import static com.iksling.blog.constant.FlagConst.DELETED;
 
 /**
  *
@@ -35,14 +36,15 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     @Autowired
     private TagMapper tagMapper;
 
+    @Autowired
+    private ArticleTagMapper articleTagMapper;
+
     @Override
     @Transactional
     public void saveOrUpdateTagBackVO(TagBackVO tagBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Tag tag = BeanCopyUtil.copyObject(tagBackVO, Tag.class);
-        if (Objects.isNull(tag.getId())) {
-            if (StringUtils.isBlank(tag.getTagName()))
-                throw new OperationStatusException();
+        if (tag.getId() == null) {
             Integer count = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
                     .eq(Tag::getTagName, tag.getTagName())
                     .eq(Tag::getUserId, loginUser.getUserId())
@@ -54,25 +56,19 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
             tag.setCreateTime(new Date());
             tagMapper.insert(tag);
         } else {
-            if (Objects.nonNull(tag.getTagName())) {
-                if (StringUtils.isBlank(tag.getTagName()))
-                    throw new OperationStatusException();
-            }
             Tag tagOrigin = tagMapper.selectOne(new LambdaQueryWrapper<Tag>()
                     .select(Tag::getUserId)
                     .eq(Tag::getDeletedFlag, false)
                     .eq(Tag::getId, tag.getId())
                     .eq(loginUser.getRoleWeight() > 200, Tag::getUserId, loginUser.getUserId()));
-            if (Objects.isNull(tagOrigin))
+            if (tagOrigin == null)
                 throw new OperationStatusException();
-            if (Objects.nonNull(tag.getTagName())) {
-                Integer count = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
-                        .eq(Tag::getTagName, tag.getTagName())
-                        .eq(Tag::getUserId, tagOrigin.getUserId())
-                        .eq(Tag::getDeletedFlag, false));
-                if (count > 0)
-                    throw new OperationStatusException("标签名已存在!");
-            }
+            Integer count = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
+                    .eq(Tag::getTagName, tag.getTagName())
+                    .eq(Tag::getUserId, tagOrigin.getUserId())
+                    .eq(Tag::getDeletedFlag, false));
+            if (count > 0)
+                throw new OperationStatusException("标签名已存在!");
             tag.setUpdateUser(loginUser.getUserId());
             tag.setUpdateTime(new Date());
             tagMapper.updateById(tag);
@@ -82,13 +78,15 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     @Override
     @Transactional
     public void deleteBackTagsByIdList(List<Integer> idList) {
-        if (CollectionUtils.isEmpty(idList))
+        if (idList.isEmpty())
             throw new IllegalRequestException();
         int count = tagMapper.delete(new LambdaUpdateWrapper<Tag>()
                 .eq(Tag::getDeletedFlag, true)
                 .in(Tag::getId, idList));
         if (count != idList.size())
             throw new IllegalRequestException();
+        articleTagMapper.delete(new LambdaUpdateWrapper<ArticleTag>()
+                .in(ArticleTag::getTagId, idList));
     }
 
     @Override
@@ -102,12 +100,16 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
                 .in(Tag::getId, statusBackVO.getIdList()));
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
+        articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
+                .set(ArticleTag::getDeletedFlag, true)
+                .eq(ArticleTag::getDeletedFlag, false)
+                .in(ArticleTag::getTagId, statusBackVO.getIdList()));
     }
 
     @Override
     public PagePojo<TagsBackDTO> getTagsBackDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100)
+        if (DELETED.equals(condition.getType()) && loginUser.getRoleWeight() > 100)
             return new PagePojo<>();
         Integer count = tagMapper.selectTagsBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count == 0)

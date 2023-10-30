@@ -104,7 +104,7 @@ public class LogAspect {
         ExceptionLog exceptionLog = ExceptionLog.builder()
                 .userId(loginUser.getUserId())
                 .optUri(Objects.requireNonNull(request).getRequestURI())
-                .optType(Objects.isNull(optLog) ? QUERY : optLog.optType())
+                .optType(optLog == null ? QUERY : optLog.optType())
                 .optDesc(apiOperation.value())
                 .optModule(api.tags()[0])
                 .optMethod(joinPoint.getTarget().getClass().getName() + "." + method.getName())

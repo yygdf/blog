@@ -3,9 +3,9 @@ package com.iksling.blog.vo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 
 @Data
 @ApiModel(description = "菜单后台VO")
@@ -25,36 +25,35 @@ public class MenuBackVO {
     /**
      * 菜单图标
      */
-    @Max(message = "菜单图标最大长度", value = 50)
+    @Size(min = 1, max = 50, message = "'icon':{'minlength':1,'maxlength':50}")
     @ApiModelProperty(name = "icon", value = "菜单图标", dataType = "String")
     private String icon;
 
     /**
      * 排序指标
      */
-    @Min(message = "排序指标最小值", value = 1)
-    @Max(message = "排序指标最大值", value = 100)
+    @Range(min = 1, max = 100, message = "'rank':{'minvalue':1,'maxvalue':100}")
     @ApiModelProperty(name = "rank", value = "排序指标", dataType = "Integer")
     private Integer rank;
 
     /**
      * 菜单路径
      */
-    @Max(message = "菜单路径最大长度", value = 50)
+    @Size(min = 1, max = 50, message = "'path':{'minlength':1,'maxlength':50}")
     @ApiModelProperty(name = "path", value = "菜单路径", dataType = "String")
     private String path;
 
     /**
      * 菜单名称
      */
-    @Max(message = "菜单名称最大长度", value = 50)
+    @Size(min = 1, max = 50, message = "'name':{'minlength':1,'maxlength':50}")
     @ApiModelProperty(name = "name", value = "菜单名称", dataType = "String")
     private String name;
 
     /**
      * 菜单组件
      */
-    @Max(message = "菜单组件最大长度", value = 50)
+    @Size(min = 1, max = 50, message = "'component':{'minlength':1,'maxlength':50}")
     @ApiModelProperty(name = "component", value = "菜单组件", dataType = "String")
     private String component;
 

@@ -2,8 +2,6 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.CategoriesBackDTO;
 import com.iksling.blog.entity.Category;
@@ -24,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
+
+import static com.iksling.blog.constant.FlagConst.DELETED;
+import static com.iksling.blog.constant.FlagConst.HIDDEN;
 
 /**
  *
@@ -40,8 +40,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     public void saveOrUpdateCategoryBackVO(CategoryBackVO categoryBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Category category = BeanCopyUtil.copyObject(categoryBackVO, Category.class);
-        if (Objects.isNull(category.getId())) {
-            if (StringUtils.isBlank(category.getCategoryName()))
+        if (category.getId() == null) {
+            if (category.getCategoryName() == null)
                 throw new OperationStatusException();
             Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                     .eq(Category::getCategoryName, category.getCategoryName())
@@ -54,18 +54,14 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
             category.setCreateTime(new Date());
             categoryMapper.insert(category);
         } else {
-            if (Objects.nonNull(category.getCategoryName())) {
-                if (StringUtils.isBlank(category.getCategoryName()))
-                    throw new OperationStatusException();
-            }
             Category categoryOrigin = categoryMapper.selectOne(new LambdaQueryWrapper<Category>()
                     .select(Category::getUserId)
                     .eq(Category::getDeletedFlag, false)
                     .eq(Category::getId, category.getId())
                     .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId()));
-            if (Objects.isNull(categoryOrigin))
+            if (categoryOrigin == null)
                 throw new OperationStatusException();
-            if (Objects.nonNull(category.getCategoryName())) {
+            if (category.getCategoryName() != null) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                         .eq(Category::getCategoryName, category.getCategoryName())
                         .eq(Category::getUserId, categoryOrigin.getUserId())
@@ -82,7 +78,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     @Override
     @Transactional
     public void deleteBackCategoriesByIdList(List<Integer> idList) {
-        if (CollectionUtils.isEmpty(idList))
+        if (idList.isEmpty())
             throw new IllegalRequestException();
         int count = categoryMapper.delete(new LambdaUpdateWrapper<Category>()
                 .eq(Category::getDeletedFlag, true)
@@ -99,7 +95,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                 .in(Category::getId, statusBackVO.getIdList())
                 .eq(Category::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId());
-        if (Objects.equals(statusBackVO.getType(), 3))
+        if (HIDDEN.equals(statusBackVO.getType()))
             lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
         else
             lambdaUpdateWrapper.setSql("public_flag = !public_flag");
@@ -125,7 +121,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     @Override
     public PagePojo<CategoriesBackDTO> getCategoriesBackDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100)
+        if (DELETED.equals(condition.getType()) && loginUser.getRoleWeight() > 100)
             return new PagePojo<>();
         Integer count = categoryMapper.selectCategoriesBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count == 0)

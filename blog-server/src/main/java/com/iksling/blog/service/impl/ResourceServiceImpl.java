@@ -2,8 +2,6 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.LabelBackDTO;
 import com.iksling.blog.dto.LabelsBackDTO;
@@ -18,6 +16,7 @@ import com.iksling.blog.mapper.RoleResourceMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.ResourceService;
 import com.iksling.blog.util.BeanCopyUtil;
+import com.iksling.blog.util.CommonUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ResourceBackVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -25,8 +24,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.iksling.blog.constant.FlagConst.ANONYMOUS;
 
 /**
  *
@@ -113,7 +116,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     @Override
     @Transactional
     public void deleteBackResourcesByIdList(List<Integer> idList) {
-        if (CollectionUtils.isEmpty(idList))
+        if (idList.isEmpty())
             throw new IllegalRequestException();
         StringBuilder sb = new StringBuilder();
         idList.forEach(e -> sb.append(e).append(","));
@@ -132,7 +135,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     public void updateResourceStatusBackVO(StatusBackVO statusBackVO) {
         LambdaUpdateWrapper<Resource> lambdaUpdateWrapper = new LambdaUpdateWrapper<Resource>()
                 .in(Resource::getId, statusBackVO.getIdList());
-        if (Objects.equals(statusBackVO.getType(), 10))
+        if (ANONYMOUS.equals(statusBackVO.getType()))
             lambdaUpdateWrapper.setSql("anonymous_flag = !anonymous_flag");
         else
             lambdaUpdateWrapper.setSql("disabled_flag = !disabled_flag");
@@ -147,7 +150,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
         List<Resource> resourceList = resourceMapper.selectList(new LambdaQueryWrapper<Resource>()
                 .select(Resource::getId, Resource::getUserId, Resource::getParentId, Resource::getResourceUri, Resource::getResourceName, Resource::getResourceRequestMethod,
                         Resource::getDisabledFlag, Resource::getDeletableFlag, Resource::getAnonymousFlag, Resource::getCreateTime, Resource::getUpdateTime)
-                .and(StringUtils.isNotBlank(keywords), e -> e.like(Resource::getResourceName, keywords)
+                .and(CommonUtil.isNotEmpty(keywords), e -> e.like(Resource::getResourceName, keywords)
                         .or()
                         .inSql(Resource::getId, "select distinct parent_id from tb_resource where resource_name like '%"+keywords+"%'"))
                 .orderByAsc(Resource::getId));
@@ -159,12 +162,13 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     @Override
     public List<LabelBackDTO> getBackResourceModuleNames() {
         List<Resource> resourceList = resourceMapper.selectList(new LambdaQueryWrapper<Resource>()
-                .select(Resource::getId, Resource::getResourceName)
+                .select(Resource::getId, Resource::getUserId, Resource::getResourceName)
                 .eq(Resource::getParentId, -1)
                 .orderByAsc(Resource::getId));
         return resourceList.stream()
                 .map(e -> LabelBackDTO.builder()
                         .id(e.getId())
+                        .userId(e.getUserId())
                         .label(e.getResourceName())
                         .build())
                 .collect(Collectors.toList());
@@ -210,15 +214,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                             .userId(parentResource.getUserId())
                             .label(parentResource.getResourceName())
                             .build();
-                    List<Resource> childrenResourceList = childrenResourceMap.get(parentResource.getId());
-                    if (CollectionUtils.isNotEmpty(childrenResourceList)) {
-                        List<LabelsBackDTO> labelsBackDTOList = childrenResourceList.stream().map(childrenResource -> LabelsBackDTO.builder()
-                                .id(childrenResource.getId())
-                                .userId(childrenResource.getUserId())
-                                .label(childrenResource.getResourceName())
-                                .build()).collect(Collectors.toList());
-                        labelsBackDTO.setChildren(labelsBackDTOList);
-                    }
+                    labelsBackDTO.setChildren(childrenResourceMap.get(parentResource.getId()).stream().map(childrenResource -> LabelsBackDTO.builder()
+                            .id(childrenResource.getId())
+                            .userId(childrenResource.getUserId())
+                            .label(childrenResource.getResourceName())
+                            .build()).collect(Collectors.toList()));
                     return labelsBackDTO;
                 })
                 .collect(Collectors.toList());

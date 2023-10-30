@@ -2,7 +2,6 @@ package com.iksling.blog.handler;
 
 import com.iksling.blog.mapper.ResourceMapper;
 import com.iksling.blog.pojo.ResourceRole;
-import com.iksling.blog.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -52,7 +51,7 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
                     throw new AccessDeniedException("该请求已被禁用!");
                 if (resourceRole.getAnonymousFlag())
                     return null;
-                if (CommonUtil.isBlank(resourceRole.getRoleIdList()))
+                if (resourceRole.getRoleIdList() == null)
                     throw new AccessDeniedException("该请求无法访问!");
                 return SecurityConfig.createList(resourceRole.getRoleIdList().split(","));
             }

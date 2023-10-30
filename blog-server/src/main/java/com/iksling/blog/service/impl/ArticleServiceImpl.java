@@ -2,8 +2,6 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.ArticleBackDTO;
 import com.iksling.blog.dto.ArticleOptionBackDTO;
@@ -30,8 +28,8 @@ import com.iksling.blog.util.CommonUtil;
 import com.iksling.blog.util.IpUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ArticleBackVO;
-import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -43,6 +41,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
+import static com.iksling.blog.constant.FlagConst.*;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_LIKE_COUNT;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_VIEW_COUNT;
 import static com.iksling.blog.enums.FilePathEnum.IMG_ARTICLE;
@@ -81,16 +80,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     public Integer saveOrUpdateArticleBackVO(ArticleBackVO articleBackVO) {
         LoginUser loginUser =  UserUtil.getLoginUser();
         Article article = BeanCopyUtil.copyObject(articleBackVO, Article.class);
-        if (Objects.isNull(article.getId())) {
-            if (StringUtils.isBlank(article.getArticleTitle()) || StringUtils.isBlank(article.getArticleContent()))
+        if (article.getId() == null) {
+            if (article.getArticleTitle() == null || article.getArticleContent() == null)
                 throw new OperationStatusException();
-            if (Objects.nonNull(article.getDraftFlag()) && !article.getDraftFlag()) {
-                if (Objects.isNull(article.getCategoryId()))
+            if (article.getDraftFlag() == Boolean.FALSE) {
+                if (article.getCategoryId() == null)
                     throw new OperationStatusException();
                 article.setPublishUser(loginUser.getUserId());
                 article.setPublishTime(new Date());
             }
-            if (Objects.nonNull(article.getCategoryId())) {
+            if (article.getCategoryId() != null) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                         .eq(Category::getId, article.getCategoryId())
                         .eq(Category::getUserId, loginUser.getUserId())
@@ -103,29 +102,21 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             article.setIpSource(IpUtil.getIpSource(article.getIpAddress()));
             article.setCreateUser(loginUser.getUserId());
             article.setCreateTime(new Date());
-            if (Objects.nonNull(article.getArticleCover()))
+            if (article.getArticleCover() != null)
                 if (!article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                     article.setArticleCover(null);
             articleMapper.insert(article);
             multiDirService.saveArticleDirById(article.getId());
         } else {
-            if (Objects.nonNull(article.getArticleTitle())) {
-                if (StringUtils.isBlank(article.getArticleTitle()))
-                    throw new OperationStatusException();
-            }
-            if (Objects.nonNull(article.getArticleContent())) {
-                if (StringUtils.isBlank(article.getArticleContent()))
-                    throw new OperationStatusException();
-            }
             Article articleOrigin = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
                     .select(Article::getUserId, Article::getPublishUser, Article::getArticleCover)
                     .eq(Article::getId, article.getId())
                     .eq(Article::getDeletedFlag, false)
                     .eq(Article::getRecycleFlag, false)
                     .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
-            if (Objects.isNull(articleOrigin))
+            if (articleOrigin == null)
                 throw new OperationStatusException();
-            if (Objects.nonNull(article.getCategoryId())) {
+            if (article.getCategoryId() != null) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                         .eq(Category::getId, article.getCategoryId())
                         .eq(Category::getUserId, articleOrigin.getUserId())
@@ -133,30 +124,28 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 if (count != 1)
                     throw new IllegalRequestException();
             }
-            if (Objects.nonNull(article.getArticleCover())) {
+            if (article.getArticleCover() != null) {
                 if (!article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                     article.setArticleCover("");
                 if (articleOrigin.getArticleCover().startsWith(STATIC_RESOURCE_URL + articleOrigin.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + article.getId()))
-                    multiFileService.updateArticleImgBy(articleOrigin.getUserId(), article.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1));
+                    multiFileService.updateArticleImageBy(articleOrigin.getUserId(), article.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1));
             }
-            if (CollectionUtils.isNotEmpty(articleBackVO.getTagIdList())) {
+            if (articleBackVO.getTagIdList() != null) {
                 articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
                         .set(ArticleTag::getDeletedFlag, true)
                         .eq(ArticleTag::getDeletedFlag, false)
                         .eq(ArticleTag::getArticleId, article.getId()));
             }
-            if (Objects.nonNull(article.getDraftFlag())) {
-                if (Objects.isNull(articleOrigin.getPublishUser())) {
-                    article.setPublishUser(loginUser.getUserId());
-                    article.setPublishTime(new Date());
-                }
+            if (article.getDraftFlag() != null && articleOrigin.getPublishUser() == null) {
+                article.setPublishUser(loginUser.getUserId());
+                article.setPublishTime(new Date());
             }
             article.setUpdateUser(loginUser.getUserId());
             article.setUpdateTime(new Date());
             articleMapper.updateById(article);
             article.setUserId(articleOrigin.getUserId());
         }
-        if (CollectionUtils.isNotEmpty(articleBackVO.getTagIdList())) {
+        if (CommonUtil.isNotEmpty(articleBackVO.getTagIdList())) {
             List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
                     .select(Tag::getId)
                     .eq(Tag::getUserId, article.getUserId())
@@ -175,7 +164,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     @Transactional
     public void deleteBackArticlesByIdList(List<Integer> idList) {
-        if (CollectionUtils.isEmpty(idList))
+        if (idList.isEmpty())
             throw new IllegalRequestException();
         int count = articleMapper.delete(new LambdaUpdateWrapper<Article>()
                 .eq(Article::getDeletedFlag, true)
@@ -195,11 +184,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .in(Article::getId, statusBackVO.getIdList())
                 .eq(Article::getDraftFlag, false)
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId());
-        if (Objects.equals(statusBackVO.getType(), 2))
+        if (PUBLIC.equals(statusBackVO.getType()))
             lambdaUpdateWrapper.setSql("public_flag = !public_flag");
-        else if (Objects.equals(statusBackVO.getType(), 3))
+        else if (HIDDEN.equals(statusBackVO.getType()))
             lambdaUpdateWrapper.setSql("hidden_flag = !hidden_flag");
-        else if (Objects.equals(statusBackVO.getType(), 4))
+        else if (COMMENTABLE.equals(statusBackVO.getType()))
             lambdaUpdateWrapper.setSql("commentable_flag = !commentable_flag");
         else
             lambdaUpdateWrapper.setSql("top_flag = !top_flag");
@@ -216,12 +205,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .eq(loginUser.getRoleWeight() > 100, Article::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
                 .in(Article::getId, statusBackVO.getIdList());
-        if (Objects.equals(statusBackVO.getType(), 6)) {
-            if (Objects.equals(statusBackVO.getStatus(), true))
+        if (RECYCLE.equals(statusBackVO.getType())) {
+            if (statusBackVO.getStatus() == Boolean.TRUE)
                 lambdaUpdateWrapper.set(Article::getRecycleFlag, false);
             else
                 lambdaUpdateWrapper.set(Article::getDeletedFlag, true);
-        } else if (Objects.equals(statusBackVO.getType(), 7)) {
+        } else if (DELETED.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();
             else
@@ -231,7 +220,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         int count = articleMapper.update(null, lambdaUpdateWrapper);
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
-        if (Objects.equals(statusBackVO.getType(), 6) && !Objects.equals(statusBackVO.getStatus(), true)) {
+        if (RECYCLE.equals(statusBackVO.getType()) && !statusBackVO.getStatus() == Boolean.TRUE) {
             articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
                     .set(ArticleTag::getDeletedFlag, true)
                     .eq(ArticleTag::getDeletedFlag, false)
@@ -249,7 +238,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public ArticleOptionBackDTO getArticleOptionBackDTO(Integer userId) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (Objects.isNull(userId))
+        if (userId == null)
             userId = loginUser.getUserId();
         else if (loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(userId))
             return new ArticleOptionBackDTO();
@@ -284,7 +273,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public PagePojo<ArticlesBackDTO> getArticlesBackDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100)
+        if (DELETED.equals(condition.getType()) && loginUser.getRoleWeight() > 100)
             return new PagePojo<>();
         Integer count = articleMapper.selectArticlesBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count == 0)

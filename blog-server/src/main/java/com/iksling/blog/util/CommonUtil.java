@@ -11,19 +11,27 @@ public class CommonUtil {
         return strArr[(strArr.length + idx) % strArr.length];
     }
 
-    public static boolean isBlank(String str) {
-        return "".equals(str);
+    public static boolean isEmpty(String str) {
+        return str == null || str.length() == 0;
     }
 
-    public static boolean isEmpty(String str) {
-        return str == null || "".equals(str);
+    public static boolean isNotEmpty(String str) {
+        return str != null && str.length() != 0;
     }
 
     public static boolean isEmpty(Map<?, ?> map) {
         return map == null || map.isEmpty();
     }
 
+    public static boolean isNotEmpty(Map<?, ?> map) {
+        return map != null && !map.isEmpty();
+    }
+
     public static boolean isEmpty(Collection<?> coll) {
         return coll == null || coll.isEmpty();
+    }
+
+    public static boolean isNotEmpty(Collection<?> coll) {
+        return coll != null && !coll.isEmpty();
     }
 }

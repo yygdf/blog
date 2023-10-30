@@ -9,11 +9,11 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @ApiModel(description = "文章图片后台VO")
-public class ArticleImgBackVO {
+public class ArticleImageBackVO {
     /**
      * 文件
      */
-    @NotNull(message = "文件不能为null")
+    @NotNull(message = "'file':'NotNull'")
     @ApiModelProperty(name = "file", value = "文件", required = true, dataType = "MultiPartFile")
     private MultipartFile file;
 
@@ -26,7 +26,7 @@ public class ArticleImgBackVO {
     /**
      * 文章id
      */
-    @NotNull(message = "文章id不能为null")
+    @NotNull(message = "'articleId':'NotNull'")
     @ApiModelProperty(name = "articleId", value = "文章id", required = true, dataType = "Integer")
     private Integer articleId;
 }

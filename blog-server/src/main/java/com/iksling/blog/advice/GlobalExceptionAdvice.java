@@ -16,7 +16,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -38,7 +37,7 @@ public class GlobalExceptionAdvice {
         redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).expire(1, TimeUnit.DAYS);
         redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).increment(loginUser.getUserId().toString(), 1);
         Integer count = (Integer) redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).get(loginUser.getUserId().toString());
-        if (Objects.nonNull(count) && count >= 3) {
+        if (count != null && count >= 3) {
             userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                     .set(UserAuth::getLockedFlag, true)
                     .set(UserAuth::getDisabledFlag, true)

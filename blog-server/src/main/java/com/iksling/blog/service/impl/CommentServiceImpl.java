@@ -1,7 +1,6 @@
 package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.CommentsBackDTO;
 import com.iksling.blog.entity.Comment;
@@ -24,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.iksling.blog.constant.FlagConst.DELETED;
+import static com.iksling.blog.constant.FlagConst.RECYCLE;
 import static com.iksling.blog.constant.RedisConst.COMMENT_LIKE_COUNT;
 
 /**
@@ -41,7 +42,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     @Override
     @Transactional
     public void deleteBackCommentsByIdList(List<Integer> idList) {
-        if (CollectionUtils.isEmpty(idList))
+        if (idList.isEmpty())
             throw new IllegalRequestException();
         int count = commentMapper.delete(new LambdaUpdateWrapper<Comment>()
                 .eq(Comment::getDeletedFlag, true)
@@ -58,14 +59,14 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                 .eq(loginUser.getRoleWeight() > 100, Comment::getDeletedFlag, false)
                 .ne(loginUser.getRoleWeight() > 200, Comment::getArticleId, -1)
                 .and(loginUser.getRoleWeight() > 300, e -> e.eq(Comment::getUserId, loginUser.getUserId()).or().exists("select a.id from tb_article a where a.id = article_id and a.deleted_flag = false and a.user_id = " + loginUser.getUserId()));
-        if (Objects.equals(statusBackVO.getType(), 6)) {
+        if (RECYCLE.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 300)
                 throw new OperationStatusException();
-            if (Objects.equals(statusBackVO.getStatus(), true))
+            if (statusBackVO.getStatus() == Boolean.TRUE)
                 lambdaUpdateWrapper.set(Comment::getRecycleFlag, false).in(Comment::getId, statusBackVO.getIdList());
             else
                 lambdaUpdateWrapper.set(Comment::getDeletedFlag, true).and(e -> e.in(Comment::getId, statusBackVO.getIdList()).or().in(Comment::getParentId, statusBackVO.getIdList()));
-        } else if (Objects.equals(statusBackVO.getType(), 7)) {
+        } else if (DELETED.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();
             else
@@ -78,7 +79,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     @Override
     public PagePojo<CommentsBackDTO> getCommentsBackDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if ((Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100) || (Objects.equals(condition.getFlag(), true) && loginUser.getRoleWeight() > 200))
+        if ((DELETED.equals(condition.getType()) && loginUser.getRoleWeight() > 100) || (condition.getFlag() == Boolean.TRUE && loginUser.getRoleWeight() > 200))
             return new PagePojo<>();
         Integer count = commentMapper.selectCommentsBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count == 0)

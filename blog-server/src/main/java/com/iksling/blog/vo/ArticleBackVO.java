@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.Max;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Data
@@ -25,20 +25,21 @@ public class ArticleBackVO {
     /**
      * 文章标题
      */
-    @Max(message = "文章标题最大长度", value = 50)
+    @Size(min = 1, max = 50, message = "'articleTitle':{'minlength':1,'maxlength':50}")
     @ApiModelProperty(name = "articleTitle", value = "文章标题", dataType = "String")
     private String articleTitle;
 
     /**
      * 文章封面
      */
-    @Max(message = "文章封面最大长度", value = 255)
+    @Size(max = 255, message = "'articleCover':{'maxlength':255}")
     @ApiModelProperty(name = "articleCover", value = "文章封面", dataType = "String")
     private String articleCover;
 
     /**
      * 文章内容
      */
+    @Size(min = 1, message = "'articleContent':{'minlength':1}")
     @ApiModelProperty(name = "articleContent", value = "文章内容", dataType = "String")
     private String articleContent;
 

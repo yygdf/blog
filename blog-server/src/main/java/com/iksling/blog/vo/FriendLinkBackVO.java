@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.Max;
+import javax.validation.constraints.Size;
 
 @Data
 @ApiModel(description = "友链后台VO")
@@ -24,28 +24,28 @@ public class FriendLinkBackVO {
     /**
      * 友链地址
      */
-    @Max(message = "友链地址最大长度", value = 255)
+    @Size(min = 1, max = 255, message = "'linkUrl':{'minlength':1,'maxlength':255}")
     @ApiModelProperty(name = "linkUrl", value = "友链地址", dataType = "String")
     private String linkUrl;
 
     /**
      * 友链描述
      */
-    @Max(message = "友链描述最大长度", value = 50)
+    @Size(min = 1, max = 50, message = "'linkDesc':{'minlength':1,'maxlength':50}")
     @ApiModelProperty(name = "linkDesc", value = "友链描述", dataType = "String")
     private String linkDesc;
 
     /**
      * 友链图标
      */
-    @Max(message = "友链图标最大长度", value = 255)
+    @Size(min = 1, max = 255, message = "'linkLogo':{'minlength':1,'maxlength':255}")
     @ApiModelProperty(name = "linkLogo", value = "友链图标", dataType = "String")
     private String linkLogo;
 
     /**
      * 友链名称
      */
-    @Max(message = "友链名称最大长度", value = 50)
+    @Size(min = 1, max = 50, message = "'linkName':{'minlength':1,'maxlength':50}")
     @ApiModelProperty(name = "linkName", value = "友链名称", dataType = "String")
     private String linkName;
 }

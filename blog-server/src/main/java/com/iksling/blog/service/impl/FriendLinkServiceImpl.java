@@ -1,8 +1,6 @@
 package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.FriendLinksBackDTO;
 import com.iksling.blog.entity.FriendLink;
@@ -23,7 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
+
+import static com.iksling.blog.constant.FlagConst.DELETED;
 
 /**
  *
@@ -39,29 +38,13 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     public void saveOrUpdateFriendLinkBackVO(FriendLinkBackVO friendLinkBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         FriendLink friendLink = BeanCopyUtil.copyObject(friendLinkBackVO, FriendLink.class);
-        if (Objects.isNull(friendLink.getId())) {
-            if (Objects.isNull(friendLink.getUserId()) || StringUtils.isBlank(friendLink.getLinkUrl()) || StringUtils.isBlank(friendLink.getLinkDesc()) || StringUtils.isBlank(friendLink.getLinkLogo()) || StringUtils.isBlank(friendLink.getLinkName()))
+        if (friendLink.getId() == null) {
+            if (friendLink.getUserId() == null || friendLink.getLinkUrl() == null || friendLink.getLinkDesc() == null || friendLink.getLinkLogo() == null || friendLink.getLinkName() == null)
                 throw new OperationStatusException();
             friendLink.setCreateUser(loginUser.getUserId());
             friendLink.setCreateTime(new Date());
             friendLinkMapper.insert(friendLink);
         } else {
-            if (Objects.nonNull(friendLink.getLinkUrl())) {
-                if (StringUtils.isBlank(friendLink.getLinkUrl()))
-                    throw new OperationStatusException();
-            }
-            if (Objects.nonNull(friendLink.getLinkDesc())) {
-                if (StringUtils.isBlank(friendLink.getLinkDesc()))
-                    throw new OperationStatusException();
-            }
-            if (Objects.nonNull(friendLink.getLinkLogo())) {
-                if (StringUtils.isBlank(friendLink.getLinkLogo()))
-                    throw new OperationStatusException();
-            }
-            if (Objects.nonNull(friendLink.getLinkName())) {
-                if (StringUtils.isBlank(friendLink.getLinkName()))
-                    throw new OperationStatusException();
-            }
             friendLink.setUserId(null);
             friendLink.setUpdateUser(loginUser.getUserId());
             friendLink.setUpdateTime(new Date());
@@ -72,7 +55,7 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     @Override
     @Transactional
     public void deleteBackFriendLinksByIdList(List<Integer> idList) {
-        if (CollectionUtils.isEmpty(idList))
+        if (idList.isEmpty())
             throw new IllegalRequestException();
         int count = friendLinkMapper.delete(new LambdaUpdateWrapper<FriendLink>()
                 .eq(FriendLink::getDeletedFlag, true)
@@ -88,7 +71,7 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
         LambdaUpdateWrapper<FriendLink> lambdaUpdateWrapper = new LambdaUpdateWrapper<FriendLink>()
                 .eq(loginUser.getRoleWeight() > 100, FriendLink::getDeletedFlag, false)
                 .in(FriendLink::getId, statusBackVO.getIdList());
-        if (Objects.equals(statusBackVO.getType(), 7)) {
+        if (DELETED.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();
             else
@@ -103,7 +86,7 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     @Override
     public PagePojo<FriendLinksBackDTO> getFriendLinksBackDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (Objects.equals(condition.getType(), 7) && loginUser.getRoleWeight() > 100)
+        if (DELETED.equals(condition.getType()) && loginUser.getRoleWeight() > 100)
             return new PagePojo<>();
         Integer count = friendLinkMapper.selectFriendLinksBackDTOCount(condition);
         if (count == 0)

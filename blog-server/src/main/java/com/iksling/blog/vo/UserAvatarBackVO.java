@@ -13,7 +13,7 @@ public class UserAvatarBackVO {
     /**
      * 文件
      */
-    @NotNull(message = "文件不能为null")
+    @NotNull(message = "'file':'NotNull'")
     @ApiModelProperty(name = "file", value = "文件", required = true, dataType = "MultiPartFile")
     private MultipartFile file;
 

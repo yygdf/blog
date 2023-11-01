@@ -14,82 +14,20 @@
             <result property="lockedFlag" column="locked_flag" jdbcType="BOOLEAN"/>
             <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
             <result property="disabledFlag" column="disabled_flag" jdbcType="BOOLEAN"/>
-            <result property="userConfigFlag" column="user_config_flag" jdbcType="BOOLEAN"/>
+            <result property="assimilateFlag" column="assimilate_flag" jdbcType="BOOLEAN"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-    <resultMap id="UserAuthsBackResultMap" type="com.iksling.blog.dto.UserAuthsBackDTO">
-        <id column="id" property="id"/>
-        <result column="user_id" property="userId"/>
-        <result column="username" property="username"/>
-        <result column="login_time" property="loginTime"/>
-        <result column="login_method" property="loginMethod"/>
-        <result column="locked_flag" property="lockedFlag"/>
-        <result column="disabled_flag" property="disabledFlag"/>
-        <result column="ip_source" property="ipSource"/>
-        <result column="ip_address" property="ipAddress"/>
-        <collection property="roleDTOList" ofType="com.iksling.blog.dto.LabelBackDTO">
-            <id column="role_id" property="id"/>
-            <result column="role_name" property="label"/>
-        </collection>
-    </resultMap>
-
     <sql id="Base_Column_List">
         id,user_id,login_log_id,
         username,password,login_method,
         locked_flag,deleted_flag,disabled_flag,
-        user_config_flag,create_user,create_time,
+        assimilate_flag,create_user,create_time,
         update_user,update_time
     </sql>
-
-    <select id="listUserAuthsBackDTO" resultMap="UserAuthsBackResultMap">
-        SELECT
-            ua.id,ua.user_id,ua.username,
-            ll.login_time,ua.login_method,
-            ua.locked_flag,ua.disabled_flag,ll.ip_source,
-            ll.ip_address,r.id role_id,r.role_name,
-            ua.create_time
-        FROM
-            (
-                SELECT
-                    id,user_id,login_log_id,
-                    username,login_method,locked_flag,
-                    disabled_flag,create_time
-                FROM
-                    tb_user_auth
-                <where>
-                    1 = 1
-                    <if test="condition.draftFlag != null">
-                        AND locked_flag = #{condition.draftFlag}
-                    </if>
-                    <if test="condition.deletedFlag != null">
-                        AND deleted_flag = #{condition.deletedFlag}
-                    </if>
-                    <if test="condition.recycleFlag != null">
-                        AND disabled_flag = #{condition.recycleFlag}
-                    </if>
-                    <if test="condition.keywords != null and condition.keywords != ''">
-                        AND username like concat('%', #{condition.keywords}, '%')
-                    </if>
-                </where>
-                ORDER BY
-                    id ASC
-                LIMIT
-                    #{condition.current}, #{condition.size}
-            ) ua
-        LEFT JOIN tb_login_log ll ON ua.login_log_id = ll.id
-        LEFT JOIN tb_user_role ur ON ua.user_id = ur.user_id
-        LEFT JOIN tb_role r ON ur.role_id = r.id
-        <where>
-            1 = 1
-            <if test="condition.categoryId != null">
-                AND ur.role_id = #{condition.categoryId}
-            </if>
-        </where>
-    </select>
 
     <select id="selectUserAuthsBackDTOCount" resultType="java.lang.Integer">
         SELECT
@@ -98,23 +36,65 @@
             tb_user_auth ua
         LEFT JOIN tb_user_role ur ON ua.user_id = ur.user_id
         <where>
-            1 = 1
-            <if test="condition.draftFlag != null">
-                AND ua.locked_flag = #{condition.draftFlag}
-            </if>
-            <if test="condition.deletedFlag != null">
-                AND ua.deleted_flag = #{condition.deletedFlag}
-            </if>
-            <if test="condition.recycleFlag != null">
-                AND ua.disabled_flag = #{condition.recycleFlag}
-            </if>
+            <choose>
+                <when test="condition.type == 7">
+                    ua.deleted_flag = true
+                </when>
+                <otherwise>
+                    ua.deleted_flag = false
+                    <if test="condition.flag != null">
+                        AND ua.disabled_flag = #{condition.flag}
+                    </if>
+                    <if test="condition.status != null">
+                        AND ua.locked_flag = #{condition.status}
+                    </if>
+                </otherwise>
+            </choose>
             <if test="condition.keywords != null and condition.keywords != ''">
-                AND ua.username like concat('%', #{condition.keywords}, '%')
+                AND ua.username LIKE concat('%', #{condition.keywords}, '%')
             </if>
             <if test="condition.categoryId != null">
                 AND ur.role_id = #{condition.categoryId}
             </if>
         </where>
+    </select>
+
+    <select id="selectUserAuthsBackDTO" resultType="com.iksling.blog.dto.UserAuthsBackDTO">
+        SELECT
+            ua.id,ua.user_id,ua.username,
+            ll.login_time,ua.login_method,ua.locked_flag,
+            ua.disabled_flag,ll.ip_source,ll.ip_address,
+            ur.role_id roleIdList
+        FROM
+            tb_user_auth ua
+        LEFT JOIN tb_login_log ll ON ua.login_log_id = ll.id
+        LEFT JOIN (SELECT user_id,GROUP_CONCAT(role_id) role_id FROM tb_user_role GROUP BY user_id) ur ON ua.user_id = ur.user_id
+        <where>
+            <choose>
+                <when test="condition.type == 7">
+                    ua.deleted_flag = true
+                </when>
+                <otherwise>
+                    ua.deleted_flag = false
+                    <if test="condition.flag != null">
+                        AND ua.disabled_flag = #{condition.flag}
+                    </if>
+                    <if test="condition.status != null">
+                        AND ua.locked_flag = #{condition.status}
+                    </if>
+                </otherwise>
+            </choose>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND ua.username LIKE concat('%', #{condition.keywords}, '%')
+            </if>
+            <if test="condition.categoryId != null">
+                AND ur.role_id IN (SELECT role_id FROM tb_user_role ON ua.user_id = user_id)
+            </if>
+        </where>
+        ORDER BY
+            ua.id ASC
+        LIMIT
+            #{condition.current}, #{condition.size}
     </select>
 
     <update id="updateUserAuthsStatus">

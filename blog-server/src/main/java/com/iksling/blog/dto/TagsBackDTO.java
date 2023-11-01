@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 public class TagsBackDTO {
     /**
-     * 标签id
+     * id
      */
     private Integer id;
 

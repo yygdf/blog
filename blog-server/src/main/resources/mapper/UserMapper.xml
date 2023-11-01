@@ -9,6 +9,7 @@
             <result property="intro" column="intro" jdbcType="VARCHAR"/>
             <result property="email" column="email" jdbcType="VARCHAR"/>
             <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+            <result property="gender" column="gender" jdbcType="INTEGER"/>
             <result property="website" column="website" jdbcType="VARCHAR"/>
             <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
@@ -19,29 +20,55 @@
 
     <sql id="Base_Column_List">
         id,intro,email,
-        avatar,website,nickname,
-        create_user,create_time,update_user,
-        update_time
+        avatar,gender,website,
+        nickname,create_user,create_time,
+        update_user,update_time
     </sql>
 
-    <select id="listUsersBackDTO" resultType="com.iksling.blog.dto.UsersBackDTO">
+    <select id="selectUsersBackDTOCount" resultType="java.lang.Integer">
         SELECT
-            u.id,ua.user_id,ua.username,
-            u.intro,u.email,u.avatar,
-            u.website,u.nickname,u.create_time,
-            u.update_time
+            COUNT(1)
         FROM
             tb_user u
         LEFT JOIN tb_user_auth ua ON u.id = ua.user_id
         <where>
-            1 = 1
-            <if test="condition.deletedFlag != null">
-                AND ua.deleted_flag = #{condition.deletedFlag}
-            </if>
+            <choose>
+                <when test="condition.type == 7">
+                    ua.deleted_flag = true
+                </when>
+                <otherwise>
+                    ua.deleted_flag = false
+                </otherwise>
+            </choose>
             <if test="condition.keywords != null and condition.keywords != ''">
                 AND (
-                        u.nickname like concat('%', #{condition.keywords}, '%') OR ua.username like concat('%', #{condition.keywords}, '%')
-                    )
+                    u.nickname LIKE concat('%', #{condition.keywords}, '%') OR ua.username LIKE concat('%', #{condition.keywords}, '%')
+                )
+            </if>
+        </where>
+    </select>
+
+    <select id="selectUsersBackDTO" resultType="com.iksling.blog.dto.UsersBackDTO">
+        SELECT
+            u.id,ua.username,u.intro,
+            u.email,u.avatar,u.website,
+            u.nickname,u.create_time,u.update_time
+        FROM
+            tb_user u
+        LEFT JOIN tb_user_auth ua ON u.id = ua.user_id
+        <where>
+            <choose>
+                <when test="condition.type == 7">
+                    ua.deleted_flag = true
+                </when>
+                <otherwise>
+                    ua.deleted_flag = false
+                </otherwise>
+            </choose>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND (
+                    u.nickname LIKE concat('%', #{condition.keywords}, '%') OR ua.username LIKE concat('%', #{condition.keywords}, '%')
+                )
             </if>
         </where>
         ORDER BY
@@ -50,7 +77,7 @@
             #{condition.current}, #{condition.size}
     </select>
 
-    <select id="listUserOnlinesBackDTO" resultType="com.iksling.blog.dto.UserOnlinesBackDTO">
+    <select id="selectUserOnlinesBackDTO" resultType="com.iksling.blog.dto.UsersOnlineBackDTO">
         SELECT
             u.id,u.avatar,u.nickname,
             ua.username,ll.login_time,ll.login_device,
@@ -61,28 +88,9 @@
         LEFT JOIN tb_user_auth ua ON u.id = ua.user_id
         LEFT JOIN tb_login_log ll ON ua.login_log_id = ll.id
         WHERE
-            u.id in
-            <foreach collection="onlineUserIdList" item="id" index="index" open="(" separator="," close=")">
+            u.id IN
+            <foreach collection="idList" item="id" index="index" open="(" separator="," close=")">
                 #{id}
             </foreach>
-    </select>
-
-    <select id="selectUsersBackDTOCount" resultType="java.lang.Integer">
-        SELECT
-            COUNT(1)
-        FROM
-            tb_user u
-        LEFT JOIN tb_user_auth ua ON u.id = ua.user_id
-        <where>
-            1 = 1
-            <if test="condition.deletedFlag != null">
-                AND ua.deleted_flag = #{condition.deletedFlag}
-            </if>
-            <if test="condition.keywords != null and condition.keywords != ''">
-                AND (
-                    u.nickname like concat('%', #{condition.keywords}, '%') OR ua.username like concat('%', #{condition.keywords}, '%')
-                )
-            </if>
-        </where>
     </select>
 </mapper>

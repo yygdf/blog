@@ -50,4 +50,14 @@ public class FlagConst {
      * 匿名
      */
     public static final Integer ANONYMOUS = 10;
+
+    /**
+     * 同步
+     */
+    public static final Integer ASSIMILATE = 11;
+
+    /**
+     * 锁定
+     */
+    public static final Integer LOCKED = 12;
 }

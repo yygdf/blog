@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class UserAuthsBackDTO {
     /**
-     * 账号id
+     * id
      */
     private Integer id;
 
@@ -53,7 +53,7 @@ public class UserAuthsBackDTO {
     private String ipAddress;
 
     /**
-     * 用户角色
+     * 角色idList
      */
-    private List<LabelBackDTO> roleDTOList;
+    private List<Integer> roleIdList;
 }

@@ -5,11 +5,16 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class UsersBackDTO {
+public class UserConfigsBackDTO {
     /**
      * id
      */
     private Integer id;
+
+    /**
+     * 用户id
+     */
+    private Integer userId;
 
     /**
      * 用户名
@@ -17,29 +22,19 @@ public class UsersBackDTO {
     private String username;
 
     /**
-     * 用户介绍
+     * 配置描述
      */
-    private String intro;
+    private String configDesc;
 
     /**
-     * 用户邮箱
+     * 配置值
      */
-    private String email;
+    private String configValue;
 
     /**
-     * 用户头像
+     * 配置名
      */
-    private String avatar;
-
-    /**
-     * 用户网站
-     */
-    private String website;
-
-    /**
-     * 用户昵称
-     */
-    private String nickname;
+    private String configName;
 
     /**
      * 创建时间

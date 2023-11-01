@@ -61,21 +61,18 @@
         FROM
             tb_article
         <where>
-            1 = 1
             <choose>
                 <when test="condition.type == 5">
-                    AND draft_flag = true
-                    AND recycle_flag = false
+                    draft_flag = true recycle_flag = false
                 </when>
                 <when test="condition.type == 6">
-                    AND recycle_flag = true
-                    AND deleted_flag = false
+                    recycle_flag = true deleted_flag = false
                 </when>
                 <when test="condition.type == 7">
-                    AND deleted_flag = true
+                    deleted_flag = true
                 </when>
                 <otherwise>
-                    AND draft_flag = false
+                    draft_flag = false
                 </otherwise>
             </choose>
             <choose>
@@ -116,76 +113,62 @@
             a.id,a.user_id,ua.username,
             a.article_title,a.top_flag,a.public_flag,
             a.hidden_flag,a.commentable_flag,a.publish_time,
-            a.update_time,c.category_name,att.tag_name tagNameList
+            a.update_time,c.category_name,ata.tag_name tagNameList
         FROM
-            (
-                SELECT
-                    id,user_id,category_id,
-                    article_title,top_flag,public_flag,
-                    hidden_flag,commentable_flag,publish_time,
-                    update_time
-                FROM
-                    tb_article
-                <where>
-                    1 = 1
-                    <choose>
-                        <when test="condition.type == 5">
-                            AND draft_flag = true
-                            AND recycle_flag = false
-                        </when>
-                        <when test="condition.type == 6">
-                            AND recycle_flag = true
-                            AND deleted_flag = false
-                        </when>
-                        <when test="condition.type == 7">
-                            AND deleted_flag = true
-                        </when>
-                        <otherwise>
-                            AND draft_flag = false
-                        </otherwise>
-                    </choose>
-                    <choose>
-                        <when test="roleWeight > 300">
-                            AND user_id = #{userId}
-                        </when>
-                        <otherwise>
-                            <if test="condition.userId != null">
-                                AND user_id = #{condition.userId}
-                            </if>
-                        </otherwise>
-                    </choose>
-                    <if test="condition.categoryId != null">
-                        AND category_id = #{condition.categoryId}
-                    </if>
-                    <if test="condition.keywords != null and condition.keywords != ''">
-                        AND article_title LIKE concat('%', #{condition.keywords}, '%')
-                    </if>
-                    <if test="condition.tagIdList != null and condition.tagIdList.size() != 0">
-                        AND id IN
-                            (
-                                SELECT
-                                    ata.article_id
-                                FROM
-                                    tb_article_tag ata
-                                WHERE
-                                    ata.tag_id IN
-                                    <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
-                                        #{tagId}
-                                    </foreach>
-                            )
-                    </if>
-                </where>
-                ORDER BY
-                    top_flag DESC,
-                    id DESC
-                LIMIT
-                    #{condition.current}, #{condition.size}
-            ) a
+            tb_article a
         LEFT JOIN tb_category c ON a.category_id = c.id
-        LEFT JOIN (SELECT article_id, GROUP_CONCAT(t.tag_name) tag_name FROM tb_article_tag ata LEFT JOIN tb_tag t ON ata.tag_id = t.id WHERE ata.deleted_flag = FALSE AND t.deleted_flag = FALSE GROUP BY article_id) att ON a.id = att.article_id
+        LEFT JOIN (SELECT article_id, GROUP_CONCAT(t.tag_name) tag_name FROM tb_article_tag ata LEFT JOIN tb_tag t ON ata.tag_id = t.id WHERE ata.deleted_flag = FALSE AND t.deleted_flag = FALSE GROUP BY article_id) ata ON a.id = ata.article_id
         LEFT JOIN tb_user_auth ua ON a.user_id = ua.user_id
+        <where>
+            <choose>
+                <when test="condition.type == 5">
+                    a.draft_flag = true AND a.recycle_flag = false
+                </when>
+                <when test="condition.type == 6">
+                    a.recycle_flag = true AND a.deleted_flag = false
+                </when>
+                <when test="condition.type == 7">
+                    a.deleted_flag = true
+                </when>
+                <otherwise>
+                    a.draft_flag = false
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="roleWeight > 300">
+                    AND a.user_id = #{userId}
+                </when>
+                <otherwise>
+                    <if test="condition.userId != null">
+                        AND a.user_id = #{condition.userId}
+                    </if>
+                </otherwise>
+            </choose>
+            <if test="condition.categoryId != null">
+                AND a.category_id = #{condition.categoryId}
+            </if>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND a.article_title LIKE concat('%', #{condition.keywords}, '%')
+            </if>
+            <if test="condition.tagIdList != null and condition.tagIdList.size() != 0">
+                AND a.id IN
+                    (
+                        SELECT
+                            ata.article_id
+                        FROM
+                            tb_article_tag ata
+                        WHERE
+                            ata.tag_id IN
+                            <foreach collection="condition.tagIdList" item="tagId" index="index" open="(" separator="," close=")">
+                                #{tagId}
+                            </foreach>
+                    )
+            </if>
+        </where>
         ORDER BY
             a.top_flag DESC,
             a.id DESC
+        LIMIT
+            #{condition.current}, #{condition.size}
     </select>
 </mapper>

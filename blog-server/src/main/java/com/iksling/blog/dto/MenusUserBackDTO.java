@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class MenusUserBackDTO {
     /**
-     * 菜单id
+     * id
      */
     private Integer id;
 

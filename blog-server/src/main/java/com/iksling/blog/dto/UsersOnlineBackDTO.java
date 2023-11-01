@@ -5,9 +5,9 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class UserOnlinesBackDTO {
+public class UsersOnlineBackDTO {
     /**
-     * 用户id
+     * id
      */
     private Integer id;
 

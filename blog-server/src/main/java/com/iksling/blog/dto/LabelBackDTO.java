@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LabelBackDTO {
     /**
-     * 标签id
+     * id
      */
     private Integer id;
 

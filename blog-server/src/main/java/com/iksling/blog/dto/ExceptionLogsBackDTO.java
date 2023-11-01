@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 public class ExceptionLogsBackDTO {
     /**
-     * 操作日志id
+     * id
      */
     private Integer id;
 

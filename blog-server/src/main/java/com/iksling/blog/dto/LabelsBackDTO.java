@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class LabelsBackDTO {
     /**
-     * 标签id
+     * id
      */
     private Integer id;
 

@@ -34,7 +34,7 @@ public class UserAuth implements Serializable {
     private Integer userId;
 
     /**
-     * 登录日志id
+     * 登录日志id, 默认-1
      */
     private Integer loginLogId;
 
@@ -49,7 +49,7 @@ public class UserAuth implements Serializable {
     private String password;
 
     /**
-     * 1邮箱, 2QQ, 3微信, 4手机号
+     * 1邮箱, 2QQ, 3微信, 4手机号, 默认1
      */
     private Integer loginMethod;
 
@@ -69,9 +69,9 @@ public class UserAuth implements Serializable {
     private Boolean disabledFlag;
 
     /**
-     * 0未启用过, 1已启用过, 默认0
+     * 0未同步, 1已同步, 默认0
      */
-    private Boolean userConfigFlag;
+    private Boolean assimilateFlag;
 
     /**
      * 创建人

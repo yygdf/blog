@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -11,9 +12,10 @@ import java.util.List;
 @ApiModel(description = "账号后台VO")
 public class UserAuthBackVO {
     /**
-     * 用户id
+     * id
      */
-    @ApiModelProperty(name = "id", value = "用户id", dataType = "Integer")
+    @NotNull(message = "'id':'NotNull'")
+    @ApiModelProperty(name = "id", value = "id", dataType = "Integer")
     private Integer id;
 
     /**
@@ -36,9 +38,9 @@ public class UserAuthBackVO {
     private Boolean disabledFlag;
 
     /**
-     * roleId列表
+     * 角色idList
      */
     @Size(min = 1, message = "'roleIdList':{'min':1}")
-    @ApiModelProperty(name = "roleIdList", value = "roleId列表", dataType = "List<Integer>")
+    @ApiModelProperty(name = "roleIdList", value = "角色idList", dataType = "List<Integer>")
     private List<Integer> roleIdList;
 }

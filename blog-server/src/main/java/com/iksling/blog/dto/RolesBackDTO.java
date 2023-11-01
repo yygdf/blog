@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 public class RolesBackDTO {
     /**
-     * 角色id
+     * id
      */
     private Integer id;
 

@@ -13,7 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class ArticlesBackDTO {
     /**
-     * 文章id
+     * id
      */
     private Integer id;
 

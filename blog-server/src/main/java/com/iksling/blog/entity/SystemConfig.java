@@ -39,19 +39,24 @@ public class SystemConfig implements Serializable {
     private String configDesc;
 
     /**
-     * 配置值
-     */
-    private String configValue;
-
-    /**
      * 配置名
      */
     private String configName;
 
     /**
+     * 配置值
+     */
+    private String configValue;
+
+    /**
      * 0不可删除, 1可删除, 默认1
      */
     private Boolean deletableFlag;
+
+    /**
+     * 0未同步, 1已同步, 默认0
+     */
+    private Boolean assimilateFlag;
 
     /**
      * 创建人

@@ -71,7 +71,6 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
                 .userId(userId)
                 .loginTime(loginTime)
                 .loginDevice(userAgent.getOperatingSystem().getDeviceType().getName())
-                .loginMethod(1)
                 .loginPlatform(loginPlatform)
                 .loginSystem(userAgent.getOperatingSystem().getName())
                 .loginBrowser(userAgent.getBrowser().getName())

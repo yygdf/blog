@@ -5,9 +5,9 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class ConfigsBackDTO {
+public class SystemConfigsBackDTO {
     /**
-     * 配置id
+     * id
      */
     private Integer id;
 
@@ -15,11 +15,6 @@ public class ConfigsBackDTO {
      * 用户id
      */
     private Integer userId;
-
-    /**
-     * 用户名
-     */
-    private String username;
 
     /**
      * 配置描述

@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class ArticleBackDTO {
     /**
-     * 文章id
+     * id
      */
     private Integer id;
 

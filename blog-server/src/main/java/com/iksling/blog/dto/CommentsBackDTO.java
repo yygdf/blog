@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 public class CommentsBackDTO {
     /**
-     * 评论id
+     * id
      */
     private Integer id;
 

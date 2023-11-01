@@ -1,23 +1,21 @@
 package com.iksling.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.iksling.blog.dto.ConfigsBackDTO;
+import com.iksling.blog.dto.UserConfigsBackDTO;
 import com.iksling.blog.entity.UserConfig;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.vo.ConditionBackVO;
-import com.iksling.blog.vo.ConfigBackVO;
-import com.iksling.blog.vo.UpdateBatchVO;
+import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.UserConfigBackVO;
 
 /**
  *
  */
 public interface UserConfigService extends IService<UserConfig> {
 
-    PagePojo<ConfigsBackDTO> getPageUserConfigsBackDTO(ConditionBackVO condition);
+    void updateUserConfigBackVO(UserConfigBackVO userConfigBackVO);
 
-    void deleteUserConfigByConfigName(String configName);
+    void updateUserConfigsStatusBackVO(StatusBackVO statusBackVO);
 
-    void saveOrUpdateUserConfigBackVO(ConfigBackVO configBackVO);
-
-    void updateUserConfigsStatus(UpdateBatchVO updateBatchVO);
+    PagePojo<UserConfigsBackDTO> getUserConfigsBackDTO(ConditionBackVO condition);
 }

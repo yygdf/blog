@@ -39,9 +39,14 @@ public class User implements Serializable {
     private String email;
 
     /**
-     * 用户头像
+     * 用户头像, 默认空串
      */
     private String avatar;
+
+    /**
+     * 用户性别
+     */
+    private Integer gender;
 
     /**
      * 用户网站, 默认空串

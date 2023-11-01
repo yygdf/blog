@@ -7,8 +7,8 @@ import lombok.Data;
 import javax.validation.constraints.Size;
 
 @Data
-@ApiModel(description = "配置后台VO")
-public class ConfigBackVO {
+@ApiModel(description = "系统配置后台VO")
+public class SystemConfigBackVO {
     /**
      * 配置id
      */
@@ -18,7 +18,7 @@ public class ConfigBackVO {
     /**
      * 配置描述
      */
-    @Size(min = 1, max = 255, message = "'configDesc':{'minlength':1,'maxlength':255}")
+    @Size(max = 255, message = "'configDesc':{'maxlength':255}")
     @ApiModelProperty(name = "configDesc", value = "配置描述", dataType = "String")
     private String configDesc;
 
@@ -33,12 +33,12 @@ public class ConfigBackVO {
      * 配置名
      */
     @Size(min = 1, max = 50, message = "'configName':{'minlength':1,'maxlength':50}")
-    @ApiModelProperty(name = "configName", value = "配置名", required = true, dataType = "String")
+    @ApiModelProperty(name = "configName", value = "配置名", dataType = "String")
     private String configName;
 
     /**
-     * 0不同步, 1需同步
+     * 0未同步, 1已同步
      */
-    @ApiModelProperty(name = "assimilateFlag", value = "0不同步, 1需同步", dataType = "Boolean")
+    @ApiModelProperty(name = "assimilateFlag", value = "0未同步, 1已同步", dataType = "Boolean")
     private Boolean assimilateFlag;
 }

@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 public class MessagesBackDTO {
     /**
-     * 留言id
+     * id
      */
     private Integer id;
 

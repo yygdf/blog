@@ -16,13 +16,13 @@ import java.util.List;
  */
 public interface UserAuthService extends IService<UserAuth> {
 
+    void updateUserAuthBackVO(UserAuthBackVO userAuthBackVO);
+
+    void updateUserAuthStatusBackVO(StatusBackVO statusBackVO);
+
+    PagePojo<UserAuthsBackDTO> getUserAuthsBackDTO(ConditionBackVO condition);
+
     List<LabelBackDTO> getBackUsernames(String keywords);
 
-    void updateUserAuthStatusVO(StatusBackVO statusBackVO);
-
-    PagePojo<UserAuthsBackDTO> getPageUserAuthsBackDTO(ConditionBackVO condition);
-
     boolean getBackUserAuthExistFlag(String keywords);
-
-    void updateUserAuthBackVO(UserAuthBackVO userAuthBackVO);
 }

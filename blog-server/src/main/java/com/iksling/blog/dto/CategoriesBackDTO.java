@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 public class CategoriesBackDTO {
     /**
-     * 分类id
+     * id
      */
     private Integer id;
 

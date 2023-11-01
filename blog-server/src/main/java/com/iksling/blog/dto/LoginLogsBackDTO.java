@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 public class LoginLogsBackDTO {
     /**
-     * 日志id
+     * id
      */
     private Integer id;
 

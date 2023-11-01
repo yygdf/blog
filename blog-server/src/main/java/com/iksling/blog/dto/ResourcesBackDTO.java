@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class ResourcesBackDTO {
     /**
-     * 资源id
+     * id
      */
     private Integer id;
 

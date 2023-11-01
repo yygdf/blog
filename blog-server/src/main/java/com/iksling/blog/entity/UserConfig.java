@@ -39,24 +39,19 @@ public class UserConfig implements Serializable {
     private String configDesc;
 
     /**
-     * 配置值
-     */
-    private String configValue;
-
-    /**
      * 配置名
      */
     private String configName;
 
     /**
+     * 配置值, 默认空串
+     */
+    private String configValue;
+
+    /**
      * 0未删除, 1已删除, 默认1
      */
     private Boolean deletedFlag;
-
-    /**
-     * 0不可删除, 1可删除, 默认1
-     */
-    private Boolean deletableFlag;
 
     /**
      * 创建人

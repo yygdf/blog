@@ -44,12 +44,12 @@ public class LoginLog implements Serializable {
     private String loginDevice;
 
     /**
-     * 登录方式, 1邮箱, 2QQ, 3微信, 4手机号
+     * 登录方式, 1邮箱, 2QQ, 3微信, 4手机号, 默认1
      */
     private Integer loginMethod;
 
     /**
-     * 登录平台, 0前台, 1后台
+     * 登录平台, 0前台, 1后台, 默认0
      */
     private Boolean loginPlatform;
 

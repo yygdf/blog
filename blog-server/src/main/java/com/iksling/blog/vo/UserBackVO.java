@@ -3,8 +3,8 @@ package com.iksling.blog.vo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Data
@@ -33,17 +33,23 @@ public class UserBackVO {
     /**
      * 用户邮箱
      */
-    @NotNull(message = "'email':'NotNull'")
     @Size(min = 1, max = 50, message = "'email':{'minlength':1,'maxlength':50}")
-    @ApiModelProperty(name = "email", value = "用户邮箱", required = true, dataType = "String")
+    @ApiModelProperty(name = "email", value = "用户邮箱", dataType = "String")
     private String email;
 
     /**
      * 用户头像
      */
-    @Size(min = 1, max = 255, message = "'avatar':{'minlength':1,'maxlength':255}")
+    @Size(max = 255, message = "'avatar':{'maxlength':255}")
     @ApiModelProperty(name = "avatar", value = "用户头像", dataType = "String")
     private String avatar;
+
+    /**
+     * 用户性别
+     */
+    @Range(min = 0, max = 3, message = "'gender':{'minvalue':0,'maxvalue':3}")
+    @ApiModelProperty(name = "gender", value = "用户性别", dataType = "Integer")
+    private Integer gender;
 
     /**
      * 用户网站
@@ -55,8 +61,7 @@ public class UserBackVO {
     /**
      * 用户昵称
      */
-    @NotNull(message = "'nickname':'NotNull'")
     @Size(min = 1, max = 50, message = "'nickname':{'minlength':1,'maxlength':50}")
-    @ApiModelProperty(name = "nickname", value = "用户昵称", required = true, dataType = "String")
+    @ApiModelProperty(name = "nickname", value = "用户昵称", dataType = "String")
     private String nickname;
 }

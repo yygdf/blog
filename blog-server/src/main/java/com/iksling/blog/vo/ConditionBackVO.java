@@ -38,24 +38,6 @@ public class ConditionBackVO {
     private Integer userId;
 
     /**
-     * 是否是草稿 - 可删除
-     */
-    @ApiModelProperty(name = "draftFlag", value = "是否是草稿", dataType = "Boolean")
-    private Boolean draftFlag;
-
-    /**
-     * 是否已回收 - 可删除
-     */
-    @ApiModelProperty(name = "recycleFlag", value = "是否已回收", dataType = "Boolean")
-    private Boolean recycleFlag;
-
-    /**
-     * 是否已删除 - 可删除
-     */
-    @ApiModelProperty(name = "deletedFlag", value = "是否已删除", dataType = "Boolean")
-    private Boolean deletedFlag;
-
-    /**
      * 分类id
      */
     @ApiModelProperty(name = "categoryId", value = "分类id", dataType = "Integer")
@@ -78,6 +60,12 @@ public class ConditionBackVO {
      */
     @ApiModelProperty(name = "flag", value = "标志", dataType = "Boolean")
     private Boolean flag;
+
+    /**
+     * 状态
+     */
+    @ApiModelProperty(name = "status", value = "状态", dataType = "Boolean")
+    private Boolean status;
 
     /**
      * 起始时间

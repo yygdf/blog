@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 public class FriendLinksBackDTO {
     /**
-     * 友链id
+     * id
      */
     private Integer id;
 

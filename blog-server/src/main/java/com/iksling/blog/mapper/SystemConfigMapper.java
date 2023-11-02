@@ -4,6 +4,7 @@ import com.iksling.blog.dto.SystemConfigsBackDTO;
 import com.iksling.blog.entity.SystemConfig;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iksling.blog.vo.ConditionBackVO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -12,9 +13,9 @@ import java.util.List;
  */
 public interface SystemConfigMapper extends BaseMapper<SystemConfig> {
 
-    Integer selectSystemConfigsBackDTOCount(ConditionBackVO condition);
+    Integer selectSystemConfigsBackDTOCount(@Param("condition") ConditionBackVO condition);
 
-    List<SystemConfigsBackDTO> selectSystemConfigsBackDTO(ConditionBackVO condition);
+    List<SystemConfigsBackDTO> selectSystemConfigsBackDTO(@Param("condition") ConditionBackVO condition);
 }
 
 

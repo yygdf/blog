@@ -48,8 +48,7 @@
             tb_article a
         LEFT JOIN (SELECT article_id, GROUP_CONCAT(tag_id) tag_id FROM tb_article_tag WHERE deleted_flag = false AND article_id = #{id} GROUP BY article_id) atg ON a.id = atg.article_id
         WHERE
-            a.id = #{id}
-            AND a.recycle_flag = false
+            a.id = #{id} AND a.recycle_flag = false
             <if test="roleWeight > 300">
                 AND user_id = #{userId}
             </if>
@@ -63,10 +62,10 @@
         <where>
             <choose>
                 <when test="condition.type == 5">
-                    draft_flag = true recycle_flag = false
+                    draft_flag = true AND recycle_flag = false
                 </when>
                 <when test="condition.type == 6">
-                    recycle_flag = true deleted_flag = false
+                    recycle_flag = true AND deleted_flag = false
                 </when>
                 <when test="condition.type == 7">
                     deleted_flag = true

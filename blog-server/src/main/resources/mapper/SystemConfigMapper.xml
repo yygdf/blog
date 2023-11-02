@@ -47,7 +47,7 @@
 
     <select id="selectSystemConfigsBackDTO" resultType="com.iksling.blog.dto.SystemConfigsBackDTO">
         SELECT
-            id,userId,config_desc,
+            id,user_id,config_desc,
             config_name,config_value,deletable_flag,
             create_time,update_time
         FROM

@@ -55,26 +55,22 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
             systemConfig.setUserId(loginUser.getUserId());
             systemConfig.setCreateUser(loginUser.getUserId());
             systemConfig.setCreateTime(new Date());
+            systemConfigMapper.insert(systemConfig);
         } else {
-            if (systemConfig.getAssimilateFlag() == Boolean.TRUE) {
-                if (systemConfig.getConfigValue() == null || !loginUser.getUserId().equals(ROOT_USER_ID))
-                    throw new IllegalRequestException();
-                List<Object> objectList = systemConfigMapper.selectObjs(new LambdaQueryWrapper<SystemConfig>()
-                        .select(SystemConfig::getConfigName)
-                        .eq(SystemConfig::getId, systemConfig.getId()));
-                if (objectList.isEmpty())
+            if (systemConfig.getAssimilateFlag() == Boolean.TRUE && systemConfig.getConfigValue() != null) {
+                if (!loginUser.getUserId().equals(ROOT_USER_ID))
                     throw new IllegalRequestException();
                 userConfigMapper.update(null, new LambdaUpdateWrapper<UserConfig>()
                         .set(UserConfig::getConfigValue, systemConfig.getConfigValue())
                         .set(UserConfig::getUpdateUser, loginUser.getUserId())
                         .set(UserConfig::getUpdateTime, new Date())
-                        .eq(UserConfig::getConfigName, objectList.get(0)));
+                        .inSql(UserConfig::getConfigName, "select config_name from tb_system_config where id = " + systemConfig.getId()));
             }
             systemConfig.setConfigName(null);
             systemConfig.setUpdateUser(loginUser.getUserId());
             systemConfig.setUpdateTime(new Date());
+            systemConfigMapper.updateById(systemConfig);
         }
-        this.saveOrUpdate(systemConfig);
     }
 
     @Override

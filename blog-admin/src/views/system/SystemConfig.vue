@@ -11,6 +11,20 @@
         新增
       </el-button>
       <div style="margin-left:auto">
+        <el-select
+          v-if="checkCurrentUserId"
+          v-model="type"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择"
+        >
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
+          />
+        </el-select>
         <el-input
           v-model="keywords"
           ref="input"
@@ -19,14 +33,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入配置名或描述"
           clearable
-          @keyup.enter.native="listSystemConfigs(true, true)"
+          @keyup.enter.native="getSystemConfigs(true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listSystemConfigs(true, true)"
+          @click="getSystemConfigs(true)"
         >
           搜索
         </el-button>
@@ -69,9 +83,9 @@
             编辑
           </el-button>
           <el-popconfirm
-            title="确定删除吗？"
+            title="确定彻底删除吗？"
             style="margin-left:10px"
-            @confirm="deleteSystemConfig(scope.row.id)"
+            @confirm="deleteSystemConfigs(scope.row.id)"
           >
             <el-button
               :disabled="!scope.row.deletableFlag"
@@ -105,28 +119,44 @@
       <el-form :model="systemConfig" size="medium" label-width="80">
         <el-form-item label="配 置 名">
           <el-input
-            :disabled="systemConfig.id !== undefined"
+            :disabled="systemConfig.id != null"
             v-model="systemConfig.configName"
             :ref="systemConfig.id ? '' : 'input'"
-            style="width: 200px"
-            :maxLength="50"
+            class="word-limit-input"
+            style="width: 360px"
+            maxlength="50"
+            placeholder="请输入配置名"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="配 置 值">
           <el-input
             v-model="systemConfig.configValue"
             :ref="systemConfig.id ? 'input' : ''"
-            style="width: 200px"
-            :maxLength="255"
+            class="word-limit-input2"
+            style="width: 360px"
+            maxlength="255"
+            placeholder="请输入配置值"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="配置描述">
           <el-input
             v-model="systemConfig.configDesc"
-            style="width: 200px"
-            :maxLength="255"
+            class="word-limit-input2"
+            style="width: 360px"
+            maxlength="255"
+            placeholder="请输入配置描述"
+            show-word-limit
+          />
+        </el-form-item>
+        <el-form-item v-if="type && systemConfig.id" label="开启同步">
+          <el-switch
+            v-model="systemConfig.assimilateFlag"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
           />
         </el-form-item>
       </el-form>
@@ -143,16 +173,29 @@
 <script>
 export default {
   created() {
-    this.listSystemConfigs();
+    this.getSystemConfigs();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
   },
   data: function() {
     return {
-      systemConfig: {},
+      options: [
+        {
+          value: null,
+          label: "未同步"
+        },
+        {
+          value: 11,
+          label: "已同步"
+        }
+      ],
       systemConfigList: [],
+      systemConfig: {},
+      systemConfigOrigin: {},
+      type: null,
       keywords: null,
+      rootUserId: null,
       oldKeywords: null,
       loading: true,
       addOrEditStatus: false,
@@ -179,6 +222,7 @@ export default {
         };
         this.$refs.systemConfigTitle.innerHTML = "添加配置";
       }
+      this.systemConfigOrigin = JSON.parse(JSON.stringify(this.systemConfig));
       this.$nextTick(() => {
         this.$refs.input.focus();
       });
@@ -186,30 +230,32 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listSystemConfigs(true);
+      this.getSystemConfigs(true);
     },
     currentChange(current) {
       this.current = current;
-      this.listSystemConfigs(this.keywords !== this.oldKeywords);
+      this.getSystemConfigs();
     },
-    listSystemConfigs(resetPageFlag = false, searchFlag = false) {
-      if (resetPageFlag) {
+    getSystemConfigs(resetCurrentPage = false) {
+      if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
-      }
-      if (searchFlag) {
         this.oldKeywords = this.keywords;
       }
+      let params = {
+        size: this.size,
+        type: this.type,
+        current: this.current,
+        keywords: this.keywords
+      };
+      params = this.$commonMethod.skipEmptyValue(params);
       this.axios
         .get("/api/back/systemConfigs", {
-          params: {
-            size: this.size,
-            current: this.current,
-            keywords: this.keywords
-          }
+          params
         })
         .then(({ data }) => {
-          this.count = data.data.count;
-          this.systemConfigList = data.data.pageList;
+          this.rootUserId = data.data.rootUserId;
+          this.count = data.data.pagePojo.count;
+          this.systemConfigList = data.data.pagePojo.pageList;
           this.loading = false;
         });
     },
@@ -222,36 +268,44 @@ export default {
         this.$message.error("配置值不能为空");
         return false;
       }
-      this.axios
-        .post("/api/back/systemConfig", this.systemConfig)
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: "成功",
-              message: data.message
-            });
-            this.listSystemConfigs();
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: data.message
-            });
-          }
-          this.addOrEditStatus = false;
-        });
-    },
-    deleteSystemConfig(id) {
-      let param = { data: id };
-      if (this.systemConfigList.length === 1) {
-        this.current = --this.current > 1 ? this.current : 1;
+      let param = this.$commonMethod.skipIdenticalValue(
+        this.systemConfig,
+        this.systemConfigOrigin
+      );
+      if (Object.keys(param).length === 0) {
+        return false;
       }
-      this.axios.delete("/api/back/systemConfig", param).then(({ data }) => {
+      if (this.systemConfig.id != null) {
+        param.id = this.systemConfig.id;
+      }
+      this.axios.post("/api/back/systemConfig", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listSystemConfigs();
+          this.getSystemConfigs();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+      });
+      this.addOrEditStatus = false;
+    },
+    deleteSystemConfigs(id) {
+      let param = { data: [id] };
+      this.axios.delete("/api/back/systemConfigs", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          if (this.systemConfigList.length === 1) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
+          this.getSystemConfigs();
         } else {
           this.$notify.error({
             title: "失败",
@@ -260,6 +314,25 @@ export default {
         }
       });
     }
+  },
+  computed: {
+    checkCurrentUserId() {
+      return this.$store.state.userId === this.rootUserId;
+    }
+  },
+  watch: {
+    type() {
+      this.getSystemConfigs(true);
+    }
   }
 };
 </script>
+
+<style scoped>
+.word-limit-input {
+  padding-right: 50px;
+}
+.word-limit-input2 {
+  padding-right: 60px;
+}
+</style>

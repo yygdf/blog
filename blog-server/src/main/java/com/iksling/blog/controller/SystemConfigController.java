@@ -1,6 +1,7 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.SystemConfigService;
 import com.iksling.blog.vo.ConditionBackVO;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 import static com.iksling.blog.constant.LogConst.REMOVE;
 import static com.iksling.blog.constant.LogConst.SAVE_OR_UPDATE;
 
@@ -45,6 +47,8 @@ public class SystemConfigController {
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
     @GetMapping("/back/systemConfigs")
     public Result getBackSystemConfigs(@Valid ConditionBackVO condition) {
-        return Result.success().message("查询成功").data(systemConfigService.getSystemConfigsBackDTO(condition));
+        return Result.success().message("查询成功").data(Dict.create()
+                .set("rootUserId", ROOT_USER_ID)
+                .set("pagePojo", systemConfigService.getSystemConfigsBackDTO(condition)));
     }
 }

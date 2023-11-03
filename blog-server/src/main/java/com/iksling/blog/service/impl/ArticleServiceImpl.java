@@ -263,7 +263,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         .build())
                 .collect(Collectors.toList());
         return ArticleOptionBackDTO.builder()
-                .userId(userId)
                 .tagDTOList(tagDTOList)
                 .categoryDTOList(categoryDTOList)
                 .staticResourceUrl(STATIC_RESOURCE_URL)

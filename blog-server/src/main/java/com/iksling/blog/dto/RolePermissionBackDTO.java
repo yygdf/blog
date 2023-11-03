@@ -13,11 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class RolePermissionBackDTO {
     /**
-     * 用户id
-     */
-    private Integer userId;
-
-    /**
      * 角色菜单list
      */
     private List<LabelsBackDTO> menusRoleDTOList;

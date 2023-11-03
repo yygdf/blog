@@ -163,12 +163,11 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Override
     public List<LabelBackDTO> getBackUsernames(String keywords) {
         List<Map<String, Object>> mapList = userAuthMapper.selectMaps(new LambdaQueryWrapper<UserAuth>()
-                .select(UserAuth::getId, UserAuth::getUserId, UserAuth::getUsername)
+                .select(UserAuth::getUserId, UserAuth::getUsername)
                 .eq(UserUtil.getLoginUser().getRoleWeight() > 100, UserAuth::getDeletedFlag, false)
                 .likeRight(CommonUtil.isNotEmpty(keywords), UserAuth::getUsername, keywords));
         return mapList.stream().map(e -> LabelBackDTO.builder()
-                        .id((Integer)e.get("id"))
-                        .userId((Integer)e.get("user_id"))
+                        .id((Integer)e.get("user_id"))
                         .label(e.get("username").toString())
                         .build()).collect(Collectors.toList());
     }

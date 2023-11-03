@@ -44,8 +44,8 @@
         >
           <el-option
             v-for="item in usernameList"
-            :key="item.userId"
-            :value="item.userId"
+            :key="item.id"
+            :value="item.id"
             :label="item.label"
           />
         </el-select>

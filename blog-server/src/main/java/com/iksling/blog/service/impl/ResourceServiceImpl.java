@@ -168,7 +168,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
         return resourceList.stream()
                 .map(e -> LabelBackDTO.builder()
                         .id(e.getId())
-                        .userId(e.getUserId())
                         .label(e.getResourceName())
                         .build())
                 .collect(Collectors.toList());
@@ -211,13 +210,11 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                 .map(parentResource -> {
                     LabelsBackDTO labelsBackDTO = LabelsBackDTO.builder()
                             .id(parentResource.getId())
-                            .userId(parentResource.getUserId())
                             .label(parentResource.getResourceName())
                             .build();
                     if (childrenResourceMap.get(parentResource.getId())  != null)
                         labelsBackDTO.setChildren(childrenResourceMap.get(parentResource.getId()).stream().map(childrenResource -> LabelsBackDTO.builder()
                                 .id(childrenResource.getId())
-                                .userId(childrenResource.getUserId())
                                 .label(childrenResource.getResourceName())
                                 .build()).collect(Collectors.toList()));
                     return labelsBackDTO;

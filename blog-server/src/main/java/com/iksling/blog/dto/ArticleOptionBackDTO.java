@@ -13,11 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ArticleOptionBackDTO {
     /**
-     * 用户id
-     */
-    private Integer userId;
-
-    /**
      * 文章标签list
      */
     private List<LabelBackDTO> tagDTOList;

@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID;
@@ -167,14 +168,13 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
 
     @Override
     public List<LabelBackDTO> getBackRoleNames() {
-        List<Role> roleList = roleMapper.selectList(new LambdaQueryWrapper<Role>()
-                .select(Role::getId, Role::getUserId, Role::getRoleName, Role::getRoleWeight)
+        List<Map<String, Object>> mapList = roleMapper.selectMaps(new LambdaQueryWrapper<Role>()
+                .select(Role::getId, Role::getRoleName, Role::getRoleWeight)
                 .orderByAsc(Role::getRoleWeight));
-        return roleList.stream()
+        return mapList.stream()
                 .map(e -> LabelBackDTO.builder()
-                        .id(e.getId())
-                        .userId(e.getUserId())
-                        .label(e.getRoleName())
+                        .id((Integer) e.get("id"))
+                        .label(e.get("role_name").toString())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -184,7 +184,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
         List<LabelsBackDTO> menusRoleDTOList = menuService.getMenusRoleBackDTO();
         List<LabelsBackDTO> resourcesRoleDTOList = resourceService.getResourcesRoleBackDTO();
         return RolePermissionBackDTO.builder()
-                .userId(UserUtil.getLoginUser().getUserId())
                 .menusRoleDTOList(menusRoleDTOList)
                 .resourcesRoleDTOList(resourcesRoleDTOList)
                 .build();

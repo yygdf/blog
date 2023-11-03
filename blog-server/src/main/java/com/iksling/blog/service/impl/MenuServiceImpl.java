@@ -178,13 +178,11 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                 .map(parentMenu -> {
                     LabelsBackDTO labelsBackDTO = LabelsBackDTO.builder()
                             .id(parentMenu.getId())
-                            .userId(parentMenu.getUserId())
                             .label(parentMenu.getName())
                             .build();
                     if (childrenMenuMap.get(parentMenu.getId())  != null)
                         labelsBackDTO.setChildren(childrenMenuMap.get(parentMenu.getId()).stream().map(childrenMenu -> LabelsBackDTO.builder()
                                 .id(childrenMenu.getId())
-                                .userId(childrenMenu.getUserId())
                                 .label(childrenMenu.getName())
                                 .build()).collect(Collectors.toList()));
                     return labelsBackDTO;

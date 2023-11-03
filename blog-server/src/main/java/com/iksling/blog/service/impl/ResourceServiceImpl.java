@@ -214,11 +214,12 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                             .userId(parentResource.getUserId())
                             .label(parentResource.getResourceName())
                             .build();
-                    labelsBackDTO.setChildren(childrenResourceMap.get(parentResource.getId()).stream().map(childrenResource -> LabelsBackDTO.builder()
-                            .id(childrenResource.getId())
-                            .userId(childrenResource.getUserId())
-                            .label(childrenResource.getResourceName())
-                            .build()).collect(Collectors.toList()));
+                    if (childrenResourceMap.get(parentResource.getId())  != null)
+                        labelsBackDTO.setChildren(childrenResourceMap.get(parentResource.getId()).stream().map(childrenResource -> LabelsBackDTO.builder()
+                                .id(childrenResource.getId())
+                                .userId(childrenResource.getUserId())
+                                .label(childrenResource.getResourceName())
+                                .build()).collect(Collectors.toList()));
                     return labelsBackDTO;
                 })
                 .collect(Collectors.toList());

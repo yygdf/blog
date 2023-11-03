@@ -3,31 +3,22 @@
     <div class="title">{{ this.$route.name }}</div>
     <div class="operation-container">
       <el-button
-        v-if="checkCurrentUserId"
-        type="primary"
-        size="small"
-        icon="el-icon-plus"
-        @click="openModel(null)"
-      >
-        新增
-      </el-button>
-      <el-button
-        v-if="checkWeight && !deletedFlag"
+        v-if="checkWeight && type !== 7"
         :disabled="userConfigIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="editStatus = true"
+        @click="editStatusBatch = true"
       >
         批量删除
       </el-button>
       <el-button
-        v-if="deletedFlag"
+        v-if="type === 7"
         :disabled="userConfigIdList.length === 0"
         type="success"
         size="small"
         icon="el-icon-minus"
-        @click="editStatus = true"
+        @click="editStatusBatch = true"
       >
         批量恢复
       </el-button>
@@ -41,7 +32,7 @@
           remote
           clearable
           filterable
-          :remote-method="listAllUsername"
+          :remote-method="getUsernames"
         >
           <el-option
             v-for="item in usernameList"
@@ -52,7 +43,7 @@
         </el-select>
         <el-select
           v-if="checkWeight(100)"
-          v-model="deletedFlag"
+          v-model="type"
           size="small"
           style="margin-right:1rem"
           placeholder="请选择"
@@ -72,14 +63,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入配置名或描述"
           clearable
-          @keyup.enter.native="listUserConfigs(true, true)"
+          @keyup.enter.native="getUserConfigs(true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listUserConfigs(true, true)"
+          @click="getUserConfigs(true)"
         >
           搜索
         </el-button>
@@ -136,8 +127,16 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
+          <el-button
+            :disabled="!checkSelectable(scope.row)"
+            type="primary"
+            size="mini"
+            @click="openModel(scope.row)"
+          >
+            编辑
+          </el-button>
           <el-popconfirm
-            v-if="deletedFlag"
+            v-if="type === 7"
             :disabled="!checkSelectable(scope.row)"
             title="确定恢复吗？"
             style="margin-left:10px"
@@ -147,28 +146,8 @@
               恢复
             </el-button>
           </el-popconfirm>
-          <el-button
-            v-else
-            :disabled="!checkSelectable(scope.row)"
-            type="primary"
-            size="mini"
-            @click="openModel(scope.row)"
-          >
-            编辑
-          </el-button>
           <el-popconfirm
-            v-if="deletedFlag"
-            :disabled="!checkCurrentUserId"
-            title="确定彻底删除吗？"
-            style="margin-left:10px"
-            @confirm="deleteUserConfig(scope.row.configName)"
-          >
-            <el-button type="danger" size="mini" slot="reference">
-              删除
-            </el-button>
-          </el-popconfirm>
-          <el-popconfirm
-            v-if="checkWeight && !deletedFlag"
+            v-if="checkWeight && type !== 7"
             title="确定删除吗？"
             style="margin-left:10px"
             @confirm="updateUserConfigsStatus(scope.row.id)"
@@ -196,65 +175,58 @@
       @size-change="sizeChange"
       @current-change="currentChange"
     />
-    <el-dialog :visible.sync="editStatus" width="30%">
+    <el-dialog :visible.sync="editStatusBatch" width="30%">
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
-      <div style="font-size:1rem">
-        是否{{ deletedFlag ? "恢复" : "删除" }}选中项？
-      </div>
+      <div style="font-size:1rem">是否{{ type ? "恢复" : "删除" }}选中项？</div>
       <div slot="footer">
-        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button @click="editStatusBatch = false">取 消</el-button>
         <el-button type="primary" @click="updateUserConfigsStatus(null)">
           确 定
         </el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="addOrEditStatus" width="30%">
+    <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="userConfigTitle" />
       <el-form :model="userConfig" size="medium" label-width="80">
         <el-form-item label="配 置 名">
           <el-input
-            :disabled="userConfig.id != null"
+            :disabled="true"
             v-model="userConfig.configName"
             :ref="userConfig.id ? '' : 'input'"
-            style="width: 200px"
-            :maxLength="50"
+            class="word-limit-input"
+            style="width: 360px"
+            maxlength="50"
+            placeholder="请输入配置名"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="配 置 值">
           <el-input
             v-model="userConfig.configValue"
             :ref="userConfig.id ? 'input' : ''"
-            style="width: 200px"
-            :maxLength="255"
+            class="word-limit-input2"
+            style="width: 360px"
+            maxlength="255"
+            placeholder="请输入配置值"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="配置描述">
           <el-input
             v-model="userConfig.configDesc"
-            style="width: 200px"
-            :maxLength="255"
-          />
-        </el-form-item>
-        <el-form-item
-          v-if="checkCurrentUserId && userConfigUserId === rootUserId"
-          label="开启同步"
-        >
-          <el-switch
-            v-model="userConfig.assimilateFlag"
-            :active-value="true"
-            :inactive-value="false"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
+            class="word-limit-input2"
+            style="width: 360px"
+            maxlength="255"
+            placeholder="请输入配置描述"
+            show-word-limit
           />
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="addOrEditStatus = false">取 消</el-button>
-        <el-button type="primary" @click="addOrEditUserConfig">
+        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button type="primary" @click="editUserConfig">
           确 定
         </el-button>
       </div>
@@ -265,7 +237,7 @@
 <script>
 export default {
   created() {
-    this.listUserConfigs();
+    this.getUserConfigs();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -274,28 +246,27 @@ export default {
     return {
       options: [
         {
-          value: false,
+          value: null,
           label: "未删除"
         },
         {
-          value: true,
+          value: 7,
           label: "已删除"
         }
       ],
-      userConfig: {},
       usernameList: [],
       rootUserIdList: [],
       userConfigList: [],
       userConfigIdList: [],
+      userConfig: {},
+      userConfigOrigin: {},
+      type: null,
       userId: null,
       keywords: null,
-      rootUserId: null,
       oldKeywords: null,
-      userConfigUserId: null,
       loading: true,
       editStatus: false,
-      deletedFlag: false,
-      addOrEditStatus: false,
+      editStatusBatch: false,
       size: 10,
       count: 0,
       current: 1
@@ -303,39 +274,29 @@ export default {
   },
   methods: {
     openModel(userConfig) {
-      if (userConfig != null) {
-        this.userConfig = {
-          id: userConfig.id,
-          configName: userConfig.configName,
-          configValue: userConfig.configValue,
-          configDesc: userConfig.configDesc
-        };
-        this.userConfigUserId = userConfig.userId;
-        this.$refs.userConfigTitle.innerHTML = "修改配置";
-      } else {
-        this.userConfig = {
-          id: null,
-          configName: "",
-          configValue: "",
-          configDesc: ""
-        };
-        this.$refs.userConfigTitle.innerHTML = "添加配置";
-      }
+      this.userConfig = {
+        id: userConfig.id,
+        configName: userConfig.configName,
+        configValue: userConfig.configValue,
+        configDesc: userConfig.configDesc
+      };
+      this.$refs.userConfigTitle.innerHTML = "修改配置";
+      this.userConfigOrigin = JSON.parse(JSON.stringify(this.userConfig));
       this.$nextTick(() => {
         this.$refs.input.focus();
       });
-      this.addOrEditStatus = true;
+      this.editStatus = true;
     },
     sizeChange(size) {
       this.size = size;
-      this.listUserConfigs(true);
+      this.getUserConfigs(true);
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listUserConfigs(this.keywords !== this.oldKeywords);
+      this.getUserConfigs();
     },
     checkSelectable(row) {
       return (
@@ -349,32 +310,31 @@ export default {
         this.userConfigIdList.push(item.id);
       });
     },
-    listUserConfigs(resetPageFlag = false, searchFlag = false) {
-      if (resetPageFlag) {
+    getUserConfigs(resetCurrentPage = false) {
+      if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
-      }
-      if (searchFlag) {
         this.oldKeywords = this.keywords;
       }
+      let params = {
+        size: this.size,
+        type: this.type,
+        userId: this.userId,
+        current: this.current,
+        keywords: this.keywords
+      };
+      params = this.$commonMethod.skipEmptyValue(params);
       this.axios
         .get("/api/back/userConfigs", {
-          params: {
-            size: this.size,
-            userId: this.userId,
-            current: this.current,
-            keywords: this.keywords,
-            deletedFlag: this.deletedFlag
-          }
+          params
         })
         .then(({ data }) => {
-          this.rootUserId = data.data.rootUserId;
           this.rootUserIdList = data.data.rootUserIdList;
           this.count = data.data.pagePojo.count;
           this.userConfigList = data.data.pagePojo.pageList;
           this.loading = false;
         });
     },
-    listAllUsername(keywords) {
+    getUsernames(keywords) {
       if (keywords.trim() === "") {
         return;
       }
@@ -384,16 +344,22 @@ export default {
           this.usernameList = data.data;
         });
     },
-    deleteUserConfig(configName) {
-      let param = { data: configName };
-      this.current = 1;
-      this.axios.delete("/api/back/userConfig", param).then(({ data }) => {
+    editUserConfig() {
+      let param = this.$commonMethod.skipIdenticalValue(
+        this.userConfig,
+        this.userConfigOrigin
+      );
+      if (Object.keys(param).length === 0) {
+        return false;
+      }
+      param.id = this.userConfig.id;
+      this.axios.put("/api/back/userConfig", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listMenus();
+          this.getUserConfigs();
         } else {
           this.$notify.error({
             title: "失败",
@@ -401,73 +367,44 @@ export default {
           });
         }
       });
-    },
-    addOrEditUserConfig() {
-      if (this.userConfig.configName.trim() === "") {
-        this.$message.error("配置名不能为空");
-        return false;
-      }
-      if (this.userConfig.configValue.trim() === "") {
-        this.$message.error("配置值不能为空");
-        return false;
-      }
-      this.axios
-        .post("/api/back/userConfig", this.userConfig)
-        .then(({ data }) => {
-          if (data.flag) {
-            this.$notify.success({
-              title: "成功",
-              message: data.message
-            });
-            this.listUserConfigs();
-          } else {
-            this.$notify.error({
-              title: "失败",
-              message: data.message
-            });
-          }
-          this.addOrEditStatus = false;
-        });
+      this.editStatus = false;
     },
     updateUserConfigsStatus(id) {
-      let param = new URLSearchParams();
+      let param = {};
       if (id != null) {
-        param.append("idList", [id]);
+        param.idList = [id];
       } else {
-        param.append("idList", this.userConfigIdList);
+        param.idList = this.userConfigIdList;
       }
-      param.append("deletedFlag", !this.deletedFlag);
-      if (param.get("idList").length === this.userConfigList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
+      if (this.type != null) {
+        param.type = this.type;
       }
-      this.axios.put("/api/back/userConfigs", param).then(({ data }) => {
+      this.axios.put("/api/back/userConfigs/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listUserConfigs();
+          if (param.idList.length === this.userConfigList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
+          this.getUserConfigs();
         } else {
           this.$notify.error({
             title: "失败",
             message: data.message
           });
         }
-        this.editStatus = false;
       });
-    }
-  },
-  computed: {
-    checkCurrentUserId() {
-      return this.$store.state.userId === this.rootUserId;
+      this.editStatusBatch = false;
     }
   },
   watch: {
-    userId() {
-      this.listUserConfigs(true);
+    type() {
+      this.getUserConfigs(true);
     },
-    deletedFlag() {
-      this.listUserConfigs(true);
+    userId() {
+      this.getUserConfigs(true);
     }
   }
 };

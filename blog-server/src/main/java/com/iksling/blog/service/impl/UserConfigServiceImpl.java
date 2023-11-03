@@ -39,7 +39,16 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
         UserConfig userConfig = BeanCopyUtil.copyObject(userConfigBackVO, UserConfig.class);
         userConfig.setUpdateUser(UserUtil.getLoginUser().getUserId());
         userConfig.setUpdateTime(new Date());
-        userConfigMapper.updateById(userConfig);
+        LoginUser loginUser = UserUtil.getLoginUser();
+        userConfigMapper.update(null, new LambdaUpdateWrapper<UserConfig>()
+                .set(userConfigBackVO.getConfigDesc() != null, UserConfig::getConfigDesc, userConfigBackVO.getConfigDesc())
+                .set(userConfigBackVO.getConfigValue() != null, UserConfig::getConfigValue, userConfigBackVO.getConfigValue())
+                .set(UserConfig::getUpdateUser, loginUser.getUserId())
+                .set(UserConfig::getUpdateTime, new Date())
+                .eq(UserConfig::getId, userConfigBackVO.getId())
+                .and(loginUser.getRoleWeight() > 100, e -> e.eq(UserConfig::getDeletedFlag, false)
+                            .notIn(UserConfig::getUserId, ROOT_USER_ID_LIST))
+                .eq(loginUser.getRoleWeight() > 200, UserConfig::getUserId, loginUser.getUserId()));
     }
 
     @Override
@@ -49,12 +58,13 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
         LambdaUpdateWrapper<UserConfig> lambdaUpdateWrapper = new LambdaUpdateWrapper<UserConfig>()
                 .in(UserConfig::getId, statusBackVO.getIdList())
                 .notIn(loginUser.getRoleWeight() > 100, UserConfig::getUserId, ROOT_USER_ID_LIST);
-        if (statusBackVO.getStatus() == Boolean.TRUE)
-            lambdaUpdateWrapper.set(UserConfig::getDeletedFlag, false)
-                    .eq(UserConfig::getDeletedFlag, true);
-        else
-            lambdaUpdateWrapper.set(UserConfig::getDeletedFlag, true)
-                    .eq(UserConfig::getDeletedFlag, false);
+        if (DELETED.equals(statusBackVO.getType())) {
+            if (loginUser.getRoleWeight() > 100)
+                throw new IllegalRequestException();
+            else
+                lambdaUpdateWrapper.set(UserConfig::getDeletedFlag, false);
+        } else
+            lambdaUpdateWrapper.set(UserConfig::getDeletedFlag, true);
         int count = userConfigMapper.update(null, lambdaUpdateWrapper);
         if (count != statusBackVO.getIdList().size())
             throw new IllegalRequestException();

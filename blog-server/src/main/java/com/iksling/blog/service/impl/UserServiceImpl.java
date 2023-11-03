@@ -201,9 +201,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Transactional
     public void updateUserVO(UserVO userVO) {
         userMapper.update(null, new LambdaUpdateWrapper<User>()
-                .set(User::getIntro, userVO.getIntro())
-                .set(User::getWebsite, userVO.getWebsite())
-                .set(User::getNickname, userVO.getNickname())
+                .set(userVO.getIntro() != null, User::getIntro, userVO.getIntro())
+                .set(userVO.getWebsite() != null, User::getWebsite, userVO.getWebsite())
+                .set(userVO.getNickname() != null, User::getNickname, userVO.getNickname())
                 .eq(User::getId, UserUtil.getLoginUser().getUserId()));
     }
 }

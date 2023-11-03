@@ -92,7 +92,7 @@
             <i class="el-icon-edit" /> 修改
           </el-button>
           <el-popconfirm
-            title="确定删除吗？"
+            title="确定彻底删除吗？"
             style="margin-left:10px"
             @confirm="deleteRoles(scope.row.id)"
           >

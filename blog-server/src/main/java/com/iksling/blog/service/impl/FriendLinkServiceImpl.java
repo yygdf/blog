@@ -69,7 +69,6 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     public void updateFriendLinksStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         LambdaUpdateWrapper<FriendLink> lambdaUpdateWrapper = new LambdaUpdateWrapper<FriendLink>()
-                .eq(loginUser.getRoleWeight() > 100, FriendLink::getDeletedFlag, false)
                 .in(FriendLink::getId, statusBackVO.getIdList());
         if (DELETED.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 100)

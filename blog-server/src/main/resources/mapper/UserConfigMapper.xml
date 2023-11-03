@@ -65,24 +65,24 @@
         <where>
             <choose>
                 <when test="condition.type == 7">
-                    deleted_flag = true
+                    uc.deleted_flag = true
                 </when>
                 <otherwise>
-                    deleted_flag = false
+                    uc.deleted_flag = false
                 </otherwise>
             </choose>
             <choose>
                 <when test="roleWeight > 200">
-                    AND user_id = #{userId}
+                    AND uc.user_id = #{userId}
                 </when>
                 <otherwise>
                     <if test="condition.userId != null">
-                        AND user_id = #{condition.userId}
+                        AND uc.user_id = #{condition.userId}
                     </if>
                 </otherwise>
             </choose>
             <if test="condition.keywords != null and condition.keywords != ''">
-                AND (config_name LIKE concat('%', #{condition.keywords}, '%') OR config_desc LIKE concat('%', #{condition.keywords}, '%'))
+                AND (uc.config_name LIKE concat('%', #{condition.keywords}, '%') OR uc.config_desc LIKE concat('%', #{condition.keywords}, '%'))
             </if>
         </where>
         ORDER BY

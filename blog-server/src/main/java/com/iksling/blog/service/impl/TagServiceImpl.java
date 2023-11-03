@@ -95,14 +95,12 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
         LoginUser loginUser = UserUtil.getLoginUser();
         int count = tagMapper.update(null, new LambdaUpdateWrapper<Tag>()
                 .set(Tag::getDeletedFlag, true)
-                .eq(Tag::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 200, Tag::getUserId, loginUser.getUserId())
                 .in(Tag::getId, statusBackVO.getIdList()));
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
         articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
                 .set(ArticleTag::getDeletedFlag, true)
-                .eq(ArticleTag::getDeletedFlag, false)
                 .in(ArticleTag::getTagId, statusBackVO.getIdList()));
     }
 

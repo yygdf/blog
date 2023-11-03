@@ -27,7 +27,7 @@ public class UserConfigController {
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "修改用户配置")
     @ApiImplicitParam(name = "userConfigBackVO", value = "用户配置后台VO", required = true, dataType = "UserConfigBackVO")
-    @PostMapping("/back/userConfig")
+    @PutMapping("/back/userConfig")
     public Result updateBackUserConfig(@Valid @RequestBody UserConfigBackVO userConfigBackVO) {
         userConfigService.updateUserConfigBackVO(userConfigBackVO);
         return Result.success().message("操作成功");

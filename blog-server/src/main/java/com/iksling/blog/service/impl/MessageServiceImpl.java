@@ -51,7 +51,6 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     public void updateMessagesStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         LambdaUpdateWrapper<Message> lambdaUpdateWrapper = new LambdaUpdateWrapper<Message>()
-                .eq(loginUser.getRoleWeight() > 100, Message::getDeletedFlag, false)
                 .in(Message::getId, statusBackVO.getIdList());
         if (DELETED.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 100)

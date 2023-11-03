@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID_LIST;
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
 import static com.iksling.blog.constant.LogConst.UPDATE;
 
@@ -51,6 +52,7 @@ public class UserAuthController {
     public Result getBackUserAuths(@Valid ConditionBackVO condition) {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("rootUserIdList", ROOT_USER_ID_LIST)
+                .set("rootRoleIdList", ROOT_ROLE_ID_LIST)
                 .set("pagePojo", userAuthService.getUserAuthsBackDTO(condition)));
     }
 

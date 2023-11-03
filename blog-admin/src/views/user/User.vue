@@ -387,7 +387,7 @@ export default {
       this.size = size;
       this.listUsers(true);
     },
-    checkWeight(weight = 200) {
+    checkWeight(weight) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {

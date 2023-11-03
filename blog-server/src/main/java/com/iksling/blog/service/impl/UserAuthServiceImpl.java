@@ -81,8 +81,10 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
             throw new IllegalRequestException();
         if (userAuth.getPassword() != null)
             userAuth.setPassword(passwordEncoder.encode(userAuth.getPassword()));
-        userAuth.setUpdateUser(loginUser.getUserId());
-        userAuth.setUpdateTime(new Date());
+        Integer loginUserId = loginUser.getUserId();
+        Date createTime = new Date();
+        userAuth.setUpdateUser(loginUserId);
+        userAuth.setUpdateTime(createTime);
         userAuthMapper.update(userAuth, new LambdaUpdateWrapper<UserAuth>()
                 .eq(UserAuth::getId, userAuth.getId()));
         if (userAuthBackVO.getRoleIdList() != null) {
@@ -125,6 +127,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                         .parentId((Integer) objectList.get(0))
                         .dirPath(Long.valueOf(IMG_ARTICLE.getMark()))
                         .dirName(IMG_ARTICLE.getCurrentPath())
+                        .createUser(loginUser.getUserId())
+                        .createTime(new Date())
                         .build());
             }
             offlineByUserId(userId);

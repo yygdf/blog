@@ -88,7 +88,7 @@
                 AND ua.username LIKE concat('%', #{condition.keywords}, '%')
             </if>
             <if test="condition.categoryId != null">
-                AND ur.role_id IN (SELECT role_id FROM tb_user_role ON ua.user_id = user_id)
+                AND ua.user_id IN (SELECT user_id FROM tb_user_role WHERE ur.role_id = #{condition.categoryId})
             </if>
         </where>
         ORDER BY

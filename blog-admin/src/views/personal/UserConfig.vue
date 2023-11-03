@@ -3,7 +3,7 @@
     <div class="title">{{ this.$route.name }}</div>
     <div class="operation-container">
       <el-button
-        v-if="checkWeight && type !== 7"
+        v-if="checkWeight(200) && type !== 7"
         :disabled="userConfigIdList.length === 0"
         type="danger"
         size="small"
@@ -24,7 +24,7 @@
       </el-button>
       <div style="margin-left:auto">
         <el-select
-          v-if="checkWeight"
+          v-if="checkWeight(200)"
           v-model="userId"
           size="small"
           style="margin-right:1rem"
@@ -83,7 +83,7 @@
       @selection-change="selectionChange"
     >
       <el-table-column
-        v-if="checkWeight"
+        v-if="checkWeight(200)"
         type="selection"
         align="center"
         width="40"
@@ -147,7 +147,7 @@
             </el-button>
           </el-popconfirm>
           <el-popconfirm
-            v-if="checkWeight && type !== 7"
+            v-if="checkWeight(200) && type !== 7"
             title="确定删除吗？"
             style="margin-left:10px"
             @confirm="updateUserConfigsStatus(scope.row.id)"
@@ -291,7 +291,7 @@ export default {
       this.size = size;
       this.getUserConfigs(true);
     },
-    checkWeight(weight = 200) {
+    checkWeight(weight) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {

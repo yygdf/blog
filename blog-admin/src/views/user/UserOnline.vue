@@ -215,7 +215,7 @@ export default {
       this.size = size;
       this.listUserOnlines(true);
     },
-    checkWeight(weight = 200) {
+    checkWeight(weight) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {

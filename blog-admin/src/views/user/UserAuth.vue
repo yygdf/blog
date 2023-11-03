@@ -96,13 +96,11 @@
       >
         <template slot-scope="scope">
           <el-tag
-            v-for="item of scope.row.roleIdList"
+            v-for="item of scope.row.roleIdList.split(',')"
             :key="item"
             style="margin-right:4px;margin-top:4px"
           >
-            {{
-              roleNameList.filter(e => e.id === Number(item)).map(e => e.label)
-            }}
+            {{ roleNameList.filter(e => e.id === Number(item))[0].label }}
           </el-tag>
         </template>
       </el-table-column>
@@ -115,7 +113,7 @@
         <template slot-scope="scope">
           <el-switch
             :value="scope.row.disabledFlag"
-            :disabled="!checkRootRole(scope.row.roleIdList)"
+            :disabled="checkRootUser(scope.row.userId)"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -128,10 +126,7 @@
         <template slot-scope="scope">
           <el-switch
             :value="scope.row.lockedFlag"
-            :disabled="
-              !checkRootRole(scope.row.roleIdList) ||
-                (!scope.row.lockedFlag && !checkWeight(100))
-            "
+            :disabled="checkRootUser(scope.row.userId)"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -143,8 +138,8 @@
       <el-table-column prop="loginMethod" label="登录方式" align="center">
         <template slot-scope="scope" v-if="scope.row.loginMethod">
           <el-tag
-            v-for="(item, index) of parseLoginMethod(scope.row.loginMethod)"
-            :key="index"
+            v-for="item of parseLoginMethod(scope.row.loginMethod)"
+            :key="item"
             style="margin-right:4px;margin-top:4px"
           >
             {{ item }}
@@ -177,7 +172,7 @@
       <el-table-column label="操作" align="center" width="80">
         <template slot-scope="scope">
           <el-button
-            :disabled="!checkRootRole(scope.row.roleIdList)"
+            :disabled="checkRootUser(scope.row.userId)"
             type="primary"
             size="mini"
             @click="openModel(scope.row)"
@@ -225,9 +220,9 @@
             style="color: green;"
           ></span>
         </el-form-item>
-        <el-form-item label="确认">
+        <el-form-item label="重复">
           <el-input
-            v-model="userAuth.confirmPassword"
+            v-model="confirmPassword"
             style="width: 200px"
             show-password
             @keyup.native="passwordInputChange()"
@@ -259,7 +254,6 @@
         <el-form-item label="锁定">
           <el-switch
             v-model="userAuth.lockedFlag"
-            :disabled="!checkWeight(100) && !userAuth.lockedFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -300,7 +294,7 @@ import md5 from "js-md5";
 export default {
   created() {
     this.getUserAuths();
-    this.listAllRoleName();
+    this.getRoleNames();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -309,15 +303,19 @@ export default {
     return {
       options: [
         {
-          value: false,
+          value: null,
           label: "未删除"
         },
         {
-          value: true,
+          value: 7,
           label: "已删除"
         }
       ],
       options2: [
+        {
+          value: null,
+          label: ""
+        },
         {
           value: false,
           label: "未锁定"
@@ -329,6 +327,10 @@ export default {
       ],
       options3: [
         {
+          value: null,
+          label: ""
+        },
+        {
           value: false,
           label: "未禁用"
         },
@@ -337,10 +339,14 @@ export default {
           label: "已禁用"
         }
       ],
-      userAuth: {},
       userAuthList: [],
       roleNameList: [],
+      rootUserIdList: [],
       rootRoleIdList: [],
+      userAuth: {},
+      userAuthOrigin: {},
+      confirmPassword: "",
+      type: null,
       roleId: null,
       keywords: null,
       lockedFlag: null,
@@ -348,7 +354,6 @@ export default {
       disabledFlag: null,
       loading: true,
       editStatus: false,
-      deletedFlag: false,
       size: 10,
       count: 0,
       current: 1,
@@ -359,14 +364,15 @@ export default {
   methods: {
     openModel(userAuth) {
       this.userAuth = {
-        userId: userAuth.userId,
-        roleIdList: userAuth.roleDTOList.map(e => e.id),
+        id: userAuth.id,
         username: userAuth.username,
         lockedFlag: userAuth.lockedFlag,
         disabledFlag: userAuth.disabledFlag,
-        password: "",
-        confirmPassword: ""
+        roleIdList: userAuth.roleIdList.split(",").map(e => Number(e)),
+        password: ""
       };
+      this.confirmPassword = "";
+      this.userAuthOrigin = JSON.parse(JSON.stringify(this.userAuth));
       this.$refs.userAuthTitle.innerHTML = "修改账号";
       this.$nextTick(() => {
         this.$refs.input.focus();
@@ -377,19 +383,17 @@ export default {
       this.size = size;
       this.getUserAuths(true);
     },
-    checkWeight(weight = 200) {
+    checkWeight(weight) {
       return this.$store.state.weight <= weight;
     },
-    checkRootRole(roleIdList) {
-      if (this.checkWeight(100)) {
-        return true;
-      }
-      const rootRoleIdSet = new Set(this.rootRoleIdList);
-      return !roleIdList.some(e => rootRoleIdSet.has(e.id));
+    checkRootUser(userId) {
+      return (
+        !this.checkWeight(100) && this.rootUserIdList.some(e => e === userId)
+      );
     },
     currentChange(current) {
       this.current = current;
-      this.getUserAuths(this.keywords !== this.oldKeywords);
+      this.getUserAuths();
     },
     parseLoginMethod(loginMethod) {
       let loginMethods = [];
@@ -411,7 +415,7 @@ export default {
     passwordInputChange(flag = false) {
       if (
         this.userAuth.password.trim() === "" &&
-        this.userAuth.confirmPassword.trim() === ""
+        this.confirmPassword.trim() === ""
       ) {
         this.passwordStatus = 0;
         this.confirmPasswordStatus = 0;
@@ -424,56 +428,57 @@ export default {
         }
         this.passwordStatus = 2;
       }
-      if (
-        this.userAuth.password.trim() !== this.userAuth.confirmPassword.trim()
-      ) {
+      if (this.userAuth.password.trim() !== this.confirmPassword.trim()) {
         this.confirmPasswordStatus = 1;
         return;
       }
       this.confirmPasswordStatus = 2;
     },
-    getUserAuths(resetPageFlag = false, searchFlag = false) {
-      if (resetPageFlag) {
+    getUserAuths(resetCurrentPage = false) {
+      if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
-      }
-      if (searchFlag) {
         this.oldKeywords = this.keywords;
       }
+      let params = {
+        size: this.size,
+        type: this.type,
+        flag: this.disabledFlag,
+        status: this.lockedFlag,
+        current: this.current,
+        keywords: this.keywords,
+        categoryId: this.roleId
+      };
+      params = this.$commonMethod.skipEmptyValue(params);
       this.axios
         .get("/api/back/userAuths", {
-          params: {
-            size: this.size,
-            current: this.current,
-            keywords: this.keywords,
-            draftFlag: this.lockedFlag,
-            categoryId: this.roleId,
-            recycleFlag: this.disabledFlag,
-            deletedFlag: this.deletedFlag
-          }
+          params
         })
         .then(({ data }) => {
+          this.rootUserIdList = data.data.rootUserIdList;
           this.rootRoleIdList = data.data.rootRoleIdList;
           this.count = data.data.pagePojo.count;
           this.userAuthList = data.data.pagePojo.pageList;
           this.loading = false;
         });
     },
-    listAllRoleName() {
+    getRoleNames() {
       this.axios.get("/api/back/role/roleNames").then(({ data }) => {
         this.roleNameList = data.data;
       });
     },
     editUserAuth() {
-      let data = {
-        id: this.userAuth.userId,
-        lockedFlag: this.userAuth.lockedFlag,
-        disabledFlag: this.userAuth.disabledFlag,
-        roleIdList: this.userAuth.roleIdList
-      };
-      if (this.userAuth.password.trim() !== "") {
-        data.password = md5(this.userAuth.password);
+      let param = this.$commonMethod.skipIdenticalValue(
+        this.userAuth,
+        this.userAuthOrigin
+      );
+      if (Object.keys(param).length === 0) {
+        return false;
       }
-      this.axios.put("/api/back/userAuth", data).then(({ data }) => {
+      param.id = this.userAuth.id;
+      if (this.userAuth.password.trim() !== "") {
+        param.password = md5(this.userAuth.password);
+      }
+      this.axios.put("/api/back/userAuth", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
@@ -500,9 +505,8 @@ export default {
         .then(() => {
           userAuth.lockedFlag = !lockedFlag;
           this.axios.put("/api/back/userAuth/status", {
-            id: userAuth.userId,
-            topFlag: !lockedFlag,
-            publicFlag: userAuth.disabledFlag
+            idList: [userAuth.userId],
+            type: 12
           });
         })
         .catch(() => {});
@@ -518,8 +522,7 @@ export default {
         .then(() => {
           userAuth.disabledFlag = !disabledFlag;
           this.axios.put("/api/back/userAuth/status", {
-            id: userAuth.userId,
-            publicFlag: !disabledFlag
+            idList: [userAuth.userId]
           });
         })
         .catch(() => {});

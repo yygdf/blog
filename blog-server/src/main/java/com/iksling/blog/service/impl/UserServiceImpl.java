@@ -74,26 +74,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 throw new OperationStatusException("邮箱号已存在!");
             if (CommonUtil.isNotEmpty(user.getAvatar()) && !user.getAvatar().startsWith(STATIC_RESOURCE_URL))
                 user.setAvatar("");
-            user.setCreateUser(loginUser.getUserId());
-            user.setCreateTime(new Date());
+            Date createTime = new Date();
+            Integer loginUserId = loginUser.getUserId();
+            user.setCreateUser(loginUserId);
+            user.setCreateTime(createTime);
             userMapper.insert(user);
             userAuthMapper.insert(UserAuth.builder()
                     .userId(user.getId())
                     .username(userBackVO.getUsername().trim())
                     .password(DEFAULT_PASSWORD)
-                    .createUser(loginUser.getUserId())
-                    .createTime(new Date())
+                    .createUser(loginUserId)
+                    .createTime(createTime)
                     .build());
             List<MultiDir> multiDirList = new ArrayList<>();
             multiDirList.add(MultiDir.builder()
                     .userId(user.getId())
                     .dirPath(Long.valueOf(IMG.getMark()))
                     .dirName(IMG.getCurrentPath())
+                    .createUser(loginUserId)
+                    .createTime(createTime)
                     .build());
             multiDirList.add(MultiDir.builder()
                     .userId(user.getId())
                     .dirPath(Long.valueOf(AUDIO.getMark()))
                     .dirName(AUDIO.getCurrentPath())
+                    .createUser(loginUserId)
+                    .createTime(createTime)
                     .build());
             multiDirService.saveBatch(multiDirList);
             multiDirList.add(MultiDir.builder()
@@ -101,12 +107,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .parentId(multiDirList.get(0).getId())
                     .dirPath(Long.valueOf(IMG_AVATAR.getMark()))
                     .dirName(IMG_AVATAR.getCurrentPath())
+                    .createUser(loginUserId)
+                    .createTime(createTime)
                     .build());
             multiDirList.add(MultiDir.builder()
                     .userId(user.getId())
                     .parentId(multiDirList.get(1).getId())
                     .dirPath(Long.valueOf(AUDIO_CHAT.getMark()))
                     .dirName(AUDIO_CHAT.getCurrentPath())
+                    .createUser(loginUserId)
+                    .createTime(createTime)
                     .build());
             multiDirList.remove(0);
             multiDirList.remove(0);

@@ -48,7 +48,7 @@
         </el-select>
         <el-select
           v-if="checkWeight(100)"
-          v-model="deletedFlag"
+          v-model="type"
           size="small"
           style="margin-right:1rem"
           placeholder="请选择"
@@ -68,14 +68,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入用户名"
           clearable
-          @keyup.enter.native="listUserAuths(true, true)"
+          @keyup.enter.native="getUserAuths(true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listUserAuths(true, true)"
+          @click="getUserAuths(true)"
         >
           搜索
         </el-button>
@@ -96,11 +96,13 @@
       >
         <template slot-scope="scope">
           <el-tag
-            v-for="(item, index) of scope.row.roleDTOList"
-            :key="index"
+            v-for="item of scope.row.roleIdList"
+            :key="item"
             style="margin-right:4px;margin-top:4px"
           >
-            {{ item.label }}
+            {{
+              roleNameList.filter(e => e.id === Number(item)).map(e => e.label)
+            }}
           </el-tag>
         </template>
       </el-table-column>
@@ -297,7 +299,7 @@
 import md5 from "js-md5";
 export default {
   created() {
-    this.listUserAuths();
+    this.getUserAuths();
     this.listAllRoleName();
     this.$nextTick(() => {
       this.$refs.input.focus();
@@ -373,7 +375,7 @@ export default {
     },
     sizeChange(size) {
       this.size = size;
-      this.listUserAuths(true);
+      this.getUserAuths(true);
     },
     checkWeight(weight = 200) {
       return this.$store.state.weight <= weight;
@@ -387,7 +389,7 @@ export default {
     },
     currentChange(current) {
       this.current = current;
-      this.listUserAuths(this.keywords !== this.oldKeywords);
+      this.getUserAuths(this.keywords !== this.oldKeywords);
     },
     parseLoginMethod(loginMethod) {
       let loginMethods = [];
@@ -430,7 +432,7 @@ export default {
       }
       this.confirmPasswordStatus = 2;
     },
-    listUserAuths(resetPageFlag = false, searchFlag = false) {
+    getUserAuths(resetPageFlag = false, searchFlag = false) {
       if (resetPageFlag) {
         this.current = 1;
       }
@@ -477,7 +479,7 @@ export default {
             title: "成功",
             message: data.message
           });
-          this.listUserAuths();
+          this.getUserAuths();
         } else {
           this.$notify.error({
             title: "失败",
@@ -524,17 +526,17 @@ export default {
     }
   },
   watch: {
+    type() {
+      this.getUserAuths(true);
+    },
     roleId() {
-      this.listUserAuths(true);
+      this.getUserAuths(true);
     },
     lockedFlag() {
-      this.listUserAuths(true);
-    },
-    deletedFlag() {
-      this.listUserAuths(true);
+      this.getUserAuths(true);
     },
     disabledFlag() {
-      this.listUserAuths(true);
+      this.getUserAuths(true);
     }
   }
 };

@@ -3,7 +3,6 @@ package com.iksling.blog.dto;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
 public class UserAuthsBackDTO {
@@ -55,5 +54,5 @@ public class UserAuthsBackDTO {
     /**
      * 角色idList
      */
-    private List<Integer> roleIdList;
+    private String roleIdList;
 }

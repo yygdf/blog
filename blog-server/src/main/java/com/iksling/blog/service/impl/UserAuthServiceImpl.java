@@ -30,10 +30,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID_LIST;
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.LOCKED;
+import static com.iksling.blog.enums.FilePathEnum.*;
 
 /**
  *
@@ -52,6 +52,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     private UserConfigMapper userConfigMapper;
     @Autowired
     private SystemConfigMapper systemConfigMapper;
+    @Autowired
+    private MultiDirMapper multiDirMapper;
 
     @Autowired
     private UserRoleService userRoleService;
@@ -60,7 +62,6 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
 
     @Autowired
     private SessionRegistry sessionRegistry;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -69,30 +70,28 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     public void updateUserAuthBackVO(UserAuthBackVO userAuthBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         UserAuth userAuth = BeanCopyUtil.copyObject(userAuthBackVO, UserAuth.class);
-        if (loginUser.getRoleWeight() > 100 && (userAuth.getLockedFlag() == Boolean.TRUE || !Collections.disjoint(ROOT_ROLE_ID_LIST, userAuthBackVO.getRoleIdList())))
-            throw new IllegalRequestException();
         List<Map<String, Object>> mapList = userAuthMapper.selectMaps(new LambdaQueryWrapper<UserAuth>()
                 .select(UserAuth::getUserId, UserAuth::getAssimilateFlag)
-                .eq(UserAuth::getId, userAuth.getId()));
+                .eq(UserAuth::getId, userAuth.getId())
+                .eq(UserAuth::getDeletedFlag, false));
+        if (mapList.isEmpty())
+            throw new IllegalRequestException();
         Integer userId = (Integer) mapList.get(0).get("user_id");
-        if (mapList.isEmpty() || ROOT_USER_ID_LIST.contains(userId))
+        if (ROOT_USER_ID_LIST.contains(userId))
             throw new IllegalRequestException();
         if (userAuth.getPassword() != null)
             userAuth.setPassword(passwordEncoder.encode(userAuth.getPassword()));
         userAuth.setUpdateUser(loginUser.getUserId());
         userAuth.setUpdateTime(new Date());
-        int count = userAuthMapper.update(userAuth, new LambdaUpdateWrapper<UserAuth>()
-                .eq(UserAuth::getId, userAuth.getId())
-                .eq(UserAuth::getDeletedFlag, false));
-        if (count != 1)
-            throw new IllegalRequestException();
+        userAuthMapper.update(userAuth, new LambdaUpdateWrapper<UserAuth>()
+                .eq(UserAuth::getId, userAuth.getId()));
         if (userAuthBackVO.getRoleIdList() != null) {
             userRoleMapper.deleteByMap(Collections.singletonMap("user_id", userId));
             userRoleService.saveBatch(userAuthBackVO.getRoleIdList().stream().map(e -> UserRole.builder()
                     .roleId(e)
                     .userId(userId)
                     .build()).collect(Collectors.toList()));
-            count = roleMapper.selectCount(new LambdaQueryWrapper<Role>()
+            Integer count = roleMapper.selectCount(new LambdaQueryWrapper<Role>()
                     .le(Role::getRoleWeight, 400)
                     .in(Role::getId, userAuthBackVO.getRoleIdList()));
             if ((Boolean) mapList.get(0).get("assimilate_flag")) {
@@ -117,6 +116,16 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                         .set(UserAuth::getAssimilateFlag, true)
                         .eq(UserAuth::getUserId, userId));
+                List<Object> objectList = multiDirMapper.selectObjs(new LambdaQueryWrapper<MultiDir>()
+                        .select(MultiDir::getId)
+                        .eq(MultiDir::getUserId, userId)
+                        .eq(MultiDir::getDirPath, IMG.getMark()));
+                multiDirMapper.insert(MultiDir.builder()
+                        .userId(userId)
+                        .parentId((Integer) objectList.get(0))
+                        .dirPath(Long.valueOf(IMG_ARTICLE.getMark()))
+                        .dirName(IMG_ARTICLE.getCurrentPath())
+                        .build());
             }
             offlineByUserId(userId);
         }

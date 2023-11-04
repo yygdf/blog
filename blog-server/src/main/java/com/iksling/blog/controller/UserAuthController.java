@@ -62,11 +62,4 @@ public class UserAuthController {
     public Result getBackUsernames(String keywords) {
         return Result.success().message("查询成功").data(userAuthService.getBackUsernames(keywords));
     }
-
-    @ApiOperation(value = "查看账号是否存在")
-    @ApiImplicitParam(name = "keywords", value = "关键字(用户名)", required = true, dataType = "String")
-    @GetMapping("/back/userAuth/username")
-    public Result getBackUserAuthExistFlag(String keywords) {
-        return Result.success().message("查询成功").data(userAuthService.getBackUserAuthExistFlag(keywords));
-    }
 }

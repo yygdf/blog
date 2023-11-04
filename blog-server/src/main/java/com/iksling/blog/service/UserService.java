@@ -22,7 +22,7 @@ public interface UserService extends IService<User> {
 
     PagePojo<UsersBackDTO> getUsersBackDTO(ConditionBackVO condition);
 
-    boolean getBackUserExistFlag(String keywords);
+    boolean getBackUserExistFlag(String email, String username);
 
     void deleteBackUsersOnlineByIdList(List<Integer> idList);
 

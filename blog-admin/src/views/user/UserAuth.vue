@@ -313,10 +313,6 @@ export default {
       ],
       options2: [
         {
-          value: null,
-          label: ""
-        },
-        {
           value: false,
           label: "未锁定"
         },
@@ -326,10 +322,6 @@ export default {
         }
       ],
       options3: [
-        {
-          value: null,
-          label: ""
-        },
         {
           value: false,
           label: "未禁用"

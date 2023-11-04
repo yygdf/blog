@@ -15,14 +15,14 @@ public class CommonConst {
     public static final String ADMIN_EMAIL = "294513634@qq.com";
 
     /**
-     * 默认用户头像
-     */
-    public static final String DEFAULT_AVATAR = "http://192.168.203.130/static/img/avatar/default/defaultAvatar.jpg";
-
-    /**
      * 默认用户密码
      */
     public static final String DEFAULT_PASSWORD = "$2a$10$4DSTSm0GlWleNGt.eQ4mCuq6m4FiiNx9JJp0hl2SdEP5J5JtEjrHC";
+
+    /**
+     * 默认用户角色id
+     */
+    public static final Integer DEFAULT_ROLE_ID = 5;
 
     /**
      * 静态资源根路径

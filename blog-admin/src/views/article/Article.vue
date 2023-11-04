@@ -13,7 +13,7 @@
         type="danger"
         size="medium"
         class="save-btn"
-        @click="saveArticleDraft"
+        @click="addOrEditArticleDraft"
       >
         保存草稿
       </el-button>
@@ -40,13 +40,13 @@
       style="height:calc(100vh - 260px)"
       @imgAdd="uploadArticleImg"
       @imgDel="updateArticleImg"
-      @save="saveArticleDraft"
+      @save="addOrEditArticleDraft"
     />
     <el-dialog
       :visible.sync="addOrEditStatus"
       width="40%"
       top="10vh"
-      @close="cancelSaveOrUpdateArticle"
+      @close="cancelAddOrEditArticle"
     >
       <div class="dialog-title-container" slot="title">
         发表文章
@@ -99,7 +99,7 @@
           <el-input
             v-model="article.articleCover"
             :placeholder="staticResourceUrl"
-            class="word-limit-input"
+            class="word-limit-input2"
             style="width: 520px"
             maxlength="255"
             @focus="articleCoverUpload = article.articleCover"
@@ -148,7 +148,7 @@
       </el-form>
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
-        <el-button type="danger" @click="saveOrUpdateArticle">
+        <el-button type="danger" @click="addOrEditArticle">
           发 表
         </el-button>
       </div>
@@ -179,7 +179,7 @@ export default {
     this.getArticleOption();
   },
   destroyed() {
-    this.saveArticleDraft(false);
+    this.addOrEditArticleDraft(false);
   },
   data: function() {
     return {
@@ -248,7 +248,7 @@ export default {
       let pathArr = url.split("/");
       return pathArr[pathArr.length - 1].split(".")[0];
     },
-    cancelSaveOrUpdateArticle() {
+    cancelAddOrEditArticle() {
       if (this.articleCoverUploadFlag) {
         this.updateImg(this.article.articleCover);
         this.$refs.upload.clearFiles();
@@ -383,7 +383,7 @@ export default {
     uploadArticleImg(pos, file) {
       this.uploadImg(pos, file);
     },
-    saveArticleDraft(flag = true) {
+    addOrEditArticleDraft(flag = true) {
       if (this.article.articleTitle.trim() === "") {
         if (flag) {
           this.$message.error("文章标题不能为空");
@@ -439,7 +439,7 @@ export default {
           this.staticResourceUrl = data.data.staticResourceUrl;
         });
     },
-    saveOrUpdateArticle() {
+    addOrEditArticle() {
       if (!this.article.categoryId) {
         this.$message.error("文章分类不能为空");
         this.$refs.upload.clearFiles();
@@ -494,7 +494,7 @@ export default {
   background: #fff;
   color: #f56c6c;
 }
-.word-limit-input {
+.word-limit-input2 {
   padding-right: 60px;
 }
 >>> .add-image-link .title {

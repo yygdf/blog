@@ -51,11 +51,11 @@ public class MultiFileController {
     }
 
     @OptLog(optType = UPDATE)
-    @ApiOperation(value = "更新用户头像状态")
-    @ApiImplicitParam(name = "fileName", value = "文件名", required = true, dataType = "Long")
-    @PutMapping("/back/user/avatar")
-    public Result updateBackUserAvatar(@RequestParam Long fileName) {
-        multiFileService.updateUserAvatarByFileName(fileName);
+    @ApiOperation(value = "批量更新用户头像状态")
+    @ApiImplicitParam(name = "fileNameList", value = "文件名list", required = true, dataType = "List<Long>")
+    @PutMapping("/back/user/avatars")
+    public Result updateBackUserAvatars(@RequestBody List<Long> fileNameList) {
+        multiFileService.updateBackUserAvatarsByFileNameList(fileNameList);
         return Result.success().message("操作成功");
     }
 }

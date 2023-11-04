@@ -56,16 +56,22 @@ public class UserController {
     @GetMapping("/back/users")
     public Result getBackUsers(@Valid ConditionBackVO condition) {
         return Result.success().message("查询成功").data(Dict.create()
-                .set("rootUserId", ROOT_USER_ID)
                 .set("rootUserIdList", ROOT_USER_ID_LIST)
                 .set("pagePojo", userService.getUsersBackDTO(condition)));
     }
 
-    @ApiOperation(value = "查看用户是否存在")
+    @ApiOperation(value = "查看邮箱是否存在")
     @ApiImplicitParam(name = "keywords", value = "关键字(邮箱号)", required = true, dataType = "String")
     @GetMapping("/back/user/email")
-    public Result getBackUserExistFlag(String keywords) {
-        return Result.success().message("查询成功").data(userService.getBackUserExistFlag(keywords));
+    public Result getBackUserEmail(String keywords) {
+        return Result.success().message("查询成功").data(userService.getBackUserExistFlag(keywords, null));
+    }
+
+    @ApiOperation(value = "查看用户是否存在")
+    @ApiImplicitParam(name = "keywords", value = "关键字(用户名)", required = true, dataType = "String")
+    @GetMapping("/back/user/username")
+    public Result getBackUserUsername(String keywords) {
+        return Result.success().message("查询成功").data(userService.getBackUserExistFlag(null, keywords));
     }
 
     @OptLog(optType = REMOVE)

@@ -1,6 +1,5 @@
 package com.iksling.blog.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.UsersBackDTO;
@@ -8,13 +7,16 @@ import com.iksling.blog.dto.UsersOnlineBackDTO;
 import com.iksling.blog.entity.MultiDir;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.entity.UserAuth;
+import com.iksling.blog.entity.UserRole;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.mapper.UserMapper;
+import com.iksling.blog.mapper.UserRoleMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.MultiDirService;
+import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.service.UserService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.CommonUtil;
@@ -48,9 +50,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Autowired
     private UserAuthMapper userAuthMapper;
+    @Autowired
+    private UserRoleMapper userRoleMapper;
 
     @Autowired
     private MultiDirService multiDirService;
+    @Autowired
+    private MultiFileService multiFileService;
 
     @Autowired
     private SessionRegistry sessionRegistry;
@@ -63,19 +69,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (user.getId() == null) {
             if (userBackVO.getUsername() == null || user.getNickname() == null || !RegexUtil.checkEmail(user.getEmail()))
                 throw new OperationStatusException();
-            Integer count = userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
-                    .eq(UserAuth::getUsername, userBackVO.getUsername())
-                    .eq(UserAuth::getDeletedFlag, false));
-            if (count > 0)
-                throw new OperationStatusException("用户名已存在!");
-            count = userMapper.selectCount(new LambdaQueryWrapper<User>()
-                    .eq(User::getEmail, user.getEmail()));
-            if (count > 0)
-                throw new OperationStatusException("邮箱号已存在!");
-            if (CommonUtil.isNotEmpty(user.getAvatar()) && !user.getAvatar().startsWith(STATIC_RESOURCE_URL))
-                user.setAvatar("");
+            if (userMapper.selectBackUserAvatarById(user.getEmail(), userBackVO.getUsername(), null) != null)
+                throw new OperationStatusException("用户已存在!");
             Date createTime = new Date();
             Integer loginUserId = loginUser.getUserId();
+            user.setAvatar(null);
             user.setCreateUser(loginUserId);
             user.setCreateTime(createTime);
             userMapper.insert(user);
@@ -86,11 +84,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .createUser(loginUserId)
                     .createTime(createTime)
                     .build());
+            userRoleMapper.insert(UserRole.builder()
+                    .userId(user.getId())
+                    .roleId(DEFAULT_ROLE_ID)
+                    .build());
             List<MultiDir> multiDirList = new ArrayList<>();
             multiDirList.add(MultiDir.builder()
                     .userId(user.getId())
                     .dirPath(Long.valueOf(IMG.getMark()))
                     .dirName(IMG.getCurrentPath())
+                    .deletableFlag(false)
                     .createUser(loginUserId)
                     .createTime(createTime)
                     .build());
@@ -98,6 +101,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .userId(user.getId())
                     .dirPath(Long.valueOf(AUDIO.getMark()))
                     .dirName(AUDIO.getCurrentPath())
+                    .deletableFlag(false)
                     .createUser(loginUserId)
                     .createTime(createTime)
                     .build());
@@ -107,6 +111,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .parentId(multiDirList.get(0).getId())
                     .dirPath(Long.valueOf(IMG_AVATAR.getMark()))
                     .dirName(IMG_AVATAR.getCurrentPath())
+                    .deletableFlag(false)
                     .createUser(loginUserId)
                     .createTime(createTime)
                     .build());
@@ -115,6 +120,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .parentId(multiDirList.get(1).getId())
                     .dirPath(Long.valueOf(AUDIO_CHAT.getMark()))
                     .dirName(AUDIO_CHAT.getCurrentPath())
+                    .deletableFlag(false)
                     .createUser(loginUserId)
                     .createTime(createTime)
                     .build());
@@ -122,15 +128,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             multiDirList.remove(0);
             multiDirService.saveBatch(multiDirList);
         } else {
+            if (loginUser.getRoleWeight() > 100 && ROOT_USER_ID_LIST.contains(user.getId()))
+                throw new IllegalRequestException();
+            String avatar = userMapper.selectBackUserAvatarById(null, null, user.getId());
+            if (avatar == null)
+                throw new IllegalRequestException();
             if (user.getEmail() != null) {
-                Integer count = userMapper.selectCount(new LambdaQueryWrapper<User>()
-                        .eq(User::getEmail, user.getEmail())
-                        .ne(User::getId, user.getId()));
-                if (count > 0)
-                    throw new OperationStatusException("邮箱号已存在!");
+                if (!RegexUtil.checkEmail(user.getEmail()))
+                    throw new OperationStatusException();
+                if (userMapper.selectBackUserAvatarById(user.getEmail(), null, null) != null)
+                    throw new OperationStatusException("邮箱已存在!");
             }
-            if (CommonUtil.isNotEmpty(user.getAvatar()) && !user.getAvatar().startsWith(STATIC_RESOURCE_URL))
-                user.setAvatar("");
+            if (user.getAvatar() != null) {
+                if (!user.getAvatar().startsWith(STATIC_RESOURCE_URL))
+                    user.setAvatar("");
+                if (avatar.startsWith(STATIC_RESOURCE_URL + user.getId() + "/" + IMG_AVATAR.getPath()))
+                    multiFileService.updateUserAvatarBy(user.getId(), CommonUtil.getSplitStringByIndex(avatar, "/", -1));
+            }
             user.setUpdateUser(loginUser.getUserId());
             user.setUpdateTime(new Date());
             userMapper.updateById(user);
@@ -165,11 +179,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public boolean getBackUserExistFlag(String keywords) {
-        if (CommonUtil.isEmpty(keywords))
+    public boolean getBackUserExistFlag(String email, String username) {
+        if (CommonUtil.isEmpty(email) && CommonUtil.isEmpty(username))
             return false;
-        return userMapper.selectCount(new LambdaQueryWrapper<User>()
-                .eq(User::getEmail, keywords)) != 0;
+        return userMapper.selectBackUserAvatarById(email, username, null) != null;
     }
 
     @Override

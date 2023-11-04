@@ -19,6 +19,8 @@ public interface UserMapper extends BaseMapper<User> {
     List<UsersBackDTO> selectUsersBackDTO(@Param("condition") ConditionBackVO condition);
 
     List<UsersOnlineBackDTO> selectUserOnlinesBackDTO(@Param("idList") List<Integer> idList);
+
+    String selectBackUserAvatarById(String email, String username, Integer id);
 }
 
 

@@ -11,12 +11,12 @@
         新增
       </el-button>
       <el-button
-        v-if="deletedFlag"
+        v-if="type !== 7"
         :disabled="userIdList.length === 0"
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="removeStatus = true"
+        @click="editStatus = true"
       >
         批量删除
       </el-button>
@@ -26,14 +26,28 @@
         type="danger"
         size="small"
         icon="el-icon-minus"
-        @click="editStatus = true"
+        @click="removeStatus = true"
       >
         批量删除
       </el-button>
       <div style="margin-left:auto">
         <el-select
+          v-model="gender"
+          size="small"
+          style="margin-right:1rem"
+          placeholder="请选择性别"
+          clearable
+        >
+          <el-option
+            v-for="item in options2"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
+          />
+        </el-select>
+        <el-select
           v-if="checkWeight(100)"
-          v-model="deletedFlag"
+          v-model="type"
           size="small"
           style="margin-right:1rem"
           placeholder="请选择"
@@ -53,14 +67,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入用户名或昵称"
           clearable
-          @keyup.enter.native="listUsers(true, true)"
+          @keyup.enter.native="getUsers(true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listUsers(true, true)"
+          @click="getUsers(true)"
         >
           搜索
         </el-button>
@@ -87,9 +101,11 @@
       <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
           <el-image
-            :src="scope.row.avatar"
+            :src="scope.row.avatar === '' ? defaultAvatar : scope.row.avatar"
             style="width: 40px;height: 40px;"
-            :preview-src-list="[scope.row.avatar]"
+            :preview-src-list="[
+              scope.row.avatar === '' ? defaultAvatar : scope.row.avatar
+            ]"
           />
         </template>
       </el-table-column>
@@ -99,6 +115,13 @@
         align="center"
         width="120"
       />
+      <el-table-column prop="gender" label="性别" align="center" width="120">
+        <template slot-scope="scope">
+          <el-tag>
+            {{ switchGender(scope.row.gender) }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="email" label="邮箱" align="center" width="120" />
       <el-table-column prop="intro" label="介绍" align="center" />
       <el-table-column prop="website" label="网站" align="center" />
@@ -126,22 +149,9 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
-          <el-popconfirm
-            v-if="deletedFlag"
-            title="确定恢复吗？"
-            style="margin-left:10px"
-            @confirm="updateUsersStatus(scope.row.id)"
-          >
-            <el-button type="success" size="mini" slot="reference">
-              恢复
-            </el-button>
-          </el-popconfirm>
           <el-button
-            v-else
-            :disabled="
-              !checkWeight(100) &&
-                rootUserIdList.some(e => e === scope.row.userId)
-            "
+            v-if="type !== 7"
+            :disabled="checkRootUser(scope.row.id)"
             type="primary"
             size="mini"
             @click="openModel(scope.row)"
@@ -149,10 +159,20 @@
             编辑
           </el-button>
           <el-popconfirm
-            v-if="deletedFlag"
-            title="确定彻底删除吗？"
+            v-else
+            title="确定恢复吗？"
+            @confirm="updateUsersStatus(scope.row.id)"
+          >
+            <el-button type="success" size="mini" slot="reference">
+              恢复
+            </el-button>
+          </el-popconfirm>
+          <el-popconfirm
+            v-if="type !== 7"
+            :disabled="checkRootUser(scope.row.id)"
+            title="确定删除吗？"
             style="margin-left:10px"
-            @confirm="deleteUsers(scope.row.id)"
+            @confirm="updateUsersStatus(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">
               删除
@@ -160,10 +180,9 @@
           </el-popconfirm>
           <el-popconfirm
             v-else
-            :disabled="!checkSelectable(scope.row)"
-            title="确定删除吗？"
+            title="确定彻底删除吗？"
             style="margin-left:10px"
-            @confirm="updateUsersStatus(scope.row.id)"
+            @confirm="deleteUsers(scope.row.id)"
           >
             <el-button type="danger" size="mini" slot="reference">
               删除
@@ -207,15 +226,20 @@
         </el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="addOrEditStatus" width="30%">
+    <el-dialog
+      :visible.sync="addOrEditStatus"
+      width="30%"
+      @close="cancelAddOrEditUser"
+    >
       <div class="dialog-title-container" slot="title" ref="userTitle" />
       <el-form :model="user" size="medium" label-width="80">
-        <el-form-item label="账号" v-if="!user.id && user.id !== 0">
+        <el-form-item label="账号">
           <el-input
+            :disabled="user.id != null"
             v-model="user.username"
-            :maxlength="50"
-            ref="input"
+            :ref="user.id != null ? '' : 'input'"
             style="width: 200px"
+            maxlength="50"
             @keyup.native="usernameInputChange($event)"
             @keyup.enter.native="getUsernameExistFlag"
           />&nbsp;
@@ -235,17 +259,19 @@
         <el-form-item label="昵称">
           <el-input
             v-model="user.nickname"
-            :maxlength="50"
-            :ref="user.id || user.id === 0 ? 'input' : ''"
+            :ref="user.id != null ? 'input' : ''"
+            class="word-limit-input"
             style="width: 200px"
+            maxlength="50"
+            placeholder="请输入昵称"
+            show-word-limit
           />
-          <span style="color: red;"> *</span>
         </el-form-item>
         <el-form-item label="邮箱">
           <el-input
             v-model="user.email"
-            :maxlength="50"
             style="width: 200px"
+            maxlength="50"
             @keyup.native="emailInputChange($event)"
             @keyup.enter.native="getEmailExistFlag"
           />&nbsp;
@@ -270,23 +296,34 @@
           ></span>
         </el-form-item>
         <el-form-item label="介绍">
-          <el-input v-model="user.intro" :maxlength="50" style="width: 200px" />
+          <el-input
+            v-model="user.intro"
+            class="word-limit-input"
+            style="width: 200px"
+            maxlength="50"
+            placeholder="请输入介绍(可为空)"
+            show-word-limit
+          />
         </el-form-item>
         <el-form-item label="网站">
           <el-input
             v-model="user.website"
-            :maxlength="255"
+            class="word-limit-input2"
             style="width: 200px"
+            maxlength="255"
+            placeholder="请输入网站(可为空)"
+            show-word-limit
           />
         </el-form-item>
-        <el-form-item label="头像" v-if="user.id || user.id === 0">
+        <el-form-item label="头像" v-if="user.id != null">
           <el-upload
-            :limit="1"
+            ref="upload"
             action=""
             class="upload-cover"
-            drag
+            :on-change="changeAvatar"
             :on-remove="updateAvatar"
             :http-request="uploadAvatar"
+            drag
           >
             <i class="el-icon-upload" v-if="!user.avatar" />
             <div class="el-upload__text" v-if="!user.avatar">
@@ -295,15 +332,20 @@
             <img v-else :src="user.avatar" width="200" height="200" />
           </el-upload>
         </el-form-item>
+        <el-form-item>
+          <el-radio-group v-model="user.gender">
+            <el-radio :label="1">男</el-radio>
+            <el-radio :label="2">女</el-radio>
+            <el-radio :label="3">可男可女</el-radio>
+            <el-radio :label="4">非男非女</el-radio>
+          </el-radio-group>
+        </el-form-item>
       </el-form>
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
         <el-button
           type="primary"
-          :disabled="
-            (usernameExistStatus !== 2 && user.id === undefined) ||
-              emailExistStatus !== 2
-          "
+          :disabled="usernameExistStatus !== 2 || emailExistStatus !== 2"
           @click="addOrEditUser"
         >
           确 定
@@ -316,7 +358,7 @@
 <script>
 export default {
   created() {
-    this.listUsers();
+    this.getUsers();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -325,33 +367,54 @@ export default {
     return {
       options: [
         {
-          value: false,
+          value: null,
           label: "未删除"
         },
         {
-          value: true,
+          value: 7,
           label: "已删除"
         }
       ],
-      user: {},
+      options2: [
+        {
+          value: 1,
+          label: "男"
+        },
+        {
+          value: 2,
+          label: "女"
+        },
+        {
+          value: 3,
+          label: "可男可女"
+        },
+        {
+          value: 4,
+          label: "非男非女"
+        }
+      ],
       userList: [],
       userIdList: [],
       rootUserIdList: [],
+      user: {},
+      userOrigin: {},
+      type: null,
+      gender: null,
       keywords: null,
       oldEmail: null,
-      rootUserId: null,
       oldKeywords: null,
       loading: true,
       editStatus: false,
-      deletedFlag: false,
       removeStatus: false,
       addOrEditStatus: false,
+      avatarUploadFlag: false,
       size: 10,
       count: 0,
       current: 1,
       lastTimeStamp: 0,
       emailExistStatus: 0,
-      usernameExistStatus: 0
+      usernameExistStatus: 0,
+      defaultAvatar: require("../../assets/img/defaultAvatar.png")
     };
   },
   methods: {
@@ -362,15 +425,22 @@ export default {
           intro: user.intro,
           email: user.email,
           avatar: user.avatar,
+          gender: user.gender,
           website: user.website,
+          username: user.username,
           nickname: user.nickname
         };
         this.oldEmail = user.email;
         this.emailExistStatus = 2;
+        this.usernameExistStatus = 2;
         this.$refs.userTitle.innerHTML = "修改用户";
       } else {
         this.user = {
+          id: null,
+          intro: "",
           email: "",
+          gender: null,
+          website: "",
           username: "",
           nickname: ""
         };
@@ -378,28 +448,31 @@ export default {
         this.usernameExistStatus = 0;
         this.$refs.userTitle.innerHTML = "添加用户";
       }
+      this.userOrigin = JSON.parse(JSON.stringify(this.user));
       this.$nextTick(() => {
         this.$refs.input.focus();
       });
       this.addOrEditStatus = true;
+      this.avatarUploadFlag = false;
     },
     sizeChange(size) {
       this.size = size;
-      this.listUsers(true);
+      this.getUsers(true);
     },
     checkWeight(weight) {
       return this.$store.state.weight <= weight;
     },
     currentChange(current) {
       this.current = current;
-      this.listUsers(this.keywords !== this.oldKeywords);
+      this.getUsers();
+    },
+    checkRootUser(userId) {
+      return (
+        !this.checkWeight(100) && this.rootUserIdList.some(e => e === userId)
+      );
     },
     checkSelectable(row) {
-      return (
-        (this.checkWeight(100) ||
-          !this.rootUserIdList.some(e => e === row.userId)) &&
-        this.rootUserId !== row.id
-      );
+      return !this.checkRootUser(row.id);
     },
     selectionChange(userList) {
       this.userIdList = [];
@@ -435,7 +508,7 @@ export default {
         return;
       }
       this.axios
-        .get("/api/back/user/exist", { params: { keywords } })
+        .get("/api/back/user/email", { params: { keywords } })
         .then(({ data }) => {
           if (data.data) {
             this.emailExistStatus = 1;
@@ -460,13 +533,19 @@ export default {
         }
       }
     },
+    cancelAddOrEditUser() {
+      if (this.avatarUploadFlag) {
+        this.updateAvatar();
+        this.$refs.upload.clearFiles();
+      }
+    },
     getUsernameExistFlag() {
       const keywords = this.user.username.trim();
       if (keywords === "") {
         return;
       }
       this.axios
-        .get("/api/back/userAuth/exist", { params: { keywords } })
+        .get("/api/back/user/username", { params: { keywords } })
         .then(({ data }) => {
           if (data.data) {
             this.usernameExistStatus = 1;
@@ -475,24 +554,24 @@ export default {
           }
         });
     },
-    listUsers(resetPageFlag = false, searchFlag = false) {
-      if (resetPageFlag) {
+    getUsers(resetCurrentPage = false) {
+      if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
-      }
-      if (searchFlag) {
         this.oldKeywords = this.keywords;
       }
+      let params = {
+        size: this.size,
+        type: this.type,
+        current: this.current,
+        keywords: this.keywords,
+        categoryId: this.gender
+      };
+      params = this.$commonMethod.skipEmptyValue(params);
       this.axios
         .get("/api/back/users", {
-          params: {
-            size: this.size,
-            current: this.current,
-            keywords: this.keywords,
-            deletedFlag: this.deletedFlag
-          }
+          params
         })
         .then(({ data }) => {
-          this.rootUserId = data.data.rootUserId;
           this.rootUserIdList = data.data.rootUserIdList;
           this.count = data.data.pagePojo.count;
           this.userList = data.data.pagePojo.pageList;
@@ -506,40 +585,52 @@ export default {
       } else {
         param = { data: [id] };
       }
-      if (param.data.length === this.userList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
-      }
       this.axios.delete("/api/back/users", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listUsers();
+          if (param.data.length === this.userList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
+          this.getUsers();
         } else {
           this.$notify.error({
             title: "失败",
             message: data.message
           });
         }
-        this.removeStatus = false;
       });
+      this.removeStatus = false;
+    },
+    changeAvatar(file, fileList) {
+      if (fileList.length > 1) {
+        fileList.splice(0, 1);
+      }
     },
     updateAvatar() {
-      const url = this.user.avatar;
-      this.user.avatar = "";
-      let param = { data: url };
-      this.axios.put("/api/back/user/avatar", param);
+      let pathArr = this.user.avatar.split("/");
+      let fileName = pathArr[pathArr.length - 1].split(".")[0];
+      this.axios.put("/api/back/user/avatar", [fileName]);
     },
     uploadAvatar(form) {
-      if (this.user.avatar !== "") {
+      if (this.avatarUploadFlag) {
         this.updateAvatar();
       }
       let formData = new FormData();
       formData.append("file", form.file);
       formData.append("userId", this.user.id);
       this.axios.post("/api/back/user/avatar", formData).then(({ data }) => {
-        this.user.avatar = data.data;
+        if (data.flag) {
+          this.user.avatar = data.data;
+          this.avatarUploadFlag = true;
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: "头像上传失败"
+          });
+        }
       });
     },
     addOrEditUser() {
@@ -547,58 +638,86 @@ export default {
         this.$message.error("昵称不能为空");
         return false;
       }
-      this.axios.post("/api/back/user", this.user).then(({ data }) => {
+      let param = this.$commonMethod.skipIdenticalValue(
+        this.user,
+        this.userOrigin
+      );
+      if (Object.keys(param).length === 0) {
+        return false;
+      }
+      if (this.user.id != null) {
+        param.id = this.user.id;
+      }
+      this.axios.post("/api/back/user", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listUsers();
+          this.getUsers();
         } else {
           this.$notify.error({
             title: "失败",
             message: data.message
           });
         }
-        this.addOrEditStatus = false;
       });
+      this.addOrEditStatus = false;
     },
     updateUsersStatus(id) {
-      let param = new URLSearchParams();
+      let param = {};
       if (id != null) {
-        param.append("idList", [id]);
+        param.idList = [id];
       } else {
-        param.append("idList", this.userIdList);
+        param.idList = this.userIdList;
       }
-      param.append("deletedFlag", !this.deletedFlag);
-      if (param.get("idList").length === this.userList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
+      if (this.type != null) {
+        param.type = this.type;
       }
-      this.axios.put("/api/back/users", param).then(({ data }) => {
+      this.axios.put("/api/back/users/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listUsers();
+          if (param.idList.length === this.userList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
+          this.getUsers();
         } else {
           this.$notify.error({
             title: "失败",
             message: data.message
           });
         }
-        this.editStatus = false;
       });
-    }
-  },
-  computed: {
-    checkCurrentUserId() {
-      return this.$store.state.userId === this.rootUserId;
+      this.editStatus = false;
     }
   },
   watch: {
-    deletedFlag() {
-      this.listUsers(true);
+    type() {
+      this.getUsers(true);
+    },
+    gender() {
+      this.getUsers(true);
+    }
+  },
+  computed: {
+    switchGender() {
+      return function(type) {
+        switch (type) {
+          case 1:
+            return "男";
+          case 2:
+            return "女";
+          case 3:
+            return "可男可女";
+          case 4:
+            return "非男非女";
+          default:
+            return "未知";
+        }
+      };
     }
   }
 };
@@ -608,5 +727,11 @@ export default {
 /deep/ .el-upload .el-upload-dragger {
   width: 200px;
   height: 200px;
+}
+.word-limit-input {
+  padding-right: 50px;
+}
+.word-limit-input2 {
+  padding-right: 60px;
 }
 </style>

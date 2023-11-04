@@ -23,6 +23,4 @@ public interface UserAuthService extends IService<UserAuth> {
     PagePojo<UserAuthsBackDTO> getUserAuthsBackDTO(ConditionBackVO condition);
 
     List<LabelBackDTO> getBackUsernames(String keywords);
-
-    boolean getBackUserAuthExistFlag(String keywords);
 }

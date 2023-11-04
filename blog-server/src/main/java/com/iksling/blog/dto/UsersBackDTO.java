@@ -32,6 +32,11 @@ public class UsersBackDTO {
     private String avatar;
 
     /**
+     * 性别
+     */
+    private Integer gender;
+
+    /**
      * 用户网站
      */
     private String website;

@@ -47,7 +47,7 @@ public class UserBackVO {
     /**
      * 用户性别
      */
-    @Range(min = 0, max = 3, message = "'gender':{'minvalue':0,'maxvalue':3}")
+    @Range(min = 1, max = 4, message = "'gender':{'minvalue':1,'maxvalue':4}")
     @ApiModelProperty(name = "gender", value = "用户性别", dataType = "Integer")
     private Integer gender;
 

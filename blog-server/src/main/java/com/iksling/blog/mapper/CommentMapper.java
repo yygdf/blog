@@ -14,7 +14,7 @@ import java.util.List;
 public interface CommentMapper extends BaseMapper<Comment> {
     Integer selectCommentsBackDTOCount(@Param("condition") ConditionBackVO condition, Integer userId, Integer roleWeight);
 
-    List<CommentsBackDTO> selectCommentsBackDTO(ConditionBackVO condition, Integer userId, Integer roleWeight);
+    List<CommentsBackDTO> selectCommentsBackDTO(@Param("condition") ConditionBackVO condition, Integer userId, Integer roleWeight);
 }
 
 

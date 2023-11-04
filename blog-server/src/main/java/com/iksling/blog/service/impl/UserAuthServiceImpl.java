@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID_LIST;
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.LOCKED;
@@ -88,6 +89,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         userAuthMapper.update(userAuth, new LambdaUpdateWrapper<UserAuth>()
                 .eq(UserAuth::getId, userAuth.getId()));
         if (userAuthBackVO.getRoleIdList() != null) {
+            if (loginUser.getRoleWeight() > 100 && !Collections.disjoint(userAuthBackVO.getRoleIdList(), ROOT_ROLE_ID_LIST))
+                throw new IllegalRequestException();
             userRoleMapper.deleteByMap(Collections.singletonMap("user_id", userId));
             userRoleService.saveBatch(userAuthBackVO.getRoleIdList().stream().map(e -> UserRole.builder()
                     .roleId(e)
@@ -127,6 +130,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                         .parentId((Integer) objectList.get(0))
                         .dirPath(Long.valueOf(IMG_ARTICLE.getMark()))
                         .dirName(IMG_ARTICLE.getCurrentPath())
+                        .deletableFlag(false)
                         .createUser(loginUser.getUserId())
                         .createTime(new Date())
                         .build());
@@ -174,14 +178,6 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                         .id((Integer)e.get("user_id"))
                         .label(e.get("username").toString())
                         .build()).collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean getBackUserAuthExistFlag(String keywords) {
-        if (CommonUtil.isEmpty(keywords))
-            return false;
-        return userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
-                .eq(UserAuth::getUsername, keywords)) != 0;
     }
 
     private void offlineByUserId(Integer userId) {

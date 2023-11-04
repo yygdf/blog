@@ -17,7 +17,9 @@ public interface MultiFileService extends IService<MultiFile> {
 
     void updateBackArticleImagesByFileNameList(List<Long> fileNameList);
 
-    void updateUserAvatarByFileName(Long fileName);
+    void updateBackUserAvatarsByFileNameList(List<Long> fileNameList);
 
     void updateArticleImageBy(Integer userId, Integer articleId, String fullFileName);
+
+    void updateUserAvatarBy(Integer userId, String fullFileName);
 }

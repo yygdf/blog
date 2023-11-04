@@ -40,6 +40,9 @@
                     ua.deleted_flag = false
                 </otherwise>
             </choose>
+            <if test="condition.categoryId != null">
+                AND u.gender = #{condition.categoryId}
+            </if>
             <if test="condition.keywords != null and condition.keywords != ''">
                 AND (
                     u.nickname LIKE concat('%', #{condition.keywords}, '%') OR ua.username LIKE concat('%', #{condition.keywords}, '%')
@@ -51,8 +54,9 @@
     <select id="selectUsersBackDTO" resultType="com.iksling.blog.dto.UsersBackDTO">
         SELECT
             u.id,ua.username,u.intro,
-            u.email,u.avatar,u.website,
-            u.nickname,u.create_time,u.update_time
+            u.email,u.avatar,IF(u.gender=-1,null,u.gender) gender,
+            u.website,u.nickname,u.create_time,
+            u.update_time
         FROM
             tb_user u
         LEFT JOIN tb_user_auth ua ON u.id = ua.user_id
@@ -65,6 +69,9 @@
                     ua.deleted_flag = false
                 </otherwise>
             </choose>
+            <if test="condition.categoryId != null">
+                AND u.gender = #{condition.categoryId}
+            </if>
             <if test="condition.keywords != null and condition.keywords != ''">
                 AND (
                     u.nickname LIKE concat('%', #{condition.keywords}, '%') OR ua.username LIKE concat('%', #{condition.keywords}, '%')
@@ -92,5 +99,36 @@
             <foreach collection="idList" item="id" index="index" open="(" separator="," close=")">
                 #{id}
             </foreach>
+    </select>
+
+    <select id="selectBackUserAvatarById" resultType="java.lang.String">
+        SELECT
+            u.avatar
+        FROM
+            tb_user u
+        LEFT JOIN tb_user_auth ua ON u.id = ua.user_id
+        WHERE
+            ua.deleted_flag = false
+            <choose>
+                <when test="id != null">
+                    AND u.id = #{id}
+                </when>
+                <otherwise>
+                    <choose>
+                        <when test="email != null">
+                            AND (
+                                u.email = #{email}
+                                <if test="username != null">
+                                    OR ua.username = #{username}
+                                </if>
+                            )
+                        </when>
+                        <otherwise>
+                            AND ua.username = #{username}
+                        </otherwise>
+                    </choose>
+                </otherwise>
+            </choose>
+        LIMIT 1
     </select>
 </mapper>

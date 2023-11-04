@@ -265,7 +265,7 @@ export default {
         this.fileNameList.splice(index, 1);
         param = [fileName];
       }
-      this.axios.put("/api/back/article/image", param);
+      this.axios.put("/api/back/article/images", param);
     },
     uploadImg(pos, file) {
       if (this.article.id == null) {
@@ -475,8 +475,8 @@ export default {
             message: data.message
           });
         }
+        this.addOrEditStatus = false;
       });
-      this.addOrEditStatus = false;
     }
   }
 };

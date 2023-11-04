@@ -1,6 +1,6 @@
 package com.iksling.blog.mapper;
 
-import com.iksling.blog.dto.UsersOnlineBackDTO;
+import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -18,7 +18,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     List<UsersBackDTO> selectUsersBackDTO(@Param("condition") ConditionBackVO condition);
 
-    List<UsersOnlineBackDTO> selectUserOnlinesBackDTO(@Param("idList") List<Integer> idList);
+    List<UserOnlinesBackDTO> selectUserOnlinesBackDTO(@Param("idList") List<Integer> idList);
 
     String selectBackUserAvatarById(String email, String username, Integer id);
 }

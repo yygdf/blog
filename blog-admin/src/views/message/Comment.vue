@@ -109,9 +109,11 @@
       <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
           <el-image
-            :src="scope.row.avatar"
+            :src="scope.row.avatar === '' ? defaultAvatar : scope.row.avatar"
             style="width: 40px;height: 40px;"
-            :preview-src-list="[scope.row.avatar]"
+            :preview-src-list="[
+              scope.row.avatar === '' ? defaultAvatar : scope.row.avatar
+            ]"
           />
         </template>
       </el-table-column>
@@ -300,7 +302,8 @@ export default {
       removeStatus: false,
       size: 10,
       count: 0,
-      current: 1
+      current: 1,
+      defaultAvatar: require("../../assets/img/defaultAvatar.png")
     };
   },
   methods: {

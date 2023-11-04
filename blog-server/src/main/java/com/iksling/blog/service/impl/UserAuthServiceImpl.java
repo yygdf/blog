@@ -115,8 +115,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                                 .configDesc(e.getConfigDesc())
                                 .configName(e.getConfigName())
                                 .configValue(e.getConfigValue())
-                                .createUser(loginUser.getUserId())
-                                .createTime(new Date())
+                                .createUser(loginUserId)
+                                .createTime(createTime)
                                 .build()).collect(Collectors.toList()));
                 userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                         .set(UserAuth::getAssimilateFlag, true)
@@ -131,8 +131,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                         .dirPath(Long.valueOf(IMG_ARTICLE.getMark()))
                         .dirName(IMG_ARTICLE.getCurrentPath())
                         .deletableFlag(false)
-                        .createUser(loginUser.getUserId())
-                        .createTime(new Date())
+                        .createUser(loginUserId)
+                        .createTime(createTime)
                         .build());
             }
             offlineByUserId(userId);

@@ -169,12 +169,16 @@
           </el-popconfirm>
           <el-popconfirm
             v-if="type !== 7"
-            :disabled="checkRootUser(scope.row.id)"
             title="确定删除吗？"
             style="margin-left:10px"
             @confirm="updateUsersStatus(scope.row.id)"
           >
-            <el-button type="danger" size="mini" slot="reference">
+            <el-button
+              :disabled="checkRootUser(scope.row.id)"
+              type="danger"
+              size="mini"
+              slot="reference"
+            >
               删除
             </el-button>
           </el-popconfirm>
@@ -612,7 +616,7 @@ export default {
     updateAvatar() {
       let pathArr = this.user.avatar.split("/");
       let fileName = pathArr[pathArr.length - 1].split(".")[0];
-      this.axios.put("/api/back/user/avatar", [fileName]);
+      this.axios.put("/api/back/user/avatars", [fileName]);
     },
     uploadAvatar(form) {
       if (this.avatarUploadFlag) {
@@ -654,6 +658,7 @@ export default {
             title: "成功",
             message: data.message
           });
+          this.avatarUploadFlag = false;
           this.getUsers();
         } else {
           this.$notify.error({
@@ -661,8 +666,8 @@ export default {
             message: data.message
           });
         }
+        this.addOrEditStatus = false;
       });
-      this.addOrEditStatus = false;
     },
     updateUsersStatus(id) {
       let param = {};

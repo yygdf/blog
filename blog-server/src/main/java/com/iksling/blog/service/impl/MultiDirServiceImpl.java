@@ -44,7 +44,7 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
                 .userId(loginUser.getUserId())
                 .parentId((Integer) multiDirMap.get(0).get("id"))
                 .dirPath(Long.valueOf(id))
-                .dirDesc("文章[id:" + id + "]")
+                .dirDesc("{'articleId':"+id+"}")
                 .dirName(id.toString())
                 .deletableFlag(false)
                 .createUser(loginUser.getUserId())
@@ -67,7 +67,7 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
                             .set(MultiDir::getUpdateTime, new Date())
                             .eq(MultiDir::getId, multiDirMap.get(0).get("id")));
                     String uri = multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + e;
-                    MultiFileUtil.rename(uri, uri + "-" + dirPathNew + "-del");
+                    MultiFileUtil.rename(uri, uri + "-" + dirPathNew + "-article-del");
                 }
         );
     }
@@ -81,7 +81,7 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
                             .eq("dir_path", e));
                     multiDirMapper.deleteById((Integer) multiDirMap.get(0).get("id"));
                     multiFileMapper.delete(new LambdaUpdateWrapper<MultiFile>().eq(MultiFile::getMultiDirId, multiDirMap.get(0).get("id")));
-                    MultiFileUtil.delete(multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + e + "-" + multiDirMap.get(0).get("dir_path_new") + "-del");
+                    MultiFileUtil.delete(multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + e + "-" + multiDirMap.get(0).get("dir_path_new") + "-article-del");
                 }
         );
     }

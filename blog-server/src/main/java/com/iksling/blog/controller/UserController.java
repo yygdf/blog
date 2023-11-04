@@ -4,7 +4,10 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserService;
-import com.iksling.blog.vo.*;
+import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.UserBackVO;
+import com.iksling.blog.vo.UserVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -14,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
 import static com.iksling.blog.constant.LogConst.*;
 
@@ -77,20 +79,19 @@ public class UserController {
     @OptLog(optType = REMOVE)
     @ApiOperation(value = "批量下线用户")
     @ApiImplicitParam(name = "idList", value = "idList", required = true, dataType = "List<Integer>")
-    @DeleteMapping("/back/users/online")
-    public Result deleteBackUsersOnline(@RequestBody List<Integer> idList) {
-        userService.deleteBackUsersOnlineByIdList(idList);
+    @DeleteMapping("/back/user/onlines")
+    public Result deleteBackUserOnlines(@RequestBody List<Integer> idList) {
+        userService.deleteBackUserOnlinesByIdList(idList);
         return Result.success().message("操作成功");
     }
 
     @ApiOperation(value = "查看后台在线用户列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
-    @GetMapping("/back/users/online")
-    public Result getBackUsersOnline(@Valid ConditionBackVO condition) {
+    @GetMapping("/back/user/onlines")
+    public Result getBackUserOnlines(@Valid ConditionBackVO condition) {
         return Result.success().message("查询成功").data(Dict.create()
-                .set("rootUserId", ROOT_USER_ID)
                 .set("rootUserIdList", ROOT_USER_ID_LIST)
-                .set("pagePojo", userService.getUsersOnlineBackDTO(condition)));
+                .set("pagePojo", userService.getUserOnlinesBackDTO(condition)));
     }
 
     @OptLog(optType = UPDATE)

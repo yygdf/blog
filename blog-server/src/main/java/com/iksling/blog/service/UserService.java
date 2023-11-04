@@ -1,7 +1,7 @@
 package com.iksling.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.iksling.blog.dto.UsersOnlineBackDTO;
+import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.pojo.PagePojo;
@@ -24,9 +24,9 @@ public interface UserService extends IService<User> {
 
     boolean getBackUserExistFlag(String email, String username);
 
-    void deleteBackUsersOnlineByIdList(List<Integer> idList);
+    void deleteBackUserOnlinesByIdList(List<Integer> idList);
 
-    PagePojo<UsersOnlineBackDTO> getUsersOnlineBackDTO(ConditionBackVO condition);
+    PagePojo<UserOnlinesBackDTO> getUserOnlinesBackDTO(ConditionBackVO condition);
 
     void updateUserVO(UserVO userVO);
 }

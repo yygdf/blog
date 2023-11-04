@@ -137,12 +137,16 @@
           </el-button>
           <el-popconfirm
             v-if="type === 7"
-            :disabled="!checkSelectable(scope.row)"
             title="确定恢复吗？"
             style="margin-left:10px"
             @confirm="updateUserConfigsStatus(scope.row.id)"
           >
-            <el-button type="success" size="mini" slot="reference">
+            <el-button
+              :disabled="!checkSelectable(scope.row)"
+              type="success"
+              size="mini"
+              slot="reference"
+            >
               恢复
             </el-button>
           </el-popconfirm>

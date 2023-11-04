@@ -84,7 +84,7 @@
             #{condition.current}, #{condition.size}
     </select>
 
-    <select id="selectUserOnlinesBackDTO" resultType="com.iksling.blog.dto.UsersOnlineBackDTO">
+    <select id="selectUserOnlinesBackDTO" resultType="com.iksling.blog.dto.UserOnlinesBackDTO">
         SELECT
             u.id,u.avatar,u.nickname,
             ua.username,ll.login_time,ll.login_device,

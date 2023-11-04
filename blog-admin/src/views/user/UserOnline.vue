@@ -13,10 +13,11 @@
       </el-button>
       <div style="margin-left:auto">
         <el-select
-          v-model="deletedFlag"
+          v-model="flag"
           size="small"
           style="margin-right:1rem"
           placeholder="请选择"
+          clearable
         >
           <el-option
             v-for="item in options"
@@ -32,14 +33,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入用户名"
           style="width: 200px"
-          @keyup.enter.native="listUserOnlines(true, true)"
+          @keyup.enter.native="getUserOnlines(true)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left:1rem"
-          @click="listUserOnlines(true, true)"
+          @click="getUserOnlines(true)"
         >
           搜索
         </el-button>
@@ -66,9 +67,11 @@
       <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
           <el-image
-            :src="scope.row.avatar"
+            :src="scope.row.avatar === '' ? defaultAvatar : scope.row.avatar"
             style="width: 40px;height: 40px;"
-            :preview-src-list="[scope.row.avatar]"
+            :preview-src-list="[
+              scope.row.avatar === '' ? defaultAvatar : scope.row.avatar
+            ]"
           />
         </template>
       </el-table-column>
@@ -135,11 +138,15 @@
       <el-table-column label="操作" align="center" width="120">
         <template slot-scope="scope">
           <el-popconfirm
-            :disabled="!checkSelectable(scope.row)"
             title="确定强制下线该用户吗？"
             @confirm="deleteUserOnlines(scope.row.id)"
           >
-            <el-button size="mini" type="danger" slot="reference">
+            <el-button
+              :disabled="rootUserIdList.some(e => e === scope.row.id)"
+              size="mini"
+              type="danger"
+              slot="reference"
+            >
               下线
             </el-button>
           </el-popconfirm>
@@ -175,7 +182,7 @@
 <script>
 export default {
   created() {
-    this.listUserOnlines();
+    this.getUserOnlines();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -183,10 +190,6 @@ export default {
   data() {
     return {
       options: [
-        {
-          value: null,
-          label: ""
-        },
         {
           value: false,
           label: "前台"
@@ -199,35 +202,28 @@ export default {
       rootUserIdList: [],
       userOnlineList: [],
       userOnlineIdList: [],
+      flag: null,
       keywords: null,
-      rootUserId: null,
-      deletedFlag: null,
       oldKeywords: null,
       loading: true,
       removeStatus: false,
       size: 10,
       count: 0,
-      current: 1
+      current: 1,
+      defaultAvatar: require("../../assets/img/defaultAvatar.png")
     };
   },
   methods: {
     sizeChange(size) {
       this.size = size;
-      this.listUserOnlines(true);
-    },
-    checkWeight(weight) {
-      return this.$store.state.weight <= weight;
+      this.getUserOnlines(true);
     },
     currentChange(current) {
       this.current = current;
-      this.listUserOnlines(this.keywords !== this.oldKeywords);
+      this.getUserOnlines();
     },
     checkSelectable(row) {
-      return (
-        (this.checkWeight(100) ||
-          !this.rootUserIdList.some(e => e === row.userId)) &&
-        this.rootUserId !== row.id
-      );
+      return !this.rootUserIdList.some(e => e === row.id);
     },
     selectionChange(userOnlineList) {
       this.userOnlineIdList = [];
@@ -235,24 +231,23 @@ export default {
         this.userOnlineIdList.push(item.id);
       });
     },
-    listUserOnlines(resetPageFlag = false, searchFlag = false) {
-      if (resetPageFlag) {
+    getUserOnlines(resetCurrentPage = false) {
+      if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
-      }
-      if (searchFlag) {
         this.oldKeywords = this.keywords;
       }
+      let params = {
+        size: this.size,
+        flag: this.flag,
+        current: this.current,
+        keywords: this.keywords
+      };
+      params = this.$commonMethod.skipEmptyValue(params);
       this.axios
         .get("/api/back/user/onlines", {
-          params: {
-            size: this.size,
-            current: this.current,
-            keywords: this.keywords,
-            deletedFlag: this.deletedFlag
-          }
+          params
         })
         .then(({ data }) => {
-          this.rootUserId = data.data.rootUserId;
           this.rootUserIdList = data.data.rootUserIdList;
           this.count = data.data.pagePojo.count;
           this.userOnlineList = data.data.pagePojo.pageList;
@@ -266,16 +261,16 @@ export default {
       } else {
         param = { data: [id] };
       }
-      if (param.data.length === this.userOnlineList.length) {
-        this.current = --this.current > 1 ? this.current : 1;
-      }
       this.axios.delete("/api/back/user/onlines", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          this.listUserOnlines();
+          if (param.data.length === this.userOnlineList.length) {
+            this.current = --this.current > 1 ? this.current : 1;
+          }
+          this.getUserOnlines();
         } else {
           this.$notify.error({
             title: "失败",
@@ -283,6 +278,7 @@ export default {
           });
         }
       });
+      this.removeStatus = false;
     }
   },
   computed: {
@@ -302,8 +298,8 @@ export default {
     }
   },
   watch: {
-    deletedFlag() {
-      this.listUserOnlines(true);
+    flag() {
+      this.getUserOnlines(true);
     }
   }
 };

@@ -3,7 +3,7 @@ package com.iksling.blog.service.impl;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.UsersBackDTO;
-import com.iksling.blog.dto.UsersOnlineBackDTO;
+import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.entity.MultiDir;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.entity.UserAuth;
@@ -186,8 +186,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public void deleteBackUsersOnlineByIdList(List<Integer> idList) {
-        if (idList.isEmpty() || idList.contains(ROOT_USER_ID) || (UserUtil.getLoginUser().getRoleWeight() > 100 && !Collections.disjoint(idList, ROOT_USER_ID_LIST)))
+    public void deleteBackUserOnlinesByIdList(List<Integer> idList) {
+        if (idList.isEmpty() || !Collections.disjoint(idList, ROOT_USER_ID_LIST))
             throw new OperationStatusException();
         List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(e -> {
             LoginUser loginUser = (LoginUser) e;
@@ -199,7 +199,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public PagePojo<UsersOnlineBackDTO> getUsersOnlineBackDTO(ConditionBackVO condition) {
+    public PagePojo<UserOnlinesBackDTO> getUserOnlinesBackDTO(ConditionBackVO condition) {
         List<Integer> onlineUserIdList = sessionRegistry.getAllPrincipals().stream()
                 .filter(e -> sessionRegistry.getAllSessions(e, false).size() > 0)
                 .map(e -> BeanCopyUtil.copyObject(e, LoginUser.class))
@@ -216,8 +216,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return new PagePojo<>(count, new ArrayList<>());
         int size = count > condition.getSize() ? current + condition.getSize() : count;
         List<Integer> idList = onlineUserIdList.subList(current, size);
-        List<UsersOnlineBackDTO> usersOnlineBackDTOList = userMapper.selectUserOnlinesBackDTO(idList);
-        return new PagePojo<>(count, usersOnlineBackDTOList);
+        List<UserOnlinesBackDTO> userOnlinesBackDTOList = userMapper.selectUserOnlinesBackDTO(idList);
+        return new PagePojo<>(count, userOnlinesBackDTOList);
     }
 
     @Override

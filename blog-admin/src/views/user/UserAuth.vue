@@ -118,7 +118,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeUserAuthDisabledStatus(scope.row)"
+            @change="updateUserAuthStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -131,7 +131,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeUserAuthLockedStatus(scope.row)"
+            @change="updateUserAuthStatus(scope.row, true)"
           />
         </template>
       </el-table-column>
@@ -372,6 +372,8 @@ export default {
         password: ""
       };
       this.confirmPassword = "";
+      this.passwordStatus = 0;
+      this.confirmPasswordStatus = 0;
       this.userAuthOrigin = JSON.parse(JSON.stringify(this.userAuth));
       this.$refs.userAuthTitle.innerHTML = "修改账号";
       this.$nextTick(() => {
@@ -491,39 +493,45 @@ export default {
             message: data.message
           });
         }
-        this.editStatus = false;
       });
+      this.editStatus = false;
     },
-    changeUserAuthLockedStatus(userAuth) {
-      let lockedFlag = userAuth.lockedFlag;
-      let text = lockedFlag ? "解锁" : "锁定";
+    updateUserAuthStatus(userAuth, flag = false) {
+      let text = flag
+        ? userAuth.lockedFlag
+          ? "解锁"
+          : "锁定"
+        : userAuth.disabledFlag
+        ? "启用"
+        : "禁用";
       this.$confirm("是否" + text + "该用户?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          userAuth.lockedFlag = !lockedFlag;
-          this.axios.put("/api/back/userAuth/status", {
-            idList: [userAuth.userId],
-            type: 12
-          });
-        })
-        .catch(() => {});
-    },
-    changeUserAuthDisabledStatus(userAuth) {
-      let disabledFlag = userAuth.disabledFlag;
-      let text = disabledFlag ? "启用" : "禁用";
-      this.$confirm("是否" + text + "该用户?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          userAuth.disabledFlag = !disabledFlag;
-          this.axios.put("/api/back/userAuth/status", {
+          let param = {
             idList: [userAuth.userId]
-          });
+          };
+          if (flag) {
+            param.type = 12;
+          }
+          this.axios
+            .put("/api/back/userAuth/status", param)
+            .then(({ data }) => {
+              if (data.flag) {
+                if (flag) {
+                  userAuth.lockedFlag = !userAuth.lockedFlag;
+                } else {
+                  userAuth.disabledFlag = !userAuth.disabledFlag;
+                }
+              } else {
+                this.$notify.error({
+                  title: "失败",
+                  message: data.message
+                });
+              }
+            });
         })
         .catch(() => {});
     }

@@ -12,6 +12,7 @@ export default new Vuex.Store({
     email: "",
     intro: "",
     avatar: "",
+    gender: null,
     weight: 1000,
     website: "",
     nickname: "",
@@ -43,6 +44,7 @@ export default new Vuex.Store({
       state.intro = user.intro;
       state.email = user.email;
       state.avatar = user.avatar;
+      state.gender = user.gender;
       state.weight = user.weight;
       state.website = user.website;
       state.nickname = user.nickname;
@@ -55,6 +57,7 @@ export default new Vuex.Store({
       state.intro = "";
       state.email = "";
       state.avatar = "";
+      state.gender = null;
       state.weight = 1000;
       state.website = "";
       state.nickname = "";
@@ -65,6 +68,7 @@ export default new Vuex.Store({
     },
     updateUserInfo(state, user) {
       state.intro = user.intro;
+      state.gender = user.gender;
       state.website = user.website;
       state.nickname = user.nickname;
     }

@@ -18,6 +18,7 @@ import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.CommonUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.vo.PasswordVO;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.UserAuthBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,6 +155,22 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         int count = userAuthMapper.update(null, lambdaUpdateWrapper);
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
+    }
+
+    @Override
+    @Transactional
+    public void updateUserPasswordVO(PasswordVO passwordVO) {
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
+        List<Object> objectList = userAuthMapper.selectObjs(new LambdaQueryWrapper<UserAuth>()
+                .select(UserAuth::getPassword)
+                .eq(UserAuth::getUserId, loginUserId));
+        if (passwordEncoder.matches(passwordVO.getOldPassword(), objectList.get(0).toString()))
+            userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
+                    .set(UserAuth::getPassword, passwordEncoder.encode(passwordVO.getNewPassword()))
+                    .set(UserAuth::getUpdateUser, loginUserId)
+                    .set(UserAuth::getUpdateTime, new Date()));
+        else
+            throw new OperationStatusException("密码错误!");
     }
 
     @Override

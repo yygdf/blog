@@ -79,6 +79,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Transactional(rollbackFor = Exception.class)
     public Integer saveOrUpdateArticleBackVO(ArticleBackVO articleBackVO) {
         LoginUser loginUser =  UserUtil.getLoginUser();
+        Integer loginUserId = loginUser.getUserId();
+        Date dateTime = new Date();
         Article article = BeanCopyUtil.copyObject(articleBackVO, Article.class);
         if (article.getId() == null) {
             if (article.getArticleTitle() == null || article.getArticleContent() == null)
@@ -86,34 +88,34 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             if (article.getDraftFlag() == Boolean.FALSE) {
                 if (article.getCategoryId() == null)
                     throw new OperationStatusException();
-                article.setPublishUser(loginUser.getUserId());
-                article.setPublishTime(new Date());
+                article.setPublishUser(loginUserId);
+                article.setPublishTime(dateTime);
             }
             if (article.getCategoryId() != null) {
                 Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                         .eq(Category::getId, article.getCategoryId())
-                        .eq(Category::getUserId, loginUser.getUserId())
+                        .eq(Category::getUserId, loginUserId)
                         .eq(Category::getDeletedFlag, false));
                 if (count != 1)
                     throw new OperationStatusException();
             }
-            article.setUserId(loginUser.getUserId());
+            article.setUserId(loginUserId);
             article.setIpAddress(IpUtil.getIpAddress(request));
             article.setIpSource(IpUtil.getIpSource(article.getIpAddress()));
-            article.setCreateUser(loginUser.getUserId());
-            article.setCreateTime(new Date());
+            article.setCreateUser(loginUserId);
+            article.setCreateTime(dateTime);
             if (article.getArticleCover() != null)
                 if (!article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                     article.setArticleCover(null);
             articleMapper.insert(article);
-            multiDirService.saveArticleDirById(article.getId());
+            multiDirService.saveArticleDirById(article.getId(), loginUserId, dateTime);
         } else {
             Article articleOrigin = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
                     .select(Article::getUserId, Article::getPublishUser, Article::getArticleCover)
                     .eq(Article::getId, article.getId())
                     .eq(Article::getDeletedFlag, false)
                     .eq(Article::getRecycleFlag, false)
-                    .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
+                    .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUserId));
             if (articleOrigin == null)
                 throw new OperationStatusException();
             if (article.getCategoryId() != null) {
@@ -128,7 +130,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 if (!article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                     article.setArticleCover("");
                 if (articleOrigin.getArticleCover().startsWith(STATIC_RESOURCE_URL + articleOrigin.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + article.getId()))
-                    multiFileService.updateArticleImageBy(articleOrigin.getUserId(), article.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1));
+                    multiFileService.updateArticleImageBy(articleOrigin.getUserId(), loginUserId, article.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1), dateTime);
             }
             if (articleBackVO.getTagIdList() != null) {
                 articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
@@ -137,11 +139,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         .eq(ArticleTag::getArticleId, article.getId()));
             }
             if (article.getDraftFlag() != null && articleOrigin.getPublishUser() == null) {
-                article.setPublishUser(loginUser.getUserId());
-                article.setPublishTime(new Date());
+                article.setPublishUser(loginUserId);
+                article.setPublishTime(dateTime);
             }
-            article.setUpdateUser(loginUser.getUserId());
-            article.setUpdateTime(new Date());
+            article.setUpdateUser(loginUserId);
+            article.setUpdateTime(dateTime);
             articleMapper.updateById(article);
             article.setUserId(articleOrigin.getUserId());
         }
@@ -225,7 +227,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     .set(ArticleTag::getDeletedFlag, true)
                     .eq(ArticleTag::getDeletedFlag, false)
                     .in(ArticleTag::getArticleId, statusBackVO.getIdList()));
-            multiDirService.updateArticleDirByIdList(statusBackVO.getIdList());
+            multiDirService.updateArticleDirByIdList(statusBackVO.getIdList(), loginUser.getUserId(), new Date());
         }
     }
 

@@ -5,6 +5,7 @@ import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserAuthService;
 import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.vo.PasswordVO;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.UserAuthBackVO;
 import io.swagger.annotations.Api;
@@ -43,6 +44,15 @@ public class UserAuthController {
     @PutMapping("/back/userAuth/status")
     public Result updateBackUserAuthStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         userAuthService.updateUserAuthStatusBackVO(statusBackVO);
+        return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "修改用户密码")
+    @ApiImplicitParam(name = "passwordVO", value = "密码VO", required = true, dataType = "PasswordVO")
+    @PutMapping("/userAuth/password")
+    public Result updateUserPassword(@Valid @RequestBody PasswordVO passwordVO) {
+        userAuthService.updateUserPasswordVO(passwordVO);
         return Result.success().message("操作成功");
     }
 

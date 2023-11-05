@@ -20,6 +20,8 @@ public interface UserService extends IService<User> {
 
     void updateUsersStatusBackVO(StatusBackVO statusBackVO);
 
+    void updateUserVO(UserVO userVO);
+
     PagePojo<UsersBackDTO> getUsersBackDTO(ConditionBackVO condition);
 
     boolean getBackUserExistFlag(String email, String username);
@@ -27,6 +29,4 @@ public interface UserService extends IService<User> {
     void deleteBackUserOnlinesByIdList(List<Integer> idList);
 
     PagePojo<UserOnlinesBackDTO> getUserOnlinesBackDTO(ConditionBackVO condition);
-
-    void updateUserVO(UserVO userVO);
 }

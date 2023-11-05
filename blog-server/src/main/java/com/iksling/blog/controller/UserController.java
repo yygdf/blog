@@ -4,10 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserService;
-import com.iksling.blog.vo.ConditionBackVO;
-import com.iksling.blog.vo.StatusBackVO;
-import com.iksling.blog.vo.UserBackVO;
-import com.iksling.blog.vo.UserVO;
+import com.iksling.blog.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -53,6 +50,15 @@ public class UserController {
         return Result.success().message("操作成功");
     }
 
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "修改用户信息")
+    @ApiImplicitParam(name = "userVO", value = "用户VO", required = true, dataType = "UserVO")
+    @PutMapping("/user")
+    public Result updateUser(@Valid @RequestBody UserVO userVO) {
+        userService.updateUserVO(userVO);
+        return Result.success().message("操作成功");
+    }
+
     @ApiOperation(value = "查看后台用户列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
     @GetMapping("/back/users")
@@ -92,14 +98,5 @@ public class UserController {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("rootUserIdList", ROOT_USER_ID_LIST)
                 .set("pagePojo", userService.getUserOnlinesBackDTO(condition)));
-    }
-
-    @OptLog(optType = UPDATE)
-    @ApiOperation(value = "修改用户信息")
-    @ApiImplicitParam(name = "userVO", value = "用户VO", required = true, dataType = "UserVO")
-    @PutMapping("/user")
-    public Result updateUser(@Valid @RequestBody UserVO userVO) {
-        userService.updateUserVO(userVO);
-        return Result.success().message("操作成功");
     }
 }

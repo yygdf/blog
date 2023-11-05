@@ -8,10 +8,8 @@ import com.iksling.blog.entity.MultiDir;
 import com.iksling.blog.entity.MultiFile;
 import com.iksling.blog.mapper.MultiDirMapper;
 import com.iksling.blog.mapper.MultiFileMapper;
-import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MultiDirService;
 import com.iksling.blog.util.MultiFileUtil;
-import com.iksling.blog.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,26 +32,25 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
     private MultiFileMapper multiFileMapper;
 
     @Override
-    public void saveArticleDirById(Integer id) {
-        LoginUser loginUser = UserUtil.getLoginUser();
+    public void saveArticleDirById(Integer id, Integer loginUserId, Date createTime) {
         List<Map<String, Object>> multiDirMap = multiDirMapper.selectMaps(new QueryWrapper<MultiDir>()
                 .select("id")
-                .eq("user_id", loginUser.getUserId())
+                .eq("user_id", loginUserId)
                 .eq("dir_path", IMG_ARTICLE.getMark()));
         multiDirMapper.insert(MultiDir.builder()
-                .userId(loginUser.getUserId())
+                .userId(loginUserId)
                 .parentId((Integer) multiDirMap.get(0).get("id"))
                 .dirPath(Long.valueOf(id))
                 .dirDesc("{'articleId':"+id+"}")
                 .dirName(id.toString())
                 .deletableFlag(false)
-                .createUser(loginUser.getUserId())
-                .createTime(new Date())
+                .createUser(loginUserId)
+                .createTime(createTime)
                 .build());
     }
 
     @Override
-    public void updateArticleDirByIdList(List<Integer> idList) {
+    public void updateArticleDirByIdList(List<Integer> idList, Integer loginUserId, Date updateTime) {
         idList.forEach(
                 e -> {
                     List<Map<String, Object>> multiDirMap = multiDirMapper.selectMaps(new QueryWrapper<MultiDir>()
@@ -63,8 +60,8 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
                     multiDirMapper.update(null, new LambdaUpdateWrapper<MultiDir>()
                             .set(MultiDir::getDirPathNew, dirPathNew)
                             .set(MultiDir::getDeletedFlag, true)
-                            .set(MultiDir::getUpdateUser, UserUtil.getLoginUser().getUserId())
-                            .set(MultiDir::getUpdateTime, new Date())
+                            .set(MultiDir::getUpdateUser, loginUserId)
+                            .set(MultiDir::getUpdateTime, updateTime)
                             .eq(MultiDir::getId, multiDirMap.get(0).get("id")));
                     String uri = multiDirMap.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + e;
                     MultiFileUtil.rename(uri, uri + "-" + dirPathNew + "-article-del");

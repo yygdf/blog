@@ -22,10 +22,7 @@ import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.CommonUtil;
 import com.iksling.blog.util.RegexUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionBackVO;
-import com.iksling.blog.vo.StatusBackVO;
-import com.iksling.blog.vo.UserBackVO;
-import com.iksling.blog.vo.UserVO;
+import com.iksling.blog.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -65,6 +62,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Transactional
     public void saveOrUpdateUserBackVO(UserBackVO userBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
+        Integer loginUserId = loginUser.getUserId();
         User user = BeanCopyUtil.copyObject(userBackVO, User.class);
         if (user.getId() == null) {
             if (userBackVO.getUsername() == null || user.getNickname() == null || !RegexUtil.checkEmail(user.getEmail()))
@@ -72,7 +70,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             if (userMapper.selectBackUserAvatarById(user.getEmail(), userBackVO.getUsername(), null) != null)
                 throw new OperationStatusException("用户已存在!");
             Date createTime = new Date();
-            Integer loginUserId = loginUser.getUserId();
             user.setAvatar(null);
             user.setCreateUser(loginUserId);
             user.setCreateTime(createTime);
@@ -139,14 +136,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 if (userMapper.selectBackUserAvatarById(user.getEmail(), null, null) != null)
                     throw new OperationStatusException("邮箱已存在!");
             }
+            Date updateTime = new Date();
             if (user.getAvatar() != null) {
                 if (!user.getAvatar().startsWith(STATIC_RESOURCE_URL))
                     user.setAvatar("");
                 if (avatar.startsWith(STATIC_RESOURCE_URL + user.getId() + "/" + IMG_AVATAR.getPath()))
-                    multiFileService.updateUserAvatarBy(user.getId(), CommonUtil.getSplitStringByIndex(avatar, "/", -1));
+                    multiFileService.updateUserAvatarBy(user.getId(), loginUserId, CommonUtil.getSplitStringByIndex(avatar, "/", -1), updateTime);
             }
-            user.setUpdateUser(loginUser.getUserId());
-            user.setUpdateTime(new Date());
+            user.setUpdateUser(loginUserId);
+            user.setUpdateTime(updateTime);
             userMapper.updateById(user);
         }
     }
@@ -163,6 +161,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Transactional
     public void updateUsersStatusBackVO(StatusBackVO statusBackVO) {
         // TODO: 删除用户牵扯太多数据, 延后处理
+    }
+
+    @Override
+    @Transactional
+    public void updateUserVO(UserVO userVO) {
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
+        userMapper.update(null, new LambdaUpdateWrapper<User>()
+                .set(userVO.getIntro() != null, User::getIntro, userVO.getIntro())
+                .set(userVO.getGender() != null, User::getGender, userVO.getGender())
+                .set(userVO.getWebsite() != null, User::getWebsite, userVO.getWebsite())
+                .set(userVO.getNickname() != null, User::getNickname, userVO.getNickname())
+                .set(User::getUpdateUser, loginUserId)
+                .set(User::getUpdateTime, new Date())
+                .eq(User::getId, loginUserId));
     }
 
     @Override
@@ -218,16 +230,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<Integer> idList = onlineUserIdList.subList(current, size);
         List<UserOnlinesBackDTO> userOnlinesBackDTOList = userMapper.selectUserOnlinesBackDTO(idList);
         return new PagePojo<>(count, userOnlinesBackDTOList);
-    }
-
-    @Override
-    @Transactional
-    public void updateUserVO(UserVO userVO) {
-        userMapper.update(null, new LambdaUpdateWrapper<User>()
-                .set(userVO.getIntro() != null, User::getIntro, userVO.getIntro())
-                .set(userVO.getWebsite() != null, User::getWebsite, userVO.getWebsite())
-                .set(userVO.getNickname() != null, User::getNickname, userVO.getNickname())
-                .eq(User::getId, UserUtil.getLoginUser().getUserId()));
     }
 }
 

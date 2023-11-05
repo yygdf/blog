@@ -261,13 +261,13 @@ export default {
     checkedKeys(dataList, idArray, idList) {
       dataList.forEach(item => {
         if (item.children == null) {
-          if (idArray.some(id => id == item.id)) {
+          if (idArray.some(id => Number(id) === item.id)) {
             idList.push(item.id);
           }
         } else {
           let count = 0;
           item.children.forEach(item => {
-            if (idArray.some(id => id == item.id)) {
+            if (idArray.some(id => Number(id) === item.id)) {
               idList.push(item.id);
               count++;
             }

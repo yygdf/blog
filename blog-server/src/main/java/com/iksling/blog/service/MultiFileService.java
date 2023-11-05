@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.iksling.blog.entity.MultiFile;
 import com.iksling.blog.vo.ArticleImageBackVO;
 import com.iksling.blog.vo.UserAvatarBackVO;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,7 +21,9 @@ public interface MultiFileService extends IService<MultiFile> {
 
     void updateBackUserAvatarsByFileNameList(List<Long> fileNameList);
 
-    void updateArticleImageBy(Integer userId, Integer articleId, String fullFileName);
+    String updateUserAvatar(MultipartFile file);
 
-    void updateUserAvatarBy(Integer userId, String fullFileName);
+    void updateArticleImageBy(Integer userId, Integer loginUserId, Integer articleId, String fullFileName, Date updateTime);
+
+    void updateUserAvatarBy(Integer userId, Integer loginUserId, String fullFileName, Date updateTime);
 }

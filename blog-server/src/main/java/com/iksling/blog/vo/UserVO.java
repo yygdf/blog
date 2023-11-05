@@ -3,6 +3,7 @@ package com.iksling.blog.vo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.Size;
 
@@ -15,6 +16,13 @@ public class UserVO {
     @Size(max = 50, message = "'intro':{'maxlength':50}")
     @ApiModelProperty(name = "intro", value = "用户介绍", dataType = "String")
     private String intro;
+
+    /**
+     * 用户性别
+     */
+    @Range(min = 1, max = 4, message = "'gender':{'minvalue':1,'maxvalue':4}")
+    @ApiModelProperty(name = "gender", value = "用户性别", dataType = "Integer")
+    private Integer gender;
 
     /**
      * 用户网站

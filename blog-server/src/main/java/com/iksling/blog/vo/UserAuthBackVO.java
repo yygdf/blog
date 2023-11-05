@@ -21,7 +21,7 @@ public class UserAuthBackVO {
     /**
      * 用户密码
      */
-    @Size(min = 1, max = 255, message = "'password':{'minlength':1,'maxlength':255}")
+    @Size(min = 6, max = 255, message = "'password':{'minlength':6,'maxlength':255}")
     @ApiModelProperty(name = "password", value = "用户密码", dataType = "String")
     private String password;
 

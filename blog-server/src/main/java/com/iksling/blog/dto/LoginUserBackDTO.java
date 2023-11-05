@@ -31,6 +31,11 @@ public class LoginUserBackDTO {
     private String avatar;
 
     /**
+     * 用户性别
+     */
+    private Integer gender;
+
+    /**
      * 权重
      */
     private Integer weight;

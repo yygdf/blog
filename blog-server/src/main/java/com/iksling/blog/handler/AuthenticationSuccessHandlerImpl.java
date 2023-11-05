@@ -29,18 +29,18 @@ import java.util.Date;
 @Component
 public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHandler {
     @Autowired
+    private UserMapper userMapper;
+    @Autowired
     private UserAuthMapper userAuthMapper;
     @Autowired
     private LoginLogMapper loginLogMapper;
-    @Autowired
-    private UserMapper userMapper;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException {
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer userId = loginUser.getUserId();
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .select(User::getNickname, User::getAvatar, User::getIntro, User::getEmail, User::getWebsite)
+                .select(User::getIntro, User::getEmail, User::getAvatar, User::getGender, User::getWebsite, User::getNickname)
                 .eq(User::getId, userId));
         Boolean loginPlatform = Boolean.parseBoolean(httpServletRequest.getHeader("Login-Platform"));
         Date loginTime = new Date();
@@ -53,6 +53,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
                     .intro(user.getIntro())
                     .email(user.getEmail())
                     .avatar(user.getAvatar())
+                    .gender(user.getGender())
                     .weight(loginUser.getRoleWeight())
                     .website(user.getWebsite())
                     .nickname(user.getNickname())

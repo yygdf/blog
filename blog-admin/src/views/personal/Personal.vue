@@ -6,27 +6,44 @@
           <el-form-item label="昵称">
             <el-input
               v-model="userForm.nickname"
+              ref="input"
               size="small"
+              class="word-limit-input"
               style="width: 200px"
-              :maxLength="50"
+              maxlength="50"
+              placeholder="请输入昵称"
+              show-word-limit
             />
-            <span style="color: red;"> *</span>
           </el-form-item>
-          <el-form-item label="简介">
+          <el-form-item label="介绍">
             <el-input
               v-model="userForm.intro"
               size="small"
+              class="word-limit-input"
               style="width: 200px"
-              :maxLength="50"
+              maxlength="50"
+              placeholder="请输入介绍(可为空)"
+              show-word-limit
             />
           </el-form-item>
           <el-form-item label="网站">
             <el-input
               v-model="userForm.website"
               size="small"
+              class="word-limit-input2"
               style="width: 200px"
-              :maxLength="255"
+              maxlength="255"
+              placeholder="请输入网站(可为空)"
+              show-word-limit
             />
+          </el-form-item>
+          <el-form-item label="性别">
+            <el-radio-group v-model="userForm.gender">
+              <el-radio :label="1">男</el-radio>
+              <el-radio :label="2">女</el-radio>
+              <el-radio :label="3">可男可女</el-radio>
+              <el-radio :label="4">非男非女</el-radio>
+            </el-radio-group>
           </el-form-item>
           <el-button
             @click="updateInfo"
@@ -130,6 +147,7 @@
             </el-button>
             <avatar-cropper
               @uploaded="uploadedAvatar"
+              @uploading="uploadingAvatar"
               trigger="#pick-avatar"
               upload-url="/api/user/avatar"
             />
@@ -150,10 +168,16 @@ export default {
       oldPasswordStatus: 0,
       newPasswordStatus: 0,
       confirmPasswordStatus: 0,
-      userId: this.$store.state.userId,
       activeName: "info",
       userForm: {
         intro: this.$store.state.intro,
+        gender: this.$store.state.gender,
+        website: this.$store.state.website,
+        nickname: this.$store.state.nickname
+      },
+      userFormOrigin: {
+        intro: this.$store.state.intro,
+        gender: this.$store.state.gender,
         website: this.$store.state.website,
         nickname: this.$store.state.nickname
       },
@@ -173,10 +197,18 @@ export default {
         this.$message.error("昵称不能为空");
         return false;
       }
-      this.axios.put("/api/user", this.userForm).then(({ data }) => {
+      let param = this.$commonMethod.skipIdenticalValue(
+        this.userForm,
+        this.userFormOrigin
+      );
+      if (Object.keys(param).length === 0) {
+        return false;
+      }
+      this.axios.put("/api/user", param).then(({ data }) => {
         if (data.flag) {
           this.$message.success(data.message);
           this.$store.commit("updateUserInfo", this.userForm);
+          this.userFormOrigin = JSON.parse(JSON.stringify(this.userForm));
         } else {
           this.$message.error(data.message);
         }
@@ -190,16 +222,27 @@ export default {
         this.$message.error(data.message);
       }
     },
+    uploadingAvatar(data) {
+      if (data.flag) {
+        this.$message.success(data.message);
+        this.$store.commit("updateAvatar", data.data);
+      } else {
+        this.$message.error(data.message);
+      }
+    },
     updatePassword() {
       let param = {
         oldPassword: md5(this.passwordForm.oldPassword),
         newPassword: md5(this.passwordForm.newPassword)
       };
-      this.axios.put("/api/back/user/password", param).then(({ data }) => {
+      this.axios.put("/api/userAuth/password", param).then(({ data }) => {
         if (data.flag) {
           this.passwordForm.oldPassword = "";
           this.passwordForm.newPassword = "";
           this.passwordForm.confirmPassword = "";
+          this.oldPasswordStatus = 0;
+          this.newPasswordStatus = 0;
+          this.confirmPasswordStatus = 0;
           this.$message.success(data.message);
         } else {
           this.$message.error(data.message);

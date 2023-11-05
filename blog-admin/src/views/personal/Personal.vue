@@ -147,7 +147,6 @@
             </el-button>
             <avatar-cropper
               @uploaded="uploadedAvatar"
-              @uploading="uploadingAvatar"
               trigger="#pick-avatar"
               upload-url="/api/user/avatar"
             />
@@ -217,14 +216,7 @@ export default {
     uploadedAvatar(data) {
       if (data.flag) {
         this.$message.success(data.message);
-        this.$store.commit("updateAvatar", data.data);
-      } else {
-        this.$message.error(data.message);
-      }
-    },
-    uploadingAvatar(data) {
-      if (data.flag) {
-        this.$message.success(data.message);
+        this.avatarForm.avatar = data.data;
         this.$store.commit("updateAvatar", data.data);
       } else {
         this.$message.error(data.message);

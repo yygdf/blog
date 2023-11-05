@@ -16,6 +16,7 @@ import com.iksling.blog.util.MultiFileUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ArticleImageBackVO;
 import com.iksling.blog.vo.UserAvatarBackVO;
+import com.iksling.blog.vo.UserAvatarVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -205,7 +206,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
 
     @Override
     @Transactional
-    public String updateUserAvatar(MultipartFile file) {
+    public String updateUserAvatarVO(UserAvatarVO userAvatarVO) {
+        MultipartFile file = userAvatarVO.getFile();
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
         if (file.isEmpty())
             throw new FileStatusException("文件不存在!");
@@ -219,6 +221,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         String url = MultiFileUtil.upload(file, targetAddr, fileName + "." + extension);
         if (url == null)
             throw new FileStatusException("文件上传失败!");
+        userAvatarVO.setFile(null);
         Date dateTime = new Date();
         List<Map<String, Object>> objectList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getFileName, MultiFile::getFileExtension)
@@ -248,7 +251,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .ipAddress(iPAddress)
                 .ipSource(IpUtil.getIpSource(iPAddress))
                 .createUser(loginUserId)
-                .createTime(new Date())
+                .createTime(dateTime)
                 .build());
         return url;
     }

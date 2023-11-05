@@ -81,8 +81,10 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         Integer userId = (Integer) mapList.get(0).get("user_id");
         if (ROOT_USER_ID_LIST.contains(userId))
             throw new IllegalRequestException();
-        if (userAuth.getPassword() != null)
+        if (userAuth.getPassword() != null) {
             userAuth.setPassword(passwordEncoder.encode(userAuth.getPassword()));
+            userAuthBackVO.setPassword(null);
+        }
         Integer loginUserId = loginUser.getUserId();
         Date createTime = new Date();
         userAuth.setUpdateUser(loginUserId);
@@ -164,13 +166,18 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         List<Object> objectList = userAuthMapper.selectObjs(new LambdaQueryWrapper<UserAuth>()
                 .select(UserAuth::getPassword)
                 .eq(UserAuth::getUserId, loginUserId));
-        if (passwordEncoder.matches(passwordVO.getOldPassword(), objectList.get(0).toString()))
+        if (passwordEncoder.matches(passwordVO.getOldPassword(), objectList.get(0).toString())) {
             userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                     .set(UserAuth::getPassword, passwordEncoder.encode(passwordVO.getNewPassword()))
                     .set(UserAuth::getUpdateUser, loginUserId)
                     .set(UserAuth::getUpdateTime, new Date()));
-        else
+            passwordVO.setOldPassword(null);
+            passwordVO.setNewPassword(null);
+        } else {
+            passwordVO.setOldPassword(null);
+            passwordVO.setNewPassword(null);
             throw new OperationStatusException("密码错误!");
+        }
     }
 
     @Override

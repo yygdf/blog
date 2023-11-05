@@ -5,6 +5,7 @@ import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.vo.ArticleImageBackVO;
 import com.iksling.blog.vo.UserAvatarBackVO;
+import com.iksling.blog.vo.UserAvatarVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -31,7 +31,7 @@ public class MultiFileController {
     @ApiOperation(value = "上传文章图片")
     @ApiImplicitParam(name = "articleImageBackVO", value = "文章图片后台VO", required = true, dataType = "ArticleImageBackVO")
     @PostMapping("/back/article/image")
-    public Result saveBackArticleImage(@Valid @RequestBody ArticleImageBackVO articleImageBackVO) {
+    public Result saveBackArticleImage(@Valid ArticleImageBackVO articleImageBackVO) {
         return Result.success().message("上传成功").data(multiFileService.saveArticleImageBackVO(articleImageBackVO));
     }
 
@@ -39,7 +39,7 @@ public class MultiFileController {
     @ApiOperation(value = "上传用户头像")
     @ApiImplicitParam(name = "userAvatarBackVO", value = "用户头像后台VO", required = true, dataType = "UserAvatarBackVO")
     @PostMapping("/back/user/avatar")
-    public Result saveBackUserAvatar(@Valid @RequestBody UserAvatarBackVO userAvatarBackVO) {
+    public Result saveBackUserAvatar(@Valid UserAvatarBackVO userAvatarBackVO) {
         return Result.success().message("上传成功").data(multiFileService.saveUserAvatarBackVO(userAvatarBackVO));
     }
 
@@ -63,9 +63,9 @@ public class MultiFileController {
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "修改用户头像")
-    @ApiImplicitParam(name = "file", value = "用户头像文件", required = true, dataType = "MultipartFile")
+    @ApiImplicitParam(name = "userAvatarVO", value = "用户头像VO", required = true, dataType = "UserAvatarVO")
     @PostMapping("/user/avatar")
-    public Result updateUserAvatar(@RequestBody MultipartFile file) {
-        return Result.success().message("操作成功").data(multiFileService.updateUserAvatar(file));
+    public Result updateUserAvatarVO(@Valid UserAvatarVO userAvatarVO) {
+        return Result.success().message("操作成功").data(multiFileService.updateUserAvatarVO(userAvatarVO));
     }
 }

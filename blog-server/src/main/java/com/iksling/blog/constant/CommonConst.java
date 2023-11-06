@@ -53,39 +53,4 @@ public class CommonConst {
      * 系统核心角色idList
      */
     public static final List<Integer> ROOT_ROLE_ID_LIST = Arrays.asList(1);
-
-    /**
-     * 聊天室音频目录大小
-     */
-    public static final Integer AUDIO_CHAT_SIZE = 1;
-
-    /**
-     * 聊天室音频目录单位
-     */
-    public static final String AUDIO_CHAT_UNIT= "MB";
-
-    /**
-     * 用户头像目录大小
-     */
-    public static final Integer IMG_AVATAR_SIZE = 1;
-
-    /**
-     * 用户头像目录单位
-     */
-    public static final String IMG_AVATAR_UNIT= "MB";
-
-    /**
-     * 文章图片目录大小
-     */
-    public static final Integer IMG_ARTICLE_SIZE = 5;
-
-    /**
-     * 文章图片目录单位
-     */
-    public static final String IMG_ARTICLE_UNIT= "MB";
-
-    /**
-     * 文章封面默认后缀
-     */
-    public static final String DEFAULT_ARTICLE_COVER_SUFFIX = "/default/default.png";
 }

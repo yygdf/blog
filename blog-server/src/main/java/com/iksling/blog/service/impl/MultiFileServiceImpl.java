@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.enums.FilePathEnum.IMG_ARTICLE;
 import static com.iksling.blog.enums.FilePathEnum.IMG_AVATAR;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
@@ -66,8 +65,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             throw new FileStatusException("文件不存在!");
         if (MultiFileUtil.checkNotValidImageFileType(file))
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
-        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_ARTICLE_SIZE, IMG_ARTICLE_UNIT))
-            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_ARTICLE_SIZE + IMG_ARTICLE_UNIT + "}");
+        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_ARTICLE.getSize(), IMG_ARTICLE.getUnit()))
+            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_ARTICLE.getSize() + IMG_ARTICLE.getUnit() + "}");
         if (articleUserId == null)
             articleUserId = loginUser.getUserId();
         else if (loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(articleUserId))
@@ -116,8 +115,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             throw new FileStatusException("文件不存在!");
         if (MultiFileUtil.checkNotValidImageFileType(file))
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
-        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_AVATAR_SIZE, IMG_AVATAR_UNIT))
-            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_AVATAR_SIZE + IMG_AVATAR_UNIT + "}");
+        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_AVATAR.getSize(), IMG_AVATAR.getUnit()))
+            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_AVATAR.getSize() + IMG_AVATAR.getUnit() + "}");
         if (userId == null)
             userId = loginUser.getUserId();
         else if (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(userId))
@@ -213,8 +212,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             throw new FileStatusException("文件不存在!");
         if (MultiFileUtil.checkNotValidImageFileType(file))
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
-        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_AVATAR_SIZE, IMG_AVATAR_UNIT))
-            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_AVATAR_SIZE + IMG_AVATAR_UNIT + "}");
+        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_AVATAR.getSize(), IMG_AVATAR.getUnit()))
+            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_AVATAR.getSize() + IMG_AVATAR.getUnit() + "}");
         long fileName = IdWorker.getId();
         String extension = getSplitStringByIndex(Objects.requireNonNull(file.getOriginalFilename()), "\\.", -1);
         String targetAddr = loginUserId + "/" + IMG_AVATAR.getPath();

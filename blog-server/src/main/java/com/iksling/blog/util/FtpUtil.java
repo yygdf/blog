@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 @Component
@@ -50,6 +51,10 @@ public class FtpUtil {
 
     public static boolean rename(String uri, String uriNew) {
         return renameFile(uri, uriNew);
+    }
+
+    public static boolean copy(String from, String to) {
+        return renameFile(from, to);
     }
 
     public static boolean delete(String uri) {
@@ -123,6 +128,29 @@ public class FtpUtil {
         try {
             ftpClient = getFTPClient();
             ftpClient.rename(uri, uriNew);
+            ftpClient.logout();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (ftpClient != null) {
+                if (ftpClient.isConnected()) {
+                    try {
+                        ftpClient.disconnect();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    private static boolean copyFile(String from, String to) {
+        FTPClient ftpClient = null;
+        try {
+            ftpClient = getFTPClient();
+            ftpClient.retrieveFile(from, new FileOutputStream(to));
             ftpClient.logout();
             return true;
         } catch (IOException e) {

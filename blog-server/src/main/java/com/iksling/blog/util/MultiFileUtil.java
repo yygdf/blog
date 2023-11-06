@@ -15,6 +15,10 @@ public class MultiFileUtil {
         FtpUtil.rename(uri, uriNew);
     }
 
+    public static void copy(String from, String to) {
+        FtpUtil.rename(from, to);
+    }
+
     public static void delete(String uri) {
         FtpUtil.delete(uri);
     }

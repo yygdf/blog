@@ -12,6 +12,7 @@ import com.iksling.blog.service.MultiDirService;
 import com.iksling.blog.util.MultiFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -32,6 +33,7 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
     private MultiFileMapper multiFileMapper;
 
     @Override
+    @Transactional
     public void saveArticleDirById(Integer id, Integer loginUserId, Date createTime) {
         List<Map<String, Object>> multiDirMap = multiDirMapper.selectMaps(new QueryWrapper<MultiDir>()
                 .select("id")
@@ -50,6 +52,7 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
     }
 
     @Override
+    @Transactional
     public void updateArticleDirByIdList(List<Integer> idList, Integer loginUserId, Date updateTime) {
         idList.forEach(
                 e -> {
@@ -70,6 +73,7 @@ public class MultiDirServiceImpl extends ServiceImpl<MultiDirMapper, MultiDir>
     }
 
     @Override
+    @Transactional
     public void deleteArticleDirByIdList(List<Integer> idList) {
         idList.forEach(
                 e -> {

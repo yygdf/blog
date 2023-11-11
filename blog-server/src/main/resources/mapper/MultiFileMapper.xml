@@ -7,14 +7,19 @@
     <resultMap id="BaseResultMap" type="com.iksling.blog.entity.MultiFile">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="userId" column="user_id" jdbcType="INTEGER"/>
-            <result property="multiDirId" column="multi_dir_id" jdbcType="INTEGER"/>
+            <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
             <result property="fileDesc" column="file_desc" jdbcType="VARCHAR"/>
             <result property="fileMark" column="file_mark" jdbcType="INTEGER"/>
             <result property="fileName" column="file_name" jdbcType="BIGINT"/>
+            <result property="fileCover" column="file_cover" jdbcType="VARCHAR"/>
+            <result property="fileFullPath" column="file_full_path" jdbcType="VARCHAR"/>
             <result property="fileExtension" column="file_extension" jdbcType="VARCHAR"/>
             <result property="fileNameNew" column="file_name_new" jdbcType="BIGINT"/>
             <result property="fileNameOrigin" column="file_name_origin" jdbcType="VARCHAR"/>
+            <result property="publicFlag" column="public_flag" jdbcType="BOOLEAN"/>
+            <result property="hiddenFlag" column="hidden_flag" jdbcType="BOOLEAN"/>
             <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
+            <result property="deletableFlag" column="deletable_flag" jdbcType="BOOLEAN"/>
             <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>
             <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
@@ -24,29 +29,31 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,user_id,multi_dir_id,
+        id,user_id,parent_id,
         file_desc,file_mark,file_name,
-        file_extension,file_name_new,file_name_origin,
-        deleted_flag,ip_source,ip_address,
-        create_user,create_time,update_user,
-        update_time
+        file_cover,file_full_path,file_extension,
+        file_name_new,file_name_origin,public_flag,
+        hidden_flag,deleted_flag,deletable_flag,
+        ip_source,ip_address,create_user,
+        create_time,update_user,update_time
     </sql>
 
     <select id="selectArticleImgFileByFileName" resultType="map">
-        select
-            mf.id,mf.user_id,mf.file_name,mf.file_extension,md.dir_path
-        from
+        SELECT
+            mf.id,mf.user_id,mf.file_name,
+            mf.file_extension,mfp.file_name file_name_parent
+        FROM
             tb_multi_file mf
-        left join tb_multi_dir md on mf.multi_dir_id = md.id
-        where
+        LEFT JOIN tb_multi_file mfp ON mf.parent_id = mfp.id
+        WHERE
             mf.deleted_flag = false
-            and mf.file_mark = #{fileMark}
-            and mf.file_name in
+            AND mf.file_mark = #{fileMark}
+            AND mf.file_name IN
             <foreach collection="fileNameList" item="fileName" index="index" open="(" separator="," close=")">
                 #{fileName}
             </foreach>
             <if test="roleWeight > 300">
-                and mf.user_id = #{userId}
+                AND mf.user_id = #{userId}
             </if>
     </select>
 </mapper>

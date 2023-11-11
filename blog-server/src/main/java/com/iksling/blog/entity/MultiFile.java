@@ -34,9 +34,9 @@ public class MultiFile implements Serializable {
     private Integer userId;
 
     /**
-     * 目录id
+     * 父id
      */
-    private Integer multiDirId;
+    private Integer parentId;
 
     /**
      * 文件描述, 默认空串
@@ -54,7 +54,17 @@ public class MultiFile implements Serializable {
     private Long fileName;
 
     /**
-     * 文件拓展名
+     * 文件封面, 默认空串
+     */
+    private String fileCover;
+
+    /**
+     * 文件完整路径
+     */
+    private String fileFullPath;
+
+    /**
+     * 文件拓展名, 默认空串
      */
     private String fileExtension;
 
@@ -64,14 +74,29 @@ public class MultiFile implements Serializable {
     private Long fileNameNew;
 
     /**
-     * 文件原始名称
+     * 文件原始名称, 默认空串
      */
     private String fileNameOrigin;
+
+    /**
+     * 0未公开, 1已公开, 默认1
+     */
+    private Boolean publicFlag;
+
+    /**
+     * 0未隐藏, 1已隐藏, 默认0
+     */
+    private Boolean hiddenFlag;
 
     /**
      * 0未删除, 1已删除, 默认0
      */
     private Boolean deletedFlag;
+
+    /**
+     * 0不可删除, 1可删除, 默认1
+     */
+    private Boolean deletableFlag;
 
     /**
      * ip来源, 默认空串

@@ -35,7 +35,7 @@ import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID_LIST;
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.LOCKED;
-import static com.iksling.blog.enums.FilePathEnum.*;
+import static com.iksling.blog.enums.FileEnum.*;
 
 /**
  *
@@ -55,7 +55,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Autowired
     private SystemConfigMapper systemConfigMapper;
     @Autowired
-    private MultiDirMapper multiDirMapper;
+    private MultiFileMapper multiFileMapper;
 
     @Autowired
     private UserRoleService userRoleService;
@@ -124,15 +124,16 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                         .set(UserAuth::getAssimilateFlag, true)
                         .eq(UserAuth::getUserId, userId));
-                List<Object> objectList = multiDirMapper.selectObjs(new LambdaQueryWrapper<MultiDir>()
-                        .select(MultiDir::getId)
-                        .eq(MultiDir::getUserId, userId)
-                        .eq(MultiDir::getDirPath, IMG.getMark()));
-                multiDirMapper.insert(MultiDir.builder()
+                List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                        .select(MultiFile::getId)
+                        .eq(MultiFile::getUserId, userId)
+                        .eq(MultiFile::getFileName, IMG.getCurrentPath()));
+                multiFileMapper.insert(MultiFile.builder()
                         .userId(userId)
                         .parentId((Integer) objectList.get(0))
-                        .dirPath(Long.valueOf(IMG_ARTICLE.getMark()))
-                        .dirName(IMG_ARTICLE.getCurrentPath())
+                        .fileName(IMG_ARTICLE.getCurrentPath())
+                        .fileFullPath(userId + "/" + IMG_ARTICLE)
+                        .fileNameOrigin("article")
                         .deletableFlag(false)
                         .createUser(loginUserId)
                         .createTime(createTime)

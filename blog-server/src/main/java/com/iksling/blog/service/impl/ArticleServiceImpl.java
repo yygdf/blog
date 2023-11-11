@@ -21,7 +21,6 @@ import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.service.ArticleTagService;
-import com.iksling.blog.service.MultiDirService;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.CommonUtil;
@@ -44,7 +43,7 @@ import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.FlagConst.*;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_LIKE_COUNT;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_VIEW_COUNT;
-import static com.iksling.blog.enums.FilePathEnum.IMG_ARTICLE;
+import static com.iksling.blog.enums.FileEnum.IMG_ARTICLE;
 
 /**
  *
@@ -62,8 +61,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Autowired
     private ArticleTagMapper articleTagMapper;
 
-    @Autowired
-    private MultiDirService multiDirService;
     @Autowired
     private MultiFileService multiFileService;
     @Autowired
@@ -108,7 +105,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 if (!article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                     article.setArticleCover(null);
             articleMapper.insert(article);
-            multiDirService.saveArticleDirById(article.getId(), loginUserId, dateTime);
+            multiFileService.saveArticleDirById(article.getId(), loginUserId, dateTime);
         } else {
             Article articleOrigin = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
                     .select(Article::getUserId, Article::getPublishUser, Article::getArticleCover)
@@ -175,7 +172,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             throw new IllegalRequestException();
         articleTagMapper.delete(new LambdaUpdateWrapper<ArticleTag>()
                 .in(ArticleTag::getArticleId, idList));
-        multiDirService.deleteArticleDirByIdList(idList);
+        multiFileService.deleteArticleDirByIdList(idList);
     }
 
     @Override
@@ -227,7 +224,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     .set(ArticleTag::getDeletedFlag, true)
                     .eq(ArticleTag::getDeletedFlag, false)
                     .in(ArticleTag::getArticleId, statusBackVO.getIdList()));
-            multiDirService.updateArticleDirByIdList(statusBackVO.getIdList(), loginUser.getUserId(), new Date());
+            multiFileService.updateArticleDirByIdList(statusBackVO.getIdList(), loginUser.getUserId(), new Date());
         }
     }
 

@@ -26,4 +26,10 @@ public interface MultiFileService extends IService<MultiFile> {
     void updateArticleImageBy(Integer userId, Integer loginUserId, Integer articleId, String fullFileName, Date updateTime);
 
     void updateUserAvatarBy(Integer userId, Integer loginUserId, String fullFileName, Date updateTime);
+
+    void saveArticleDirById(Integer id, Integer loginUserId, Date createTime);
+
+    void updateArticleDirByIdList(List<Integer> idList, Integer loginUserId, Date updateTime);
+
+    void deleteArticleDirByIdList(List<Integer> idList);
 }

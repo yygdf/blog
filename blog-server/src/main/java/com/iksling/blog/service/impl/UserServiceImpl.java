@@ -2,9 +2,9 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.dto.UserOnlinesBackDTO;
-import com.iksling.blog.entity.MultiDir;
+import com.iksling.blog.dto.UsersBackDTO;
+import com.iksling.blog.entity.MultiFile;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.entity.UserRole;
@@ -15,14 +15,16 @@ import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.mapper.UserRoleMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
-import com.iksling.blog.service.MultiDirService;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.service.UserService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.CommonUtil;
 import com.iksling.blog.util.RegexUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.*;
+import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.UserBackVO;
+import com.iksling.blog.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -34,7 +36,7 @@ import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.constant.FlagConst.DELETED;
-import static com.iksling.blog.enums.FilePathEnum.*;
+import static com.iksling.blog.enums.FileEnum.*;
 
 /**
  *
@@ -51,8 +53,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private UserRoleMapper userRoleMapper;
 
     @Autowired
-    private MultiDirService multiDirService;
-    @Autowired
     private MultiFileService multiFileService;
 
     @Autowired
@@ -64,7 +64,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer loginUserId = loginUser.getUserId();
         User user = BeanCopyUtil.copyObject(userBackVO, User.class);
-        if (user.getId() == null) {
+        Integer userId = user.getId();
+        if (userId == null) {
             if (userBackVO.getUsername() == null || user.getNickname() == null || !RegexUtil.checkEmail(user.getEmail()))
                 throw new OperationStatusException();
             if (userMapper.selectBackUserAvatarById(user.getEmail(), userBackVO.getUsername(), null) != null)
@@ -75,55 +76,59 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             user.setCreateTime(createTime);
             userMapper.insert(user);
             userAuthMapper.insert(UserAuth.builder()
-                    .userId(user.getId())
-                    .username(userBackVO.getUsername().trim())
+                    .userId(userId)
+                    .username(userBackVO.getUsername())
                     .password(DEFAULT_PASSWORD)
                     .createUser(loginUserId)
                     .createTime(createTime)
                     .build());
             userRoleMapper.insert(UserRole.builder()
-                    .userId(user.getId())
+                    .userId(userId)
                     .roleId(DEFAULT_ROLE_ID)
                     .build());
-            List<MultiDir> multiDirList = new ArrayList<>();
-            multiDirList.add(MultiDir.builder()
-                    .userId(user.getId())
-                    .dirPath(Long.valueOf(IMG.getMark()))
-                    .dirName(IMG.getCurrentPath())
+            List<MultiFile> multiFileList = new ArrayList<>();
+            multiFileList.add(MultiFile.builder()
+                    .userId(userId)
+                    .fileName(IMG.getCurrentPath())
+                    .fileFullPath(userId + "/" + IMG.getPath())
+                    .fileNameOrigin("img")
                     .deletableFlag(false)
                     .createUser(loginUserId)
                     .createTime(createTime)
                     .build());
-            multiDirList.add(MultiDir.builder()
-                    .userId(user.getId())
-                    .dirPath(Long.valueOf(AUDIO.getMark()))
-                    .dirName(AUDIO.getCurrentPath())
+            multiFileList.add(MultiFile.builder()
+                    .userId(userId)
+                    .fileName(AUDIO.getCurrentPath())
+                    .fileFullPath(userId + "/" + AUDIO.getPath())
+                    .fileNameOrigin("audio")
                     .deletableFlag(false)
                     .createUser(loginUserId)
                     .createTime(createTime)
                     .build());
-            multiDirService.saveBatch(multiDirList);
-            multiDirList.add(MultiDir.builder()
-                    .userId(user.getId())
-                    .parentId(multiDirList.get(0).getId())
-                    .dirPath(Long.valueOf(IMG_AVATAR.getMark()))
-                    .dirName(IMG_AVATAR.getCurrentPath())
+            multiFileService.saveBatch(multiFileList);
+            multiFileList.add(MultiFile.builder()
+                    .userId(userId)
+                    .parentId(multiFileList.get(0).getId())
+                    .fileName(IMG_AVATAR.getCurrentPath())
+                    .fileFullPath(userId + "/" + IMG_AVATAR.getPath())
+                    .fileNameOrigin("avatar")
                     .deletableFlag(false)
                     .createUser(loginUserId)
                     .createTime(createTime)
                     .build());
-            multiDirList.add(MultiDir.builder()
-                    .userId(user.getId())
-                    .parentId(multiDirList.get(1).getId())
-                    .dirPath(Long.valueOf(AUDIO_CHAT.getMark()))
-                    .dirName(AUDIO_CHAT.getCurrentPath())
+            multiFileList.add(MultiFile.builder()
+                    .userId(userId)
+                    .parentId(multiFileList.get(1).getId())
+                    .fileName(AUDIO_CHAT.getCurrentPath())
+                    .fileFullPath(userId + "/" + AUDIO_CHAT.getPath())
+                    .fileNameOrigin("chat")
                     .deletableFlag(false)
                     .createUser(loginUserId)
                     .createTime(createTime)
                     .build());
-            multiDirList.remove(0);
-            multiDirList.remove(0);
-            multiDirService.saveBatch(multiDirList);
+            multiFileList.remove(0);
+            multiFileList.remove(0);
+            multiFileService.saveBatch(multiFileList);
         } else {
             if (loginUser.getRoleWeight() > 100 && ROOT_USER_ID_LIST.contains(user.getId()))
                 throw new IllegalRequestException();

@@ -2,10 +2,6 @@ package com.iksling.blog.util;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Objects;
-
-import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
-
 public class MultiFileUtil {
     public static String upload(MultipartFile file, String targetAddr, String fullFileName) {
         return FtpUtil.upload(file, targetAddr, fullFileName);
@@ -23,14 +19,18 @@ public class MultiFileUtil {
         FtpUtil.delete(uri);
     }
 
-    public static boolean checkNotValidAudioFileType(MultipartFile file) {
-        String fileExtension = getSplitStringByIndex(Objects.requireNonNull(file.getOriginalFilename()), "\\.", -1);
-        return !"wav".equalsIgnoreCase(fileExtension);
-    }
-
-    public static boolean checkNotValidImageFileType(MultipartFile file) {
-        String fileExtension = getSplitStringByIndex(Objects.requireNonNull(file.getOriginalFilename()), "\\.", -1);
-        return !"jpg".equalsIgnoreCase(fileExtension) && !"jpeg".equalsIgnoreCase(fileExtension) && !"png".equalsIgnoreCase(fileExtension) && !"gif".equalsIgnoreCase(fileExtension);
+    public static boolean checkNotValidFileType(String extension, String type) {
+        String fileExtension = extension.toLowerCase();
+        switch (type) {
+            case "IMG":
+                return !"jpg".equals(fileExtension) &&
+                        !"jpeg".equals(fileExtension) &&
+                        !"png".equals(fileExtension) &&
+                        !"gif".equals(fileExtension);
+            case "AUDIO":
+                return !"wav".equals(fileExtension);
+        }
+        return false;
     }
 
     public static boolean checkNotValidFileSize(long source, int size, String unit) {

@@ -5,36 +5,31 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum FilePathEnum {
+public enum FileEnum {
     /**
      * 图片目录枚举对象
      */
-    IMG(-1, "img", "img", 5, "MB", "图片目录"),
+    IMG( "-1", -1L, 5, "MB", "图片目录", "IMG"),
 
     /**
      * 音频目录枚举对象
      */
-    AUDIO(-2, "audio", "audio", 1, "MB", "音频目录"),
+    AUDIO("-2", -2L, 1, "MB", "音频目录", "AUDIO"),
 
     /**
      * 用户头像目录枚举对象
      */
-    IMG_AVATAR(-3, "img/avatar", "avatar", 1, "MB", "用户头像目录"),
+    IMG_AVATAR("-1/-3", -3L, 1, "MB", "用户头像目录", "IMG"),
 
     /**
      * 文章图片目录枚举对象
      */
-    IMG_ARTICLE(-4, "img/article", "article", 5, "MB", "文章图片目录"),
+    IMG_ARTICLE("-1/-4", -4L, 5, "MB", "文章图片目录", "IMG"),
 
     /**
      * 聊天室音频目录枚举对象
      */
-    AUDIO_CHAT(-5, "audio/chat", "chat", 1, "MB", "聊天室音频目录");
-
-    /**
-     * 标识
-     */
-    private final Integer mark;
+    AUDIO_CHAT("-1/-5", -5L, 1, "MB", "聊天室音频目录", "AUDIO");
 
     /**
      * 路径
@@ -44,7 +39,7 @@ public enum FilePathEnum {
     /**
      * 路当前径
      */
-    private final String currentPath;
+    private final Long currentPath;
 
     /**
      * 大小
@@ -60,4 +55,9 @@ public enum FilePathEnum {
      * 描述
      */
     private final String desc;
+
+    /**
+     * 类型
+     */
+    private final String type;
 }

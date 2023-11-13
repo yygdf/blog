@@ -51,7 +51,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
         LoginUser loginUser = UserUtil.getLoginUser();
         Menu menu = BeanCopyUtil.copyObject(menuBackVO, Menu.class);
         if (menu.getId() == null) {
-            if (menu.getIcon() == null || menu.getPath() == null || menu.getName() == null || menu.getComponent() == null)
+            if (menu.getIcon() == null || menu.getPath() == null || menu.getName() == null)
                 throw new IllegalRequestException();
             Integer count = menuMapper.selectCount(new LambdaQueryWrapper<Menu>()
                     .eq(Menu::getPath, menu.getPath()));

@@ -7,6 +7,7 @@ body {
 .el-card.is-hover-shadow:hover {
   box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 }
+
 .main-card {
   min-height: calc(100vh - 126px);
 }
@@ -30,9 +31,11 @@ body {
   font-size: 1.5rem;
   margin-right: 0.5rem;
 }
+
 .v-note-wrapper.fullscreen {
   height: 100vh !important;
 }
+
 .title {
   position: absolute;
   left: 0;
@@ -47,10 +50,20 @@ body {
   border-left: 3px solid #0081ff;
   margin-right: 20px;
 }
+
+.smaller-btn {
+  padding: 5px;
+}
+.word-limit-input {
+  padding-right: 50px;
+}
+.word-limit-input2 {
+  padding-right: 60px;
+}
+
 .side-nav-bar .el-scrollbar__wrap {
   overflow-x: hidden !important;
 }
-
 .side-nav-bar .el-icon-arrow-right:before {
   display: none;
 }

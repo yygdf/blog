@@ -117,7 +117,7 @@
             :disabled="scope.row.parentId !== -1 || scope.row.id === homeMenuId"
             type="primary"
             size="mini"
-            class="smallerBtn"
+            class="smaller-btn"
             @click="openModel(scope.row, true)"
           >
             <i class="el-icon-plus" /> 新增
@@ -125,7 +125,7 @@
           <el-button
             type="warning"
             size="mini"
-            class="smallerBtn"
+            class="smaller-btn"
             @click="openModel(scope.row)"
           >
             <i class="el-icon-edit" /> 修改
@@ -144,7 +144,7 @@
               size="mini"
               type="danger"
               slot="reference"
-              class="smallerBtn"
+              class="smaller-btn"
             >
               <i class="el-icon-delete" /> 删除
             </el-button>
@@ -504,11 +504,5 @@ export default {
 }
 .menu-container div {
   cursor: pointer;
-}
-.smallerBtn {
-  padding: 5px;
-}
-.word-limit-input {
-  padding-right: 50px;
 }
 </style>

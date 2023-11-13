@@ -327,12 +327,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.word-limit-input {
-  padding-right: 50px;
-}
-.word-limit-input2 {
-  padding-right: 60px;
-}
-</style>

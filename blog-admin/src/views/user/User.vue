@@ -115,11 +115,9 @@
         align="center"
         width="120"
       />
-      <el-table-column prop="gender" label="性别" align="center" width="120">
+      <el-table-column prop="gender" label="性别" align="center" width="80">
         <template slot-scope="scope">
-          <el-tag>
-            {{ switchGender(scope.row.gender) }}
-          </el-tag>
+          <img :src="switchGender(scope.row.gender)" width="30" height="30" />
         </template>
       </el-table-column>
       <el-table-column prop="email" label="邮箱" align="center" width="120" />
@@ -418,7 +416,12 @@ export default {
       lastTimeStamp: 0,
       emailExistStatus: 0,
       usernameExistStatus: 0,
-      defaultAvatar: require("../../assets/img/defaultAvatar.png")
+      defaultAvatar: require("../../assets/img/defaultAvatar.png"),
+      gender1: require("../../assets/img/gender1.png"),
+      gender2: require("../../assets/img/gender2.png"),
+      gender3: require("../../assets/img/gender3.png"),
+      gender4: require("../../assets/img/gender4.png"),
+      gender5: require("../../assets/img/gender5.png")
     };
   },
   methods: {
@@ -712,15 +715,15 @@ export default {
       return function(type) {
         switch (type) {
           case 1:
-            return "男";
+            return this.gender1;
           case 2:
-            return "女";
+            return this.gender2;
           case 3:
-            return "可男可女";
+            return this.gender3;
           case 4:
-            return "非男非女";
+            return this.gender4;
           default:
-            return "未知";
+            return this.gender5;
         }
       };
     }
@@ -732,11 +735,5 @@ export default {
 /deep/ .el-upload .el-upload-dragger {
   width: 200px;
   height: 200px;
-}
-.word-limit-input {
-  padding-right: 50px;
-}
-.word-limit-input2 {
-  padding-right: 60px;
 }
 </style>

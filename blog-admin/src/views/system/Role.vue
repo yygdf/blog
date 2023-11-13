@@ -76,19 +76,30 @@
           {{ scope.row.createTime | date }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="400">
+      <el-table-column label="操作" align="center" width="320">
         <template slot-scope="scope">
-          <el-button type="info" size="mini" @click="openMenuModel(scope.row)">
+          <el-button
+            type="info"
+            size="mini"
+            class="smaller-btn"
+            @click="openMenuModel(scope.row)"
+          >
             <i class="el-icon-folder-opened" /> 菜单权限
           </el-button>
           <el-button
             type="info"
             size="mini"
+            class="smaller-btn"
             @click="openResourceModel(scope.row)"
           >
             <i class="el-icon-folder-opened" /> 资源权限
           </el-button>
-          <el-button type="primary" size="mini" @click="openModel(scope.row)">
+          <el-button
+            type="primary"
+            size="mini"
+            class="smaller-btn"
+            @click="openModel(scope.row)"
+          >
             <i class="el-icon-edit" /> 修改
           </el-button>
           <el-popconfirm
@@ -101,6 +112,7 @@
               type="danger"
               size="mini"
               slot="reference"
+              class="smaller-btn"
             >
               <i class="el-icon-delete" /> 删除
             </el-button>
@@ -466,9 +478,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.word-limit-input {
-  padding-right: 50px;
-}
-</style>

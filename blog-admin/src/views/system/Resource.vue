@@ -114,7 +114,7 @@
             :disabled="scope.row.parentId !== -1"
             type="primary"
             size="mini"
-            class="smallerBtn"
+            class="smaller-btn"
             @click="openModel(scope.row, true)"
           >
             <i class="el-icon-plus" /> 新增
@@ -122,7 +122,7 @@
           <el-button
             type="warning"
             size="mini"
-            class="smallerBtn"
+            class="smaller-btn"
             @click="openModel(scope.row)"
           >
             <i class="el-icon-edit" /> 修改
@@ -141,7 +141,7 @@
               type="danger"
               size="mini"
               slot="reference"
-              class="smallerBtn"
+              class="smaller-btn"
             >
               <i class="el-icon-delete" /> 删除
             </el-button>
@@ -413,12 +413,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.smallerBtn {
-  padding: 5px;
-}
-.word-limit-input {
-  padding-right: 50px;
-}
-</style>

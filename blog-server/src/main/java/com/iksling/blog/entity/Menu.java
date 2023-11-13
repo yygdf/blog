@@ -59,7 +59,7 @@ public class Menu implements Serializable {
     private String name;
 
     /**
-     * 菜单组件
+     * 菜单组件, 默认Layout
      */
     private String component;
 

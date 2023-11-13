@@ -494,9 +494,6 @@ export default {
   background: #fff;
   color: #f56c6c;
 }
-.word-limit-input2 {
-  padding-right: 60px;
-}
 >>> .add-image-link .title {
   font-size: 16px !important;
   margin-top: -20px !important;

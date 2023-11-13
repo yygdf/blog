@@ -500,9 +500,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.word-limit-input {
-  padding-right: 50px;
-}
-</style>

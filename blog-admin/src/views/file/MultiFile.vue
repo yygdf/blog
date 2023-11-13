@@ -50,6 +50,7 @@
           />
         </el-select>
         <el-select
+          v-if="checkWeight(100)"
           v-model="type"
           size="small"
           style="margin-right:1rem"
@@ -85,7 +86,7 @@
     </div>
     <el-table
       v-loading="loading"
-      :data="resourceList"
+      :data="multiFileList"
       :load="load"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       row-key="id"
@@ -93,13 +94,8 @@
       lazy
     >
       <el-table-column prop="fileNameOrigin" label="名称" />
-      <el-table-column
-        prop="publicFlag"
-        label="公开"
-        align="center"
-        width="80"
-      >
-        <template v-if="scope.row.type" slot-scope="scope">
+      <el-table-column prop="publicFlag" label="公开" align="center" width="80">
+        <template v-if="scope.row.fileMark === 0" slot-scope="scope">
           <el-switch
             v-model="scope.row.publicFlag"
             :active-value="true"
@@ -110,13 +106,8 @@
           />
         </template>
       </el-table-column>
-      <el-table-column
-        prop="hiddenFlag"
-        label="隐藏"
-        align="center"
-        width="80"
-      >
-        <template v-if="scope.row.type" slot-scope="scope">
+      <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
+        <template v-if="scope.row.fileMark === 0" slot-scope="scope">
           <el-switch
             v-model="scope.row.hiddenFlag"
             :active-value="true"
@@ -141,22 +132,22 @@
       <el-table-column label="操作" align="center" width="200">
         <template slot-scope="scope">
           <el-button
-            :disabled="!scope.row.deletableFlag"
+            :disabled="!scope.row.deletableFlag || scope.row.fileMark !== 0"
             type="primary"
             size="mini"
-            class="smallerBtn"
+            class="smaller-btn"
             @click="openModel(scope.row, true)"
           >
-            <i class="el-icon-plus" /> 新增子目录
+            <i class="el-icon-plus" /> 新增
           </el-button>
           <el-button
-            :disabled="!scope.row.deletableFlag"
+            :disabled="!scope.row.deletableFlag || scope.row.fileMark !== 0"
             type="primary"
             size="mini"
-            class="smallerBtn"
+            class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            <i class="el-icon-plus" /> 上传文件
+            <i class="el-icon-plus" /> 上传
           </el-button>
           <el-button
             v-if="type !== 7"
@@ -178,12 +169,16 @@
           </el-popconfirm>
           <el-popconfirm
             v-if="type !== 7"
-            :disabled="!scope.row.deletableFlag"
             title="确定删除吗？"
             style="margin-left:10px"
             @confirm="updateMultiFilesStatus(scope.row.id)"
           >
-            <el-button type="danger" size="mini" slot="reference">
+            <el-button
+              :disabled="!scope.row.deletableFlag"
+              type="danger"
+              size="mini"
+              slot="reference"
+            >
               删除
             </el-button>
           </el-popconfirm>
@@ -200,17 +195,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination
-      :total="count"
-      :page-size="size"
-      :page-sizes="[10, 20]"
-      :current-page.sync="current"
-      class="pagination-container"
-      layout="total, sizes, prev, pager, next, jumper"
-      background
-      @size-change="sizeChange"
-      @current-change="currentChange"
-    />
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="resourceTitle" />
       <el-form :model="multiFile" size="medium" label-width="80">
@@ -246,12 +230,7 @@
           />
         </el-form-item>
       </el-form>
-      <el-form
-        :model="multiFile"
-        :inline="true"
-        size="medium"
-        label-width="80"
-      >
+      <el-form :model="multiFile" :inline="true" size="medium" label-width="80">
         <el-form-item label="公开">
           <el-switch
             v-model="multiFile.publicFlag"
@@ -482,12 +461,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.smallerBtn {
-  padding: 5px;
-}
-.word-limit-input {
-  padding-right: 50px;
-}
-</style>

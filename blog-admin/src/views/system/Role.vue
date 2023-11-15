@@ -100,7 +100,7 @@
             class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            <i class="el-icon-edit" /> 修改
+            <i class="el-icon-edit" /> 编辑
           </el-button>
           <el-popconfirm
             title="确定彻底删除吗？"

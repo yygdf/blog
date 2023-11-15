@@ -237,10 +237,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public ArticleOptionBackDTO getArticleOptionBackDTO(Integer userId) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (userId == null)
+        if (userId == null || loginUser.getRoleWeight() > 300)
             userId = loginUser.getUserId();
-        else if (loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(userId))
-            return new ArticleOptionBackDTO();
         List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
             .select(Tag::getId, Tag::getTagName)
             .eq(Tag::getUserId, userId)

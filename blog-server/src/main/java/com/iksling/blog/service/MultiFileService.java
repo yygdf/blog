@@ -1,8 +1,10 @@
 package com.iksling.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.iksling.blog.dto.MultiFilesBackDTO;
 import com.iksling.blog.entity.MultiFile;
 import com.iksling.blog.vo.ArticleImageBackVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.UserAvatarBackVO;
 import com.iksling.blog.vo.UserAvatarVO;
 
@@ -32,4 +34,8 @@ public interface MultiFileService extends IService<MultiFile> {
     void updateArticleDirByIdList(List<Integer> idList, Integer loginUserId, Date updateTime);
 
     void deleteArticleDirByIdList(List<Integer> idList);
+
+    List<MultiFilesBackDTO> getMultiFilesBackDTO(ConditionBackVO condition);
+
+    List<MultiFilesBackDTO> getMultiFilesBackDTOById(Integer id);
 }

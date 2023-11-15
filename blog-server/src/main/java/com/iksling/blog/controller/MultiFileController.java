@@ -4,16 +4,14 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.vo.ArticleImageBackVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.UserAvatarBackVO;
 import com.iksling.blog.vo.UserAvatarVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -67,5 +65,19 @@ public class MultiFileController {
     @PostMapping("/user/avatar")
     public Result updateUserAvatarVO(@Valid UserAvatarVO userAvatarVO) {
         return Result.success().message("操作成功").data(multiFileService.updateUserAvatarVO(userAvatarVO));
+    }
+
+    @ApiOperation(value = "查看后台文件列表")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
+    @GetMapping("/back/multiFiles")
+    public Result getBackMultiFiles(@Valid ConditionBackVO condition) {
+        return Result.success().message("查询成功").data(multiFileService.getMultiFilesBackDTO(condition));
+    }
+
+    @ApiOperation(value = "根据文件id查找子文件")
+    @ApiImplicitParam(name = "id", value = "文件id", required = true, dataType = "Integer")
+    @GetMapping("/back/multiFiles/{id}")
+    public Result getBackMultiFilesById(@PathVariable Integer id) {
+        return Result.success().message("查询成功").data(multiFileService.getMultiFilesBackDTOById(id));
     }
 }

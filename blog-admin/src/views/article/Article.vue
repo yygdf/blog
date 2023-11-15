@@ -13,7 +13,7 @@
         type="danger"
         size="medium"
         class="save-btn"
-        @click="addOrEditArticleDraft"
+        @click="addOrEditArticleDraft(true)"
       >
         保存草稿
       </el-button>
@@ -40,7 +40,7 @@
       style="height:calc(100vh - 260px)"
       @imgAdd="uploadArticleImg"
       @imgDel="updateArticleImg"
-      @save="addOrEditArticleDraft"
+      @save="addOrEditArticleDraft(true)"
     />
     <el-dialog
       :visible.sync="addOrEditStatus"
@@ -383,7 +383,7 @@ export default {
     uploadArticleImg(pos, file) {
       this.uploadImg(pos, file);
     },
-    addOrEditArticleDraft(flag = true) {
+    addOrEditArticleDraft(flag) {
       if (this.article.articleTitle.trim() === "") {
         if (flag) {
           this.$message.error("文章标题不能为空");
@@ -401,10 +401,14 @@ export default {
         this.articleOrigin
       );
       if (this.article.draftFlag === false) {
+        if (Object.keys(param).length === 0) {
+          return false;
+        }
         param.draftFlag = true;
-      }
-      if (Object.keys(param).length === 0) {
-        return false;
+      } else {
+        if (Object.keys(param).length === 0) {
+          return false;
+        }
       }
       if (this.article.id != null) {
         param.id = this.article.id;

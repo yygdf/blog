@@ -34,7 +34,7 @@ public class MultiFile implements Serializable {
     private Integer userId;
 
     /**
-     * 父id
+     * 父id, 默认-1
      */
     private Integer parentId;
 
@@ -74,7 +74,7 @@ public class MultiFile implements Serializable {
     private Long fileNameNew;
 
     /**
-     * 文件原始名称, 默认空串
+     * 文件原始名称
      */
     private String fileNameOrigin;
 

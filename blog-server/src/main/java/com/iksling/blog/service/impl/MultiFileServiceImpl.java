@@ -5,7 +5,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.entity.*;
+import com.iksling.blog.dto.MultiFilesBackDTO;
+import com.iksling.blog.entity.Article;
+import com.iksling.blog.entity.MultiFile;
+import com.iksling.blog.entity.User;
+import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.ArticleMapper;
@@ -14,10 +18,9 @@ import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MultiFileService;
-import com.iksling.blog.util.IpUtil;
-import com.iksling.blog.util.MultiFileUtil;
-import com.iksling.blog.util.UserUtil;
+import com.iksling.blog.util.*;
 import com.iksling.blog.vo.ArticleImageBackVO;
+import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.UserAvatarBackVO;
 import com.iksling.blog.vo.UserAvatarVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +30,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.enums.FileEnum.IMG_ARTICLE;
 import static com.iksling.blog.enums.FileEnum.IMG_AVATAR;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
@@ -303,6 +309,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .userId(loginUserId)
                 .parentId((Integer) objectList.get(0))
                 .fileDesc("{'articleId':"+id+"}")
+                .fileName(Long.valueOf(id))
                 .fileFullPath(loginUserId + "/" + IMG_ARTICLE.getPath() + "/" + id)
                 .fileNameOrigin(id.toString())
                 .deletableFlag(false)
@@ -347,6 +354,58 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                     MultiFileUtil.delete(mapList.get(0).get("user_id") + "/" + IMG_ARTICLE.getPath() + "/" + e + "-" + mapList.get(0).get("file_name_new") + "-article-DEL");
                 }
         );
+    }
+
+    @Override
+    public List<MultiFilesBackDTO> getMultiFilesBackDTO(ConditionBackVO condition) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        LambdaQueryWrapper<MultiFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (DELETED.equals(condition.getType())) {
+            if (loginUser.getRoleWeight() > 100)
+                return new ArrayList<>();
+            lambdaQueryWrapper.eq(MultiFile::getDeletedFlag, true);
+        } else
+            lambdaQueryWrapper.eq(MultiFile::getDeletedFlag, false);
+        if (condition.getUserId() == null || loginUser.getRoleWeight() > 200)
+            lambdaQueryWrapper.eq(MultiFile::getUserId, loginUser.getUserId());
+        else
+            lambdaQueryWrapper.eq(MultiFile::getUserId, condition.getUserId());
+        if (CommonUtil.isEmpty(condition.getKeywords()))
+            lambdaQueryWrapper.eq(MultiFile::getParentId, -1);
+        else
+            lambdaQueryWrapper.like(MultiFile::getFileNameOrigin, condition.getKeywords());
+        List<MultiFile> multiFileList = multiFileMapper.selectList(lambdaQueryWrapper
+                .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getFileDesc,
+                        MultiFile::getFileMark, MultiFile::getFileCover, MultiFile::getFileFullPath,
+                        MultiFile::getFileNameOrigin, MultiFile::getPublicFlag, MultiFile::getHiddenFlag,
+                        MultiFile::getCreateTime, MultiFile::getUpdateTime));
+        return  multiFileList.stream()
+                .map(e -> {
+                    MultiFilesBackDTO multiFilesBackDTO = BeanCopyUtil.copyObject(e, MultiFilesBackDTO.class);
+                    multiFilesBackDTO.setHasChildren(multiFilesBackDTO.getFileMark().equals(0));
+                    return multiFilesBackDTO;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MultiFilesBackDTO> getMultiFilesBackDTOById(Integer id) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        List<MultiFile> multiFileList = multiFileMapper.selectList(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getFileDesc,
+                        MultiFile::getFileMark, MultiFile::getFileCover, MultiFile::getFileFullPath,
+                        MultiFile::getFileNameOrigin, MultiFile::getPublicFlag, MultiFile::getHiddenFlag,
+                        MultiFile::getCreateTime, MultiFile::getUpdateTime)
+                .eq(loginUser.getRoleWeight() > 100, MultiFile::getDeletedFlag, false)
+                .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUser.getUserId())
+                .eq(MultiFile::getParentId, id));
+        return  multiFileList.stream()
+                .map(e -> {
+                    MultiFilesBackDTO multiFilesBackDTO = BeanCopyUtil.copyObject(e, MultiFilesBackDTO.class);
+                    multiFilesBackDTO.setHasChildren(multiFilesBackDTO.getFileMark().equals(0));
+                    return multiFilesBackDTO;
+                })
+                .collect(Collectors.toList());
     }
 
     private void updateUserAvatarBy(Integer userId, Integer loginUserId, long fileNameOld, String fileExtension, Date updateTime) {

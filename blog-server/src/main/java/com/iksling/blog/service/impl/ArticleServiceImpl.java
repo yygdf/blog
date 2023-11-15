@@ -262,7 +262,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         return ArticleOptionBackDTO.builder()
                 .tagDTOList(tagDTOList)
                 .categoryDTOList(categoryDTOList)
-                .staticResourceUrl(STATIC_RESOURCE_URL)
                 .build();
     }
 

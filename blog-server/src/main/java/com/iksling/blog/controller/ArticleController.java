@@ -1,6 +1,7 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.vo.ArticleBackVO;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
+import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.LogConst.*;
 
 @RestController
@@ -69,7 +71,9 @@ public class ArticleController {
     @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer")
     @GetMapping("/back/article/option")
     public Result getBackArticleOption(Integer userId) {
-        return Result.success().message("查询成功").data(articleService.getArticleOptionBackDTO(userId));
+        return Result.success().message("查询成功").data(Dict.create()
+                .set("option", articleService.getArticleOptionBackDTO(userId))
+                .set("staticResourceUrl", STATIC_RESOURCE_URL));
     }
 
     @ApiOperation(value = "查看后台文章列表")

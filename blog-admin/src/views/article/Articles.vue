@@ -479,8 +479,8 @@ export default {
         .then(({ data }) => {
           this.tagIdList = [];
           this.categoryId = null;
-          this.tagList = data.data.tagDTOList;
-          this.categoryList = data.data.categoryDTOList;
+          this.tagList = data.data.option.tagDTOList;
+          this.categoryList = data.data.option.categoryDTOList;
         });
     },
     updateArticleStatus(article, type) {

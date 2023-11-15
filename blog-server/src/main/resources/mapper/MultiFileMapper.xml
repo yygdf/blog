@@ -11,6 +11,7 @@
             <result property="fileDesc" column="file_desc" jdbcType="VARCHAR"/>
             <result property="fileMark" column="file_mark" jdbcType="INTEGER"/>
             <result property="fileName" column="file_name" jdbcType="BIGINT"/>
+            <result property="fileSize" column="file_size" jdbcType="BIGINT"/>
             <result property="fileCover" column="file_cover" jdbcType="VARCHAR"/>
             <result property="fileFullPath" column="file_full_path" jdbcType="VARCHAR"/>
             <result property="fileExtension" column="file_extension" jdbcType="VARCHAR"/>
@@ -31,11 +32,12 @@
     <sql id="Base_Column_List">
         id,user_id,parent_id,
         file_desc,file_mark,file_name,
-        file_cover,file_full_path,file_extension,
-        file_name_new,file_name_origin,public_flag,
-        hidden_flag,deleted_flag,deletable_flag,
-        ip_source,ip_address,create_user,
-        create_time,update_user,update_time
+        file_size,file_cover,file_full_path,
+        file_extension,file_name_new,file_name_origin,
+        public_flag,hidden_flag,deleted_flag,
+        deletable_flag,ip_source,ip_address,
+        create_user,create_time,update_user,
+        update_time
     </sql>
 
     <select id="selectArticleImgFileByFileName" resultType="map">

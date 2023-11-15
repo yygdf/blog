@@ -105,6 +105,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .fileDesc("{'userId':"+articleUserId+",'articleId':"+articleId+"}")
                 .fileMark(IMG_ARTICLE.getCurrentPath().intValue())
                 .fileName(fileName)
+                .fileSize(file.getSize())
                 .fileFullPath(targetAddr + "/" + fullFileName)
                 .fileExtension(extension)
                 .fileNameOrigin(originalFilename)
@@ -159,6 +160,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .fileDesc("{'userId':"+userId+"}")
                 .fileMark(IMG_AVATAR.getCurrentPath().intValue())
                 .fileName(fileName)
+                .fileSize(file.getSize())
                 .fileFullPath(targetAddr + "/" + fullFileName)
                 .fileExtension(extension)
                 .fileNameOrigin(originalFilename)
@@ -265,6 +267,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .fileDesc("{'userId':"+loginUserId+"}")
                 .fileMark(IMG_AVATAR.getCurrentPath().intValue())
                 .fileName(fileName)
+                .fileSize(file.getSize())
                 .fileFullPath(targetAddr + "/" + fullFileName)
                 .fileExtension(extension)
                 .fileNameOrigin(originalFilename)
@@ -376,9 +379,10 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             lambdaQueryWrapper.like(MultiFile::getFileNameOrigin, condition.getKeywords());
         List<MultiFile> multiFileList = multiFileMapper.selectList(lambdaQueryWrapper
                 .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getFileDesc,
-                        MultiFile::getFileMark, MultiFile::getFileCover, MultiFile::getFileFullPath,
-                        MultiFile::getFileNameOrigin, MultiFile::getPublicFlag, MultiFile::getHiddenFlag,
-                        MultiFile::getCreateTime, MultiFile::getUpdateTime));
+                        MultiFile::getFileMark, MultiFile::getFileSize, MultiFile::getFileCover,
+                        MultiFile::getFileFullPath, MultiFile::getFileExtension, MultiFile::getFileNameOrigin,
+                        MultiFile::getPublicFlag, MultiFile::getHiddenFlag,MultiFile::getCreateTime,
+                        MultiFile::getUpdateTime));
         return  multiFileList.stream()
                 .map(e -> {
                     MultiFilesBackDTO multiFilesBackDTO = BeanCopyUtil.copyObject(e, MultiFilesBackDTO.class);
@@ -393,9 +397,10 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         LoginUser loginUser = UserUtil.getLoginUser();
         List<MultiFile> multiFileList = multiFileMapper.selectList(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getFileDesc,
-                        MultiFile::getFileMark, MultiFile::getFileCover, MultiFile::getFileFullPath,
-                        MultiFile::getFileNameOrigin, MultiFile::getPublicFlag, MultiFile::getHiddenFlag,
-                        MultiFile::getCreateTime, MultiFile::getUpdateTime)
+                        MultiFile::getFileMark, MultiFile::getFileSize, MultiFile::getFileCover,
+                        MultiFile::getFileFullPath, MultiFile::getFileExtension, MultiFile::getFileNameOrigin,
+                        MultiFile::getPublicFlag, MultiFile::getHiddenFlag, MultiFile::getCreateTime,
+                        MultiFile::getUpdateTime)
                 .eq(loginUser.getRoleWeight() > 100, MultiFile::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUser.getUserId())
                 .eq(MultiFile::getParentId, id));

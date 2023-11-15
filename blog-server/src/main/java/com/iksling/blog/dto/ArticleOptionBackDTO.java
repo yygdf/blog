@@ -21,9 +21,4 @@ public class ArticleOptionBackDTO {
      * 文章分类list
      */
     private List<LabelBackDTO> categoryDTOList;
-
-    /**
-     * 静态资源根路径
-     */
-    private String staticResourceUrl;
 }

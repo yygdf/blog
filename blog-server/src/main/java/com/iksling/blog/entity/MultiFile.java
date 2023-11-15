@@ -54,6 +54,11 @@ public class MultiFile implements Serializable {
     private Long fileName;
 
     /**
+     * 文件大小
+     */
+    private Long fileSize;
+
+    /**
      * 文件封面, 默认空串
      */
     private String fileCover;

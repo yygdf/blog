@@ -27,6 +27,11 @@ public class MultiFilesBackDTO {
     private Integer fileMark;
 
     /**
+     * 文件大小
+     */
+    private Long fileSize;
+
+    /**
      * 文件封面
      */
     private String fileCover;
@@ -35,6 +40,11 @@ public class MultiFilesBackDTO {
      * 文件完整路径
      */
     private String fileFullPath;
+
+    /**
+     * 文件拓展名
+     */
+    private String fileExtension;
 
     /**
      * 文件原始名称

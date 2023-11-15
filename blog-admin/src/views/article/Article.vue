@@ -179,7 +179,9 @@ export default {
     this.getArticleOption();
   },
   destroyed() {
-    this.addOrEditArticleDraft(false);
+    if (this.autoSaveFlag) {
+      this.addOrEditArticleDraft(false);
+    }
   },
   data: function() {
     return {
@@ -211,6 +213,7 @@ export default {
       staticResourceUrl: "",
       articleCoverUpload: "",
       articleUserId: null,
+      autoSaveFlag: true,
       addOrEditStatus: false,
       articleCoverUploadFlag: false
     };
@@ -237,6 +240,7 @@ export default {
           if (this.fileNameList.length !== 0) {
             this.updateImg(null);
           }
+          this.autoSaveFlag = false;
           let tab = this.$store.state.currentTab;
           this.$store.commit("removeTab", tab);
           let tabList = this.$store.state.tabList;
@@ -438,8 +442,8 @@ export default {
           params: { userId: this.articleUserId }
         })
         .then(({ data }) => {
-          this.tagList = data.data.tagDTOList;
-          this.categoryList = data.data.categoryDTOList;
+          this.tagList = data.data.option.tagDTOList;
+          this.categoryList = data.data.option.categoryDTOList;
           this.staticResourceUrl = data.data.staticResourceUrl;
         });
     },

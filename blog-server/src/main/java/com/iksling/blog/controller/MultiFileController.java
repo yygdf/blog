@@ -1,6 +1,7 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.vo.ArticleImageBackVO;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
+import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.LogConst.UPDATE;
 import static com.iksling.blog.constant.LogConst.UPLOAD;
 
@@ -71,7 +73,9 @@ public class MultiFileController {
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
     @GetMapping("/back/multiFiles")
     public Result getBackMultiFiles(@Valid ConditionBackVO condition) {
-        return Result.success().message("查询成功").data(multiFileService.getMultiFilesBackDTO(condition));
+        return Result.success().message("查询成功").data(Dict.create()
+                .set("dataList", multiFileService.getMultiFilesBackDTO(condition))
+                .set("staticResourceUrl", STATIC_RESOURCE_URL));
     }
 
     @ApiOperation(value = "根据文件id查找子文件")

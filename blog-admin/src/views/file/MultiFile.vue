@@ -94,6 +94,38 @@
       lazy
     >
       <el-table-column prop="fileNameOrigin" label="名称" />
+      <el-table-column prop="fileExtension" label="类型" width="80">
+        <template slot-scope="scope">
+          {{ scope.row.fileExtension ? scope.row.fileExtension : "文件夹" }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="fileSize" label="大小" width="80">
+        <template slot-scope="scope">
+          {{ switchFileSize(scope.row.fileSize) }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="createTime"
+        label="创建时间"
+        align="center"
+        width="120"
+      >
+        <template slot-scope="scope" v-if="scope.row.createTime">
+          <i class="el-icon-time" style="margin-right:5px" />
+          {{ scope.row.createTime | date }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="updateTime"
+        label="更新时间"
+        align="center"
+        width="120"
+      >
+        <template slot-scope="scope" v-if="scope.row.updateTime">
+          <i class="el-icon-time" style="margin-right:5px" />
+          {{ scope.row.updateTime | date }}
+        </template>
+      </el-table-column>
       <el-table-column prop="publicFlag" label="公开" align="center" width="80">
         <template v-if="scope.row.fileMark === 0" slot-scope="scope">
           <el-switch
@@ -118,28 +150,6 @@
             inactive-color="#F4F4F5"
             @change="changeMultiFileStatus(scope.row, 3)"
           />
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="createTime"
-        label="创建时间"
-        align="center"
-        width="120"
-      >
-        <template slot-scope="scope" v-if="scope.row.createTime">
-          <i class="el-icon-time" style="margin-right:5px" />
-          {{ scope.row.createTime | date }}
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="updateTime"
-        label="更新时间"
-        align="center"
-        width="120"
-      >
-        <template slot-scope="scope" v-if="scope.row.updateTime">
-          <i class="el-icon-time" style="margin-right:5px" />
-          {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="240">
@@ -222,7 +232,7 @@
       </el-table-column>
     </el-table>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
-      <div class="dialog-title-container" slot="title" ref="resourceTitle" />
+      <div class="dialog-title-container" slot="title" ref="multiFileTitle" />
       <el-form :model="multiFile" size="medium" label-width="80">
         <el-form-item label="名称">
           <el-input
@@ -249,9 +259,9 @@
           <el-input
             v-model="multiFile.fileCover"
             class="word-limit-input2"
-            style="width: 200px"
+            style="width: 400px"
             maxlength="255"
-            placeholder="请输入封面"
+            :placeholder="staticResourceUrl"
             show-word-limit
           />
         </el-form-item>
@@ -311,6 +321,7 @@ export default {
       multiFileIdList: [],
       multiFile: {},
       multiFileOrigin: {},
+      staticResourceUrl: "",
       type: null,
       userId: null,
       keywords: null,
@@ -336,7 +347,7 @@ export default {
             publicFlag: multiFile.publicFlag,
             hiddenFlag: multiFile.hiddenFlag
           };
-          this.$refs.friendLinkTitle.innerHTML = "添加子目录";
+          this.$refs.multiFileTitle.innerHTML = "添加子目录";
         } else {
           this.multiFile = {
             id: multiFile.id,
@@ -346,7 +357,7 @@ export default {
             publicFlag: multiFile.publicFlag,
             hiddenFlag: multiFile.hiddenFlag
           };
-          this.$refs.friendLinkTitle.innerHTML = "修改目录";
+          this.$refs.multiFileTitle.innerHTML = "修改目录";
         }
       } else {
         this.multiFile = {
@@ -356,7 +367,7 @@ export default {
           publicFlag: true,
           hiddenFlag: false
         };
-        this.$refs.friendLinkTitle.innerHTML = "添加目录";
+        this.$refs.multiFileTitle.innerHTML = "添加目录";
       }
       this.multiFileOrigin = JSON.parse(JSON.stringify(this.multiFile));
       this.$nextTick(() => {
@@ -385,7 +396,8 @@ export default {
           params
         })
         .then(({ data }) => {
-          this.multiFileList = data.data;
+          this.multiFileList = data.data.dataList;
+          this.staticResourceUrl = data.data.staticResourceUrl;
           this.loading = false;
         });
     },
@@ -511,6 +523,21 @@ export default {
     },
     userId() {
       this.getMultiFiles();
+    }
+  },
+  computed: {
+    switchFileSize() {
+      return function(size) {
+        if (size >= 1073741824) {
+          return (size >>> 30) + "GB";
+        }
+        if (size >= 1048576) {
+          return (size >>> 20) + "MB";
+        }
+        if (size >= 1024) {
+          return (size >>> 10) + "KB";
+        }
+      };
     }
   }
 };

@@ -23,7 +23,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class SystemConfig implements Serializable {
     /**
-     * 配置id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;

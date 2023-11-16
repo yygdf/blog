@@ -23,7 +23,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class LoginLog implements Serializable {
     /**
-     * 日志id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;

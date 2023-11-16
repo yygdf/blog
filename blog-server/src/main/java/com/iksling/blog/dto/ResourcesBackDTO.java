@@ -18,7 +18,7 @@ public class ResourcesBackDTO {
     private Integer userId;
 
     /**
-     * 父资源id
+     * 父id
      */
     private Integer parentId;
 

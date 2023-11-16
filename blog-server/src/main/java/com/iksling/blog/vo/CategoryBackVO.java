@@ -10,7 +10,7 @@ import javax.validation.constraints.Size;
 @ApiModel(description = "分类后台VO")
 public class CategoryBackVO {
     /**
-     * 分类id
+     * id
      */
     @ApiModelProperty(name = "id", value = "分类id", dataType = "Integer")
     private Integer id;

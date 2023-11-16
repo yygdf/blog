@@ -10,7 +10,7 @@ import javax.validation.constraints.Size;
 @ApiModel(description = "友链后台VO")
 public class FriendLinkBackVO {
     /**
-     * 友链id
+     * id
      */
     @ApiModelProperty(name = "id", value = "友链id", dataType = "Integer")
     private Integer id;

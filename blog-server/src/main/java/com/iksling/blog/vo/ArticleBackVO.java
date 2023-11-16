@@ -11,7 +11,7 @@ import java.util.List;
 @ApiModel(description = "文章后台VO")
 public class ArticleBackVO {
     /**
-     * 文章id
+     * id
      */
     @ApiModelProperty(name = "id", value = "文章id", dataType = "Integer")
     private Integer id;

@@ -23,7 +23,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class Role implements Serializable {
     /**
-     * 角色id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;

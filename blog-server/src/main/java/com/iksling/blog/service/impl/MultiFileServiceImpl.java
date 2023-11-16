@@ -19,10 +19,7 @@ import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.util.*;
-import com.iksling.blog.vo.ArticleImageBackVO;
-import com.iksling.blog.vo.ConditionBackVO;
-import com.iksling.blog.vo.UserAvatarBackVO;
-import com.iksling.blog.vo.UserAvatarVO;
+import com.iksling.blog.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.enums.FileEnum.IMG_ARTICLE;
 import static com.iksling.blog.enums.FileEnum.IMG_AVATAR;
@@ -59,6 +57,75 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
 
     @Resource
     private HttpServletRequest request;
+
+    @Override
+    @Transactional
+    public void saveOrUpdateMultiFileBackVO(MultiFileBackVO multiFileBackVO) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer loginUserId = loginUser.getUserId();
+        MultiFile multiFile = BeanCopyUtil.copyObject(multiFileBackVO, MultiFile.class);
+        if (multiFile.getId() == null) {
+            if (multiFile.getFileNameOrigin() == null)
+                throw new OperationStatusException();
+            long fileName = IdWorker.getId();
+            if (multiFile.getParentId() == null) {
+                multiFile.setFileFullPath(loginUserId + "/" + fileName);
+            } else {
+                List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                        .select(MultiFile::getFileFullPath)
+                        .eq(MultiFile::getId, multiFile.getParentId())
+                        .eq(MultiFile::getUserId, loginUserId)
+                        .eq(MultiFile::getDeletableFlag, true)
+                        .eq(MultiFile::getDeletedFlag, false));
+                if (objectList.isEmpty())
+                    throw new OperationStatusException();
+                multiFile.setFileFullPath(objectList.get(0) + "/" + fileName);
+            }
+            if (CommonUtil.isNotEmpty(multiFile.getFileCover()) && !multiFile.getFileCover().startsWith(STATIC_RESOURCE_URL))
+                multiFile.setFileCover(null);
+            String iPAddress = IpUtil.getIpAddress(request);
+            multiFile.setUserId(loginUserId);
+            multiFile.setFileName(fileName);
+            multiFile.setIpSource(IpUtil.getIpSource(iPAddress));
+            multiFile.setIpAddress(iPAddress);
+            multiFile.setCreateUser(loginUserId);
+            multiFile.setCreateTime(new Date());
+            multiFileMapper.insert(multiFile);
+        } else {
+            List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+                    .select(MultiFile::getPublicFlag, MultiFile::getHiddenFlag)
+                    .eq(MultiFile::getId, multiFile.getId())
+                    .and(loginUser.getRoleWeight() > 200, e -> e.eq(MultiFile::getUserId, loginUserId).eq(MultiFile::getDeletableFlag, true))
+                    .eq(MultiFile::getDeletedFlag, false));
+            if (mapList.isEmpty())
+                throw new OperationStatusException();
+            if (CommonUtil.isNotEmpty(multiFile.getFileCover()) && !multiFile.getFileCover().startsWith(STATIC_RESOURCE_URL))
+                multiFile.setFileCover("");
+            if (multiFile.getPublicFlag() != null) {
+                if (multiFile.getPublicFlag() == Boolean.TRUE) {
+                    if (multiFile.getHiddenFlag() == Boolean.TRUE) {
+                        // TODO: HID
+                    } else if (mapList.get(0).get("hidden_flag").equals(false)) {
+                        // TODO: PUB
+                    }
+                } else if (multiFile.getPublicFlag() == Boolean.FALSE) {
+                    if (multiFile.getHiddenFlag() == Boolean.TRUE) {
+                        // TODO: HID
+                    } else if (mapList.get(0).get("hidden_flag").equals(false)) {
+                        // TODO: Not PUB
+                    }
+                }
+            } else if (multiFile.getHiddenFlag() != null) {
+                if (multiFile.getHiddenFlag() == Boolean.TRUE) {
+                    // TODO: HID
+                } else if (mapList.get(0).get("public_flag").equals(true)) {
+                    // TODO: PUB
+                } else {
+                    // TODO: Not HID
+                }
+            }
+        }
+    }
 
     @Override
     @Transactional
@@ -109,8 +176,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .fileFullPath(targetAddr + "/" + fullFileName)
                 .fileExtension(extension)
                 .fileNameOrigin(originalFilename)
-                .ipAddress(iPAddress)
                 .ipSource(IpUtil.getIpSource(iPAddress))
+                .ipAddress(iPAddress)
                 .createUser(loginUser.getUserId())
                 .createTime(new Date())
                 .build());
@@ -164,8 +231,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .fileFullPath(targetAddr + "/" + fullFileName)
                 .fileExtension(extension)
                 .fileNameOrigin(originalFilename)
-                .ipAddress(iPAddress)
                 .ipSource(IpUtil.getIpSource(iPAddress))
+                .ipAddress(iPAddress)
                 .createUser(loginUser.getUserId())
                 .createTime(new Date())
                 .build());
@@ -271,8 +338,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .fileFullPath(targetAddr + "/" + fullFileName)
                 .fileExtension(extension)
                 .fileNameOrigin(originalFilename)
-                .ipAddress(iPAddress)
                 .ipSource(IpUtil.getIpSource(iPAddress))
+                .ipAddress(iPAddress)
                 .createUser(loginUserId)
                 .createTime(dateTime)
                 .build());
@@ -379,14 +446,14 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             lambdaQueryWrapper.like(MultiFile::getFileNameOrigin, condition.getKeywords());
         List<MultiFile> multiFileList = multiFileMapper.selectList(lambdaQueryWrapper
                 .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getFileDesc,
-                        MultiFile::getFileMark, MultiFile::getFileSize, MultiFile::getFileCover,
+                        MultiFile::getFileSize, MultiFile::getFileCover,
                         MultiFile::getFileFullPath, MultiFile::getFileExtension, MultiFile::getFileNameOrigin,
                         MultiFile::getPublicFlag, MultiFile::getHiddenFlag,MultiFile::getCreateTime,
                         MultiFile::getUpdateTime));
         return  multiFileList.stream()
                 .map(e -> {
                     MultiFilesBackDTO multiFilesBackDTO = BeanCopyUtil.copyObject(e, MultiFilesBackDTO.class);
-                    multiFilesBackDTO.setHasChildren(multiFilesBackDTO.getFileMark().equals(0));
+                    multiFilesBackDTO.setHasChildren(multiFilesBackDTO.getFileExtension().length() == 0);
                     return multiFilesBackDTO;
                 })
                 .collect(Collectors.toList());
@@ -397,7 +464,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         LoginUser loginUser = UserUtil.getLoginUser();
         List<MultiFile> multiFileList = multiFileMapper.selectList(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getFileDesc,
-                        MultiFile::getFileMark, MultiFile::getFileSize, MultiFile::getFileCover,
+                        MultiFile::getFileSize, MultiFile::getFileCover,
                         MultiFile::getFileFullPath, MultiFile::getFileExtension, MultiFile::getFileNameOrigin,
                         MultiFile::getPublicFlag, MultiFile::getHiddenFlag, MultiFile::getCreateTime,
                         MultiFile::getUpdateTime)
@@ -407,7 +474,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         return  multiFileList.stream()
                 .map(e -> {
                     MultiFilesBackDTO multiFilesBackDTO = BeanCopyUtil.copyObject(e, MultiFilesBackDTO.class);
-                    multiFilesBackDTO.setHasChildren(multiFilesBackDTO.getFileMark().equals(0));
+                    multiFilesBackDTO.setHasChildren(multiFilesBackDTO.getFileExtension().length() == 0);
                     return multiFilesBackDTO;
                 })
                 .collect(Collectors.toList());

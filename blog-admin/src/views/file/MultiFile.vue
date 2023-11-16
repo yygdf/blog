@@ -529,13 +529,16 @@ export default {
     switchFileSize() {
       return function(size) {
         if (size >= 1073741824) {
-          return (size >>> 30) + "GB";
+          return Math.ceil((size >>> 30) * 100) / 100 + "GB";
         }
         if (size >= 1048576) {
-          return (size >>> 20) + "MB";
+          return Math.ceil((size >>> 20) * 100) / 100 + "MB";
         }
         if (size >= 1024) {
-          return (size >>> 10) + "KB";
+          return Math.ceil((size >>> 10) * 100) / 100 + "KB";
+        }
+        if (size > 0) {
+          return size + "B";
         }
       };
     }

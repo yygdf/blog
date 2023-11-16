@@ -10,7 +10,7 @@ import javax.validation.constraints.Size;
 @ApiModel(description = "系统配置后台VO")
 public class SystemConfigBackVO {
     /**
-     * 配置id
+     * id
      */
     @ApiModelProperty(name = "id", value = "配置id", dataType = "Integer")
     private Integer id;

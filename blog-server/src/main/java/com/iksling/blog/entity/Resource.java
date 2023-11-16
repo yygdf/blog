@@ -23,7 +23,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class Resource implements Serializable {
     /**
-     * 资源id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -34,7 +34,7 @@ public class Resource implements Serializable {
     private Integer userId;
 
     /**
-     * 父资源id, 默认-1
+     * 父id, 默认-1
      */
     private Integer parentId;
 

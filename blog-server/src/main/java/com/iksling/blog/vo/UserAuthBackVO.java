@@ -15,7 +15,7 @@ public class UserAuthBackVO {
      * id
      */
     @NotNull(message = "'id':'NotNull'")
-    @ApiModelProperty(name = "id", value = "id", dataType = "Integer")
+    @ApiModelProperty(name = "id", value = "账号id", dataType = "Integer")
     private Integer id;
 
     /**

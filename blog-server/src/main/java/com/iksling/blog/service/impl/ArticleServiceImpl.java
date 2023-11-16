@@ -101,9 +101,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             article.setIpSource(IpUtil.getIpSource(article.getIpAddress()));
             article.setCreateUser(loginUserId);
             article.setCreateTime(dateTime);
-            if (article.getArticleCover() != null)
-                if (!article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
-                    article.setArticleCover(null);
+            if (CommonUtil.isNotEmpty(article.getArticleCover()) && !article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
+                article.setArticleCover(null);
             articleMapper.insert(article);
             multiFileService.saveArticleDirById(article.getId(), loginUserId, dateTime);
         } else {

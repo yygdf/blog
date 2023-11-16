@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class RolePermissionBackVO {
     /**
-     * 角色id
+     * id
      */
     @NotNull(message = "'id':'NotNull'")
     @ApiModelProperty(name = "id", value = "角色id", dataType = "Integer")

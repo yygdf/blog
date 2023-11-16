@@ -17,7 +17,7 @@ import java.util.Date;
 @Data
 public class QQAuth implements Serializable {
     /**
-     * 账号id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;

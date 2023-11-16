@@ -42,7 +42,7 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
     @Override
     @Transactional
     public void saveOrUpdateSystemConfigBackVO(SystemConfigBackVO systemConfigBackVO) {
-        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
         SystemConfig systemConfig = BeanCopyUtil.copyObject(systemConfigBackVO, SystemConfig.class);
         if (systemConfig.getId() == null) {
             if (systemConfig.getConfigName() == null || systemConfig.getConfigValue() == null)
@@ -52,23 +52,23 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
             if (count > 0)
                 throw new OperationStatusException("该配置已存在!");
             systemConfig.setAssimilateFlag(null);
-            systemConfig.setUserId(loginUser.getUserId());
-            systemConfig.setCreateUser(loginUser.getUserId());
+            systemConfig.setUserId(loginUserId);
+            systemConfig.setCreateUser(loginUserId);
             systemConfig.setCreateTime(new Date());
             systemConfigMapper.insert(systemConfig);
         } else {
             Date updateTime = new Date();
             if (systemConfig.getAssimilateFlag() == Boolean.TRUE && systemConfig.getConfigValue() != null) {
-                if (!loginUser.getUserId().equals(ROOT_USER_ID))
+                if (!loginUserId.equals(ROOT_USER_ID))
                     throw new IllegalRequestException();
                 userConfigMapper.update(null, new LambdaUpdateWrapper<UserConfig>()
                         .set(UserConfig::getConfigValue, systemConfig.getConfigValue())
-                        .set(UserConfig::getUpdateUser, loginUser.getUserId())
+                        .set(UserConfig::getUpdateUser, loginUserId)
                         .set(UserConfig::getUpdateTime, updateTime)
                         .inSql(UserConfig::getConfigName, "select config_name from tb_system_config where id = " + systemConfig.getId()));
             }
             systemConfig.setConfigName(null);
-            systemConfig.setUpdateUser(loginUser.getUserId());
+            systemConfig.setUpdateUser(loginUserId);
             systemConfig.setUpdateTime(updateTime);
             systemConfigMapper.updateById(systemConfig);
         }

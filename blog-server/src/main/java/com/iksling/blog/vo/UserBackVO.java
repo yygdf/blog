@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 @ApiModel(description = "用户后台VO")
 public class UserBackVO {
     /**
-     * 用户id
+     * id
      */
     @ApiModelProperty(name = "id", value = "用户id", dataType = "Integer")
     private Integer id;

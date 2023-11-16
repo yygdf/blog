@@ -71,7 +71,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     @Override
     @Transactional
     public void saveOrUpdateRoleBackVO(RoleBackVO roleBackVO) {
-        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
         Role role = BeanCopyUtil.copyObject(roleBackVO, Role.class);
         if (role.getId() == null) {
             if (role.getRoleDesc() == null || role.getRoleName() == null)
@@ -80,9 +80,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
                     .eq(Role::getRoleName, role.getRoleName()));
             if (count > 0)
                 throw new OperationStatusException("角色名已存在!");
-            role.setUserId(loginUser.getUserId());
+            role.setUserId(loginUserId);
             role.setCreateTime(new Date());
-            role.setCreateUser(loginUser.getUserId());
+            role.setCreateUser(loginUserId);
             roleMapper.insert(role);
         } else {
             if (role.getDisabledFlag() == Boolean.TRUE) {
@@ -97,7 +97,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
                     throw new OperationStatusException("角色名已存在!");
             }
             role.setUpdateTime(new Date());
-            role.setUpdateUser(loginUser.getUserId());
+            role.setUpdateUser(loginUserId);
             roleMapper.updateById(role);
         }
     }

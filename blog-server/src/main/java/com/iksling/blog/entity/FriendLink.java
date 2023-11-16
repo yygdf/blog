@@ -23,7 +23,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class FriendLink implements Serializable {
     /**
-     * 友链id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;

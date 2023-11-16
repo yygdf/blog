@@ -18,7 +18,7 @@ public class MenusBackDTO {
     private Integer userId;
 
     /**
-     * 父菜单id
+     * 父id
      */
     private Integer parentId;
 

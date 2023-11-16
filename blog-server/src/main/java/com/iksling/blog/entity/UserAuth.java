@@ -23,7 +23,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class UserAuth implements Serializable {
     /**
-     * 账号id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;

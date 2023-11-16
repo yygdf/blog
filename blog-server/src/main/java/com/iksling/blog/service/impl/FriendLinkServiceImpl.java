@@ -36,17 +36,17 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     @Override
     @Transactional
     public void saveOrUpdateFriendLinkBackVO(FriendLinkBackVO friendLinkBackVO) {
-        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
         FriendLink friendLink = BeanCopyUtil.copyObject(friendLinkBackVO, FriendLink.class);
         if (friendLink.getId() == null) {
             if (friendLink.getUserId() == null || friendLink.getLinkUrl() == null || friendLink.getLinkDesc() == null || friendLink.getLinkLogo() == null || friendLink.getLinkName() == null)
                 throw new OperationStatusException();
-            friendLink.setCreateUser(loginUser.getUserId());
+            friendLink.setCreateUser(loginUserId);
             friendLink.setCreateTime(new Date());
             friendLinkMapper.insert(friendLink);
         } else {
             friendLink.setUserId(null);
-            friendLink.setUpdateUser(loginUser.getUserId());
+            friendLink.setUpdateUser(loginUserId);
             friendLink.setUpdateTime(new Date());
             friendLinkMapper.updateById(friendLink);
         }

@@ -17,7 +17,7 @@ import java.util.Date;
 @Data
 public class Tag implements Serializable {
     /**
-     * 标签id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;

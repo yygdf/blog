@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 @ApiModel(description = "用户配置后台VO")
 public class UserConfigBackVO {
     /**
-     * 配置id
+     * id
      */
     @NotNull(message = "'id':'NotNull'")
     @ApiModelProperty(name = "id", value = "配置id", dataType = "Integer")

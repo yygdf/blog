@@ -10,13 +10,13 @@ import javax.validation.constraints.Size;
 @ApiModel(description = "资源后台VO")
 public class ResourceBackVO {
     /**
-     * 资源id
+     * id
      */
     @ApiModelProperty(name = "id", value = "资源id", dataType = "Integer")
     private Integer id;
 
     /**
-     * 父资源id
+     * 父id
      */
     @ApiModelProperty(name = "parentId", value = "父资源id", dataType = "Integer")
     private Integer parentId;

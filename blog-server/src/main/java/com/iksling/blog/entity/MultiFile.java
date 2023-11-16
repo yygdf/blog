@@ -23,7 +23,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class MultiFile implements Serializable {
     /**
-     * 文件id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -54,7 +54,7 @@ public class MultiFile implements Serializable {
     private Long fileName;
 
     /**
-     * 文件大小
+     * 文件大小, 默认-1
      */
     private Long fileSize;
 

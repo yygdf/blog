@@ -22,7 +22,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class UserRole implements Serializable {
     /**
-     * 主键id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;

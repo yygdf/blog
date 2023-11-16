@@ -17,7 +17,7 @@ import java.util.Date;
 @Data
 public class Article implements Serializable {
     /**
-     * 文章id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;

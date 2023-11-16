@@ -48,7 +48,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     public void saveOrUpdateMenuBackVO(MenuBackVO menuBackVO) {
         if (HOME_MENU_ID.equals(menuBackVO.getParentId()))
             throw new IllegalRequestException();
-        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
         Menu menu = BeanCopyUtil.copyObject(menuBackVO, Menu.class);
         if (menu.getId() == null) {
             if (menu.getIcon() == null || menu.getPath() == null || menu.getName() == null)
@@ -57,8 +57,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                     .eq(Menu::getPath, menu.getPath()));
             if (count > 0)
                 throw new OperationStatusException("该菜单路径已存在!");
-            menu.setUserId(loginUser.getUserId());
-            menu.setCreateUser(loginUser.getUserId());
+            menu.setUserId(loginUserId);
+            menu.setCreateUser(loginUserId);
             menu.setCreateTime(new Date());
             menuMapper.insert(menu);
         } else {
@@ -68,7 +68,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                 if (count > 0)
                     throw new OperationStatusException("该菜单路径已存在!");
             }
-            menu.setUpdateUser(loginUser.getUserId());
+            menu.setUpdateUser(loginUserId);
             menu.setUpdateTime(new Date());
             menuMapper.updateById(menu);
         }

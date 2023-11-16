@@ -23,7 +23,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class Category implements Serializable {
     /**
-     * 分类id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;

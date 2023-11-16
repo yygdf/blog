@@ -4,10 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MultiFileService;
-import com.iksling.blog.vo.ArticleImageBackVO;
-import com.iksling.blog.vo.ConditionBackVO;
-import com.iksling.blog.vo.UserAvatarBackVO;
-import com.iksling.blog.vo.UserAvatarVO;
+import com.iksling.blog.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -18,14 +15,22 @@ import javax.validation.Valid;
 import java.util.List;
 
 import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
-import static com.iksling.blog.constant.LogConst.UPDATE;
-import static com.iksling.blog.constant.LogConst.UPLOAD;
+import static com.iksling.blog.constant.LogConst.*;
 
 @RestController
 @Api(tags = "文件模块")
 public class MultiFileController {
     @Autowired
     private MultiFileService multiFileService;
+
+    @OptLog(optType = SAVE_OR_UPDATE)
+    @ApiOperation(value = "添加或修改文件")
+    @ApiImplicitParam(name = "multiFileBackVO", value = "文件后台VO", required = true, dataType = "MultiFileBackVO")
+    @PostMapping("/back/multiFile")
+    public Result saveOrUpdateBackMultiFile(@Valid @RequestBody MultiFileBackVO multiFileBackVO) {
+        multiFileService.saveOrUpdateMultiFileBackVO(multiFileBackVO);
+        return Result.success().message("操作成功");
+    }
 
     @OptLog(optType = UPLOAD)
     @ApiOperation(value = "上传文章图片")

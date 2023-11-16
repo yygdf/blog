@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 @ApiModel(description = "标签后台VO")
 public class TagBackVO {
     /**
-     * 标签id
+     * id
      */
     @ApiModelProperty(name = "id", value = "标签id", dataType = "Integer")
     private Integer id;

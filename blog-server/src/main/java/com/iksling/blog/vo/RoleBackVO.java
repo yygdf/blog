@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 @Data
 public class RoleBackVO {
     /**
-     * 角色id
+     * id
      */
     @ApiModelProperty(name = "id", value = "角色id", dataType = "Integer")
     private Integer id;

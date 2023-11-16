@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 
@@ -16,7 +17,7 @@ import lombok.Data;
 @Data
 public class Comment implements Serializable {
     /**
-     * 评论id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -37,7 +38,7 @@ public class Comment implements Serializable {
     private Integer articleId;
 
     /**
-     * 父评论id, 默认-1
+     * 父id, 默认-1
      */
     private Integer parentId;
 

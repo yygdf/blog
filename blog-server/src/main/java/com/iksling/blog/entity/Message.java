@@ -17,7 +17,7 @@ import java.util.Date;
 @Data
 public class Message implements Serializable {
     /**
-     * 留言id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;

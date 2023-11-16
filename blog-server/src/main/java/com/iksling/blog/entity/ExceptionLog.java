@@ -23,7 +23,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class ExceptionLog implements Serializable {
     /**
-     * 操作日志id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;

@@ -11,13 +11,13 @@ import javax.validation.constraints.Size;
 @ApiModel(description = "菜单后台VO")
 public class MenuBackVO {
     /**
-     * 菜单id
+     * id
      */
     @ApiModelProperty(name = "id", value = "菜单id", dataType = "Integer")
     private Integer id;
 
     /**
-     * 父菜单id
+     * 父id
      */
     @ApiModelProperty(name = "parentId", value = "父菜单id", dataType = "Integer")
     private Integer parentId;

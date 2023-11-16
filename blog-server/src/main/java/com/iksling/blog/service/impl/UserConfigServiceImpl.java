@@ -9,7 +9,6 @@ import com.iksling.blog.mapper.UserConfigMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.UserConfigService;
-import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -36,9 +35,6 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
     @Override
     @Transactional
     public void updateUserConfigBackVO(UserConfigBackVO userConfigBackVO) {
-        UserConfig userConfig = BeanCopyUtil.copyObject(userConfigBackVO, UserConfig.class);
-        userConfig.setUpdateUser(UserUtil.getLoginUser().getUserId());
-        userConfig.setUpdateTime(new Date());
         LoginUser loginUser = UserUtil.getLoginUser();
         userConfigMapper.update(null, new LambdaUpdateWrapper<UserConfig>()
                 .set(userConfigBackVO.getConfigDesc() != null, UserConfig::getConfigDesc, userConfigBackVO.getConfigDesc())

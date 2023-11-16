@@ -17,7 +17,7 @@ import java.util.Date;
 @Data
 public class ChatRecord implements Serializable {
     /**
-     * 聊天记录id
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;

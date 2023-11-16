@@ -43,16 +43,17 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
     @Transactional
     public void saveOrUpdateTagBackVO(TagBackVO tagBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
+        Integer loginUserId = loginUser.getUserId();
         Tag tag = BeanCopyUtil.copyObject(tagBackVO, Tag.class);
         if (tag.getId() == null) {
             Integer count = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
                     .eq(Tag::getTagName, tag.getTagName())
-                    .eq(Tag::getUserId, loginUser.getUserId())
+                    .eq(Tag::getUserId, loginUserId)
                     .eq(Tag::getDeletedFlag, false));
             if (count > 0)
                 throw new OperationStatusException("标签名已存在!");
-            tag.setUserId(loginUser.getUserId());
-            tag.setCreateUser(loginUser.getUserId());
+            tag.setUserId(loginUserId);
+            tag.setCreateUser(loginUserId);
             tag.setCreateTime(new Date());
             tagMapper.insert(tag);
         } else {
@@ -60,7 +61,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
                     .select(Tag::getUserId)
                     .eq(Tag::getDeletedFlag, false)
                     .eq(Tag::getId, tag.getId())
-                    .eq(loginUser.getRoleWeight() > 200, Tag::getUserId, loginUser.getUserId()));
+                    .eq(loginUser.getRoleWeight() > 200, Tag::getUserId, loginUserId));
             if (tagOrigin == null)
                 throw new OperationStatusException();
             Integer count = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
@@ -69,7 +70,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
                     .eq(Tag::getDeletedFlag, false));
             if (count > 0)
                 throw new OperationStatusException("标签名已存在!");
-            tag.setUpdateUser(loginUser.getUserId());
+            tag.setUpdateUser(loginUserId);
             tag.setUpdateTime(new Date());
             tagMapper.updateById(tag);
         }

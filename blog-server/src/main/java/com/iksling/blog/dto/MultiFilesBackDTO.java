@@ -22,11 +22,6 @@ public class MultiFilesBackDTO {
     private String fileDesc;
 
     /**
-     * 文件标识
-     */
-    private Integer fileMark;
-
-    /**
      * 文件大小
      */
     private Long fileSize;

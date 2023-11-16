@@ -48,7 +48,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
     @Override
     @Transactional
     public void saveOrUpdateResourceBackVO(ResourceBackVO resourceBackVO) {
-        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
         Resource resource = BeanCopyUtil.copyObject(resourceBackVO, Resource.class);
         if (resource.getId() == null) {
             if (resource.getResourceName() == null)
@@ -70,8 +70,8 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                 if (count > 0)
                     throw new OperationStatusException("该资源已存在!");
             }
-            resource.setUserId(loginUser.getUserId());
-            resource.setCreateUser(loginUser.getUserId());
+            resource.setUserId(loginUserId);
+            resource.setCreateUser(loginUserId);
             resource.setCreateTime(new Date());
             resourceMapper.insert(resource);
         } else {
@@ -106,7 +106,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                         throw new OperationStatusException("该资源已存在!");
                 }
             }
-            resource.setUpdateUser(loginUser.getUserId());
+            resource.setUpdateUser(loginUserId);
             resource.setUpdateTime(new Date());
             resourceMapper.updateById(resource);
         }

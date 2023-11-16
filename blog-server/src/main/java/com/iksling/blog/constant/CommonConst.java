@@ -30,27 +30,27 @@ public class CommonConst {
     public static final String STATIC_RESOURCE_URL = "http://192.168.203.130/static/";
 
     /**
-     * 系统核心用户id
+     * 核心用户id
      */
     public static final Integer ROOT_USER_ID = 2;
 
     /**
-     * 系统核心用户idList
+     * 核心用户idList
      */
     public static final List<Integer> ROOT_USER_ID_LIST = Arrays.asList(0, 1, 2);
 
     /**
-     * 系统首页菜单id
+     * 首页菜单id
      */
     public static final Integer HOME_MENU_ID = 1;
 
     /**
-     * 系统核心角色id
+     * 核心角色id
      */
     public static final Integer ROOT_ROLE_ID = 1;
 
     /**
-     * 系统核心角色idList
+     * 核心角色idList
      */
     public static final List<Integer> ROOT_ROLE_ID_LIST = Arrays.asList(1);
 }

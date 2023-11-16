@@ -39,18 +39,19 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     @Transactional
     public void saveOrUpdateCategoryBackVO(CategoryBackVO categoryBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
+        Integer loginUserId = loginUser.getUserId();
         Category category = BeanCopyUtil.copyObject(categoryBackVO, Category.class);
         if (category.getId() == null) {
             if (category.getCategoryName() == null)
                 throw new OperationStatusException();
             Integer count = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
                     .eq(Category::getCategoryName, category.getCategoryName())
-                    .eq(Category::getUserId, loginUser.getUserId())
+                    .eq(Category::getUserId, loginUserId)
                     .eq(Category::getDeletedFlag, false));
             if (count > 0)
                 throw new OperationStatusException("分类名已存在!");
-            category.setUserId(loginUser.getUserId());
-            category.setCreateUser(loginUser.getUserId());
+            category.setUserId(loginUserId);
+            category.setCreateUser(loginUserId);
             category.setCreateTime(new Date());
             categoryMapper.insert(category);
         } else {
@@ -58,7 +59,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                     .select(Category::getUserId)
                     .eq(Category::getDeletedFlag, false)
                     .eq(Category::getId, category.getId())
-                    .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId()));
+                    .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUserId));
             if (categoryOrigin == null)
                 throw new OperationStatusException();
             if (category.getCategoryName() != null) {
@@ -69,7 +70,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                 if (count > 0)
                     throw new OperationStatusException("分类名已存在!");
             }
-            category.setUpdateUser(loginUser.getUserId());
+            category.setUpdateUser(loginUserId);
             category.setUpdateTime(new Date());
             categoryMapper.updateById(category);
         }

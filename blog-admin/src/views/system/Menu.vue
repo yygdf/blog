@@ -56,7 +56,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeMenuStatus(scope.row, 8)"
+            @change="updateMenuStatus(scope.row, 8)"
           />
         </template>
       </el-table-column>
@@ -68,7 +68,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeMenuStatus(scope.row)"
+            @change="updateMenuStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -85,7 +85,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeMenuStatus(scope.row, 9)"
+            @change="updateMenuStatus(scope.row, 9)"
           />
         </template>
       </el-table-column>
@@ -457,7 +457,7 @@ export default {
       });
       this.addOrEditStatus = false;
     },
-    changeMenuStatus(menu, type) {
+    updateMenuStatus(menu, type) {
       let param = {
         idList: [menu.id]
       };

@@ -135,7 +135,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeMultiFileStatus(scope.row)"
+            @change="updateMultiFileStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -148,7 +148,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeMultiFileStatus(scope.row, 3)"
+            @change="updateMultiFileStatus(scope.row, 3)"
           />
         </template>
       </el-table-column>
@@ -266,26 +266,6 @@
           />
         </el-form-item>
       </el-form>
-      <el-form :model="multiFile" :inline="true" size="medium" label-width="80">
-        <el-form-item label="公开">
-          <el-switch
-            v-model="multiFile.publicFlag"
-            :active-value="true"
-            :inactive-value="false"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
-          />
-        </el-form-item>
-        <el-form-item label="隐藏">
-          <el-switch
-            v-model="multiFile.hiddenFlag"
-            :active-value="true"
-            :inactive-value="false"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
-          />
-        </el-form-item>
-      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
         <el-button type="primary" @click="addOrEditMultiFile">
@@ -343,9 +323,7 @@ export default {
             parentId: multiFile.id,
             fileDesc: "",
             fileCover: "",
-            fileNameOrigin: "",
-            publicFlag: multiFile.publicFlag,
-            hiddenFlag: multiFile.hiddenFlag
+            fileNameOrigin: ""
           };
           this.$refs.multiFileTitle.innerHTML = "添加子目录";
         } else {
@@ -353,9 +331,7 @@ export default {
             id: multiFile.id,
             fileDesc: multiFile.fileDesc,
             fileCover: multiFile.fileCover,
-            fileNameOrigin: multiFile.fileNameOrigin,
-            publicFlag: multiFile.publicFlag,
-            hiddenFlag: multiFile.hiddenFlag
+            fileNameOrigin: multiFile.fileNameOrigin
           };
           this.$refs.multiFileTitle.innerHTML = "修改目录";
         }
@@ -363,9 +339,7 @@ export default {
         this.multiFile = {
           fileDesc: "",
           fileCover: "",
-          fileNameOrigin: "",
-          publicFlag: true,
-          hiddenFlag: false
+          fileNameOrigin: ""
         };
         this.$refs.multiFileTitle.innerHTML = "添加目录";
       }
@@ -467,7 +441,7 @@ export default {
       });
       this.addOrEditStatus = false;
     },
-    changeMultiFileStatus(multiFile, type) {
+    updateMultiFileStatus(multiFile, type) {
       let param = {
         idList: [multiFile.id]
       };

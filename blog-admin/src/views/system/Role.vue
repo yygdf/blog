@@ -61,7 +61,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeRoleStatus(scope.row)"
+            @change="updateRoleStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -421,7 +421,7 @@ export default {
       });
       this.addOrEditStatus = false;
     },
-    changeRoleStatus(role) {
+    updateRoleStatus(role) {
       let disabledFlag = role.disabledFlag;
       let text = disabledFlag ? "启用" : "禁用";
       this.$confirm("是否" + text + "该角色?", "提示", {

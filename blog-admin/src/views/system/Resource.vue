@@ -65,7 +65,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeResourceStatus(scope.row)"
+            @change="updateResourceStatus(scope.row)"
           />
         </template>
       </el-table-column>
@@ -82,7 +82,7 @@
             :inactive-value="false"
             active-color="#13ce66"
             inactive-color="#F4F4F5"
-            @change="changeResourceStatus(scope.row, 10)"
+            @change="updateResourceStatus(scope.row, 10)"
           />
         </template>
       </el-table-column>
@@ -373,7 +373,7 @@ export default {
       });
       this.addOrEditStatus = false;
     },
-    changeResourceStatus(resource, type) {
+    updateResourceStatus(resource, type) {
       let param = {
         idList: [resource.id]
       };

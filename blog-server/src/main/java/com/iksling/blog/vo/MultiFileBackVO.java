@@ -41,16 +41,4 @@ public class MultiFileBackVO {
     @Size(min = 1, max = 50, message = "'fileNameOrigin':{'minlength':1,'maxlength':50}")
     @ApiModelProperty(name = "fileNameOrigin", value = "文件原始名称", dataType = "String")
     private String fileNameOrigin;
-
-    /**
-     * 0未公开, 1已公开
-     */
-    @ApiModelProperty(name = "publicFlag", value = "0未公开, 1已公开", dataType = "Boolean")
-    private Boolean publicFlag;
-
-    /**
-     * 0未隐藏, 1已隐藏
-     */
-    @ApiModelProperty(name = "hiddenFlag", value = "0未隐藏, 1已隐藏", dataType = "Boolean")
-    private Boolean hiddenFlag;
 }

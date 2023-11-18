@@ -19,6 +19,8 @@ public interface MultiFileService extends IService<MultiFile> {
 
     String saveUserAvatarBackVO(UserAvatarBackVO userAvatarBackVO);
 
+    void updateMultiFileStatusBackVO(StatusBackVO statusBackVO);
+
     void updateBackArticleImagesByFileNameList(List<Long> fileNameList);
 
     void updateBackUserAvatarsByFileNameList(List<Long> fileNameList);

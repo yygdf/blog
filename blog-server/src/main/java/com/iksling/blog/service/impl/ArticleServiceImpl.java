@@ -191,7 +191,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         else
             lambdaUpdateWrapper.setSql("top_flag = !top_flag");
         int count = articleMapper.update(null, lambdaUpdateWrapper);
-        if (count != 1)
+        if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
     }
 

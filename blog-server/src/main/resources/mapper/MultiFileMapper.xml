@@ -39,23 +39,4 @@
         create_user,create_time,update_user,
         update_time
     </sql>
-
-    <select id="selectArticleImgFileByFileName" resultType="map">
-        SELECT
-            mf.id,mf.user_id,mf.file_name,
-            mf.file_extension,mfp.file_name file_name_parent
-        FROM
-            tb_multi_file mf
-        LEFT JOIN tb_multi_file mfp ON mf.parent_id = mfp.id
-        WHERE
-            mf.deleted_flag = false
-            AND mf.file_mark = #{fileMark}
-            AND mf.file_name IN
-            <foreach collection="fileNameList" item="fileName" index="index" open="(" separator="," close=")">
-                #{fileName}
-            </foreach>
-            <if test="roleWeight > 300">
-                AND mf.user_id = #{userId}
-            </if>
-    </select>
 </mapper>

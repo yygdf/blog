@@ -43,7 +43,6 @@ import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.FlagConst.*;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_LIKE_COUNT;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_VIEW_COUNT;
-import static com.iksling.blog.enums.FileEnum.IMG_ARTICLE;
 
 /**
  *
@@ -125,8 +124,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             if (article.getArticleCover() != null) {
                 if (!article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                     article.setArticleCover("");
-                if (articleOrigin.getArticleCover().startsWith(STATIC_RESOURCE_URL + articleOrigin.getUserId() + "/" + IMG_ARTICLE.getPath() + "/" + article.getId()))
-                    multiFileService.updateArticleImageBy(articleOrigin.getUserId(), loginUserId, article.getId(), CommonUtil.getSplitStringByIndex(articleOrigin.getArticleCover(), "/", -1), dateTime);
+                multiFileService.updateArticleImageBy(loginUserId, article.getId(), article.getArticleCover().split(STATIC_RESOURCE_URL)[1], dateTime);
             }
             if (articleBackVO.getTagIdList() != null) {
                 articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()

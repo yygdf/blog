@@ -145,8 +145,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             if (user.getAvatar() != null) {
                 if (!user.getAvatar().startsWith(STATIC_RESOURCE_URL))
                     user.setAvatar("");
-                if (avatar.startsWith(STATIC_RESOURCE_URL + user.getId() + "/" + IMG_AVATAR.getPath()))
-                    multiFileService.updateUserAvatarBy(user.getId(), loginUserId, CommonUtil.getSplitStringByIndex(avatar, "/", -1), updateTime);
+                multiFileService.updateUserAvatarBy(loginUserId, avatar.split(STATIC_RESOURCE_URL)[1], updateTime);
             }
             user.setUpdateUser(loginUserId);
             user.setUpdateTime(updateTime);

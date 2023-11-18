@@ -32,6 +32,14 @@ public class UserController {
         return Result.success().message("操作成功");
     }
 
+    @OptLog(optType = UPLOAD)
+    @ApiOperation(value = "上传用户头像")
+    @ApiImplicitParam(name = "userAvatarBackVO", value = "用户头像后台VO", required = true, dataType = "UserAvatarBackVO")
+    @PostMapping("/back/user/avatar")
+    public Result saveBackUserAvatar(@Valid UserAvatarBackVO userAvatarBackVO) {
+        return Result.success().message("上传成功").data(userService.saveUserAvatarBackVO(userAvatarBackVO));
+    }
+
     @OptLog(optType = REMOVE)
     @ApiOperation(value = "物理批量删除用户")
     @ApiImplicitParam(name = "idList", value = "idList", required = true, dataType = "List<Integer>")
@@ -51,12 +59,29 @@ public class UserController {
     }
 
     @OptLog(optType = UPDATE)
+    @ApiOperation(value = "批量更新用户头像状态")
+    @ApiImplicitParam(name = "fileNameList", value = "文件名list", required = true, dataType = "List<Long>")
+    @PutMapping("/back/user/avatars")
+    public Result updateBackUserAvatars(@RequestBody List<Long> fileNameList) {
+        userService.updateBackUserAvatarsByFileNameList(fileNameList);
+        return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = UPDATE)
     @ApiOperation(value = "修改用户信息")
     @ApiImplicitParam(name = "userVO", value = "用户VO", required = true, dataType = "UserVO")
     @PutMapping("/user")
     public Result updateUser(@Valid @RequestBody UserVO userVO) {
         userService.updateUserVO(userVO);
         return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "修改用户头像")
+    @ApiImplicitParam(name = "userAvatarVO", value = "用户头像VO", required = true, dataType = "UserAvatarVO")
+    @PostMapping("/user/avatar")
+    public Result updateUserAvatarVO(@Valid UserAvatarVO userAvatarVO) {
+        return Result.success().message("操作成功").data(userService.updateUserAvatarVO(userAvatarVO));
     }
 
     @ApiOperation(value = "查看后台用户列表")

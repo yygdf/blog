@@ -1,6 +1,8 @@
 package com.iksling.blog.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
@@ -8,8 +10,10 @@ import com.iksling.blog.entity.MultiFile;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.entity.UserRole;
+import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
+import com.iksling.blog.mapper.MultiFileMapper;
 import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.mapper.UserRoleMapper;
@@ -17,26 +21,25 @@ import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.service.UserService;
-import com.iksling.blog.util.BeanCopyUtil;
-import com.iksling.blog.util.CommonUtil;
-import com.iksling.blog.util.RegexUtil;
-import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionBackVO;
-import com.iksling.blog.vo.StatusBackVO;
-import com.iksling.blog.vo.UserBackVO;
-import com.iksling.blog.vo.UserVO;
+import com.iksling.blog.util.*;
+import com.iksling.blog.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.constant.FlagConst.DELETED;
+import static com.iksling.blog.constant.FlagConst.HIDDEN;
 import static com.iksling.blog.enums.FileEnum.*;
+import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
 
 /**
  *
@@ -51,12 +54,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private UserAuthMapper userAuthMapper;
     @Autowired
     private UserRoleMapper userRoleMapper;
+    @Autowired
+    private MultiFileMapper multiFileMapper;
 
     @Autowired
     private MultiFileService multiFileService;
 
     @Autowired
     private SessionRegistry sessionRegistry;
+    @Resource
+    private HttpServletRequest request;
 
     @Override
     @Transactional
@@ -145,12 +152,67 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             if (user.getAvatar() != null) {
                 if (!user.getAvatar().startsWith(STATIC_RESOURCE_URL))
                     user.setAvatar("");
-                multiFileService.updateUserAvatarBy(loginUserId, avatar.split(STATIC_RESOURCE_URL)[1], updateTime);
+                updateUserAvatarBy(loginUserId, avatar.split(STATIC_RESOURCE_URL)[1], updateTime);
             }
             user.setUpdateUser(loginUserId);
             user.setUpdateTime(updateTime);
             userMapper.updateById(user);
         }
+    }
+
+    @Override
+    @Transactional
+    public String saveUserAvatarBackVO(UserAvatarBackVO userAvatarBackVO) {
+        MultipartFile file = userAvatarBackVO.getFile();
+        if (file.isEmpty())
+            throw new FileStatusException("文件不存在!");
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null)
+            throw new FileStatusException("文件解析异常!");
+        String extension = getSplitStringByIndex(originalFilename, "\\.", -1);
+        if (MultiFileUtil.checkNotValidFileType(extension, IMG_AVATAR.getType()))
+            throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
+        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_AVATAR.getSize(), IMG_AVATAR.getUnit()))
+            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_AVATAR.getSize() + IMG_AVATAR.getUnit() + "}");
+        Integer userId = userAvatarBackVO.getUserId();
+        LoginUser loginUser = UserUtil.getLoginUser();
+        if (userId == null)
+            userId = loginUser.getUserId();
+        else if (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(userId))
+            throw new OperationStatusException();
+        Integer count = userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
+                .eq(UserAuth::getUserId, userId)
+                .eq(UserAuth::getDeletedFlag, false));
+        if (count != 1)
+            throw new OperationStatusException();
+        long fileName = IdWorker.getId();
+        String targetAddr = userId + "/" + IMG_AVATAR.getPath();
+        String fullFileName = fileName + "." + extension;
+        String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
+        if (url == null)
+            throw new FileStatusException("文件上传失败!");
+        userAvatarBackVO.setFile(null);
+        List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId)
+                .eq(MultiFile::getUserId, userId)
+                .eq(MultiFile::getFileName, IMG_AVATAR.getCurrentPath()));
+        String iPAddress = IpUtil.getIpAddress(request);
+        multiFileMapper.insert(MultiFile.builder()
+                .userId(userId)
+                .parentId((Integer) objectList.get(0))
+                .fileDesc("{'userId':"+userId+"}")
+                .fileMark(IMG_AVATAR.getCurrentPath().intValue())
+                .fileName(fileName)
+                .fileSize(file.getSize())
+                .fileFullPath(targetAddr + "/" + fullFileName)
+                .fileExtension(extension)
+                .fileNameOrigin(originalFilename)
+                .ipSource(IpUtil.getIpSource(iPAddress))
+                .ipAddress(iPAddress)
+                .createUser(loginUser.getUserId())
+                .createTime(new Date())
+                .build());
+        return url;
     }
 
     @Override
@@ -169,6 +231,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     @Transactional
+    public void updateBackUserAvatarsByFileNameList(List<Long> fileNameList) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId, MultiFile::getFileFullPath, MultiFile::getFileExtension)
+                .in(MultiFile::getFileName, fileNameList)
+                .eq(MultiFile::getFileMark, IMG_AVATAR.getCurrentPath())
+                .eq(MultiFile::getDeletedFlag, false)
+                .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUser.getUserId()));
+        if (mapList.size() != fileNameList.size())
+            throw new OperationStatusException();
+        mapList.forEach(e -> {
+            long fileNameNew = IdWorker.getId();
+            String fileFullPath = e.get("file_full_path").toString();
+            String fileFullPathOld = getSplitStringByIndex(fileFullPath, "[_.]", 0);
+            String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + DELETED + "." + e.get("file_extension");
+            multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+                    .set(MultiFile::getFileNameNew, fileNameNew)
+                    .set(MultiFile::getFileFullPath, fileFullPathNew)
+                    .set(MultiFile::getDeletedFlag, true)
+                    .set(MultiFile::getUpdateUser, loginUser.getUserId())
+                    .set(MultiFile::getUpdateTime, new Date())
+                    .eq(MultiFile::getId, e.get("id")));
+            MultiFileUtil.rename(fileFullPath, fileFullPathNew);
+        });
+    }
+
+    @Override
+    @Transactional
     public void updateUserVO(UserVO userVO) {
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
         userMapper.update(null, new LambdaUpdateWrapper<User>()
@@ -179,6 +269,66 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .set(User::getUpdateUser, loginUserId)
                 .set(User::getUpdateTime, new Date())
                 .eq(User::getId, loginUserId));
+    }
+
+
+
+    @Override
+    @Transactional
+    public String updateUserAvatarVO(UserAvatarVO userAvatarVO) {
+        MultipartFile file = userAvatarVO.getFile();
+        if (file.isEmpty())
+            throw new FileStatusException("文件不存在!");
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null)
+            throw new FileStatusException("文件解析异常!");
+        String extension = getSplitStringByIndex(originalFilename, "\\.", -1);
+        if (MultiFileUtil.checkNotValidFileType(extension, IMG_AVATAR.getType()))
+            throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
+        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_AVATAR.getSize(), IMG_AVATAR.getUnit()))
+            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_AVATAR.getSize() + IMG_AVATAR.getUnit() + "}");
+        long fileName = IdWorker.getId();
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
+        String targetAddr = loginUserId + "/" + IMG_AVATAR.getPath();
+        String fullFileName = fileName + "." + extension;
+        String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
+        if (url == null)
+            throw new FileStatusException("文件上传失败!");
+        userAvatarVO.setFile(null);
+        Date dateTime = new Date();
+        List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getFileFullPath)
+                .eq(MultiFile::getUserId, loginUserId)
+                .eq(MultiFile::getFileMark, IMG_AVATAR.getCurrentPath())
+                .eq(MultiFile::getDeletedFlag, false));
+        if (!objectList.isEmpty())
+            updateUserAvatarBy(loginUserId, objectList.get(0).toString(), dateTime);
+        userMapper.update(null, new LambdaUpdateWrapper<User>()
+                .set(User::getAvatar, url)
+                .set(User::getUpdateUser, loginUserId)
+                .set(User::getUpdateTime, dateTime)
+                .eq(User::getId, loginUserId));
+        objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId)
+                .eq(MultiFile::getUserId, loginUserId)
+                .eq(MultiFile::getFileName, IMG_AVATAR.getCurrentPath()));
+        String iPAddress = IpUtil.getIpAddress(request);
+        multiFileMapper.insert(MultiFile.builder()
+                .userId(loginUserId)
+                .parentId((Integer) objectList.get(0))
+                .fileDesc("{'userId':"+loginUserId+"}")
+                .fileMark(IMG_AVATAR.getCurrentPath().intValue())
+                .fileName(fileName)
+                .fileSize(file.getSize())
+                .fileFullPath(targetAddr + "/" + fullFileName)
+                .fileExtension(extension)
+                .fileNameOrigin(originalFilename)
+                .ipSource(IpUtil.getIpSource(iPAddress))
+                .ipAddress(iPAddress)
+                .createUser(loginUserId)
+                .createTime(dateTime)
+                .build());
+        return url;
     }
 
     @Override
@@ -234,6 +384,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<Integer> idList = onlineUserIdList.subList(current, size);
         List<UserOnlinesBackDTO> userOnlinesBackDTOList = userMapper.selectUserOnlinesBackDTO(idList);
         return new PagePojo<>(count, userOnlinesBackDTOList);
+    }
+
+    private void updateUserAvatarBy(Integer loginUserId, String fileFullPath, Date updateTime) {
+        long fileNameNew = IdWorker.getId();
+        String[] pathArr = fileFullPath.split("\\.");
+        String fileFullPathOld = pathArr[0];
+        String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + HIDDEN + "." + pathArr[pathArr.length - 1];
+        multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+                .set(MultiFile::getFileNameNew, fileNameNew)
+                .set(MultiFile::getFileFullPath, fileFullPathNew)
+                .set(MultiFile::getDeletedFlag, true)
+                .set(MultiFile::getHiddenFlag, true)
+                .set(MultiFile::getUpdateUser, loginUserId)
+                .set(MultiFile::getUpdateTime, updateTime)
+                .eq(MultiFile::getFileName, getSplitStringByIndex(fileFullPathOld, "/", -1)));
+        MultiFileUtil.rename(fileFullPathOld, fileFullPathNew);
     }
 }
 

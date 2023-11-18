@@ -2,37 +2,31 @@ package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.ArticleBackDTO;
 import com.iksling.blog.dto.ArticleOptionBackDTO;
 import com.iksling.blog.dto.ArticlesBackDTO;
 import com.iksling.blog.dto.LabelBackDTO;
-import com.iksling.blog.entity.Article;
-import com.iksling.blog.entity.ArticleTag;
-import com.iksling.blog.entity.Category;
-import com.iksling.blog.entity.Tag;
+import com.iksling.blog.entity.*;
+import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
-import com.iksling.blog.mapper.ArticleMapper;
-import com.iksling.blog.mapper.ArticleTagMapper;
-import com.iksling.blog.mapper.CategoryMapper;
-import com.iksling.blog.mapper.TagMapper;
+import com.iksling.blog.mapper.*;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.service.ArticleTagService;
-import com.iksling.blog.service.MultiFileService;
-import com.iksling.blog.util.BeanCopyUtil;
-import com.iksling.blog.util.CommonUtil;
-import com.iksling.blog.util.IpUtil;
-import com.iksling.blog.util.UserUtil;
+import com.iksling.blog.util.*;
 import com.iksling.blog.vo.ArticleBackVO;
+import com.iksling.blog.vo.ArticleImageBackVO;
 import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +37,8 @@ import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.FlagConst.*;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_LIKE_COUNT;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_VIEW_COUNT;
+import static com.iksling.blog.enums.FileEnum.IMG_ARTICLE;
+import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
 
 /**
  *
@@ -59,15 +55,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     private CategoryMapper categoryMapper;
     @Autowired
     private ArticleTagMapper articleTagMapper;
-
     @Autowired
-    private MultiFileService multiFileService;
+    private MultiFileMapper multiFileMapper;
+
     @Autowired
     private ArticleTagService articleTagService;
 
     @Autowired
     private RedisTemplate redisTemplate;
-
     @Resource
     private HttpServletRequest request;
 
@@ -103,7 +98,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             if (CommonUtil.isNotEmpty(article.getArticleCover()) && !article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                 article.setArticleCover(null);
             articleMapper.insert(article);
-            multiFileService.saveArticleDirById(article.getId(), loginUserId, dateTime);
+            saveArticleDirById(article.getId(), loginUserId, dateTime);
         } else {
             Article articleOrigin = articleMapper.selectOne(new LambdaQueryWrapper<Article>()
                     .select(Article::getUserId, Article::getPublishUser, Article::getArticleCover)
@@ -124,7 +119,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             if (article.getArticleCover() != null) {
                 if (!article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                     article.setArticleCover("");
-                multiFileService.updateArticleImageBy(loginUserId, article.getId(), article.getArticleCover().split(STATIC_RESOURCE_URL)[1], dateTime);
+                updateArticleImageBy(loginUserId, article.getId(), article.getArticleCover().split(STATIC_RESOURCE_URL)[1], dateTime);
             }
             if (articleBackVO.getTagIdList() != null) {
                 articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
@@ -159,6 +154,63 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     @Transactional
+    public String saveArticleImageBackVO(ArticleImageBackVO articleImageBackVO) {
+        MultipartFile file = articleImageBackVO.getFile();
+        if (file.isEmpty())
+            throw new FileStatusException("文件不存在!");
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null)
+            throw new FileStatusException("文件解析异常!");
+        String extension = getSplitStringByIndex(originalFilename, "\\.", -1);
+        if (MultiFileUtil.checkNotValidFileType(extension, IMG_ARTICLE.getType()))
+            throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
+        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_ARTICLE.getSize(), IMG_ARTICLE.getUnit()))
+            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_ARTICLE.getSize() + IMG_ARTICLE.getUnit() + "}");
+        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer articleUserId = articleImageBackVO.getUserId();
+        if (articleUserId == null)
+            articleUserId = loginUser.getUserId();
+        else if (loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(articleUserId))
+            throw new OperationStatusException();
+        Integer articleId = articleImageBackVO.getArticleId();
+        Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
+                .eq(Article::getId, articleId)
+                .eq(Article::getUserId, articleUserId)
+                .eq(Article::getDeletedFlag, false)
+                .eq(Article::getRecycleFlag, false));
+        if (count != 1)
+            throw new OperationStatusException();
+        long fileName = IdWorker.getId();
+        String targetAddr = articleUserId + "/" + IMG_ARTICLE.getPath() + "/" + articleId;
+        String fullFileName = fileName + "." + extension;
+        String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
+        if (url == null)
+            throw new FileStatusException("文件上传失败!");
+        articleImageBackVO.setFile(null);
+        String iPAddress = IpUtil.getIpAddress(request);
+        List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId)
+                .eq(MultiFile::getFileName, articleId));
+        multiFileMapper.insert(MultiFile.builder()
+                .userId(articleUserId)
+                .parentId((Integer) objectList.get(0))
+                .fileDesc("{'userId':"+articleUserId+",'articleId':"+articleId+"}")
+                .fileMark(IMG_ARTICLE.getCurrentPath().intValue())
+                .fileName(fileName)
+                .fileSize(file.getSize())
+                .fileFullPath(targetAddr + "/" + fullFileName)
+                .fileExtension(extension)
+                .fileNameOrigin(originalFilename)
+                .ipSource(IpUtil.getIpSource(iPAddress))
+                .ipAddress(iPAddress)
+                .createUser(loginUser.getUserId())
+                .createTime(new Date())
+                .build());
+        return url;
+    }
+
+    @Override
+    @Transactional
     public void deleteBackArticlesByIdList(List<Integer> idList) {
         if (idList.isEmpty())
             throw new IllegalRequestException();
@@ -169,7 +221,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             throw new IllegalRequestException();
         articleTagMapper.delete(new LambdaUpdateWrapper<ArticleTag>()
                 .in(ArticleTag::getArticleId, idList));
-        multiFileService.deleteArticleDirByIdList(idList);
+        deleteArticleDirByIdList(idList);
     }
 
     @Override
@@ -221,8 +273,38 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     .set(ArticleTag::getDeletedFlag, true)
                     .eq(ArticleTag::getDeletedFlag, false)
                     .in(ArticleTag::getArticleId, statusBackVO.getIdList()));
-            multiFileService.updateArticleDirByIdList(statusBackVO.getIdList(), loginUser.getUserId(), new Date());
+            updateArticleDirByIdList(statusBackVO.getIdList(), loginUser.getUserId(), new Date());
         }
+    }
+
+    @Override
+    @Transactional
+    public void updateBackArticleImagesByFileNameList(List<Long> fileNameList) {
+        if (fileNameList.isEmpty())
+            throw new OperationStatusException();
+        LoginUser loginUser = UserUtil.getLoginUser();
+        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId, MultiFile::getFileFullPath, MultiFile::getFileExtension)
+                .in(MultiFile::getFileName, fileNameList)
+                .eq(MultiFile::getFileMark, IMG_ARTICLE.getCurrentPath())
+                .eq(MultiFile::getDeletedFlag, false)
+                .eq(loginUser.getRoleWeight() > 300, MultiFile::getUserId, loginUser.getUserId()));
+        if (mapList.size() != fileNameList.size())
+            throw new OperationStatusException();
+        mapList.forEach(e -> {
+            long fileNameNew = IdWorker.getId();
+            String fileFullPath = e.get("file_full_path").toString();
+            String fileFullPathOld = getSplitStringByIndex(fileFullPath, "[_.]", 0);
+            String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + DELETED + "." + e.get("file_extension");
+            multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+                    .set(MultiFile::getFileNameNew, fileNameNew)
+                    .set(MultiFile::getFileFullPath, fileFullPathNew)
+                    .set(MultiFile::getDeletedFlag, true)
+                    .set(MultiFile::getUpdateUser, loginUser.getUserId())
+                    .set(MultiFile::getUpdateTime, new Date())
+                    .eq(MultiFile::getId, e.get("id")));
+            MultiFileUtil.rename(fileFullPath, fileFullPathNew);
+        });
     }
 
     @Override
@@ -281,6 +363,73 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             e.setLikeCount(Objects.requireNonNull(likeCountMap).get(e.getId().toString()));
         });
         return new PagePojo<>(count, articlesBackDTOList);
+    }
+
+    private void updateArticleImageBy(Integer loginUserId, Integer articleId, String fileFullPath, Date updateTime) {
+        long fileNameNew = IdWorker.getId();
+        String[] pathArr = fileFullPath.split("[_.]");
+        String fileFullPathOld = pathArr[0];
+        String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + DELETED + "." + pathArr[pathArr.length - 1];
+        multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+                .set(MultiFile::getFileNameNew, fileNameNew)
+                .set(MultiFile::getFileFullPath, fileFullPathNew)
+                .set(MultiFile::getDeletedFlag, true)
+                .set(MultiFile::getUpdateUser, loginUserId)
+                .set(MultiFile::getUpdateTime, updateTime)
+                .eq(MultiFile::getFileName, getSplitStringByIndex(fileFullPathOld, "/", -1))
+                .inSql(MultiFile::getParentId, "select id from tb_multi_file where file_name="+articleId));
+        MultiFileUtil.rename(fileFullPathOld, fileFullPathNew);
+    }
+
+    private void saveArticleDirById(Integer id, Integer loginUserId, Date createTime) {
+        List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId)
+                .eq(MultiFile::getUserId, loginUserId)
+                .eq(MultiFile::getFileName, IMG_ARTICLE.getCurrentPath()));
+        multiFileMapper.insert(MultiFile.builder()
+                .userId(loginUserId)
+                .parentId((Integer) objectList.get(0))
+                .fileDesc("{'articleId':"+id+"}")
+                .fileName(Long.valueOf(id))
+                .fileFullPath(loginUserId + "/" + IMG_ARTICLE.getPath() + "/" + id)
+                .fileNameOrigin(id.toString())
+                .deletableFlag(true)
+                .createUser(loginUserId)
+                .createTime(createTime)
+                .build());
+    }
+
+    private void updateArticleDirByIdList(List<Integer> idList, Integer loginUserId, Date updateTime) {
+        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId, MultiFile::getFileFullPath)
+                .in(MultiFile::getFileName, idList));
+        mapList.forEach(e -> {
+            long fileNameNew = IdWorker.getId();
+            String fileFullPath = e.get("file_full_path").toString();
+            String fileFullPathOld = getSplitStringByIndex(fileFullPath, "_", 0);
+            String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + DELETED;
+            multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+                    .set(MultiFile::getFileNameNew, fileNameNew)
+                    .set(MultiFile::getFileFullPath, fileFullPathNew)
+                    .set(MultiFile::getDeletedFlag, true)
+                    .set(MultiFile::getUpdateUser, loginUserId)
+                    .set(MultiFile::getUpdateTime, updateTime)
+                    .eq(MultiFile::getId, e.get("id")));
+            MultiFileUtil.rename(fileFullPath, fileFullPathNew);
+        });
+    }
+
+    private void deleteArticleDirByIdList(List<Integer> idList) {
+        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId, MultiFile::getFileFullPath)
+                .in(MultiFile::getFileName, idList));
+        mapList.forEach(e -> {
+            multiFileMapper.delete(new LambdaUpdateWrapper<MultiFile>()
+                    .eq(MultiFile::getId, e.get("id"))
+                    .or()
+                    .eq(MultiFile::getParentId, e.get("id")));
+            MultiFileUtil.delete(e.get("file_full_path").toString());
+        });
     }
 }
 

@@ -16,11 +16,17 @@ public interface UserService extends IService<User> {
 
     void saveOrUpdateUserBackVO(UserBackVO userBackVO);
 
+    String saveUserAvatarBackVO(UserAvatarBackVO userAvatarBackVO);
+
     void deleteBackUserByIdList(List<Integer> idList);
 
     void updateUsersStatusBackVO(StatusBackVO statusBackVO);
 
+    void updateBackUserAvatarsByFileNameList(List<Long> fileNameList);
+
     void updateUserVO(UserVO userVO);
+
+    String updateUserAvatarVO(UserAvatarVO userAvatarVO);
 
     PagePojo<UsersBackDTO> getUsersBackDTO(ConditionBackVO condition);
 

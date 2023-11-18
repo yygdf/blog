@@ -5,6 +5,7 @@ import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.vo.ArticleBackVO;
+import com.iksling.blog.vo.ArticleImageBackVO;
 import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import io.swagger.annotations.Api;
@@ -33,6 +34,14 @@ public class ArticleController {
         return Result.success().message("操作成功").data(articleService.saveOrUpdateArticleBackVO(articleBackVO));
     }
 
+    @OptLog(optType = UPLOAD)
+    @ApiOperation(value = "上传文章图片")
+    @ApiImplicitParam(name = "articleImageBackVO", value = "文章图片后台VO", required = true, dataType = "ArticleImageBackVO")
+    @PostMapping("/back/article/image")
+    public Result saveBackArticleImage(@Valid ArticleImageBackVO articleImageBackVO) {
+        return Result.success().message("上传成功").data(articleService.saveArticleImageBackVO(articleImageBackVO));
+    }
+
     @OptLog(optType = REMOVE)
     @ApiOperation(value = "物理批量删除文章")
     @ApiImplicitParam(name = "idList", value = "idList", required = true, dataType = "List<Integer>")
@@ -57,6 +66,15 @@ public class ArticleController {
     @PutMapping("/back/articles/status")
     public Result updateBackArticlesStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         articleService.updateArticlesStatusBackVO(statusBackVO);
+        return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "批量更新文章图片状态")
+    @ApiImplicitParam(name = "fileNameList", value = "文件名list", required = true, dataType = "List<Long>")
+    @PutMapping("/back/article/images")
+    public Result updateBackArticleImages(@RequestBody List<Long> fileNameList) {
+        articleService.updateBackArticleImagesByFileNameList(fileNameList);
         return Result.success().message("操作成功");
     }
 

@@ -152,7 +152,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             if (user.getAvatar() != null) {
                 if (!user.getAvatar().startsWith(STATIC_RESOURCE_URL))
                     user.setAvatar("");
-                updateUserAvatarBy(loginUserId, avatar.split(STATIC_RESOURCE_URL)[1], updateTime);
+                if (!avatar.equals(""))
+                    updateUserAvatarBy(loginUserId, avatar.split(STATIC_RESOURCE_URL)[1], updateTime);
             }
             user.setUpdateUser(loginUserId);
             user.setUpdateTime(updateTime);
@@ -399,7 +400,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .set(MultiFile::getUpdateUser, loginUserId)
                 .set(MultiFile::getUpdateTime, updateTime)
                 .eq(MultiFile::getFileName, getSplitStringByIndex(fileFullPathOld, "/", -1)));
-        MultiFileUtil.rename(fileFullPathOld, fileFullPathNew);
+        MultiFileUtil.rename(fileFullPath, fileFullPathNew);
     }
 }
 

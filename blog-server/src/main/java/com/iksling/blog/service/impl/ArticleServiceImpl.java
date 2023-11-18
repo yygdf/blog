@@ -119,7 +119,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             if (article.getArticleCover() != null) {
                 if (!article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
                     article.setArticleCover("");
-                updateArticleImageBy(loginUserId, article.getId(), article.getArticleCover().split(STATIC_RESOURCE_URL)[1], dateTime);
+                if (!articleOrigin.getArticleCover().equals(""))
+                    updateArticleImageBy(loginUserId, article.getId(), articleOrigin.getArticleCover().split(STATIC_RESOURCE_URL)[1], dateTime);
             }
             if (articleBackVO.getTagIdList() != null) {
                 articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
@@ -377,7 +378,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .set(MultiFile::getUpdateUser, loginUserId)
                 .set(MultiFile::getUpdateTime, updateTime)
                 .eq(MultiFile::getFileName, getSplitStringByIndex(fileFullPathOld, "/", -1))
-                .inSql(MultiFile::getParentId, "select id from tb_multi_file where file_name="+articleId));
+                .inSql(MultiFile::getParentId, "select mf.id from (select id from tb_multi_file where file_name="+articleId+") mf"));
         MultiFileUtil.rename(fileFullPathOld, fileFullPathNew);
     }
 

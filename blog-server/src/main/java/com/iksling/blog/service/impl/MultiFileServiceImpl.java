@@ -109,17 +109,18 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             mapList.forEach(e -> {
                 long fileNameNew = IdWorker.getId();
                 String fileFullPath = e.get("file_full_path").toString();
-                String fileFullPathOld = getSplitStringByIndex(fileFullPath, "[_.]", 0);
+                String fileFullName = getSplitStringByIndex(fileFullPath, "/", -1);
+                String fileFullPathOld = fileFullPath.substring(0, fileFullPath.length() - fileFullName.length()) + getSplitStringByIndex(fileFullName, "[_.]", 0);
                 String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_";
                 if (e.get("hidden_flag").equals(false)) {
-                    fileFullPathNew += fileFullPathNew  + HIDDEN;
+                    fileFullPathNew += HIDDEN;
                     if (e.get("file_mark").equals(0)) {
                         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                 .set(MultiFile::getFileNameNew, fileNameNew)
                                 .set(MultiFile::getHiddenFlag, true)
                                 .eq(MultiFile::getId, e.get("id")));
                         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
-                                .setSql("file_full_path=replace(file_full_path,"+fileFullPath+","+fileFullPathNew+")")
+                                .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                                 .likeRight(MultiFile::getFileFullPath, fileFullPath));
                     } else {
                         fileFullPathNew += "." + e.get("file_extension");
@@ -130,17 +131,17 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                                 .eq(MultiFile::getId, e.get("id")));
                     }
                 } else if (e.get("public_flag").equals(false)) {
-                    fileFullPathNew += fileFullPathNew + PUBLIC;
+                    fileFullPathNew += PUBLIC;
                     if (e.get("file_mark").equals(0)) {
                         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                 .set(MultiFile::getFileNameNew, fileNameNew)
                                 .set(MultiFile::getHiddenFlag, false)
                                 .eq(MultiFile::getId, e.get("id")));
                         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
-                                .setSql("file_full_path=replace(file_full_path,"+fileFullPath+","+fileFullPathNew+")")
+                                .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                                 .likeRight(MultiFile::getFileFullPath, fileFullPath));
                     } else {
-                        fileFullPathNew += fileFullPathNew + "." + e.get("file_extension");
+                        fileFullPathNew += "." + e.get("file_extension");
                         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                 .set(MultiFile::getFileFullPath, fileFullPathNew)
                                 .set(MultiFile::getFileNameNew, fileNameNew)
@@ -154,7 +155,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                                 .set(MultiFile::getHiddenFlag, false)
                                 .eq(MultiFile::getId, e.get("id")));
                         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
-                                .setSql("file_full_path=replace(file_full_path,"+fileFullPath+","+fileFullPathNew+")")
+                                .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                                 .likeRight(MultiFile::getFileFullPath, fileFullPath));
                     } else {
                         fileFullPathNew = fileFullPathOld + "." + e.get("file_extension");
@@ -171,7 +172,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 if (e.get("hidden_flag").equals(false)) {
                     long fileNameNew = IdWorker.getId();
                     String fileFullPath = e.get("file_full_path").toString();
-                    String fileFullPathOld = getSplitStringByIndex(fileFullPath, "[_.]", 0);
+                    String fileFullName = getSplitStringByIndex(fileFullPath, "/", -1);
+                    String fileFullPathOld = fileFullPath.substring(0, fileFullPath.length() - fileFullName.length()) + getSplitStringByIndex(fileFullName, "[_.]", 0);
                     String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + PUBLIC;
                     if (e.get("public_flag").equals(true)) {
                         if (e.get("file_mark").equals(0)) {
@@ -180,10 +182,10 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                                     .set(MultiFile::getPublicFlag, false)
                                     .eq(MultiFile::getId, e.get("id")));
                             multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
-                                    .setSql("file_full_path=replace(file_full_path,"+fileFullPath+","+fileFullPathNew+")")
+                                    .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                                     .likeRight(MultiFile::getFileFullPath, fileFullPath));
                         } else {
-                            fileFullPathNew += fileFullPathNew + "." + e.get("file_extension");
+                            fileFullPathNew += "." + e.get("file_extension");
                             multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                     .set(MultiFile::getFileFullPath, fileFullPathNew)
                                     .set(MultiFile::getFileNameNew, fileNameNew)
@@ -197,7 +199,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                                     .set(MultiFile::getPublicFlag, true)
                                     .eq(MultiFile::getId, e.get("id")));
                             multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
-                                    .setSql("file_full_path=replace(file_full_path,"+fileFullPath+","+fileFullPathNew+")")
+                                    .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                                     .likeRight(MultiFile::getFileFullPath, fileFullPath));
                         } else {
                             fileFullPathNew = fileFullPathOld + "." + e.get("file_extension");
@@ -210,7 +212,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                     MultiFileUtil.rename(fileFullPath, fileFullPathNew);
                 } else {
                     multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
-                            .setSql("public_flag=!public_flag")
+                            .setSql("public_flag = !public_flag")
                             .eq(MultiFile::getId, e.get("id")));
                 }
             });
@@ -237,10 +239,12 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             lambdaQueryWrapper.like(MultiFile::getFileNameOrigin, condition.getKeywords());
         List<MultiFile> multiFileList = multiFileMapper.selectList(lambdaQueryWrapper
                 .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getFileDesc,
-                        MultiFile::getFileSize, MultiFile::getFileCover,
-                        MultiFile::getFileFullPath, MultiFile::getFileExtension, MultiFile::getFileNameOrigin,
-                        MultiFile::getPublicFlag, MultiFile::getHiddenFlag,MultiFile::getCreateTime,
-                        MultiFile::getUpdateTime));
+                        MultiFile::getFileSize, MultiFile::getFileCover, MultiFile::getFileFullPath,
+                        MultiFile::getFileExtension, MultiFile::getFileNameOrigin, MultiFile::getPublicFlag,
+                        MultiFile::getHiddenFlag, MultiFile::getDeletableFlag, MultiFile::getCreateTime,
+                        MultiFile::getUpdateTime)
+                .orderByDesc(MultiFile::getFileMark)
+                .orderByDesc(MultiFile::getId));
         return  multiFileList.stream()
                 .map(e -> {
                     MultiFilesBackDTO multiFilesBackDTO = BeanCopyUtil.copyObject(e, MultiFilesBackDTO.class);
@@ -255,13 +259,15 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         LoginUser loginUser = UserUtil.getLoginUser();
         List<MultiFile> multiFileList = multiFileMapper.selectList(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getFileDesc,
-                        MultiFile::getFileSize, MultiFile::getFileCover,
-                        MultiFile::getFileFullPath, MultiFile::getFileExtension, MultiFile::getFileNameOrigin,
-                        MultiFile::getPublicFlag, MultiFile::getHiddenFlag, MultiFile::getCreateTime,
+                        MultiFile::getFileSize, MultiFile::getFileCover, MultiFile::getFileFullPath,
+                        MultiFile::getFileExtension, MultiFile::getFileNameOrigin, MultiFile::getPublicFlag,
+                        MultiFile::getHiddenFlag, MultiFile::getDeletableFlag, MultiFile::getCreateTime,
                         MultiFile::getUpdateTime)
                 .eq(loginUser.getRoleWeight() > 100, MultiFile::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUser.getUserId())
-                .eq(MultiFile::getParentId, id));
+                .eq(MultiFile::getParentId, id)
+                .orderByDesc(MultiFile::getFileMark)
+                .orderByDesc(MultiFile::getId));
         return  multiFileList.stream()
                 .map(e -> {
                     MultiFilesBackDTO multiFilesBackDTO = BeanCopyUtil.copyObject(e, MultiFilesBackDTO.class);

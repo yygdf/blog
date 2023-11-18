@@ -127,10 +127,9 @@
         </template>
       </el-table-column>
       <el-table-column prop="publicFlag" label="公开" align="center" width="80">
-        <template v-if="scope.row.fileMark === 0" slot-scope="scope">
+        <template v-if="scope.row.deletableFlag" slot-scope="scope">
           <el-switch
             v-model="scope.row.publicFlag"
-            :disabled="!scope.row.deletableFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"
@@ -140,10 +139,9 @@
         </template>
       </el-table-column>
       <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
-        <template v-if="scope.row.fileMark === 0" slot-scope="scope">
+        <template v-if="scope.row.deletableFlag" slot-scope="scope">
           <el-switch
             v-model="scope.row.hiddenFlag"
-            :disabled="!scope.row.deletableFlag"
             :active-value="true"
             :inactive-value="false"
             active-color="#13ce66"

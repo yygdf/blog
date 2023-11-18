@@ -57,6 +57,11 @@ public class MultiFilesBackDTO {
     private Boolean hiddenFlag;
 
     /**
+     * 0不可删除, 1可删除
+     */
+    private Boolean deletableFlag;
+
+    /**
      * 创建时间
      */
     private Date createTime;

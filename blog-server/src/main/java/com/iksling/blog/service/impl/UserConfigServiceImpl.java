@@ -53,7 +53,9 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
         LoginUser loginUser = UserUtil.getLoginUser();
         LambdaUpdateWrapper<UserConfig> lambdaUpdateWrapper = new LambdaUpdateWrapper<UserConfig>()
                 .in(UserConfig::getId, statusBackVO.getIdList())
-                .notIn(loginUser.getRoleWeight() > 100, UserConfig::getUserId, ROOT_USER_ID_LIST);
+                .and(loginUser.getRoleWeight() > 100, e -> e.eq(UserConfig::getDeletedFlag, false).notIn(loginUser.getRoleWeight() > 100, UserConfig::getUserId, ROOT_USER_ID_LIST))
+                .set(UserConfig::getUpdateUser, loginUser.getUserId())
+                .set(UserConfig::getUpdateTime, new Date());
         if (DELETED.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();

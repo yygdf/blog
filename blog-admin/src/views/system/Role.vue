@@ -95,7 +95,7 @@
             <i class="el-icon-folder-opened" /> 资源权限
           </el-button>
           <el-button
-            type="primary"
+            type="warning"
             size="mini"
             class="smaller-btn"
             @click="openModel(scope.row)"

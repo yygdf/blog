@@ -202,6 +202,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .fileFullPath(targetAddr + "/" + fullFileName)
                 .fileExtension(extension)
                 .fileNameOrigin(originalFilename)
+                .deletableFlag(false)
                 .ipSource(IpUtil.getIpSource(iPAddress))
                 .ipAddress(iPAddress)
                 .createUser(loginUser.getUserId())
@@ -250,10 +251,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Transactional
     public void updateArticlesStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
+        Date updateTime = new Date();
         LambdaUpdateWrapper<Article> lambdaUpdateWrapper = new LambdaUpdateWrapper<Article>()
                 .eq(loginUser.getRoleWeight() > 100, Article::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
-                .in(Article::getId, statusBackVO.getIdList());
+                .in(Article::getId, statusBackVO.getIdList())
+                .set(Article::getUpdateUser, loginUser.getUserId())
+                .set(Article::getUpdateTime, updateTime);
         if (RECYCLE.equals(statusBackVO.getType())) {
             if (statusBackVO.getStatus() == Boolean.TRUE)
                 lambdaUpdateWrapper.set(Article::getRecycleFlag, false);
@@ -274,7 +278,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     .set(ArticleTag::getDeletedFlag, true)
                     .eq(ArticleTag::getDeletedFlag, false)
                     .in(ArticleTag::getArticleId, statusBackVO.getIdList()));
-            updateArticleDirByIdList(statusBackVO.getIdList(), loginUser.getUserId(), new Date());
+            updateArticleDirByIdList(statusBackVO.getIdList(), loginUser.getUserId(), updateTime);
         }
     }
 
@@ -394,7 +398,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .fileName(Long.valueOf(id))
                 .fileFullPath(loginUserId + "/" + IMG_ARTICLE.getPath() + "/" + id)
                 .fileNameOrigin(id.toString())
-                .deletableFlag(true)
+                .deletableFlag(false)
                 .createUser(loginUserId)
                 .createTime(createTime)
                 .build());
@@ -416,6 +420,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     .set(MultiFile::getUpdateUser, loginUserId)
                     .set(MultiFile::getUpdateTime, updateTime)
                     .eq(MultiFile::getId, e.get("id")));
+            multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+                    .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
+                    .eq(MultiFile::getParentId, e.get("id")));
             MultiFileUtil.rename(fileFullPath, fileFullPathNew);
         });
     }

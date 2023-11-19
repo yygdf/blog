@@ -79,8 +79,13 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="openModel(scope.row)">
-            编辑
+          <el-button
+            type="primary"
+            size="mini"
+            class="smaller-btn"
+            @click="openModel(scope.row)"
+          >
+            <i class="el-icon-edit" /> 编辑
           </el-button>
           <el-popconfirm
             title="确定彻底删除吗？"
@@ -92,8 +97,9 @@
               size="mini"
               type="danger"
               slot="reference"
+              class="smaller-btn"
             >
-              删除
+              <i class="el-icon-delete" /> 删除
             </el-button>
           </el-popconfirm>
         </template>

@@ -175,9 +175,10 @@
             :disabled="checkRootUser(scope.row.userId)"
             type="primary"
             size="mini"
+            class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            编辑
+            <i class="el-icon-edit" /> 编辑
           </el-button>
         </template>
       </el-table-column>

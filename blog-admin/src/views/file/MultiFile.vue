@@ -127,7 +127,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="publicFlag" label="公开" align="center" width="80">
-        <template v-if="scope.row.deletableFlag" slot-scope="scope">
+        <template slot-scope="scope">
           <el-switch
             v-model="scope.row.publicFlag"
             :active-value="true"
@@ -139,7 +139,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
-        <template v-if="scope.row.deletableFlag" slot-scope="scope">
+        <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hiddenFlag"
             :active-value="true"
@@ -153,24 +153,6 @@
       <el-table-column label="操作" align="center" width="240">
         <template slot-scope="scope">
           <el-button
-            :disabled="!scope.row.deletableFlag || scope.row.fileMark !== 0"
-            type="primary"
-            size="mini"
-            class="smaller-btn"
-            @click="openModel(scope.row, true)"
-          >
-            <i class="el-icon-plus" /> 新增
-          </el-button>
-          <el-button
-            :disabled="!scope.row.deletableFlag || scope.row.fileMark !== 0"
-            type="primary"
-            size="mini"
-            class="smaller-btn"
-            @click="openModel(scope.row)"
-          >
-            <i class="el-icon-plus" /> 上传
-          </el-button>
-          <el-button
             v-if="type !== 7"
             :disabled="!scope.row.deletableFlag"
             type="primary"
@@ -178,12 +160,11 @@
             class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            编辑
+            <i class="el-icon-edit" /> 编辑
           </el-button>
           <el-popconfirm
             v-else
             title="确定恢复吗？"
-            style="margin-left:10px"
             @confirm="updateMultiFilesStatus(scope.row.id)"
           >
             <el-button
@@ -192,7 +173,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              恢复
+              <i class="el-icon-refresh-left" /> 恢复
             </el-button>
           </el-popconfirm>
           <el-popconfirm
@@ -208,7 +189,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              删除
+              <i class="el-icon-delete" /> 删除
             </el-button>
           </el-popconfirm>
           <el-popconfirm
@@ -223,9 +204,44 @@
               slot="reference"
               class="smaller-btn"
             >
-              删除
+              <i class="el-icon-delete" /> 删除
             </el-button>
           </el-popconfirm>
+          <el-dropdown style="margin-left:10px">
+            <el-button type="primary" size="mini" class="smaller-btn">
+              更多操作<i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item
+                v-if="!scope.row.fileExtension"
+                :disabled="!scope.row.deletableFlag"
+                icon="el-icon-plus"
+                @click.native="openModel(scope.row)"
+              >
+                新增
+              </el-dropdown-item>
+              <el-dropdown-item
+                v-if="!scope.row.fileExtension"
+                :disabled="!scope.row.deletableFlag"
+                icon="el-icon-upload2"
+              >
+                上传
+              </el-dropdown-item>
+              <el-dropdown-item
+                v-if="scope.row.fileExtension"
+                icon="el-icon-link"
+                @click.native="copyUrl(scope.row.fileFullPath)"
+              >
+                复制
+              </el-dropdown-item>
+              <el-dropdown-item
+                icon="el-icon-lock"
+                @click.native="openModel(scope.row)"
+              >
+                口令
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </template>
       </el-table-column>
     </el-table>
@@ -310,9 +326,19 @@ export default {
   },
   methods: {
     load(tree, treeNode, resolve) {
-      this.axios.get("/api/back/multiFiles/" + tree.id).then(({ data }) => {
-        resolve(data.data);
-      });
+      let params = {
+        type: this.type,
+        keywords: this.keywords
+      };
+      params = this.$commonMethod.skipEmptyValue(params);
+      params.categoryId = tree.id;
+      this.axios
+        .get("/api/back/multiFiles", {
+          params
+        })
+        .then(({ data }) => {
+          resolve(data.data.dataList);
+        });
     },
     openModel(multiFile, flag = false) {
       if (multiFile != null) {
@@ -349,6 +375,18 @@ export default {
     },
     checkWeight(weight) {
       return this.$store.state.weight <= weight;
+    },
+    copyUrl(url) {
+      const input = document.createElement("input");
+      input.value = this.staticResourceUrl + url;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+      this.$notify.success({
+        title: "成功",
+        message: "复制成功"
+      });
     },
     selectionChange(multiFileList) {
       this.multiFileIdList = [];

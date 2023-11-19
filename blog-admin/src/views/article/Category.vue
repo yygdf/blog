@@ -164,9 +164,10 @@
             :disabled="type != null"
             type="primary"
             size="mini"
+            class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            编辑
+            <i class="el-icon-edit" /> 编辑
           </el-button>
           <el-popconfirm
             v-if="type !== 7"
@@ -179,8 +180,9 @@
               type="danger"
               size="mini"
               slot="reference"
+              class="smaller-btn"
             >
-              删除
+              <i class="el-icon-delete" /> 删除
             </el-button>
           </el-popconfirm>
           <el-popconfirm
@@ -189,8 +191,13 @@
             style="margin-left:10px"
             @confirm="deleteCategories(scope.row.id)"
           >
-            <el-button type="danger" size="mini" slot="reference">
-              删除
+            <el-button
+              type="danger"
+              size="mini"
+              slot="reference"
+              class="smaller-btn"
+            >
+              <i class="el-icon-delete" /> 删除
             </el-button>
           </el-popconfirm>
         </template>

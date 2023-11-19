@@ -118,8 +118,9 @@
               type="success"
               size="mini"
               slot="reference"
+              class="smaller-btn"
             >
-              恢复
+              <i class="el-icon-refresh-left" /> 恢复
             </el-button>
           </el-popconfirm>
           <el-popconfirm
@@ -128,8 +129,13 @@
             style="margin-left:10px"
             @confirm="updateMessagesStatus(scope.row.id)"
           >
-            <el-button type="danger" size="mini" slot="reference">
-              删除
+            <el-button
+              type="danger"
+              size="mini"
+              slot="reference"
+              class="smaller-btn"
+            >
+              <i class="el-icon-delete" /> 删除
             </el-button>
           </el-popconfirm>
           <el-popconfirm
@@ -138,8 +144,13 @@
             style="margin-left:10px"
             @confirm="deleteMessages(scope.row.id)"
           >
-            <el-button type="danger" size="mini" slot="reference">
-              删除
+            <el-button
+              type="danger"
+              size="mini"
+              slot="reference"
+              class="smaller-btn"
+            >
+              <i class="el-icon-delete" /> 删除
             </el-button>
           </el-popconfirm>
         </template>

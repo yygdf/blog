@@ -100,9 +100,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileMark, MultiFile::getFileFullPath, MultiFile::getFileExtension, MultiFile::getPublicFlag, MultiFile::getHiddenFlag)
                 .in(MultiFile::getId, statusBackVO.getIdList())
-                .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUserId)
-                .eq(MultiFile::getDeletedFlag, false)
-                .eq(MultiFile::getDeletableFlag, true));
+                .and(loginUser.getRoleWeight() > 200, e -> e.eq(MultiFile::getUserId, loginUserId).eq(MultiFile::getDeletableFlag, true))
+                .eq(MultiFile::getDeletedFlag, false));
         if (mapList.size() != statusBackVO.getIdList().size())
             throw new OperationStatusException();
         if (HIDDEN.equals(statusBackVO.getType())) {
@@ -229,45 +228,20 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             lambdaQueryWrapper.eq(MultiFile::getDeletedFlag, true);
         } else
             lambdaQueryWrapper.eq(MultiFile::getDeletedFlag, false);
-        if (condition.getUserId() == null || loginUser.getRoleWeight() > 200)
-            lambdaQueryWrapper.eq(MultiFile::getUserId, loginUser.getUserId());
-        else
-            lambdaQueryWrapper.eq(MultiFile::getUserId, condition.getUserId());
-        if (CommonUtil.isEmpty(condition.getKeywords()))
-            lambdaQueryWrapper.eq(MultiFile::getParentId, -1);
-        else
-            lambdaQueryWrapper.like(MultiFile::getFileNameOrigin, condition.getKeywords());
+        if (loginUser.getRoleWeight() > 200)
+            lambdaQueryWrapper.eq(MultiFile::getDeletableFlag, true).eq(MultiFile::getUserId, loginUser.getUserId());
+        else if (condition.getCategoryId() == null)
+            lambdaQueryWrapper.eq(MultiFile::getUserId, condition.getUserId() == null ? loginUser.getUserId() : condition.getUserId());
         List<MultiFile> multiFileList = multiFileMapper.selectList(lambdaQueryWrapper
                 .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getFileDesc,
                         MultiFile::getFileSize, MultiFile::getFileCover, MultiFile::getFileFullPath,
                         MultiFile::getFileExtension, MultiFile::getFileNameOrigin, MultiFile::getPublicFlag,
                         MultiFile::getHiddenFlag, MultiFile::getDeletableFlag, MultiFile::getCreateTime,
                         MultiFile::getUpdateTime)
+                .eq(MultiFile::getParentId, condition.getCategoryId() == null ? -1 : condition.getCategoryId())
+                .eq(CommonUtil.isNotEmpty(condition.getKeywords()), MultiFile::getFileNameOrigin, condition.getKeywords())
                 .orderByDesc(MultiFile::getFileMark)
-                .orderByDesc(MultiFile::getId));
-        return  multiFileList.stream()
-                .map(e -> {
-                    MultiFilesBackDTO multiFilesBackDTO = BeanCopyUtil.copyObject(e, MultiFilesBackDTO.class);
-                    multiFilesBackDTO.setHasChildren(multiFilesBackDTO.getFileExtension().length() == 0);
-                    return multiFilesBackDTO;
-                })
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<MultiFilesBackDTO> getMultiFilesBackDTOById(Integer id) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        List<MultiFile> multiFileList = multiFileMapper.selectList(new LambdaQueryWrapper<MultiFile>()
-                .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getFileDesc,
-                        MultiFile::getFileSize, MultiFile::getFileCover, MultiFile::getFileFullPath,
-                        MultiFile::getFileExtension, MultiFile::getFileNameOrigin, MultiFile::getPublicFlag,
-                        MultiFile::getHiddenFlag, MultiFile::getDeletableFlag, MultiFile::getCreateTime,
-                        MultiFile::getUpdateTime)
-                .eq(loginUser.getRoleWeight() > 100, MultiFile::getDeletedFlag, false)
-                .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUser.getUserId())
-                .eq(MultiFile::getParentId, id)
-                .orderByDesc(MultiFile::getFileMark)
-                .orderByDesc(MultiFile::getId));
+                .orderByAsc(MultiFile::getId));
         return  multiFileList.stream()
                 .map(e -> {
                     MultiFilesBackDTO multiFilesBackDTO = BeanCopyUtil.copyObject(e, MultiFilesBackDTO.class);

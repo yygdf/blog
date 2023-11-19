@@ -131,9 +131,10 @@
             :disabled="!checkSelectable(scope.row)"
             type="primary"
             size="mini"
+            class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            编辑
+            <i class="el-icon-edit" /> 编辑
           </el-button>
           <el-popconfirm
             v-if="type === 7"
@@ -146,8 +147,9 @@
               type="success"
               size="mini"
               slot="reference"
+              class="smaller-btn"
             >
-              恢复
+              <i class="el-icon-refresh-left" /> 恢复
             </el-button>
           </el-popconfirm>
           <el-popconfirm
@@ -161,8 +163,9 @@
               type="danger"
               size="mini"
               slot="reference"
+              class="smaller-btn"
             >
-              删除
+              <i class="el-icon-delete" /> 删除
             </el-button>
           </el-popconfirm>
         </template>

@@ -135,17 +135,23 @@
             v-if="type !== 7"
             type="primary"
             size="mini"
+            class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            编辑
+            <i class="el-icon-edit" /> 编辑
           </el-button>
           <el-popconfirm
             v-else
             title="确定恢复吗？"
             @confirm="updateFriendLinksStatus(scope.row.id)"
           >
-            <el-button type="success" size="mini" slot="reference">
-              恢复
+            <el-button
+              type="success"
+              size="mini"
+              slot="reference"
+              class="smaller-btn"
+            >
+              <i class="el-icon-refresh-left" /> 恢复
             </el-button>
           </el-popconfirm>
           <el-popconfirm
@@ -154,8 +160,13 @@
             style="margin-left:10px"
             @confirm="updateFriendLinksStatus(scope.row.id)"
           >
-            <el-button type="danger" size="mini" slot="reference">
-              删除
+            <el-button
+              type="danger"
+              size="mini"
+              slot="reference"
+              class="smaller-btn"
+            >
+              <i class="el-icon-delete" /> 删除
             </el-button>
           </el-popconfirm>
           <el-popconfirm
@@ -164,8 +175,13 @@
             style="margin-left:10px"
             @confirm="deleteFriendLinks(scope.row.id)"
           >
-            <el-button type="danger" size="mini" slot="reference">
-              删除
+            <el-button
+              type="danger"
+              size="mini"
+              slot="reference"
+              class="smaller-btn"
+            >
+              <i class="el-icon-delete" /> 删除
             </el-button>
           </el-popconfirm>
         </template>

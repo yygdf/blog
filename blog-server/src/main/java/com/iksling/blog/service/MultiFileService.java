@@ -19,6 +19,4 @@ public interface MultiFileService extends IService<MultiFile> {
     void updateMultiFileStatusBackVO(StatusBackVO statusBackVO);
 
     List<MultiFilesBackDTO> getMultiFilesBackDTO(ConditionBackVO condition);
-
-    List<MultiFilesBackDTO> getMultiFilesBackDTOById(Integer id);
 }

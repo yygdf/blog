@@ -135,7 +135,7 @@
           {{ scope.row.loginTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="120">
+      <el-table-column label="操作" align="center" width="80">
         <template slot-scope="scope">
           <el-popconfirm
             title="确定强制下线该用户吗？"
@@ -146,8 +146,9 @@
               size="mini"
               type="danger"
               slot="reference"
+              class="smaller-btn"
             >
-              下线
+              <i class="el-icon-warning-outline" /> 下线
             </el-button>
           </el-popconfirm>
         </template>

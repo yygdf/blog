@@ -51,11 +51,4 @@ public class MultiFileController {
                 .set("dataList", multiFileService.getMultiFilesBackDTO(condition))
                 .set("staticResourceUrl", STATIC_RESOURCE_URL));
     }
-
-    @ApiOperation(value = "根据文件id查找子文件")
-    @ApiImplicitParam(name = "id", value = "文件id", required = true, dataType = "Integer")
-    @GetMapping("/back/multiFiles/{id}")
-    public Result getBackMultiFilesById(@PathVariable Integer id) {
-        return Result.success().message("查询成功").data(multiFileService.getMultiFilesBackDTOById(id));
-    }
 }

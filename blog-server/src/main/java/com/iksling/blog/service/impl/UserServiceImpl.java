@@ -170,7 +170,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null)
             throw new FileStatusException("文件解析异常!");
-        String extension = getSplitStringByIndex(originalFilename, "\\.", -1);
+        String[] originalFilenameArr = originalFilename.split("\\.");
+        String extension = originalFilenameArr[1];
         if (MultiFileUtil.checkNotValidFileType(extension, IMG_AVATAR.getType()))
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
         if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_AVATAR.getSize(), IMG_AVATAR.getUnit()))
@@ -207,7 +208,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .fileSize(file.getSize())
                 .fileFullPath(targetAddr + "/" + fullFileName)
                 .fileExtension(extension)
-                .fileNameOrigin(originalFilename)
+                .fileNameOrigin(originalFilenameArr[0])
                 .deletableFlag(false)
                 .ipSource(IpUtil.getIpSource(iPAddress))
                 .ipAddress(iPAddress)
@@ -284,7 +285,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null)
             throw new FileStatusException("文件解析异常!");
-        String extension = getSplitStringByIndex(originalFilename, "\\.", -1);
+        String[] originalFilenameArr = originalFilename.split("\\.");
+        String extension = originalFilenameArr[1];
         if (MultiFileUtil.checkNotValidFileType(extension, IMG_AVATAR.getType()))
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
         if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_AVATAR.getSize(), IMG_AVATAR.getUnit()))
@@ -324,7 +326,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .fileSize(file.getSize())
                 .fileFullPath(targetAddr + "/" + fullFileName)
                 .fileExtension(extension)
-                .fileNameOrigin(originalFilename)
+                .fileNameOrigin(originalFilenameArr[0])
                 .ipSource(IpUtil.getIpSource(iPAddress))
                 .deletableFlag(false)
                 .ipAddress(iPAddress)

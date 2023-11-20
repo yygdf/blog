@@ -343,10 +343,10 @@ export default {
           resolve(data.data.dataList);
         });
     },
-    refreshLoad(lazyTreeNodeMap, treeNodeMap, id) {
-      if (treeNodeMap.get(id)) {
-        const { tree, treeNode, resolve } = treeNodeMap.get(id);
-        this.$set(lazyTreeNodeMap, id, []);
+    refreshLoad(id) {
+      if (this.treeNodeMap.get(id)) {
+        const { tree, treeNode, resolve } = this.treeNodeMap.get(id);
+        this.$set(this.$refs.table.store.states.lazyTreeNodeMap, id, []);
         if (tree) {
           this.load(tree, treeNode, resolve);
         }
@@ -480,11 +480,7 @@ export default {
           if (this.multiFile.parentId == null) {
             this.getMultiFiles();
           } else {
-            this.refreshLoad(
-              this.$refs.table.store.states.lazyTreeNodeMap,
-              this.treeNodeMap,
-              this.multiFile.parentId
-            );
+            this.refreshLoad(this.multiFile.parentId);
           }
           this.$notify.success({
             title: "成功",

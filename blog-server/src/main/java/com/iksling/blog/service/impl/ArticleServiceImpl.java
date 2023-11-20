@@ -162,7 +162,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null)
             throw new FileStatusException("文件解析异常!");
-        String extension = getSplitStringByIndex(originalFilename, "\\.", -1);
+        String[] originalFilenameArr = originalFilename.split("\\.");
+        String extension = originalFilenameArr[1];
         if (MultiFileUtil.checkNotValidFileType(extension, IMG_ARTICLE.getType()))
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
         if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_ARTICLE.getSize(), IMG_ARTICLE.getUnit()))
@@ -201,7 +202,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .fileSize(file.getSize())
                 .fileFullPath(targetAddr + "/" + fullFileName)
                 .fileExtension(extension)
-                .fileNameOrigin(originalFilename)
+                .fileNameOrigin(originalFilenameArr[0])
                 .deletableFlag(false)
                 .ipSource(IpUtil.getIpSource(iPAddress))
                 .ipAddress(iPAddress)

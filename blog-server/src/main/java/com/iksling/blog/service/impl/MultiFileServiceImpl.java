@@ -79,9 +79,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         } else {
             Integer count = multiFileMapper.selectCount(new LambdaQueryWrapper<MultiFile>()
                     .eq(MultiFile::getId, multiFile.getId())
-                    .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUserId)
-                    .eq(MultiFile::getDeletedFlag, false)
-                    .eq(MultiFile::getDeletableFlag, true));
+                    .and(loginUser.getRoleWeight() > 200, e -> e.eq(MultiFile::getUserId, loginUserId).eq(MultiFile::getDeletableFlag, true))
+                    .eq(MultiFile::getDeletedFlag, false));
             if (count != 1)
                 throw new OperationStatusException();
             if (CommonUtil.isNotEmpty(multiFile.getFileCover()) && !multiFile.getFileCover().startsWith(STATIC_RESOURCE_URL))
@@ -233,15 +232,15 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         else if (condition.getCategoryId() == null)
             lambdaQueryWrapper.eq(MultiFile::getUserId, condition.getUserId() == null ? loginUser.getUserId() : condition.getUserId());
         List<MultiFile> multiFileList = multiFileMapper.selectList(lambdaQueryWrapper
-                .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getParentId, MultiFile::getFileDesc,
-                        MultiFile::getFileSize, MultiFile::getFileCover, MultiFile::getFileFullPath,
-                        MultiFile::getFileExtension, MultiFile::getFileNameOrigin, MultiFile::getPublicFlag,
-                        MultiFile::getHiddenFlag, MultiFile::getDeletableFlag, MultiFile::getCreateTime,
-                        MultiFile::getUpdateTime)
+                .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getParentId,
+                        MultiFile::getFileDesc, MultiFile::getFileSize, MultiFile::getFileCover,
+                        MultiFile::getFileFullPath, MultiFile::getFileExtension, MultiFile::getFileNameOrigin,
+                        MultiFile::getPublicFlag, MultiFile::getHiddenFlag, MultiFile::getDeletableFlag,
+                        MultiFile::getCreateTime, MultiFile::getUpdateTime)
                 .eq(MultiFile::getParentId, condition.getCategoryId() == null ? -1 : condition.getCategoryId())
                 .eq(CommonUtil.isNotEmpty(condition.getKeywords()), MultiFile::getFileNameOrigin, condition.getKeywords())
                 .orderByDesc(MultiFile::getFileMark)
-                .orderByAsc(MultiFile::getId));
+                .orderByAsc(MultiFile::getFileNameOrigin));
         return  multiFileList.stream()
                 .map(e -> {
                     MultiFilesBackDTO multiFilesBackDTO = BeanCopyUtil.copyObject(e, MultiFilesBackDTO.class);

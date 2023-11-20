@@ -1,3 +1,4 @@
 .idea
 *.iml
 /blog-server/src/main/resources/application-dev.yml
+/blog-server/src/main/resources/application-prod.yml

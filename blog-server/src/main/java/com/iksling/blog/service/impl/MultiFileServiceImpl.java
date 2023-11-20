@@ -233,7 +233,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         else if (condition.getCategoryId() == null)
             lambdaQueryWrapper.eq(MultiFile::getUserId, condition.getUserId() == null ? loginUser.getUserId() : condition.getUserId());
         List<MultiFile> multiFileList = multiFileMapper.selectList(lambdaQueryWrapper
-                .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getFileDesc,
+                .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getParentId, MultiFile::getFileDesc,
                         MultiFile::getFileSize, MultiFile::getFileCover, MultiFile::getFileFullPath,
                         MultiFile::getFileExtension, MultiFile::getFileNameOrigin, MultiFile::getPublicFlag,
                         MultiFile::getHiddenFlag, MultiFile::getDeletableFlag, MultiFile::getCreateTime,

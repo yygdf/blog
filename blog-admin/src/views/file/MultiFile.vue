@@ -89,6 +89,7 @@
       :data="multiFileList"
       :load="load"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+      ref="table"
       row-key="id"
       height="720"
       lazy
@@ -216,7 +217,7 @@
                 v-if="!scope.row.fileExtension"
                 :disabled="!scope.row.deletableFlag"
                 icon="el-icon-plus"
-                @click.native="openModel(scope.row)"
+                @click.native="openModel(scope.row, true)"
               >
                 新增
               </el-dropdown-item>
@@ -321,11 +322,13 @@ export default {
       keywords: null,
       loading: true,
       editStatus: false,
-      addOrEditStatus: false
+      addOrEditStatus: false,
+      treeNodeMap: new Map()
     };
   },
   methods: {
     load(tree, treeNode, resolve) {
+      this.treeNodeMap.set(tree.id, { tree, treeNode, resolve });
       let params = {
         type: this.type,
         keywords: this.keywords
@@ -340,6 +343,15 @@ export default {
           resolve(data.data.dataList);
         });
     },
+    refreshLoad(lazyTreeNodeMap, treeNodeMap, id) {
+      if (treeNodeMap.get(id)) {
+        const { tree, treeNode, resolve } = treeNodeMap.get(id);
+        this.$set(lazyTreeNodeMap, id, []);
+        if (tree) {
+          this.load(tree, treeNode, resolve);
+        }
+      }
+    },
     openModel(multiFile, flag = false) {
       if (multiFile != null) {
         if (flag) {
@@ -353,6 +365,7 @@ export default {
         } else {
           this.multiFile = {
             id: multiFile.id,
+            parentId: multiFile.parentId,
             fileDesc: multiFile.fileDesc,
             fileCover: multiFile.fileCover,
             fileNameOrigin: multiFile.fileNameOrigin
@@ -464,6 +477,15 @@ export default {
       }
       this.axios.post("/api/back/multiFile", param).then(({ data }) => {
         if (data.flag) {
+          if (this.multiFile.parentId == null) {
+            this.getMultiFiles();
+          } else {
+            this.refreshLoad(
+              this.$refs.table.store.states.lazyTreeNodeMap,
+              this.treeNodeMap,
+              this.multiFile.parentId
+            );
+          }
           this.$notify.success({
             title: "成功",
             message: data.message

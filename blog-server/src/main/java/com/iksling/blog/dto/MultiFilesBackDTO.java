@@ -17,6 +17,11 @@ public class MultiFilesBackDTO {
     private Integer userId;
 
     /**
+     * 父id
+     */
+    private Integer parentId;
+
+    /**
      * 文件描述
      */
     private String fileDesc;

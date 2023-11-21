@@ -71,16 +71,25 @@
           prefix-icon="el-icon-search"
           placeholder="请输入文件名"
           clearable
-          @keyup.enter.native="getMultiFiles"
+          @keyup.enter.native="refreshLoad(null)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
-          style="margin-left:1rem"
-          @click="getMultiFiles"
+          style="margin-left: 1px"
+          @click="refreshLoad(null)"
         >
           搜索
+        </el-button>
+        <el-button
+          type="primary"
+          size="small"
+          icon="el-icon-search"
+          style="margin-left: 1px"
+          @click="getMultiFiles(true)"
+        >
+          深度搜索
         </el-button>
       </div>
     </div>
@@ -89,6 +98,7 @@
       :data="multiFileList"
       :load="load"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+      @expand-change="expandChange"
       ref="table"
       row-key="id"
       height="720"
@@ -294,7 +304,7 @@
 <script>
 export default {
   created() {
-    this.getMultiFiles();
+    this.getMultiFiles(null);
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -319,37 +329,62 @@ export default {
       staticResourceUrl: "",
       type: null,
       userId: null,
-      keywords: null,
+      keywords: "",
+      multiFileId: null,
       loading: true,
       editStatus: false,
+      deepSearchFlag: false,
       addOrEditStatus: false,
       treeNodeMap: new Map()
     };
   },
   methods: {
     load(tree, treeNode, resolve) {
-      this.treeNodeMap.set(tree.id, { tree, treeNode, resolve });
-      let params = {
-        type: this.type,
-        keywords: this.keywords
-      };
-      params = this.$commonMethod.skipEmptyValue(params);
-      params.categoryId = tree.id;
-      this.axios
-        .get("/api/back/multiFiles", {
-          params
-        })
-        .then(({ data }) => {
-          resolve(data.data.dataList);
-        });
+      if (this.deepSearchFlag) {
+        this.keywords = "";
+        this.multiFileId = tree.id;
+        this.getMultiFiles();
+        this.deepSearchFlag = false;
+      } else {
+        this.treeNodeMap.set(tree.id, { tree, treeNode, resolve });
+        let params = {
+          type: this.type,
+          keywords: this.keywords
+        };
+        params = this.$commonMethod.skipEmptyValue(params);
+        params.categoryId = tree.id;
+        this.axios
+          .get("/api/back/multiFiles", {
+            params
+          })
+          .then(({ data }) => {
+            resolve(data.data.dataList);
+          });
+      }
     },
     refreshLoad(id) {
-      if (this.treeNodeMap.get(id)) {
-        const { tree, treeNode, resolve } = this.treeNodeMap.get(id);
-        this.$set(this.$refs.table.store.states.lazyTreeNodeMap, id, []);
-        if (tree) {
-          this.load(tree, treeNode, resolve);
+      if (this.multiFileId == null) {
+        this.getMultiFiles();
+      } else {
+        if (id == null) {
+          id = this.multiFileId;
         }
+        if (this.treeNodeMap.get(id)) {
+          const { tree, treeNode, resolve } = this.treeNodeMap.get(id);
+          this.$set(this.$refs.table.store.states.lazyTreeNodeMap, id, []);
+          if (tree) {
+            this.load(tree, treeNode, resolve);
+          }
+        } else {
+          this.getMultiFiles();
+        }
+      }
+    },
+    expandChange(row, expanded) {
+      if (expanded) {
+        this.multiFileId = row.id;
+      } else {
+        this.multiFileId = row.parentId;
       }
     },
     openModel(multiFile, flag = false) {
@@ -407,13 +442,27 @@ export default {
         this.multiFileIdList.push(item.id);
       });
     },
-    getMultiFiles() {
+    getMultiFiles(deepSearchFlag) {
       let params = {
         type: this.type,
         userId: this.userId,
         keywords: this.keywords
       };
       params = this.$commonMethod.skipEmptyValue(params);
+      if (this.multiFileId != null && this.multiFileId !== -1) {
+        params.categoryId = this.multiFileId;
+      }
+      if (deepSearchFlag) {
+        params.flag = true;
+        this.$set(this.$refs.table.store.states, "lazyTreeNodeMap", {});
+        this.treeNodeMap = new Map();
+        this.multiFileId = null;
+        if (this.keywords.trim() !== "") {
+          this.deepSearchFlag = true;
+        } else {
+          this.deepSearchFlag = false;
+        }
+      }
       this.axios
         .get("/api/back/multiFiles", {
           params
@@ -447,7 +496,7 @@ export default {
             title: "成功",
             message: data.message
           });
-          this.getMultiFiles();
+          this.getMultiFiles(null);
         } else {
           this.$notify.error({
             title: "失败",
@@ -478,7 +527,7 @@ export default {
       this.axios.post("/api/back/multiFile", param).then(({ data }) => {
         if (data.flag) {
           if (this.multiFile.parentId == null) {
-            this.getMultiFiles();
+            this.getMultiFiles(null);
           } else {
             this.refreshLoad(this.multiFile.parentId);
           }
@@ -547,10 +596,10 @@ export default {
   },
   watch: {
     type() {
-      this.getMultiFiles();
+      this.getMultiFiles(null);
     },
     userId() {
-      this.getMultiFiles();
+      this.getMultiFiles(null);
     }
   },
   computed: {

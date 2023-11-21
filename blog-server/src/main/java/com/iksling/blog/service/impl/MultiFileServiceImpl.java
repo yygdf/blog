@@ -220,6 +220,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     @Override
     public List<MultiFilesBackDTO> getMultiFilesBackDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
+        Integer userId = condition.getUserId();
         LambdaQueryWrapper<MultiFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         if (DELETED.equals(condition.getType())) {
             if (loginUser.getRoleWeight() > 100)
@@ -227,18 +228,35 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             lambdaQueryWrapper.eq(MultiFile::getDeletedFlag, true);
         } else
             lambdaQueryWrapper.eq(MultiFile::getDeletedFlag, false);
-        if (loginUser.getRoleWeight() > 200)
-            lambdaQueryWrapper.eq(MultiFile::getDeletableFlag, true).eq(MultiFile::getUserId, loginUser.getUserId());
-        else if (condition.getCategoryId() == null)
-            lambdaQueryWrapper.eq(MultiFile::getUserId, condition.getUserId() == null ? loginUser.getUserId() : condition.getUserId());
+        if (loginUser.getRoleWeight() > 200) {
+            userId = loginUser.getUserId();
+            lambdaQueryWrapper.eq(MultiFile::getDeletableFlag, true);
+        } else if (userId == null)
+            userId = loginUser.getUserId();
+        lambdaQueryWrapper.eq(MultiFile::getUserId, userId);
+        if (CommonUtil.isNotEmpty(condition.getKeywords())) {
+            if (condition.getFlag() == Boolean.TRUE) {
+                if (condition.getCategoryId() != null) {
+                    List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                            .select(MultiFile::getFileFullPath)
+                            .eq(MultiFile::getId, condition.getCategoryId())
+                            .eq(MultiFile::getUserId, userId));
+                    if (objectList.isEmpty())
+                        return new ArrayList<>();
+                    lambdaQueryWrapper.likeRight(MultiFile::getFileFullPath, objectList.get(0));
+                } else
+                    lambdaQueryWrapper.likeRight(MultiFile::getFileFullPath, userId);
+            } else
+                lambdaQueryWrapper.eq(MultiFile::getParentId, condition.getCategoryId() == null ? -1 : condition.getCategoryId());
+            lambdaQueryWrapper.like(MultiFile::getFileNameOrigin, condition.getKeywords());
+        } else
+            lambdaQueryWrapper.eq(MultiFile::getParentId, condition.getCategoryId() == null ? -1 : condition.getCategoryId());
         List<MultiFile> multiFileList = multiFileMapper.selectList(lambdaQueryWrapper
                 .select(MultiFile::getId, MultiFile::getUserId, MultiFile::getParentId,
                         MultiFile::getFileDesc, MultiFile::getFileSize, MultiFile::getFileCover,
                         MultiFile::getFileFullPath, MultiFile::getFileExtension, MultiFile::getFileNameOrigin,
                         MultiFile::getPublicFlag, MultiFile::getHiddenFlag, MultiFile::getDeletableFlag,
                         MultiFile::getCreateTime, MultiFile::getUpdateTime)
-                .eq(MultiFile::getParentId, condition.getCategoryId() == null ? -1 : condition.getCategoryId())
-                .eq(CommonUtil.isNotEmpty(condition.getKeywords()), MultiFile::getFileNameOrigin, condition.getKeywords())
                 .orderByDesc(MultiFile::getFileMark)
                 .orderByAsc(MultiFile::getFileNameOrigin));
         return  multiFileList.stream()

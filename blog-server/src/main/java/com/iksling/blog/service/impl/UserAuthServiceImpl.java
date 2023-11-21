@@ -127,12 +127,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
                         .select(MultiFile::getId)
                         .eq(MultiFile::getUserId, userId)
-                        .eq(MultiFile::getFileName, IMG.getCurrentPath()));
+                        .eq(MultiFile::getFileName, IMAGE.getCurrentPath()));
                 multiFileMapper.insert(MultiFile.builder()
                         .userId(userId)
                         .parentId((Integer) objectList.get(0))
-                        .fileName(IMG_ARTICLE.getCurrentPath())
-                        .fileFullPath(userId + "/" + IMG_ARTICLE)
+                        .fileName(IMAGE_ARTICLE.getCurrentPath())
+                        .fileFullPath(userId + "/" + IMAGE_ARTICLE)
                         .fileNameOrigin("article")
                         .deletableFlag(false)
                         .createUser(loginUserId)

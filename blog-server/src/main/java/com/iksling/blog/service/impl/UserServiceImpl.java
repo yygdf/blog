@@ -96,8 +96,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             List<MultiFile> multiFileList = new ArrayList<>();
             multiFileList.add(MultiFile.builder()
                     .userId(userId)
-                    .fileName(IMG.getCurrentPath())
-                    .fileFullPath(userId + "/" + IMG.getPath())
+                    .fileName(IMAGE.getCurrentPath())
+                    .fileFullPath(userId + "/" + IMAGE.getPath())
                     .fileNameOrigin("img")
                     .deletableFlag(false)
                     .createUser(loginUserId)
@@ -116,8 +116,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             multiFileList.add(MultiFile.builder()
                     .userId(userId)
                     .parentId(multiFileList.get(0).getId())
-                    .fileName(IMG_AVATAR.getCurrentPath())
-                    .fileFullPath(userId + "/" + IMG_AVATAR.getPath())
+                    .fileName(IMAGE_AVATAR.getCurrentPath())
+                    .fileFullPath(userId + "/" + IMAGE_AVATAR.getPath())
                     .fileNameOrigin("avatar")
                     .deletableFlag(false)
                     .createUser(loginUserId)
@@ -172,10 +172,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new FileStatusException("文件解析异常!");
         String[] originalFilenameArr = originalFilename.split("\\.");
         String extension = originalFilenameArr[1];
-        if (MultiFileUtil.checkNotValidFileType(extension, IMG_AVATAR.getType()))
+        if (MultiFileUtil.checkNotValidFileType(extension, IMAGE_AVATAR.getType()))
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
-        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_AVATAR.getSize(), IMG_AVATAR.getUnit()))
-            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_AVATAR.getSize() + IMG_AVATAR.getUnit() + "}");
+        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMAGE_AVATAR.getSize(), IMAGE_AVATAR.getUnit()))
+            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMAGE_AVATAR.getSize() + IMAGE_AVATAR.getUnit() + "}");
         Integer userId = userAvatarBackVO.getUserId();
         LoginUser loginUser = UserUtil.getLoginUser();
         if (userId == null)
@@ -188,7 +188,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (count != 1)
             throw new OperationStatusException();
         long fileName = IdWorker.getId();
-        String targetAddr = userId + "/" + IMG_AVATAR.getPath();
+        String targetAddr = userId + "/" + IMAGE_AVATAR.getPath();
         String fullFileName = fileName + "." + extension;
         String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
         if (url == null)
@@ -197,13 +197,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId)
                 .eq(MultiFile::getUserId, userId)
-                .eq(MultiFile::getFileName, IMG_AVATAR.getCurrentPath()));
+                .eq(MultiFile::getFileName, IMAGE_AVATAR.getCurrentPath()));
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(userId)
                 .parentId((Integer) objectList.get(0))
                 .fileDesc("{'userId':"+userId+"}")
-                .fileMark(IMG_AVATAR.getCurrentPath().intValue())
+                .fileMark(IMAGE_AVATAR.getCurrentPath().intValue())
                 .fileName(fileName)
                 .fileSize(file.getSize())
                 .fileFullPath(targetAddr + "/" + fullFileName)
@@ -239,7 +239,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileFullPath, MultiFile::getFileExtension)
                 .in(MultiFile::getFileName, fileNameList)
-                .eq(MultiFile::getFileMark, IMG_AVATAR.getCurrentPath())
+                .eq(MultiFile::getFileMark, IMAGE_AVATAR.getCurrentPath())
                 .eq(MultiFile::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUser.getUserId()));
         if (mapList.size() != fileNameList.size())
@@ -287,13 +287,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new FileStatusException("文件解析异常!");
         String[] originalFilenameArr = originalFilename.split("\\.");
         String extension = originalFilenameArr[1];
-        if (MultiFileUtil.checkNotValidFileType(extension, IMG_AVATAR.getType()))
+        if (MultiFileUtil.checkNotValidFileType(extension, IMAGE_AVATAR.getType()))
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
-        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_AVATAR.getSize(), IMG_AVATAR.getUnit()))
-            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_AVATAR.getSize() + IMG_AVATAR.getUnit() + "}");
+        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMAGE_AVATAR.getSize(), IMAGE_AVATAR.getUnit()))
+            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMAGE_AVATAR.getSize() + IMAGE_AVATAR.getUnit() + "}");
         long fileName = IdWorker.getId();
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
-        String targetAddr = loginUserId + "/" + IMG_AVATAR.getPath();
+        String targetAddr = loginUserId + "/" + IMAGE_AVATAR.getPath();
         String fullFileName = fileName + "." + extension;
         String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
         if (url == null)
@@ -303,7 +303,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getFileFullPath)
                 .eq(MultiFile::getUserId, loginUserId)
-                .eq(MultiFile::getFileMark, IMG_AVATAR.getCurrentPath())
+                .eq(MultiFile::getFileMark, IMAGE_AVATAR.getCurrentPath())
                 .eq(MultiFile::getDeletedFlag, false));
         if (!objectList.isEmpty())
             updateUserAvatarBy(loginUserId, objectList.get(0).toString(), dateTime);
@@ -315,13 +315,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId)
                 .eq(MultiFile::getUserId, loginUserId)
-                .eq(MultiFile::getFileName, IMG_AVATAR.getCurrentPath()));
+                .eq(MultiFile::getFileName, IMAGE_AVATAR.getCurrentPath()));
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(loginUserId)
                 .parentId((Integer) objectList.get(0))
                 .fileDesc("{'userId':"+loginUserId+"}")
-                .fileMark(IMG_AVATAR.getCurrentPath().intValue())
+                .fileMark(IMAGE_AVATAR.getCurrentPath().intValue())
                 .fileName(fileName)
                 .fileSize(file.getSize())
                 .fileFullPath(targetAddr + "/" + fullFileName)

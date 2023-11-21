@@ -9,7 +9,7 @@ public enum FileEnum {
     /**
      * 图片目录枚举对象
      */
-    IMG( "-1", -1L, 5, "MB", "图片目录", "IMG"),
+    IMAGE( "-1", -1L, 5, "MB", "图片目录", "IMAGE"),
 
     /**
      * 音频目录枚举对象
@@ -19,7 +19,7 @@ public enum FileEnum {
     /**
      * 用户头像目录枚举对象
      */
-    IMG_AVATAR("-1/-3", -3L, 1, "MB", "用户头像目录", "IMG"),
+    IMAGE_AVATAR("-1/-3", -3L, 1, "MB", "用户头像目录", "IMAGE"),
 
     /**
      * 聊天室音频目录枚举对象
@@ -29,7 +29,7 @@ public enum FileEnum {
     /**
      * 文章图片目录枚举对象
      */
-    IMG_ARTICLE("-1/-5", -5L, 5, "MB", "文章图片目录", "IMG");
+    IMAGE_ARTICLE("-1/-5", -5L, 5, "MB", "文章图片目录", "IMAGE");
 
     /**
      * 路径

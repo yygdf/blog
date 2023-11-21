@@ -37,7 +37,7 @@ import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.FlagConst.*;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_LIKE_COUNT;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_VIEW_COUNT;
-import static com.iksling.blog.enums.FileEnum.IMG_ARTICLE;
+import static com.iksling.blog.enums.FileEnum.IMAGE_ARTICLE;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
 
 /**
@@ -164,10 +164,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             throw new FileStatusException("文件解析异常!");
         String[] originalFilenameArr = originalFilename.split("\\.");
         String extension = originalFilenameArr[1];
-        if (MultiFileUtil.checkNotValidFileType(extension, IMG_ARTICLE.getType()))
+        if (MultiFileUtil.checkNotValidFileType(extension, IMAGE_ARTICLE.getType()))
             throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
-        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMG_ARTICLE.getSize(), IMG_ARTICLE.getUnit()))
-            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMG_ARTICLE.getSize() + IMG_ARTICLE.getUnit() + "}");
+        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMAGE_ARTICLE.getSize(), IMAGE_ARTICLE.getUnit()))
+            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMAGE_ARTICLE.getSize() + IMAGE_ARTICLE.getUnit() + "}");
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer articleUserId = articleImageBackVO.getUserId();
         if (articleUserId == null)
@@ -183,7 +183,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (count != 1)
             throw new OperationStatusException();
         long fileName = IdWorker.getId();
-        String targetAddr = articleUserId + "/" + IMG_ARTICLE.getPath() + "/" + articleId;
+        String targetAddr = articleUserId + "/" + IMAGE_ARTICLE.getPath() + "/" + articleId;
         String fullFileName = fileName + "." + extension;
         String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
         if (url == null)
@@ -197,7 +197,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .userId(articleUserId)
                 .parentId((Integer) objectList.get(0))
                 .fileDesc("{'userId':"+articleUserId+",'articleId':"+articleId+"}")
-                .fileMark(IMG_ARTICLE.getCurrentPath().intValue())
+                .fileMark(IMAGE_ARTICLE.getCurrentPath().intValue())
                 .fileName(fileName)
                 .fileSize(file.getSize())
                 .fileFullPath(targetAddr + "/" + fullFileName)
@@ -292,7 +292,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileFullPath, MultiFile::getFileExtension)
                 .in(MultiFile::getFileName, fileNameList)
-                .eq(MultiFile::getFileMark, IMG_ARTICLE.getCurrentPath())
+                .eq(MultiFile::getFileMark, IMAGE_ARTICLE.getCurrentPath())
                 .eq(MultiFile::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 300, MultiFile::getUserId, loginUser.getUserId()));
         if (mapList.size() != fileNameList.size())
@@ -391,13 +391,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId)
                 .eq(MultiFile::getUserId, loginUserId)
-                .eq(MultiFile::getFileName, IMG_ARTICLE.getCurrentPath()));
+                .eq(MultiFile::getFileName, IMAGE_ARTICLE.getCurrentPath()));
         multiFileMapper.insert(MultiFile.builder()
                 .userId(loginUserId)
                 .parentId((Integer) objectList.get(0))
                 .fileDesc("{'articleId':"+id+"}")
                 .fileName(Long.valueOf(id))
-                .fileFullPath(loginUserId + "/" + IMG_ARTICLE.getPath() + "/" + id)
+                .fileFullPath(loginUserId + "/" + IMAGE_ARTICLE.getPath() + "/" + id)
                 .fileNameOrigin(id.toString())
                 .deletableFlag(false)
                 .createUser(loginUserId)

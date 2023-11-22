@@ -24,7 +24,7 @@ public enum FileEnum {
     /**
      * 聊天室音频目录枚举对象
      */
-    AUDIO_CHAT("-1/-4", -4L, 1, "MB", "聊天室音频目录", "AUDIO"),
+    AUDIO_CHAT("-2/-4", -4L, 1, "MB", "聊天室音频目录", "AUDIO"),
 
     /**
      * 文章图片目录枚举对象

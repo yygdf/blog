@@ -158,7 +158,7 @@ export default {
   bottom: 0;
   right: 0;
   left: 0;
-  background: url(../../assets/img/login.png) center center / cover no-repeat;
+  background: url(src/assets/img/login.jpg) center center / cover no-repeat;
 }
 .login-card {
   position: absolute;

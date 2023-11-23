@@ -54,7 +54,7 @@ public class FtpUtil {
     }
 
     public static boolean copy(String from, String to) {
-        return renameFile(from, to);
+        return copyFile(from, to);
     }
 
     public static boolean delete(String uri) {

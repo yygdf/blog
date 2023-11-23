@@ -37,7 +37,7 @@ import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.FlagConst.*;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_LIKE_COUNT;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_VIEW_COUNT;
-import static com.iksling.blog.enums.FileEnum.IMAGE_ARTICLE;
+import static com.iksling.blog.enums.FileDirEnum.IMAGE_ARTICLE;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
 
 /**
@@ -157,17 +157,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Transactional
     public String saveArticleImageBackVO(ArticleImageBackVO articleImageBackVO) {
         MultipartFile file = articleImageBackVO.getFile();
-        if (file.isEmpty())
-            throw new FileStatusException("文件不存在!");
-        String originalFilename = file.getOriginalFilename();
-        if (originalFilename == null)
-            throw new FileStatusException("文件解析异常!");
-        String[] originalFilenameArr = originalFilename.split("\\.");
-        String extension = originalFilenameArr[1];
-        if (MultiFileUtil.checkNotValidFileType(extension, IMAGE_ARTICLE.getType()))
-            throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
-        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMAGE_ARTICLE.getSize(), IMAGE_ARTICLE.getUnit()))
-            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMAGE_ARTICLE.getSize() + IMAGE_ARTICLE.getUnit() + "}");
+        articleImageBackVO.setFile(null);
+        MultiFileUtil.checkValidFile(file, IMAGE_ARTICLE);
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer articleUserId = articleImageBackVO.getUserId();
         if (articleUserId == null)
@@ -182,13 +173,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .eq(Article::getRecycleFlag, false));
         if (count != 1)
             throw new OperationStatusException();
+        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         long fileName = IdWorker.getId();
         String targetAddr = articleUserId + "/" + IMAGE_ARTICLE.getPath() + "/" + articleId;
-        String fullFileName = fileName + "." + extension;
+        String fullFileName = fileName + "." + originalFilenameArr[1];
         String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
         if (url == null)
             throw new FileStatusException("文件上传失败!");
-        articleImageBackVO.setFile(null);
         String iPAddress = IpUtil.getIpAddress(request);
         List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId)
@@ -201,7 +192,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .fileName(fileName)
                 .fileSize(file.getSize())
                 .fileFullPath(targetAddr + "/" + fullFileName)
-                .fileExtension(extension)
+                .fileExtension(originalFilenameArr[1])
                 .fileNameOrigin(originalFilenameArr[0])
                 .deletableFlag(false)
                 .ipSource(IpUtil.getIpSource(iPAddress))

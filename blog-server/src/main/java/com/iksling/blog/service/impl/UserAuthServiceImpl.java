@@ -11,6 +11,7 @@ import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.*;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
+import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.service.UserAuthService;
 import com.iksling.blog.service.UserConfigService;
 import com.iksling.blog.service.UserRoleService;
@@ -35,7 +36,7 @@ import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID_LIST;
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.LOCKED;
-import static com.iksling.blog.enums.FileEnum.*;
+import static com.iksling.blog.enums.FileDirEnum.*;
 
 /**
  *
@@ -54,13 +55,13 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     private UserConfigMapper userConfigMapper;
     @Autowired
     private SystemConfigMapper systemConfigMapper;
-    @Autowired
-    private MultiFileMapper multiFileMapper;
 
     @Autowired
     private UserRoleService userRoleService;
     @Autowired
     private UserConfigService userConfigService;
+    @Autowired
+    private MultiFileService multiFileService;
 
     @Autowired
     private SessionRegistry sessionRegistry;
@@ -124,20 +125,45 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                         .set(UserAuth::getAssimilateFlag, true)
                         .eq(UserAuth::getUserId, userId));
-                List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                List<Object> objectList = multiFileService.listObjs(new LambdaQueryWrapper<MultiFile>()
                         .select(MultiFile::getId)
                         .eq(MultiFile::getUserId, userId)
-                        .eq(MultiFile::getFileName, IMAGE.getCurrentPath()));
-                multiFileMapper.insert(MultiFile.builder()
+                        .eq(MultiFile::getFileName, IMAGE.getCurrentPath())
+                        .or()
+                        .eq(MultiFile::getFileName, AUDIO.getCurrentPath())
+                        .orderByDesc(MultiFile::getFileName));
+                List<MultiFile> multiFileList = new ArrayList<>();
+                multiFileList.add(MultiFile.builder()
                         .userId(userId)
                         .parentId((Integer) objectList.get(0))
                         .fileName(IMAGE_ARTICLE.getCurrentPath())
-                        .fileFullPath(userId + "/" + IMAGE_ARTICLE)
-                        .fileNameOrigin("article")
+                        .fileFullPath(userId + "/" + IMAGE_ARTICLE.getPath())
+                        .fileNameOrigin(IMAGE_ARTICLE.getName())
                         .deletableFlag(false)
                         .createUser(loginUserId)
                         .createTime(createTime)
                         .build());
+                multiFileList.add(MultiFile.builder()
+                        .userId(userId)
+                        .parentId((Integer) objectList.get(0))
+                        .fileName(IMAGE_ALBUM.getCurrentPath())
+                        .fileFullPath(userId + "/" + IMAGE_ALBUM.getPath())
+                        .fileNameOrigin(IMAGE_ALBUM.getName())
+                        .deletableFlag(false)
+                        .createUser(loginUserId)
+                        .createTime(createTime)
+                        .build());
+                multiFileList.add(MultiFile.builder()
+                        .userId(userId)
+                        .parentId((Integer) objectList.get(1))
+                        .fileName(AUDIO_MUSIC.getCurrentPath())
+                        .fileFullPath(userId + "/" + AUDIO_MUSIC.getPath())
+                        .fileNameOrigin(AUDIO_MUSIC.getName())
+                        .deletableFlag(false)
+                        .createUser(loginUserId)
+                        .createTime(createTime)
+                        .build());
+                multiFileService.saveBatch(multiFileList);
             }
             offlineByUserId(userId);
         }

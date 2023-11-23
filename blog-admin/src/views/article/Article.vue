@@ -86,11 +86,13 @@
             :on-change="changeCover"
             :on-remove="updateCover"
             :http-request="uploadCover"
+            :before-upload="beforeUpload"
             drag
           >
             <i class="el-icon-upload" v-if="!article.articleCover" />
             <div class="el-upload__text" v-if="!article.articleCover">
-              将文件拖到此处, 或<em>点击上传</em>
+              将文件拖到此处, 或<em>点击上传</em><br />
+              支持jpg/png/gif文件, 且不超过5MB
             </div>
             <img v-else :src="article.articleCover" width="360" height="180" />
           </el-upload>
@@ -314,7 +316,7 @@ export default {
                   } else {
                     this.$notify.error({
                       title: "失败",
-                      message: "图片上传失败"
+                      message: data.message
                     });
                     return false;
                   }
@@ -351,7 +353,7 @@ export default {
             } else {
               this.$notify.error({
                 title: "失败",
-                message: "图片上传失败"
+                message: data.message
               });
             }
           });
@@ -375,6 +377,22 @@ export default {
         this.updateImg(this.article.articleCover);
       }
       this.uploadImg(null, form.file);
+    },
+    beforeUpload(file) {
+      const isImage =
+        file.type === "image/jpeg" ||
+        file.type === "image/png" ||
+        file.type === "image/gif";
+      const isLt5M = file.size / 1024 / 1024 <= 5;
+      if (!isImage) {
+        this.$message.error("上传的图片只能是jpg, png, gif格式!");
+        return false;
+      }
+      if (!isLt5M) {
+        this.$message.error("上传的图片大小不能超过5MB!");
+        return false;
+      }
+      return true;
     },
     changeCover(file, fileList) {
       if (fileList.length > 1) {

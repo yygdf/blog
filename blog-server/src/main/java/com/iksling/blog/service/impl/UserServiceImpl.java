@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.HIDDEN;
-import static com.iksling.blog.enums.FileEnum.*;
+import static com.iksling.blog.enums.FileDirEnum.*;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
 
 /**
@@ -98,7 +98,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .userId(userId)
                     .fileName(IMAGE.getCurrentPath())
                     .fileFullPath(userId + "/" + IMAGE.getPath())
-                    .fileNameOrigin("img")
+                    .fileNameOrigin(IMAGE.getName())
                     .deletableFlag(false)
                     .createUser(loginUserId)
                     .createTime(createTime)
@@ -107,7 +107,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .userId(userId)
                     .fileName(AUDIO.getCurrentPath())
                     .fileFullPath(userId + "/" + AUDIO.getPath())
-                    .fileNameOrigin("audio")
+                    .fileNameOrigin(AUDIO.getName())
                     .deletableFlag(false)
                     .createUser(loginUserId)
                     .createTime(createTime)
@@ -118,7 +118,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .parentId(multiFileList.get(0).getId())
                     .fileName(IMAGE_AVATAR.getCurrentPath())
                     .fileFullPath(userId + "/" + IMAGE_AVATAR.getPath())
-                    .fileNameOrigin("avatar")
+                    .fileNameOrigin(IMAGE_AVATAR.getName())
                     .deletableFlag(false)
                     .createUser(loginUserId)
                     .createTime(createTime)
@@ -128,7 +128,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .parentId(multiFileList.get(1).getId())
                     .fileName(AUDIO_CHAT.getCurrentPath())
                     .fileFullPath(userId + "/" + AUDIO_CHAT.getPath())
-                    .fileNameOrigin("chat")
+                    .fileNameOrigin(AUDIO_CHAT.getName())
                     .deletableFlag(false)
                     .createUser(loginUserId)
                     .createTime(createTime)
@@ -165,17 +165,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Transactional
     public String saveUserAvatarBackVO(UserAvatarBackVO userAvatarBackVO) {
         MultipartFile file = userAvatarBackVO.getFile();
-        if (file.isEmpty())
-            throw new FileStatusException("文件不存在!");
-        String originalFilename = file.getOriginalFilename();
-        if (originalFilename == null)
-            throw new FileStatusException("文件解析异常!");
-        String[] originalFilenameArr = originalFilename.split("\\.");
-        String extension = originalFilenameArr[1];
-        if (MultiFileUtil.checkNotValidFileType(extension, IMAGE_AVATAR.getType()))
-            throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
-        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMAGE_AVATAR.getSize(), IMAGE_AVATAR.getUnit()))
-            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMAGE_AVATAR.getSize() + IMAGE_AVATAR.getUnit() + "}");
+        userAvatarBackVO.setFile(null);
+        MultiFileUtil.checkValidFile(file, IMAGE_AVATAR);
         Integer userId = userAvatarBackVO.getUserId();
         LoginUser loginUser = UserUtil.getLoginUser();
         if (userId == null)
@@ -189,11 +180,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new OperationStatusException();
         long fileName = IdWorker.getId();
         String targetAddr = userId + "/" + IMAGE_AVATAR.getPath();
-        String fullFileName = fileName + "." + extension;
+        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+        String fullFileName = fileName + "." + originalFilenameArr[1];
         String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
         if (url == null)
             throw new FileStatusException("文件上传失败!");
-        userAvatarBackVO.setFile(null);
         List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId)
                 .eq(MultiFile::getUserId, userId)
@@ -207,7 +198,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .fileName(fileName)
                 .fileSize(file.getSize())
                 .fileFullPath(targetAddr + "/" + fullFileName)
-                .fileExtension(extension)
+                .fileExtension(originalFilenameArr[1])
                 .fileNameOrigin(originalFilenameArr[0])
                 .deletableFlag(false)
                 .ipSource(IpUtil.getIpSource(iPAddress))
@@ -224,6 +215,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // TODO: 物理删除用户牵扯太多数据, 延后处理
         if (idList.isEmpty())
             throw new IllegalRequestException();
+    }
+
+    @Override
+    @Transactional
+    public void deleteBackUserOnlinesByIdList(List<Integer> idList) {
+        if (idList.isEmpty() || !Collections.disjoint(idList, ROOT_USER_ID_LIST))
+            throw new OperationStatusException();
+        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(e -> {
+            LoginUser loginUser = (LoginUser) e;
+            return idList.contains(loginUser.getUserId());
+        }).collect(Collectors.toList());
+        List<SessionInformation> allSessions = new ArrayList<>();
+        loginUserList.forEach(e -> allSessions.addAll(sessionRegistry.getAllSessions(e, false)));
+        allSessions.forEach(SessionInformation::expireNow);
     }
 
     @Override
@@ -274,31 +279,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .eq(User::getId, loginUserId));
     }
 
-
-
     @Override
     @Transactional
     public String updateUserAvatarVO(UserAvatarVO userAvatarVO) {
         MultipartFile file = userAvatarVO.getFile();
-        if (file.isEmpty())
-            throw new FileStatusException("文件不存在!");
-        String originalFilename = file.getOriginalFilename();
-        if (originalFilename == null)
-            throw new FileStatusException("文件解析异常!");
-        String[] originalFilenameArr = originalFilename.split("\\.");
-        String extension = originalFilenameArr[1];
-        if (MultiFileUtil.checkNotValidFileType(extension, IMAGE_AVATAR.getType()))
-            throw new FileStatusException("文件类型不匹配!需要的文件类型为{.jpg .jpeg .png .gif}");
-        if (MultiFileUtil.checkNotValidFileSize(file.getSize(), IMAGE_AVATAR.getSize(), IMAGE_AVATAR.getUnit()))
-            throw new FileStatusException("文件大小超出限制!文件最大为{" + IMAGE_AVATAR.getSize() + IMAGE_AVATAR.getUnit() + "}");
+        userAvatarVO.setFile(null);
+        MultiFileUtil.checkValidFile(file, IMAGE_AVATAR);
         long fileName = IdWorker.getId();
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
+        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         String targetAddr = loginUserId + "/" + IMAGE_AVATAR.getPath();
-        String fullFileName = fileName + "." + extension;
+        String fullFileName = fileName + "." + originalFilenameArr[1];
         String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
         if (url == null)
             throw new FileStatusException("文件上传失败!");
-        userAvatarVO.setFile(null);
         Date dateTime = new Date();
         List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getFileFullPath)
@@ -325,7 +319,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .fileName(fileName)
                 .fileSize(file.getSize())
                 .fileFullPath(targetAddr + "/" + fullFileName)
-                .fileExtension(extension)
+                .fileExtension(originalFilenameArr[1])
                 .fileNameOrigin(originalFilenameArr[0])
                 .ipSource(IpUtil.getIpSource(iPAddress))
                 .deletableFlag(false)
@@ -354,19 +348,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (CommonUtil.isEmpty(email) && CommonUtil.isEmpty(username))
             return false;
         return userMapper.selectBackUserAvatarById(email, username, null) != null;
-    }
-
-    @Override
-    public void deleteBackUserOnlinesByIdList(List<Integer> idList) {
-        if (idList.isEmpty() || !Collections.disjoint(idList, ROOT_USER_ID_LIST))
-            throw new OperationStatusException();
-        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(e -> {
-            LoginUser loginUser = (LoginUser) e;
-            return idList.contains(loginUser.getUserId());
-        }).collect(Collectors.toList());
-        List<SessionInformation> allSessions = new ArrayList<>();
-        loginUserList.forEach(e -> allSessions.addAll(sessionRegistry.getAllSessions(e, false)));
-        allSessions.forEach(SessionInformation::expireNow);
     }
 
     @Override

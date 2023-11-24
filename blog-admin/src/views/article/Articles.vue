@@ -355,6 +355,7 @@
 </template>
 
 <script>
+import qs from "qs";
 export default {
   created() {
     this.getArticles();
@@ -443,11 +444,18 @@ export default {
         categoryId: this.categoryId
       };
       params = this.$commonMethod.skipEmptyValue(params);
-      this.axios.get("/api/back/articles", { params }).then(({ data }) => {
-        this.count = data.data.count;
-        this.articleList = data.data.pageList;
-        this.loading = false;
-      });
+      this.axios
+        .get("/api/back/articles", {
+          params,
+          paramsSerializer: params => {
+            return qs.stringify(params, { indices: false, skipNulls: true });
+          }
+        })
+        .then(({ data }) => {
+          this.count = data.data.count;
+          this.articleList = data.data.pageList;
+          this.loading = false;
+        });
     },
     deleteArticles(id) {
       let param = {};

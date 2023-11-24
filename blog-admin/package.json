@@ -16,6 +16,7 @@
     "moment": "^2.26.0",
     "nprogress": "^0.2.0",
     "path": "^0.12.7",
+    "qs": "^6.11.2",
     "vue": "^2.6.11",
     "vue-avatar-cropper": "^1.0.6",
     "vue-axios": "^2.1.5",

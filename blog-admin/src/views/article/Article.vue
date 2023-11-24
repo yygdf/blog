@@ -105,7 +105,7 @@
             style="width: 520px"
             maxlength="255"
             @focus="articleCoverUpload = article.articleCover"
-            @change="updateCover(true)"
+            @change="changeInputCover"
             show-word-limit
           />
         </el-form-item>
@@ -258,6 +258,7 @@ export default {
       if (this.articleCoverUploadFlag) {
         this.updateImg(this.article.articleCover);
         this.$refs.upload.clearFiles();
+        this.articleCoverUploadFlag = false;
         this.article.articleCover = this.articleOrigin.articleCover;
       }
     },
@@ -359,16 +360,17 @@ export default {
           });
       }
     },
-    updateCover(flag) {
-      if (typeof flag == "boolean") {
-        if (this.articleCoverUploadFlag) {
-          this.$refs.upload.clearFiles();
-          this.updateImg(this.articleCoverUpload);
-          this.articleCoverUploadFlag = false;
-        }
-      } else {
+    updateCover(file) {
+      if (file && file.status === "success") {
         this.updateImg(this.article.articleCover);
         this.article.articleCover = "";
+        this.articleCoverUploadFlag = false;
+      }
+    },
+    changeInputCover() {
+      if (this.articleCoverUploadFlag) {
+        this.$refs.upload.clearFiles();
+        this.updateImg(this.articleCoverUpload);
         this.articleCoverUploadFlag = false;
       }
     },

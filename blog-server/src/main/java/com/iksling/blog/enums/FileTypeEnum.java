@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum FileTypeEnum {
-    JPG("image/jpeg", "ffd8ff", new byte[]{-1, 0, -1}),
+    JPG("image/jpeg", "ffd8ff", new byte[]{-1, -40, -1}),
     PNG("image/png", "89504e47", new byte[]{-119, 80, 78, 71}),
     GIF("image/gif", "47494638", new byte[]{71, 73, 70, 56}),
     PDF("application/pdf", "255044462d312e", new byte[]{37, 80, 68, 70, 45, 49, 46}),

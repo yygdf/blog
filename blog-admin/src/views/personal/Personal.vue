@@ -228,10 +228,11 @@ export default {
       }
     },
     beforeUpload(file) {
+      let contentType = file.type;
       if (
-        file.type !== "image/jpeg" &&
-        file.type !== "image/png" &&
-        file.type !== "image/gif"
+        contentType !== "image/jpeg" &&
+        contentType !== "image/png" &&
+        contentType !== "image/gif"
       ) {
         this.$message.error("上传的图片只能是jpg, png, gif格式");
         return false;

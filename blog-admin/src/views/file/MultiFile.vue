@@ -77,7 +77,7 @@
           type="primary"
           size="small"
           icon="el-icon-search"
-          style="margin-left: 1px"
+          style="margin-left: 1rem"
           @click="refreshLoad(null)"
         >
           搜索
@@ -85,8 +85,7 @@
         <el-button
           type="primary"
           size="small"
-          icon="el-icon-search"
-          style="margin-left: 1px"
+          style="margin-left: 5px"
           @click="getMultiFiles(true)"
         >
           深度搜索
@@ -235,6 +234,7 @@
                 v-if="!scope.row.fileExtension"
                 :disabled="!scope.row.deletableFlag"
                 icon="el-icon-upload2"
+                @click.native="openUploadModel(scope.row)"
               >
                 上传
               </el-dropdown-item>
@@ -247,7 +247,7 @@
               </el-dropdown-item>
               <el-dropdown-item
                 icon="el-icon-lock"
-                @click.native="openModel(scope.row)"
+                @click.native="openTokenModel(scope.row.id)"
               >
                 口令
               </el-dropdown-item>
@@ -298,6 +298,37 @@
         </el-button>
       </span>
     </el-dialog>
+    <el-dialog :visible.sync="multiFileUploadFlag" width="30%">
+      <div class="dialog-title-container" slot="title">
+        上传文件
+      </div>
+      <div style="margin-top: -1.5rem;margin-bottom: 0.5rem;">
+        目录名称: {{ multiFile.fileNameOrigin }}
+      </div>
+      <el-upload
+        ref="upload"
+        :on-remove="handleRemove"
+        :before-remove="beforeRemove"
+        :auto-upload="false"
+        action=""
+        :limit="10"
+        :on-change="changeMultiFiles"
+        multiple
+      >
+        <el-button slot="trigger" size="small" type="primary"
+          >选取文件</el-button
+        >
+        <div slot="tip" class="el-upload__tip">
+          目前支持的文件类型有{jpg,png,gif,pdf,xlsx,docx,pptx,wav,mp3,mp4,avi}<br />其他文件类型请压缩为zip/rar进行上传<br />单个文件不超过100MB
+        </div>
+      </el-upload>
+      <div slot="footer">
+        <el-button @click="multiFileUploadFlag = false">取 消</el-button>
+        <el-button type="danger" @click="submitUpload">
+          上 传
+        </el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -321,6 +352,7 @@ export default {
           label: "已删除"
         }
       ],
+      file: [],
       usernameList: [],
       multiFileList: [],
       multiFileIdList: [],
@@ -335,6 +367,7 @@ export default {
       editStatus: false,
       deepSearchFlag: false,
       addOrEditStatus: false,
+      multiFileUploadFlag: false,
       treeNodeMap: new Map()
     };
   },
@@ -421,6 +454,18 @@ export default {
       });
       this.addOrEditStatus = true;
     },
+    openUploadModel(multiFile) {
+      this.multiFile = {
+        id: multiFile.id,
+        fileNameOrigin: multiFile.fileNameOrigin
+      };
+      this.multiFileUploadFlag = true;
+    },
+    openTokenModel(id) {
+      this.multiFile = {
+        id: id
+      };
+    },
     checkWeight(weight) {
       return this.$store.state.weight <= weight;
     },
@@ -435,6 +480,66 @@ export default {
         title: "成功",
         message: "复制成功"
       });
+    },
+    handleRemove(file) {
+      this.file = this.file.filter(item => item.uid !== file.uid);
+    },
+    beforeRemove(file) {
+      return this.$confirm(`确定移除 ${file.name}？`);
+    },
+    changeMultiFiles(file, fileList) {
+      let contentType = file.raw.type;
+      if (
+        contentType !== "image/jpeg" &&
+        contentType !== "image/png" &&
+        contentType !== "image/gif" &&
+        contentType !== "application/pdf" &&
+        contentType !== "audio/wav" &&
+        contentType !== "audio/mpeg" &&
+        contentType !== "video/mp4" &&
+        contentType !== "video/avi" &&
+        contentType !== "application/x-zip-compressed" &&
+        contentType !== "application/octet-stream" &&
+        contentType !==
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" &&
+        contentType !==
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
+        contentType !==
+          "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      ) {
+        fileList.pop();
+        return false;
+      }
+      if (file.size >>> 20 > 100) {
+        fileList.pop();
+        return false;
+      }
+      this.file.push(file.raw);
+    },
+    uploadMultiFiles() {
+      let formData = new FormData();
+      formData.append("file", this.file);
+      formData.append("id", this.multiFile.id);
+      this.axios.post("/api/back/multiFiles", formData).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.refreshLoad(this.multiFile.id);
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+        this.$refs.upload.clearFiles();
+        this.file = [];
+        this.multiFileUploadFlag = false;
+      });
+    },
+    submitUpload() {
+      this.uploadMultiFiles();
     },
     selectionChange(multiFileList) {
       this.multiFileIdList = [];
@@ -457,11 +562,7 @@ export default {
         this.$set(this.$refs.table.store.states, "lazyTreeNodeMap", {});
         this.treeNodeMap = new Map();
         this.multiFileId = null;
-        if (this.keywords.trim() !== "") {
-          this.deepSearchFlag = true;
-        } else {
-          this.deepSearchFlag = false;
-        }
+        this.deepSearchFlag = this.keywords.trim() !== "";
       }
       this.axios
         .get("/api/back/multiFiles", {

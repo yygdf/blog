@@ -166,22 +166,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public String saveUserAvatarBackVO(UserAvatarBackVO userAvatarBackVO) {
         MultipartFile file = userAvatarBackVO.getFile();
         userAvatarBackVO.setFile(null);
-        MultiFileUtil.checkValidFile(file, IMAGE_AVATAR);
         Integer userId = userAvatarBackVO.getUserId();
         LoginUser loginUser = UserUtil.getLoginUser();
         if (userId == null)
             userId = loginUser.getUserId();
         else if (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(userId))
             throw new OperationStatusException();
-        List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
-                .select(MultiFile::getId)
+        MultiFileUtil.checkValidFile(file, IMAGE_AVATAR, true);
+        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId, MultiFile::getFileFullPath)
                 .eq(MultiFile::getUserId, userId)
                 .eq(MultiFile::getFileName, IMAGE_AVATAR.getCurrentPath())
                 .eq(MultiFile::getDeletedFlag, false));
-        if (objectList.isEmpty())
+        if (mapList.isEmpty())
             throw new OperationStatusException();
         long fileName = IdWorker.getId();
-        String targetAddr = userId + "/" + IMAGE_AVATAR.getPath();
+        String targetAddr = mapList.get(0).get("file_full_path").toString();
         String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         String fullFileName = fileName + "." + originalFilenameArr[1];
         String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
@@ -190,7 +190,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(userId)
-                .parentId((Integer) objectList.get(0))
+                .parentId((Integer) mapList.get(0).get("id"))
                 .fileDesc("{'userId':"+userId+"}")
                 .fileMark(IMAGE_AVATAR.getCurrentPath().intValue())
                 .fileName(fileName)
@@ -282,23 +282,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public String updateUserAvatarVO(UserAvatarVO userAvatarVO) {
         MultipartFile file = userAvatarVO.getFile();
         userAvatarVO.setFile(null);
-        MultiFileUtil.checkValidFile(file, IMAGE_AVATAR);
-        long fileName = IdWorker.getId();
+        MultiFileUtil.checkValidFile(file, IMAGE_AVATAR, true);
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
-        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
-        String targetAddr = loginUserId + "/" + IMAGE_AVATAR.getPath();
-        String fullFileName = fileName + "." + originalFilenameArr[1];
-        String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
-        if (url == null)
-            throw new FileStatusException("文件上传失败!");
-        Date dateTime = new Date();
         List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getFileFullPath)
                 .eq(MultiFile::getUserId, loginUserId)
                 .eq(MultiFile::getFileMark, IMAGE_AVATAR.getCurrentPath())
                 .eq(MultiFile::getDeletedFlag, false));
+        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+        long fileName = IdWorker.getId();
+        String targetAddr = objectList.get(0).toString();
+        String fullFileName = fileName + "." + originalFilenameArr[1];
+        String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
+        if (url == null)
+            throw new FileStatusException("文件上传失败!");
+        Date dateTime = new Date();
         if (!objectList.isEmpty())
-            updateUserAvatarBy(loginUserId, objectList.get(0).toString(), dateTime);
+            updateUserAvatarBy(loginUserId, targetAddr, dateTime);
         userMapper.update(null, new LambdaUpdateWrapper<User>()
                 .set(User::getAvatar, url)
                 .set(User::getUpdateUser, loginUserId)

@@ -239,7 +239,7 @@
                 上传
               </el-dropdown-item>
               <el-dropdown-item
-                v-if="scope.row.fileExtension"
+                v-else
                 icon="el-icon-link"
                 @click.native="copyUrl(scope.row.fileFullPath)"
               >
@@ -352,9 +352,9 @@ export default {
           label: "已删除"
         }
       ],
-      file: [],
       usernameList: [],
       multiFileList: [],
+      uploadFileList: [],
       multiFileIdList: [],
       multiFile: {},
       multiFileOrigin: {},
@@ -482,7 +482,9 @@ export default {
       });
     },
     handleRemove(file) {
-      this.file = this.file.filter(item => item.uid !== file.uid);
+      this.uploadFileList = this.uploadFileList.filter(
+        item => item.uid !== file.uid
+      );
     },
     beforeRemove(file) {
       return this.$confirm(`确定移除 ${file.name}？`);
@@ -514,12 +516,15 @@ export default {
         fileList.pop();
         return false;
       }
-      this.file.push(file.raw);
+      this.uploadFileList.push(file.raw);
     },
     uploadMultiFiles() {
       let formData = new FormData();
-      formData.append("file", this.file);
       formData.append("id", this.multiFile.id);
+      formData.append("fileList", this.uploadFileList);
+      if (this.userId != null) {
+        formData.append("userId", this.userId);
+      }
       this.axios.post("/api/back/multiFiles", formData).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
@@ -534,7 +539,7 @@ export default {
           });
         }
         this.$refs.upload.clearFiles();
-        this.file = [];
+        this.uploadFileList = [];
         this.multiFileUploadFlag = false;
       });
     },

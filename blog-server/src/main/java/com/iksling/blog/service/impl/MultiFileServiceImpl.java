@@ -13,10 +13,12 @@ import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.util.*;
 import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.MultiFileBackVO;
+import com.iksling.blog.vo.MultiFilesBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +46,32 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
 
     @Override
     @Transactional
+    public void saveMultiFilesBackVO(MultiFilesBackVO multiFilesBackVO) {
+        List<MultipartFile> fileList = multiFilesBackVO.getFileList();
+        multiFilesBackVO.setFileList(null);
+        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer multiFileUserId = multiFilesBackVO.getUserId();
+        if (multiFileUserId == null)
+            multiFileUserId = loginUser.getUserId();
+        else if (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(multiFileUserId))
+            throw new OperationStatusException();
+        List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getFileFullPath)
+                .eq(MultiFile::getId, multiFilesBackVO.getId())
+                .eq(MultiFile::getUserId, multiFileUserId)
+                .eq(MultiFile::getFileMark, 0)
+                .eq(MultiFile::getDeletedFlag, false)
+                .eq(MultiFile::getDeletableFlag, true));
+        if (objectList.isEmpty())
+            throw new OperationStatusException();
+        List<MultiFile> multiFileList = new ArrayList<>();
+        fileList.forEach(e -> {
+
+        });
+    }
+
+    @Override
+    @Transactional
     public void saveOrUpdateMultiFileBackVO(MultiFileBackVO multiFileBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer loginUserId = loginUser.getUserId();
@@ -52,9 +80,9 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             if (multiFile.getFileNameOrigin() == null)
                 throw new OperationStatusException();
             long fileName = IdWorker.getId();
-            if (multiFile.getParentId() == null) {
+            if (multiFile.getParentId() == null)
                 multiFile.setFileFullPath(loginUserId + "/" + fileName);
-            } else {
+            else {
                 List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
                         .select(MultiFile::getFileFullPath)
                         .eq(MultiFile::getId, multiFile.getParentId())
@@ -79,8 +107,9 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         } else {
             Integer count = multiFileMapper.selectCount(new LambdaQueryWrapper<MultiFile>()
                     .eq(MultiFile::getId, multiFile.getId())
-                    .and(loginUser.getRoleWeight() > 200, e -> e.eq(MultiFile::getUserId, loginUserId).eq(MultiFile::getDeletableFlag, true))
-                    .eq(MultiFile::getDeletedFlag, false));
+                    .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUserId)
+                    .eq(MultiFile::getDeletedFlag, false)
+                    .eq(MultiFile::getDeletableFlag, true));
             if (count != 1)
                 throw new OperationStatusException();
             if (CommonUtil.isNotEmpty(multiFile.getFileCover()) && !multiFile.getFileCover().startsWith(STATIC_RESOURCE_URL))

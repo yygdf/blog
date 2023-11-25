@@ -5,6 +5,7 @@ import com.iksling.blog.dto.MultiFilesBackDTO;
 import com.iksling.blog.entity.MultiFile;
 import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.MultiFileBackVO;
+import com.iksling.blog.vo.MultiFilesBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 
 import java.util.List;
@@ -13,6 +14,8 @@ import java.util.List;
  *
  */
 public interface MultiFileService extends IService<MultiFile> {
+
+    void saveMultiFilesBackVO(MultiFilesBackVO multiFilesBackVO);
 
     void saveOrUpdateMultiFileBackVO(MultiFileBackVO multiFileBackVO);
 

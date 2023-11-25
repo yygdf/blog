@@ -41,7 +41,7 @@ public class MultiFileUtil {
         return source > size;
     }
 
-    public static void checkValidFile(MultipartFile file, FileDirEnum fileDirEnum) {
+    public static void checkValidFile(MultipartFile file, FileDirEnum fileDirEnum, boolean checkSizeFlag) {
         if (file.isEmpty())
             throw new FileStatusException("文件不存在!");
         String originalFilename = file.getOriginalFilename();
@@ -107,7 +107,7 @@ public class MultiFileUtil {
                 if (flag)
                     throw new FileStatusException("不支持的文件类型!");
         }
-        if (checkNotValidFileSize(file.getSize(), fileDirEnum.getSize(), fileDirEnum.getUnit()))
+        if (checkSizeFlag && checkNotValidFileSize(file.getSize(), fileDirEnum.getSize(), fileDirEnum.getUnit()))
             throw new FileStatusException("文件大小超出限制!");
     }
 

@@ -158,24 +158,23 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     public String saveArticleImageBackVO(ArticleImageBackVO articleImageBackVO) {
         MultipartFile file = articleImageBackVO.getFile();
         articleImageBackVO.setFile(null);
-        MultiFileUtil.checkValidFile(file, IMAGE_ARTICLE);
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer articleUserId = articleImageBackVO.getUserId();
         if (articleUserId == null)
             articleUserId = loginUser.getUserId();
         else if (loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(articleUserId))
             throw new OperationStatusException();
+        MultiFileUtil.checkValidFile(file, IMAGE_ARTICLE, true);
         Integer articleId = articleImageBackVO.getArticleId();
-        List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
-                .select(MultiFile::getId)
-                .eq(MultiFile::getUserId, articleUserId)
+        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId, MultiFile::getFileFullPath)
                 .eq(MultiFile::getFileName, articleId)
-                .eq(MultiFile::getDeletedFlag, false));
-        if (objectList.isEmpty())
+                .exists("select id from tb_article where id="+articleId+" and userId="+articleUserId+" and deleted_flag=false and recycle_flag=false"));
+        if (mapList.isEmpty())
             throw new OperationStatusException();
-        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         long fileName = IdWorker.getId();
-        String targetAddr = articleUserId + "/" + IMAGE_ARTICLE.getPath() + "/" + articleId;
+        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+        String targetAddr = mapList.get(0).get("file_full_path").toString();
         String fullFileName = fileName + "." + originalFilenameArr[1];
         String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
         if (url == null)
@@ -183,7 +182,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(articleUserId)
-                .parentId((Integer) objectList.get(0))
+                .parentId((Integer) mapList.get(0).get("id"))
                 .fileDesc("{'userId':"+articleUserId+",'articleId':"+articleId+"}")
                 .fileMark(IMAGE_ARTICLE.getCurrentPath().intValue())
                 .fileName(fileName)

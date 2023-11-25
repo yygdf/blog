@@ -29,7 +29,7 @@ public class MultiFileController {
     @ApiOperation(value = "批量上传文件")
     @ApiImplicitParam(name = "multiFilesBackVO", value = "文件后台VO", required = true, dataType = "MultiFilesBackVO")
     @PostMapping("/back/multiFiles")
-    public Result saveBackMultiFiles(@Valid @RequestBody MultiFilesBackVO multiFilesBackVO) {
+    public Result saveBackMultiFiles(@Valid MultiFilesBackVO multiFilesBackVO) {
         multiFileService.saveMultiFilesBackVO(multiFilesBackVO);
         return Result.success().message("操作成功");
     }

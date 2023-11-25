@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.MultiFilesBackDTO;
 import com.iksling.blog.entity.MultiFile;
+import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.MultiFileMapper;
 import com.iksling.blog.pojo.LoginUser;
@@ -22,14 +23,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.FlagConst.*;
+import static com.iksling.blog.enums.FileDirEnum.OTHER;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
 
 /**
@@ -51,6 +50,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         multiFilesBackVO.setFileList(null);
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer multiFileUserId = multiFilesBackVO.getUserId();
+        boolean checkSizeFlag = true;
         if (multiFileUserId == null)
             multiFileUserId = loginUser.getUserId();
         else if (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(multiFileUserId))
@@ -65,9 +65,36 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         if (objectList.isEmpty())
             throw new OperationStatusException();
         List<MultiFile> multiFileList = new ArrayList<>();
-        fileList.forEach(e -> {
-
-        });
+        if (loginUser.getRoleWeight() <= 200)
+            checkSizeFlag = false;
+        Date createTime = new Date();
+        for (MultipartFile file : fileList) {
+            MultiFileUtil.checkValidFile(file, OTHER, checkSizeFlag);
+            long fileName = IdWorker.getId();
+            String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+            String targetAddr = objectList.get(0).toString();
+            String fullFileName = fileName + "." + originalFilenameArr[1];
+            String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
+            if (url == null)
+                throw new FileStatusException("文件上传失败!");
+            String iPAddress = IpUtil.getIpAddress(request);
+            multiFileList.add(MultiFile.builder()
+                    .userId(multiFileUserId)
+                    .parentId(multiFilesBackVO.getId())
+                    .fileDesc("{'userId':"+multiFileUserId+",'multiFileId':"+multiFilesBackVO.getId()+"}")
+                    .fileMark(OTHER.getCurrentPath().intValue())
+                    .fileName(fileName)
+                    .fileSize(file.getSize())
+                    .fileFullPath(targetAddr + "/" + fullFileName)
+                    .fileExtension(originalFilenameArr[1])
+                    .fileNameOrigin(originalFilenameArr[0])
+                    .ipSource(IpUtil.getIpSource(iPAddress))
+                    .ipAddress(iPAddress)
+                    .createUser(loginUser.getUserId())
+                    .createTime(createTime)
+                    .build());
+        }
+        this.saveBatch(multiFileList);
     }
 
     @Override

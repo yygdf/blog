@@ -324,7 +324,11 @@
       </el-upload>
       <div slot="footer">
         <el-button @click="multiFileUploadFlag = false">取 消</el-button>
-        <el-button type="danger" @click="submitUpload">
+        <el-button
+          :disabled="uploadFileList.length === 0"
+          type="danger"
+          @click="submitUpload"
+        >
           上 传
         </el-button>
       </div>
@@ -521,7 +525,8 @@ export default {
     uploadMultiFiles() {
       let formData = new FormData();
       formData.append("id", this.multiFile.id);
-      formData.append("fileList", this.uploadFileList);
+      // formData.append("fileList", this.uploadFileList);
+      this.uploadFileList.forEach(e => formData.append("fileList", e));
       if (this.userId != null) {
         formData.append("userId", this.userId);
       }

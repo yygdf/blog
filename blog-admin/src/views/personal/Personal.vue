@@ -146,6 +146,7 @@
               <el-avatar :size="200" :src="avatarForm.avatar"> </el-avatar>
             </el-button>
             <avatar-cropper
+              @changed="beforeUpload"
               @uploaded="uploadedAvatar"
               trigger="#pick-avatar"
               upload-url="/api/user/avatar"
@@ -205,22 +206,42 @@ export default {
       }
       this.axios.put("/api/user", param).then(({ data }) => {
         if (data.flag) {
-          this.$message.success(data.message);
           this.$store.commit("updateUserInfo", this.userForm);
           this.userFormOrigin = JSON.parse(JSON.stringify(this.userForm));
         } else {
-          this.$message.error(data.message);
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
         }
       });
     },
     uploadedAvatar(data) {
       if (data.flag) {
-        this.$message.success(data.message);
         this.avatarForm.avatar = data.data;
         this.$store.commit("updateAvatar", data.data);
       } else {
-        this.$message.error(data.message);
+        this.$notify.error({
+          title: "失败",
+          message: data.message
+        });
       }
+    },
+    beforeUpload(file) {
+      if (
+        file.type !== "image/jpeg" &&
+        file.type !== "image/png" &&
+        file.type !== "image/gif"
+      ) {
+        this.$message.error("上传的图片只能是jpg, png, gif格式");
+        return false;
+      }
+      if (file.size >>> 20 > 5) {
+        file.status = false;
+        this.$message.error("上传图片的大小不能超过5MB");
+        return false;
+      }
+      return true;
     },
     updatePassword() {
       let param = {
@@ -235,9 +256,11 @@ export default {
           this.oldPasswordStatus = 0;
           this.newPasswordStatus = 0;
           this.confirmPasswordStatus = 0;
-          this.$message.success(data.message);
         } else {
-          this.$message.error(data.message);
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
         }
       });
     },

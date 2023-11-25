@@ -173,10 +173,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             userId = loginUser.getUserId();
         else if (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(userId))
             throw new OperationStatusException();
-        Integer count = userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
-                .eq(UserAuth::getUserId, userId)
-                .eq(UserAuth::getDeletedFlag, false));
-        if (count != 1)
+        List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId)
+                .eq(MultiFile::getUserId, userId)
+                .eq(MultiFile::getFileName, IMAGE_AVATAR.getCurrentPath())
+                .eq(MultiFile::getDeletedFlag, false));
+        if (objectList.isEmpty())
             throw new OperationStatusException();
         long fileName = IdWorker.getId();
         String targetAddr = userId + "/" + IMAGE_AVATAR.getPath();
@@ -185,10 +187,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
         if (url == null)
             throw new FileStatusException("文件上传失败!");
-        List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
-                .select(MultiFile::getId)
-                .eq(MultiFile::getUserId, userId)
-                .eq(MultiFile::getFileName, IMAGE_AVATAR.getCurrentPath()));
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(userId)

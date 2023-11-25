@@ -166,12 +166,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         else if (loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(articleUserId))
             throw new OperationStatusException();
         Integer articleId = articleImageBackVO.getArticleId();
-        Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
-                .eq(Article::getId, articleId)
-                .eq(Article::getUserId, articleUserId)
-                .eq(Article::getDeletedFlag, false)
-                .eq(Article::getRecycleFlag, false));
-        if (count != 1)
+        List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId)
+                .eq(MultiFile::getUserId, articleUserId)
+                .eq(MultiFile::getFileName, articleId)
+                .eq(MultiFile::getDeletedFlag, false));
+        if (objectList.isEmpty())
             throw new OperationStatusException();
         String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         long fileName = IdWorker.getId();
@@ -181,9 +181,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (url == null)
             throw new FileStatusException("文件上传失败!");
         String iPAddress = IpUtil.getIpAddress(request);
-        List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
-                .select(MultiFile::getId)
-                .eq(MultiFile::getFileName, articleId));
         multiFileMapper.insert(MultiFile.builder()
                 .userId(articleUserId)
                 .parentId((Integer) objectList.get(0))

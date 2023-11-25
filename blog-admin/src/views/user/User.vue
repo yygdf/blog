@@ -337,11 +337,13 @@
             :on-change="changeAvatar"
             :on-remove="updateAvatar"
             :http-request="uploadAvatar"
+            :before-upload="beforeUpload"
             drag
           >
             <i class="el-icon-upload" v-if="!user.avatar" />
             <div class="el-upload__text" v-if="!user.avatar">
-              将文件拖到此处, 或<em>点击上传</em>
+              将文件拖到此处, 或<em>点击上传</em><br />
+              支持jpg/png/gif文件, 且不超过5MB
             </div>
             <img v-else :src="user.avatar" width="200" height="200" />
           </el-upload>
@@ -554,8 +556,9 @@ export default {
     },
     cancelAddOrEditUser() {
       if (this.avatarUploadFlag) {
-        this.updateAvatar();
+        this.updateImage();
         this.$refs.upload.clearFiles();
+        this.avatarUploadFlag = false;
       }
     },
     getUsernameExistFlag() {
@@ -628,14 +631,36 @@ export default {
         fileList.splice(0, 1);
       }
     },
-    updateAvatar() {
+    updateAvatar(file) {
+      if (file && file.status === "success") {
+        this.updateImage();
+        this.user.avatar = "";
+        this.avatarUploadFlag = false;
+      }
+    },
+    updateImage() {
       let pathArr = this.user.avatar.split("/");
       let fileName = pathArr[pathArr.length - 1].split(".")[0];
       this.axios.put("/api/back/user/avatars", [fileName]);
     },
+    beforeUpload(file) {
+      if (
+        file.type !== "image/jpeg" &&
+        file.type !== "image/png" &&
+        file.type !== "image/gif"
+      ) {
+        this.$message.error("上传的图片只能是jpg, png, gif格式");
+        return false;
+      }
+      if (file.size >>> 20 > 5) {
+        this.$message.error("上传图片的大小不能超过5MB");
+        return false;
+      }
+      return true;
+    },
     uploadAvatar(form) {
       if (this.avatarUploadFlag) {
-        this.updateAvatar();
+        this.updateImage();
       }
       let formData = new FormData();
       formData.append("file", form.file);
@@ -647,7 +672,7 @@ export default {
         } else {
           this.$notify.error({
             title: "失败",
-            message: "头像上传失败"
+            message: data.message
           });
         }
       });

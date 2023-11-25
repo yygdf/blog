@@ -38,8 +38,8 @@
       v-model="article.articleContent"
       ref="md"
       style="height:calc(100vh - 260px)"
-      @imgAdd="uploadArticleImg"
-      @imgDel="updateArticleImg"
+      @imgAdd="uploadArticleImage"
+      @imgDel="updateArticleImage"
       @save="addOrEditArticleDraft(true)"
     />
     <el-dialog
@@ -240,7 +240,7 @@ export default {
       })
         .then(() => {
           if (this.fileNameList.length !== 0) {
-            this.updateImg(null);
+            this.updateImage(null);
           }
           this.autoSaveFlag = false;
           let tab = this.$store.state.currentTab;
@@ -256,13 +256,13 @@ export default {
     },
     cancelAddOrEditArticle() {
       if (this.articleCoverUploadFlag) {
-        this.updateImg(this.article.articleCover);
+        this.updateImage(this.article.articleCover);
         this.$refs.upload.clearFiles();
         this.articleCoverUploadFlag = false;
         this.article.articleCover = this.articleOrigin.articleCover;
       }
     },
-    updateImg(url) {
+    updateImage(url) {
       let param;
       if (url == null) {
         param = this.fileNameList;
@@ -274,7 +274,7 @@ export default {
       }
       this.axios.put("/api/back/article/images", param);
     },
-    uploadImg(pos, file) {
+    uploadImage(pos, file) {
       if (this.article.id == null) {
         if (this.article.articleTitle.trim() === "") {
           this.$message.error("文章标题不能为空");
@@ -362,7 +362,7 @@ export default {
     },
     updateCover(file) {
       if (file && file.status === "success") {
-        this.updateImg(this.article.articleCover);
+        this.updateImage(this.article.articleCover);
         this.article.articleCover = "";
         this.articleCoverUploadFlag = false;
       }
@@ -370,28 +370,27 @@ export default {
     changeInputCover() {
       if (this.articleCoverUploadFlag) {
         this.$refs.upload.clearFiles();
-        this.updateImg(this.articleCoverUpload);
+        this.updateImage(this.articleCoverUpload);
         this.articleCoverUploadFlag = false;
       }
     },
     uploadCover(form) {
       if (this.articleCoverUploadFlag) {
-        this.updateImg(this.article.articleCover);
+        this.updateImage(this.article.articleCover);
       }
-      this.uploadImg(null, form.file);
+      this.uploadImage(null, form.file);
     },
     beforeUpload(file) {
-      const isImage =
-        file.type === "image/jpeg" ||
-        file.type === "image/png" ||
-        file.type === "image/gif";
-      const isLt5M = file.size / 1024 / 1024 <= 5;
-      if (!isImage) {
-        this.$message.error("上传的图片只能是jpg, png, gif格式!");
+      if (
+        file.type !== "image/jpeg" &&
+        file.type !== "image/png" &&
+        file.type !== "image/gif"
+      ) {
+        this.$message.error("上传的图片只能是jpg, png, gif格式");
         return false;
       }
-      if (!isLt5M) {
-        this.$message.error("上传的图片大小不能超过5MB!");
+      if (file.size >>> 20 > 5) {
+        this.$message.error("上传图片的大小不能超过5MB");
         return false;
       }
       return true;
@@ -401,11 +400,11 @@ export default {
         fileList.splice(0, 1);
       }
     },
-    updateArticleImg(pos) {
-      this.updateImg(pos[0]);
+    updateArticleImage(pos) {
+      this.updateImage(pos[0]);
     },
-    uploadArticleImg(pos, file) {
-      this.uploadImg(pos, file);
+    uploadArticleImage(pos, file) {
+      this.uploadImage(pos, file);
     },
     addOrEditArticleDraft(flag) {
       if (this.article.articleTitle.trim() === "") {

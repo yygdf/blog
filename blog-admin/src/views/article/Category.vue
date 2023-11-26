@@ -359,9 +359,9 @@ export default {
     checkSelectable(row) {
       return !row.articleCount;
     },
-    selectionChange(categoryList) {
+    selectionChange(selection) {
       this.categoryIdList = [];
-      categoryList.forEach(item => {
+      selection.forEach(item => {
         this.categoryIdList.push(item.id);
       });
     },

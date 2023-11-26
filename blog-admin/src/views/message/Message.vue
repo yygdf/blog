@@ -240,9 +240,9 @@ export default {
       this.current = current;
       this.getMessages();
     },
-    selectionChange(messageList) {
+    selectionChange(selection) {
       this.messageIdList = [];
-      messageList.forEach(item => {
+      selection.forEach(item => {
         this.messageIdList.push(item.id);
       });
     },

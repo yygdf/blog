@@ -311,9 +311,9 @@ export default {
         !this.rootUserIdList.some(e => e === row.userId)
       );
     },
-    selectionChange(userConfigList) {
+    selectionChange(selection) {
       this.userConfigIdList = [];
-      userConfigList.forEach(item => {
+      selection.forEach(item => {
         this.userConfigIdList.push(item.id);
       });
     },

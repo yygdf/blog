@@ -423,9 +423,9 @@ export default {
       this.current = current;
       this.getArticles();
     },
-    selectionChange(articleList) {
+    selectionChange(selection) {
       this.articleIdList = [];
-      articleList.forEach(item => {
+      selection.forEach(item => {
         this.articleIdList.push(item.id);
       });
     },

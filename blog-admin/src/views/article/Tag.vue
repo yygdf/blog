@@ -300,9 +300,9 @@ export default {
       this.current = current;
       this.getTags();
     },
-    selectionChange(tagList) {
+    selectionChange(selection) {
       this.tagIdList = [];
-      tagList.forEach(item => {
+      selection.forEach(item => {
         this.tagIdList.push(item.id);
       });
     },

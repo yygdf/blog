@@ -226,9 +226,9 @@ export default {
     checkSelectable(row) {
       return !this.rootUserIdList.some(e => e === row.id);
     },
-    selectionChange(userOnlineList) {
+    selectionChange(selection) {
       this.userOnlineIdList = [];
-      userOnlineList.forEach(item => {
+      selection.forEach(item => {
         this.userOnlineIdList.push(item.id);
       });
     },

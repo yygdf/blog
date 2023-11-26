@@ -495,9 +495,9 @@ export default {
     checkSelectable(row) {
       return !this.checkRootUser(row.id);
     },
-    selectionChange(userList) {
+    selectionChange(selection) {
       this.userIdList = [];
-      userList.forEach(item => {
+      selection.forEach(item => {
         this.userIdList.push(item.id);
       });
     },

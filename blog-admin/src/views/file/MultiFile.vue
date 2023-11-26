@@ -98,11 +98,20 @@
       :load="load"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       @expand-change="expandChange"
+      @select="select"
+      @select-all="selectAll"
+      @selection-change="selectionChange"
       ref="table"
       row-key="id"
       height="720"
       lazy
     >
+      <el-table-column
+        type="selection"
+        align="center"
+        width="40"
+        :selectable="checkSelectable"
+      />
       <el-table-column prop="fileNameOrigin" label="名称" />
       <el-table-column prop="fileExtension" label="类型" width="80">
         <template slot-scope="scope">
@@ -395,6 +404,10 @@ export default {
             params
           })
           .then(({ data }) => {
+            tree.children = data.data.dataList;
+            if (this.multiFileIdList.includes(tree.id)) {
+              this.setChildren(data.data.dataList, true);
+            }
             resolve(data.data.dataList);
           });
       }
@@ -423,6 +436,57 @@ export default {
       } else {
         this.multiFileId = row.parentId;
       }
+    },
+    toggleSelection(row, select) {
+      if (row) {
+        this.$nextTick(() => this.$refs.table.toggleRowSelection(row, select));
+      }
+    },
+    setChildren(children, type) {
+      children.map(e => {
+        this.toggleSelection(e, type);
+        if (e.children) {
+          this.setChildren(e.children, type);
+        }
+      });
+    },
+    select(selection, row) {
+      if (selection.some(e => e.id === row.id)) {
+        if (row.children) {
+          this.setChildren(row.children, true);
+        }
+      } else {
+        if (row.children) {
+          this.setChildren(row.children, false);
+        }
+      }
+    },
+    selectAll() {
+      if (this.$refs.table.store.states.isAllSelected) {
+        this.multiFileList
+          .filter(e => e.children != null)
+          .map(e => this.setChildren(e.children, true));
+      } else {
+        this.multiFileList
+          .filter(e => e.children != null)
+          .map(e => this.setChildren(e.children, false));
+      }
+    },
+    selectionChange(selection) {
+      this.multiFileIdList = [];
+      selection
+        .sort((e1, e2) => {
+          return e1.id - e2.id;
+        })
+        .forEach(item => {
+          if (this.multiFileIdList.every(e => e !== item.parentId)) {
+            this.multiFileIdList.push(item.id);
+          }
+        });
+      console.log(this.multiFileIdList);
+    },
+    checkSelectable(row) {
+      return row.deletableFlag && !this.multiFileIdList.includes(row.parentId);
     },
     openModel(multiFile, flag = false) {
       if (multiFile != null) {
@@ -549,12 +613,6 @@ export default {
     },
     submitUpload() {
       this.uploadMultiFiles();
-    },
-    selectionChange(multiFileList) {
-      this.multiFileIdList = [];
-      multiFileList.forEach(item => {
-        this.multiFileIdList.push(item.id);
-      });
     },
     getMultiFiles(deepSearchFlag) {
       let params = {

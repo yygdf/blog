@@ -376,9 +376,9 @@ export default {
       this.current = current;
       this.getFriendLinks();
     },
-    selectionChange(friendLinkList) {
+    selectionChange(selection) {
       this.friendLinkIdList = [];
-      friendLinkList.forEach(item => {
+      selection.forEach(item => {
         this.friendLinkIdList.push(item.id);
       });
     },

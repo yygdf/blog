@@ -329,9 +329,9 @@ export default {
       this.current = current;
       this.getComments();
     },
-    selectionChange(commentList) {
+    selectionChange(selection) {
       this.commentIdList = [];
-      commentList.forEach(item => {
+      selection.forEach(item => {
         this.commentIdList.push(item.id);
       });
     },

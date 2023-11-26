@@ -525,7 +525,6 @@ export default {
     uploadMultiFiles() {
       let formData = new FormData();
       formData.append("id", this.multiFile.id);
-      // formData.append("fileList", this.uploadFileList);
       this.uploadFileList.forEach(e => formData.append("fileList", e));
       if (this.userId != null) {
         formData.append("userId", this.userId);

@@ -176,8 +176,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         String targetAddr = mapList.get(0).get("file_full_path").toString();
         String fullFileName = fileName + "." + originalFilenameArr[1];
-        String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
-        if (url == null)
+        if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
             throw new FileStatusException("文件上传失败!");
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
@@ -196,7 +195,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .createUser(loginUser.getUserId())
                 .createTime(new Date())
                 .build());
-        return url;
+        return STATIC_RESOURCE_URL + articleUserId + "/" + IMAGE_ARTICLE.getPath() + "/" + articleId + "/" + fullFileName;
     }
 
     @Override

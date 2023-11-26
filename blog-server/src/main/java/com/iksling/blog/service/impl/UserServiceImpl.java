@@ -184,8 +184,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String targetAddr = mapList.get(0).get("file_full_path").toString();
         String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         String fullFileName = fileName + "." + originalFilenameArr[1];
-        String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
-        if (url == null)
+        if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
             throw new FileStatusException("文件上传失败!");
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
@@ -204,7 +203,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .createUser(loginUser.getUserId())
                 .createTime(new Date())
                 .build());
-        return url;
+        return STATIC_RESOURCE_URL + userId + "/" + IMAGE_AVATAR.getPath() + "/" + fullFileName;
     }
 
     @Override
@@ -293,10 +292,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         long fileName = IdWorker.getId();
         String targetAddr = objectList.get(0).toString();
         String fullFileName = fileName + "." + originalFilenameArr[1];
-        String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
-        if (url == null)
+        if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
             throw new FileStatusException("文件上传失败!");
         Date dateTime = new Date();
+        String url = STATIC_RESOURCE_URL + loginUserId + "/" + IMAGE_AVATAR.getPath() + "/" + fullFileName;
         if (!objectList.isEmpty())
             updateUserAvatarBy(loginUserId, targetAddr, dateTime);
         userMapper.update(null, new LambdaUpdateWrapper<User>()

@@ -6,6 +6,7 @@ import com.iksling.blog.exception.FileStatusException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.iksling.blog.enums.FileTypeEnum.*;
 
@@ -39,6 +40,10 @@ public class MultiFileUtil {
                 break;
         }
         return source > size;
+    }
+
+    public static void checkValidFile(List<MultipartFile> fileList, FileDirEnum fileDirEnum, boolean checkSizeFlag) {
+        fileList.forEach(e -> checkValidFile(e, fileDirEnum, checkSizeFlag));
     }
 
     public static void checkValidFile(MultipartFile file, FileDirEnum fileDirEnum, boolean checkSizeFlag) {

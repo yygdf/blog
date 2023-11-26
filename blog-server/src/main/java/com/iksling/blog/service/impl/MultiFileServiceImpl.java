@@ -68,8 +68,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         if (loginUser.getRoleWeight() <= 200)
             checkSizeFlag = false;
         Date createTime = new Date();
+        MultiFileUtil.checkValidFile(fileList, OTHER, checkSizeFlag);
         for (MultipartFile file : fileList) {
-            MultiFileUtil.checkValidFile(file, OTHER, checkSizeFlag);
             long fileName = IdWorker.getId();
             String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
             String targetAddr = objectList.get(0).toString();

@@ -199,7 +199,7 @@
             v-if="type !== 7"
             title="确定删除吗？"
             style="margin-left:10px"
-            @confirm="updateMultiFilesStatus(scope.row.id)"
+            @confirm="updateMultiFilesStatus(scope.row)"
           >
             <el-button
               :disabled="!scope.row.deletableFlag"
@@ -215,7 +215,7 @@
             v-else
             title="确定彻底删除吗？"
             style="margin-left:10px"
-            @confirm="deleteMultiFiles(scope.row.id)"
+            @confirm="deleteMultiFiles(scope.row)"
           >
             <el-button
               type="danger"
@@ -265,6 +265,30 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog :visible.sync="editStatus" width="30%">
+      <div class="dialog-title-container" slot="title">
+        <i class="el-icon-warning" style="color:#ff9900" />提示
+      </div>
+      <div style="font-size:1rem">是否删除选中项？</div>
+      <div slot="footer">
+        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button type="primary" @click="updateMultiFilesStatus(null)">
+          确 定
+        </el-button>
+      </div>
+    </el-dialog>
+    <el-dialog :visible.sync="removeStatus" width="30%">
+      <div class="dialog-title-container" slot="title">
+        <i class="el-icon-warning" style="color:#ff9900" />提示
+      </div>
+      <div style="font-size:1rem">是否彻底删除选中项？</div>
+      <div slot="footer">
+        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button type="primary" @click="deleteMultiFiles(null)">
+          确 定
+        </el-button>
+      </div>
+    </el-dialog>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="multiFileTitle" />
       <el-form :model="multiFile" size="medium" label-width="80">
@@ -376,8 +400,10 @@ export default {
       userId: null,
       keywords: "",
       multiFileId: null,
+      updateStatusId: null,
       loading: true,
       editStatus: false,
+      removeStatus: false,
       deepSearchFlag: false,
       addOrEditStatus: false,
       multiFileUploadFlag: false,
@@ -481,9 +507,9 @@ export default {
         .forEach(item => {
           if (this.multiFileIdList.every(e => e !== item.parentId)) {
             this.multiFileIdList.push(item.id);
+            this.updateStatusId = item.parentId;
           }
         });
-      console.log(this.multiFileIdList);
     },
     checkSelectable(row) {
       return row.deletableFlag && !this.multiFileIdList.includes(row.parentId);
@@ -651,15 +677,21 @@ export default {
           this.usernameList = data.data;
         });
     },
-    deleteMultiFiles(id) {
+    deleteMultiFiles(multiFile) {
       let param = {};
-      if (id == null) {
+      if (multiFile == null) {
         param = { data: this.multiFileIdList };
       } else {
-        param = { data: [id] };
+        param = { data: [multiFile.id] };
+        this.updateStatusId = multiFile.parentId;
       }
       this.axios.delete("/api/back/multiFiles", param).then(({ data }) => {
         if (data.flag) {
+          if (param.data.length > 1 || this.updateStatusId === -1) {
+            this.getMultiFiles(null);
+          } else {
+            this.refreshLoad(this.updateStatusId);
+          }
           this.$notify.success({
             title: "成功",
             message: data.message
@@ -733,10 +765,11 @@ export default {
         }
       });
     },
-    updateMultiFilesStatus(id) {
+    updateMultiFilesStatus(multiFile) {
       let param = {};
-      if (id != null) {
-        param.idList = [id];
+      if (multiFile != null) {
+        param.idList = [multiFile.id];
+        this.updateStatusId = multiFile.parentId;
       } else {
         param.idList = this.multiFileIdList;
       }
@@ -745,13 +778,15 @@ export default {
       }
       this.axios.put("/api/back/multiFiles/status", param).then(({ data }) => {
         if (data.flag) {
+          if (param.idList.length > 1 || this.updateStatusId === -1) {
+            this.getMultiFiles(null);
+          } else {
+            this.refreshLoad(this.updateStatusId);
+          }
           this.$notify.success({
             title: "成功",
             message: data.message
           });
-          if (param.idList.length === this.multiFileList.length) {
-            this.current = --this.current > 1 ? this.current : 1;
-          }
         } else {
           this.$notify.error({
             title: "失败",

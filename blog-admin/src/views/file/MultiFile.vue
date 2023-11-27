@@ -233,7 +233,7 @@
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item
                 v-if="!scope.row.fileExtension"
-                :disabled="!scope.row.deletableFlag"
+                :disabled="!scope.row.deletableFlag || type === 7"
                 icon="el-icon-plus"
                 @click.native="openModel(scope.row, true)"
               >
@@ -241,7 +241,7 @@
               </el-dropdown-item>
               <el-dropdown-item
                 v-if="!scope.row.fileExtension"
-                :disabled="!scope.row.deletableFlag"
+                :disabled="!scope.row.deletableFlag || type === 7"
                 icon="el-icon-upload2"
                 @click.native="openUploadModel(scope.row)"
               >
@@ -255,6 +255,7 @@
                 复制
               </el-dropdown-item>
               <el-dropdown-item
+                :disabled="!scope.row.deletableFlag || type === 7"
                 icon="el-icon-lock"
                 @click.native="openTokenModel(scope.row.id)"
               >

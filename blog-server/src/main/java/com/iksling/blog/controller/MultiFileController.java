@@ -52,6 +52,15 @@ public class MultiFileController {
         return Result.success().message("操作成功");
     }
 
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "批量更新文件状态")
+    @ApiImplicitParam(name = "statusBackVO", value = "状态后台VO", required = true, dataType = "StatusBackVO")
+    @PutMapping("/back/multiFiles/status")
+    public Result updateMultiFilesStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
+        multiFileService.updateMultiFilesStatusBackVO(statusBackVO);
+        return Result.success().message("操作成功");
+    }
+
     @ApiOperation(value = "查看后台文件列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
     @GetMapping("/back/multiFiles")

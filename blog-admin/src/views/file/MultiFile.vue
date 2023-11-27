@@ -30,6 +30,16 @@
       >
         批量删除
       </el-button>
+      <el-button
+        v-if="type === 7"
+        :disabled="multiFileIdList.length === 0"
+        type="success"
+        size="small"
+        icon="el-icon-refresh-left"
+        @click="editStatus = true"
+      >
+        批量恢复
+      </el-button>
       <div style="margin-left:auto">
         <el-select
           v-if="checkWeight(200)"
@@ -184,7 +194,7 @@
           <el-popconfirm
             v-else
             title="确定恢复吗？"
-            @confirm="updateMultiFilesStatus(scope.row.id)"
+            @confirm="updateMultiFilesStatus(scope.row)"
           >
             <el-button
               type="success"
@@ -270,7 +280,9 @@
       <div class="dialog-title-container" slot="title">
         <i class="el-icon-warning" style="color:#ff9900" />提示
       </div>
-      <div style="font-size:1rem">是否删除选中项？</div>
+      <div style="font-size:1rem">
+        是否{{ type === 7 ? "恢复" : "删除" }}选中项？
+      </div>
       <div slot="footer">
         <el-button @click="editStatus = false">取 消</el-button>
         <el-button type="primary" @click="updateMultiFilesStatus(null)">
@@ -800,10 +812,10 @@ export default {
   },
   watch: {
     type() {
-      this.getMultiFiles(null);
+      this.getMultiFiles(true);
     },
     userId() {
-      this.getMultiFiles(null);
+      this.getMultiFiles(true);
     }
   },
   computed: {

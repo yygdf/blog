@@ -313,7 +313,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                             .set(MultiFile::getDeletedFlag, false)
                             .eq(MultiFile::getId, e.get("id")));
                 }
-                MultiFileUtil.rename(fileFullPathOld, fileFullPathNew);
+                MultiFileUtil.rename(fileFullPath, fileFullPathNew);
             });
         else
             mapList.forEach(e -> {
@@ -339,7 +339,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                             .set(MultiFile::getDeletedFlag, true)
                             .eq(MultiFile::getId, e.get("id")));
                 }
-                MultiFileUtil.rename(fileFullPathOld, fileFullPathNew);
+                MultiFileUtil.rename(fileFullPath, fileFullPathNew);
             });
     }
 

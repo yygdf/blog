@@ -385,7 +385,7 @@
 <script>
 export default {
   created() {
-    this.getMultiFiles(null);
+    this.getMultiFiles(false);
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -412,8 +412,8 @@ export default {
       type: null,
       userId: null,
       keywords: "",
-      multiFileId: null,
       updateStatusId: null,
+      multiFileParentId: null,
       loading: true,
       editStatus: false,
       removeStatus: false,
@@ -427,8 +427,8 @@ export default {
     load(tree, treeNode, resolve) {
       if (this.deepSearchFlag) {
         this.keywords = "";
-        this.multiFileId = tree.id;
-        this.getMultiFiles();
+        this.multiFileParentId = tree.id;
+        this.getMultiFiles(false);
         this.deepSearchFlag = false;
       } else {
         this.treeNodeMap.set(tree.id, { tree, treeNode, resolve });
@@ -452,11 +452,11 @@ export default {
       }
     },
     refreshLoad(id) {
-      if (this.multiFileId == null) {
-        this.getMultiFiles();
+      if (this.multiFileParentId == null) {
+        this.getMultiFiles(false);
       } else {
         if (id == null) {
-          id = this.multiFileId;
+          id = this.multiFileParentId;
         }
         if (this.treeNodeMap.get(id)) {
           const { tree, treeNode, resolve } = this.treeNodeMap.get(id);
@@ -465,15 +465,15 @@ export default {
             this.load(tree, treeNode, resolve);
           }
         } else {
-          this.getMultiFiles();
+          this.getMultiFiles(false);
         }
       }
     },
     expandChange(row, expanded) {
       if (expanded) {
-        this.multiFileId = row.id;
+        this.multiFileParentId = row.id;
       } else {
-        this.multiFileId = row.parentId;
+        this.multiFileParentId = row.parentId;
       }
     },
     toggleSelection(row, select) {
@@ -583,10 +583,7 @@ export default {
       input.select();
       document.execCommand("copy");
       document.body.removeChild(input);
-      this.$notify.success({
-        title: "成功",
-        message: "复制成功"
-      });
+      this.$message.success("复制成功");
     },
     handleRemove(file) {
       this.uploadFileList = this.uploadFileList.filter(
@@ -594,7 +591,7 @@ export default {
       );
     },
     beforeRemove(file) {
-      return this.$confirm(`确定移除 ${file.name}？`);
+      return this.$confirm(`确定移除 ${file.name} ?`);
     },
     changeMultiFiles(file, fileList) {
       let contentType = file.raw.type;
@@ -660,14 +657,14 @@ export default {
         keywords: this.keywords
       };
       params = this.$commonMethod.skipEmptyValue(params);
-      if (this.multiFileId != null && this.multiFileId !== -1) {
-        params.categoryId = this.multiFileId;
+      if (this.multiFileParentId != null && this.multiFileParentId !== -1) {
+        params.categoryId = this.multiFileParentId;
       }
       if (deepSearchFlag) {
         params.flag = true;
         this.$set(this.$refs.table.store.states, "lazyTreeNodeMap", {});
         this.treeNodeMap = new Map();
-        this.multiFileId = null;
+        this.multiFileParentId = null;
         this.deepSearchFlag = this.keywords.trim() !== "";
       }
       this.axios
@@ -701,7 +698,7 @@ export default {
       this.axios.delete("/api/back/multiFiles", param).then(({ data }) => {
         if (data.flag) {
           if (param.data.length > 1 || this.updateStatusId === -1) {
-            this.getMultiFiles(null);
+            this.getMultiFiles(true);
           } else {
             this.refreshLoad(this.updateStatusId);
           }
@@ -709,7 +706,6 @@ export default {
             title: "成功",
             message: data.message
           });
-          this.getMultiFiles(null);
         } else {
           this.$notify.error({
             title: "失败",
@@ -732,15 +728,13 @@ export default {
       }
       if (this.multiFile.id != null) {
         param.id = this.multiFile.id;
-      } else {
-        if (this.multiFile.parentId != null) {
-          param.parentId = this.multiFile.parentId;
-        }
+      } else if (this.multiFile.parentId != null) {
+        param.parentId = this.multiFile.parentId;
       }
       this.axios.post("/api/back/multiFile", param).then(({ data }) => {
         if (data.flag) {
           if (this.multiFile.parentId == null) {
-            this.getMultiFiles(null);
+            this.getMultiFiles(false);
           } else {
             this.refreshLoad(this.multiFile.parentId);
           }
@@ -792,7 +786,7 @@ export default {
       this.axios.put("/api/back/multiFiles/status", param).then(({ data }) => {
         if (data.flag) {
           if (param.idList.length > 1 || this.updateStatusId === -1) {
-            this.getMultiFiles(null);
+            this.getMultiFiles(true);
           } else {
             this.refreshLoad(this.updateStatusId);
           }

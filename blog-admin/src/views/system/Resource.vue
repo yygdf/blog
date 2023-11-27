@@ -352,10 +352,8 @@ export default {
       }
       if (this.resource.id != null) {
         param.id = this.resource.id;
-      } else {
-        if (this.resource.parentId != null) {
-          param.parentId = this.resource.parentId;
-        }
+      } else if (this.resource.parentId != null) {
+        param.parentId = this.resource.parentId;
       }
       this.axios.post("/api/back/resource", param).then(({ data }) => {
         if (data.flag) {

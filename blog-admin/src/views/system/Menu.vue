@@ -436,10 +436,8 @@ export default {
       }
       if (this.menu.id != null) {
         param.id = this.menu.id;
-      } else {
-        if (this.menu.parentId != null) {
-          param.parentId = this.menu.parentId;
-        }
+      } else if (this.menu.parentId != null) {
+        param.parentId = this.menu.parentId;
       }
       this.axios.post("/api/back/menu", param).then(({ data }) => {
         if (data.flag) {

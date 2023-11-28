@@ -81,14 +81,14 @@
           prefix-icon="el-icon-search"
           placeholder="请输入文件名"
           clearable
-          @keyup.enter.native="refreshLoad(null)"
+          @keyup.enter.native="refreshLoad(multiFileParentId)"
         />
         <el-button
           type="primary"
           size="small"
           icon="el-icon-search"
           style="margin-left: 1rem"
-          @click="refreshLoad(null)"
+          @click="refreshLoad(multiFileParentId)"
         >
           搜索
         </el-button>
@@ -96,7 +96,7 @@
           type="primary"
           size="small"
           style="margin-left: 5px"
-          @click="getMultiFiles(true)"
+          @click="getMultiFiles(2)"
         >
           深度搜索
         </el-button>
@@ -385,7 +385,7 @@
 <script>
 export default {
   created() {
-    this.getMultiFiles(false);
+    this.getMultiFiles(0);
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -406,13 +406,13 @@ export default {
       multiFileList: [],
       uploadFileList: [],
       multiFileIdList: [],
+      batchParentIdList: [],
       multiFile: {},
       multiFileOrigin: {},
       staticResourceUrl: "",
       type: null,
       userId: null,
       keywords: "",
-      updateStatusId: null,
       multiFileParentId: null,
       loading: true,
       editStatus: false,
@@ -428,7 +428,7 @@ export default {
       if (this.deepSearchFlag) {
         this.keywords = "";
         this.multiFileParentId = tree.id;
-        this.getMultiFiles(false);
+        this.getMultiFiles(0);
         this.deepSearchFlag = false;
       } else {
         this.treeNodeMap.set(tree.id, { tree, treeNode, resolve });
@@ -452,21 +452,14 @@ export default {
       }
     },
     refreshLoad(id) {
-      if (this.multiFileParentId == null) {
-        this.getMultiFiles(false);
+      if (this.treeNodeMap.get(id)) {
+        const { tree, treeNode, resolve } = this.treeNodeMap.get(id);
+        this.$set(this.$refs.table.store.states.lazyTreeNodeMap, id, []);
+        if (tree) {
+          this.load(tree, treeNode, resolve);
+        }
       } else {
-        if (id == null) {
-          id = this.multiFileParentId;
-        }
-        if (this.treeNodeMap.get(id)) {
-          const { tree, treeNode, resolve } = this.treeNodeMap.get(id);
-          this.$set(this.$refs.table.store.states.lazyTreeNodeMap, id, []);
-          if (tree) {
-            this.load(tree, treeNode, resolve);
-          }
-        } else {
-          this.getMultiFiles(false);
-        }
+        this.getMultiFiles(0);
       }
     },
     expandChange(row, expanded) {
@@ -520,7 +513,7 @@ export default {
         .forEach(item => {
           if (this.multiFileIdList.every(e => e !== item.parentId)) {
             this.multiFileIdList.push(item.id);
-            this.updateStatusId = item.parentId;
+            this.batchParentIdList.push(item.parentId);
           }
         });
     },
@@ -650,7 +643,7 @@ export default {
     submitUpload() {
       this.uploadMultiFiles();
     },
-    getMultiFiles(deepSearchFlag) {
+    getMultiFiles(searchType) {
       let params = {
         type: this.type,
         userId: this.userId,
@@ -660,12 +653,14 @@ export default {
       if (this.multiFileParentId != null && this.multiFileParentId !== -1) {
         params.categoryId = this.multiFileParentId;
       }
-      if (deepSearchFlag) {
-        params.flag = true;
+      if (searchType > 0) {
         this.$set(this.$refs.table.store.states, "lazyTreeNodeMap", {});
         this.treeNodeMap = new Map();
         this.multiFileParentId = null;
-        this.deepSearchFlag = this.keywords.trim() !== "";
+        if (searchType > 1) {
+          params.flag = true;
+          this.deepSearchFlag = this.keywords.trim() !== "";
+        }
       }
       this.axios
         .get("/api/back/multiFiles", {
@@ -693,14 +688,18 @@ export default {
         param = { data: this.multiFileIdList };
       } else {
         param = { data: [multiFile.id] };
-        this.updateStatusId = multiFile.parentId;
+        this.batchParentIdList.push(multiFile.parentId);
       }
       this.axios.delete("/api/back/multiFiles", param).then(({ data }) => {
         if (data.flag) {
-          if (param.data.length > 1 || this.updateStatusId === -1) {
-            this.getMultiFiles(true);
+          if (
+            this.batchParentIdList.length === 1 ||
+            Array.from(new Set(this.batchParentIdList)).length === 1
+          ) {
+            this.refreshLoad(this.batchParentIdList[0]);
           } else {
-            this.refreshLoad(this.updateStatusId);
+            this.multiFileParentId = null;
+            this.getMultiFiles(1);
           }
           this.$notify.success({
             title: "成功",
@@ -734,7 +733,7 @@ export default {
       this.axios.post("/api/back/multiFile", param).then(({ data }) => {
         if (data.flag) {
           if (this.multiFile.parentId == null) {
-            this.getMultiFiles(false);
+            this.getMultiFiles(0);
           } else {
             this.refreshLoad(this.multiFile.parentId);
           }
@@ -759,7 +758,9 @@ export default {
         param.type = type;
       }
       this.axios.put("/api/back/multiFile/status", param).then(({ data }) => {
-        if (!data.flag) {
+        if (data.flag) {
+          this.refreshLoad(multiFile.parentId);
+        } else {
           this.$notify.error({
             title: "失败",
             message: data.message
@@ -776,7 +777,7 @@ export default {
       let param = {};
       if (multiFile != null) {
         param.idList = [multiFile.id];
-        this.updateStatusId = multiFile.parentId;
+        this.batchParentIdList.push(multiFile.parentId);
       } else {
         param.idList = this.multiFileIdList;
       }
@@ -785,10 +786,14 @@ export default {
       }
       this.axios.put("/api/back/multiFiles/status", param).then(({ data }) => {
         if (data.flag) {
-          if (param.idList.length > 1 || this.updateStatusId === -1) {
-            this.getMultiFiles(true);
+          if (
+            this.batchParentIdList.length === 1 ||
+            Array.from(new Set(this.batchParentIdList)).length === 1
+          ) {
+            this.refreshLoad(this.batchParentIdList[0]);
           } else {
-            this.refreshLoad(this.updateStatusId);
+            this.multiFileParentId = null;
+            this.getMultiFiles(1);
           }
           this.$notify.success({
             title: "成功",
@@ -806,10 +811,10 @@ export default {
   },
   watch: {
     type() {
-      this.getMultiFiles(true);
+      this.getMultiFiles(0);
     },
     userId() {
-      this.getMultiFiles(true);
+      this.getMultiFiles(0);
     }
   },
   computed: {

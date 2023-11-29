@@ -628,7 +628,9 @@ export default {
             title: "成功",
             message: data.message
           });
-          this.refreshLoad(this.multiFile.id);
+          if (this.treeNodeMap.has(this.multiFile.id)) {
+            this.refreshLoad(this.multiFile.id);
+          }
         } else {
           this.$notify.error({
             title: "失败",
@@ -656,10 +658,14 @@ export default {
       if (searchType > 0) {
         this.$set(this.$refs.table.store.states, "lazyTreeNodeMap", {});
         this.treeNodeMap = new Map();
-        this.multiFileParentId = null;
         if (searchType > 1) {
-          params.flag = true;
-          this.deepSearchFlag = this.keywords.trim() !== "";
+          if (this.keywords.trim() === "") {
+            delete params.categoryId;
+            this.deepSearchFlag = false;
+          } else {
+            params.flag = true;
+            this.deepSearchFlag = true;
+          }
         }
       }
       this.axios
@@ -693,8 +699,9 @@ export default {
       this.axios.delete("/api/back/multiFiles", param).then(({ data }) => {
         if (data.flag) {
           if (
-            this.batchParentIdList.length === 1 ||
-            Array.from(new Set(this.batchParentIdList)).length === 1
+            (this.batchParentIdList.length === 1 ||
+              Array.from(new Set(this.batchParentIdList)).length === 1) &&
+            this.batchParentIdList[0] !== -1
           ) {
             this.refreshLoad(this.batchParentIdList[0]);
           } else {
@@ -787,8 +794,9 @@ export default {
       this.axios.put("/api/back/multiFiles/status", param).then(({ data }) => {
         if (data.flag) {
           if (
-            this.batchParentIdList.length === 1 ||
-            Array.from(new Set(this.batchParentIdList)).length === 1
+            (this.batchParentIdList.length === 1 ||
+              Array.from(new Set(this.batchParentIdList)).length === 1) &&
+            this.batchParentIdList[0] !== -1
           ) {
             this.refreshLoad(this.batchParentIdList[0]);
           } else {
@@ -811,9 +819,11 @@ export default {
   },
   watch: {
     type() {
+      this.multiFileParentId = null;
       this.getMultiFiles(0);
     },
     userId() {
+      this.multiFileParentId = null;
       this.getMultiFiles(0);
     }
   },

@@ -432,7 +432,8 @@ export default {
       addOrEditStatus: false,
       multiFileTokenFlag: false,
       multiFileUploadFlag: false,
-      treeNodeMap: new Map()
+      treeNodeMap: new Map(),
+      lazyLoadIdSet: new Set()
     };
   },
   methods: {
@@ -467,9 +468,7 @@ export default {
       if (this.treeNodeMap.get(id)) {
         const { tree, treeNode, resolve } = this.treeNodeMap.get(id);
         this.$set(this.$refs.table.store.states.lazyTreeNodeMap, id, []);
-        if (tree) {
-          this.load(tree, treeNode, resolve);
-        }
+        this.load(tree, treeNode, resolve);
       } else {
         this.getMultiFiles(0);
       }
@@ -477,6 +476,10 @@ export default {
     expandChange(row, expanded) {
       if (expanded) {
         this.multiFileParentId = row.id;
+        if (this.lazyLoadIdSet.has(row.id)) {
+          this.refreshLoad(row.id);
+          this.lazyLoadIdSet.delete(row.id);
+        }
       } else {
         this.multiFileParentId = row.parentId;
       }
@@ -644,7 +647,11 @@ export default {
             message: data.message
           });
           if (this.treeNodeMap.get(this.multiFile.id)) {
-            this.refreshLoad(this.multiFile.id);
+            if (this.multiFileParentId === this.multiFile.id) {
+              this.refreshLoad(this.multiFile.id);
+            } else {
+              this.lazyLoadIdSet.add(this.multiFile.id);
+            }
           }
         } else {
           this.$notify.error({
@@ -787,11 +794,7 @@ export default {
             if (this.multiFileParentId === multiFile.id) {
               this.refreshLoad(multiFile.id);
             } else {
-              this.$set(
-                this.$refs.table.store.states.lazyTreeNodeMap,
-                multiFile.id,
-                []
-              );
+              this.lazyLoadIdSet.add(multiFile.id);
             }
           }
         } else {
@@ -846,10 +849,12 @@ export default {
   },
   watch: {
     type() {
+      this.lazyLoadIdSet.clear();
       this.multiFileParentId = null;
       this.getMultiFiles(0);
     },
     userId() {
+      this.lazyLoadIdSet.clear();
       this.multiFileParentId = null;
       this.getMultiFiles(0);
     }

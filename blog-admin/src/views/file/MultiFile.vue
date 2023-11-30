@@ -253,7 +253,7 @@
                 v-if="!scope.row.fileExtension"
                 :disabled="!scope.row.deletableFlag || type === 7"
                 icon="el-icon-upload2"
-                @click.native="openUploadModel(scope.row)"
+                @click.native="openOperateModel(scope.row, true)"
               >
                 上传
               </el-dropdown-item>
@@ -265,11 +265,14 @@
                 复制
               </el-dropdown-item>
               <el-dropdown-item
-                :disabled="!scope.row.deletableFlag || type === 7"
+                v-if="!scope.row.fileExtension"
+                :disabled="
+                  !scope.row.deletableFlag || type === 7 || scope.row.publicFlag
+                "
                 icon="el-icon-lock"
-                @click.native="openTokenModel(scope.row.id)"
+                @click.native="openOperateModel(scope.row, false)"
               >
-                口令
+                密令
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -326,7 +329,7 @@
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="封面">
+        <el-form-item v-if="multiFile.fileCover != null" label="封面">
           <el-input
             v-model="multiFile.fileCover"
             class="word-limit-input2"
@@ -379,6 +382,14 @@
         </el-button>
       </div>
     </el-dialog>
+    <el-dialog :visible.sync="multiFileTokenFlag" width="30%">
+      <div class="dialog-title-container" slot="title">
+        密令设置
+      </div>
+      <div style="margin-top: -1.5rem;margin-bottom: 0.5rem;">
+        目录名称: {{ multiFile.fileNameOrigin }}
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -419,6 +430,7 @@ export default {
       removeStatus: false,
       deepSearchFlag: false,
       addOrEditStatus: false,
+      multiFileTokenFlag: false,
       multiFileUploadFlag: false,
       treeNodeMap: new Map()
     };
@@ -535,10 +547,14 @@ export default {
             id: multiFile.id,
             parentId: multiFile.parentId,
             fileDesc: multiFile.fileDesc,
-            fileCover: multiFile.fileCover,
             fileNameOrigin: multiFile.fileNameOrigin
           };
-          this.$refs.multiFileTitle.innerHTML = "修改目录";
+          if (multiFile.fileExtension) {
+            this.$refs.multiFileTitle.innerHTML = "修改文件";
+          } else {
+            this.multiFile.fileCover = multiFile.fileCover;
+            this.$refs.multiFileTitle.innerHTML = "修改目录";
+          }
         }
       } else {
         this.multiFile = {
@@ -554,17 +570,16 @@ export default {
       });
       this.addOrEditStatus = true;
     },
-    openUploadModel(multiFile) {
+    openOperateModel(multiFile, flag) {
       this.multiFile = {
         id: multiFile.id,
         fileNameOrigin: multiFile.fileNameOrigin
       };
-      this.multiFileUploadFlag = true;
-    },
-    openTokenModel(id) {
-      this.multiFile = {
-        id: id
-      };
+      if (flag) {
+        this.multiFileUploadFlag = true;
+      } else {
+        this.multiFileTokenFlag = true;
+      }
     },
     checkWeight(weight) {
       return this.$store.state.weight <= weight;
@@ -628,7 +643,7 @@ export default {
             title: "成功",
             message: data.message
           });
-          if (this.treeNodeMap.has(this.multiFile.id)) {
+          if (this.treeNodeMap.get(this.multiFile.id)) {
             this.refreshLoad(this.multiFile.id);
           }
         } else {
@@ -766,7 +781,19 @@ export default {
       }
       this.axios.put("/api/back/multiFile/status", param).then(({ data }) => {
         if (data.flag) {
-          this.refreshLoad(multiFile.parentId);
+          if (multiFile.fileExtension) {
+            this.refreshLoad(multiFile.parentId);
+          } else if (this.treeNodeMap.get(multiFile.id)) {
+            if (this.multiFileParentId === multiFile.id) {
+              this.refreshLoad(multiFile.id);
+            } else {
+              this.$set(
+                this.$refs.table.store.states.lazyTreeNodeMap,
+                multiFile.id,
+                []
+              );
+            }
+          }
         } else {
           this.$notify.error({
             title: "失败",

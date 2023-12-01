@@ -19,7 +19,6 @@
             <result property="fileNameOrigin" column="file_name_origin" jdbcType="VARCHAR"/>
             <result property="publicFlag" column="public_flag" jdbcType="BOOLEAN"/>
             <result property="hiddenFlag" column="hidden_flag" jdbcType="BOOLEAN"/>
-            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
             <result property="deletableFlag" column="deletable_flag" jdbcType="BOOLEAN"/>
             <result property="deletedCount" column="deleted_count" jdbcType="INTEGER"/>
             <result property="ipSource" column="ip_source" jdbcType="VARCHAR"/>
@@ -35,9 +34,8 @@
         file_desc,file_mark,file_name,
         file_size,file_cover,file_full_path,
         file_extension,file_name_new,file_name_origin,
-        public_flag,hidden_flag,deleted_flag,
-        deletable_flag,deleted_count,ip_source,
-        ip_address,create_user,create_time,
-        update_user,update_time
+        public_flag,hidden_flag,deletable_flag,
+        deleted_count,ip_source,ip_address,create_user,
+        create_time,update_user,update_time
     </sql>
 </mapper>

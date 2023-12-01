@@ -94,11 +94,6 @@ public class MultiFile implements Serializable {
     private Boolean hiddenFlag;
 
     /**
-     * 0未删除, 1已删除, 默认0
-     */
-    private Boolean deletedFlag;
-
-    /**
      * 0不可删除, 1可删除, 默认1
      */
     private Boolean deletableFlag;

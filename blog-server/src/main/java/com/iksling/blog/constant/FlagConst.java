@@ -60,4 +60,9 @@ public class FlagConst {
      * 锁定
      */
     public static final Integer LOCKED = 12;
+
+    /**
+     * 历史
+     */
+    public static final Integer HISTORY = 12;
 }

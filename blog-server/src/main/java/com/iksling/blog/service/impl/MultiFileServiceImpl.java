@@ -60,7 +60,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .eq(MultiFile::getId, multiFilesBackVO.getId())
                 .eq(MultiFile::getUserId, multiFileUserId)
                 .eq(MultiFile::getFileMark, 0)
-                .eq(MultiFile::getDeletedFlag, false)
+                .eq(MultiFile::getDeletedCount, 0)
                 .eq(MultiFile::getDeletableFlag, true));
         if (objectList.isEmpty())
             throw new OperationStatusException();
@@ -115,7 +115,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                         .eq(MultiFile::getId, multiFile.getParentId())
                         .eq(MultiFile::getUserId, loginUserId)
                         .eq(MultiFile::getFileMark, 0)
-                        .eq(MultiFile::getDeletedFlag, false)
+                        .eq(MultiFile::getDeletedCount, 0)
                         .eq(MultiFile::getDeletableFlag, true));
                 if (objectList.isEmpty())
                     throw new OperationStatusException();
@@ -135,7 +135,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             Integer count = multiFileMapper.selectCount(new LambdaQueryWrapper<MultiFile>()
                     .eq(MultiFile::getId, multiFile.getId())
                     .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUserId)
-                    .eq(MultiFile::getDeletedFlag, false)
+                    .eq(MultiFile::getDeletedCount, 0)
                     .eq(MultiFile::getDeletableFlag, true));
             if (count != 1)
                 throw new OperationStatusException();
@@ -156,7 +156,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 .select(MultiFile::getId, MultiFile::getFileFullPath, MultiFile::getFileExtension, MultiFile::getPublicFlag, MultiFile::getHiddenFlag)
                 .in(MultiFile::getId, statusBackVO.getIdList())
                 .and(loginUser.getRoleWeight() > 200, e -> e.eq(MultiFile::getUserId, loginUserId).eq(MultiFile::getDeletableFlag, true))
-                .eq(MultiFile::getDeletedFlag, false));
+                .eq(MultiFile::getDeletedCount, 0));
         if (mapList.size() != statusBackVO.getIdList().size())
             throw new OperationStatusException();
         if (HIDDEN.equals(statusBackVO.getType())) {
@@ -281,7 +281,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         LoginUser loginUser = UserUtil.getLoginUser();
         List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileFullPath, MultiFile::getFileExtension)
-                .eq(loginUser.getRoleWeight() > 100, MultiFile::getDeletedFlag, false)
+                .eq(loginUser.getRoleWeight() > 100, MultiFile::getDeletedCount, 0)
                 .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUser.getUserId())
                 .eq(MultiFile::getDeletableFlag, true)
                 .in(MultiFile::getId, statusBackVO.getIdList()));
@@ -301,8 +301,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                             .set(MultiFile::getFileNameNew, fileNameNew)
                             .eq(MultiFile::getId, e.get("id")));
                     multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
-                            .set(MultiFile::getDeletedFlag, false)
-                            .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
+                            .setSql("deleted_count=deleted_count-1,file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                             .likeRight(MultiFile::getFileFullPath, fileFullPath));
                 } else {
                     fileFullPathNew += "." + fileExtension;

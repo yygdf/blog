@@ -283,7 +283,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .select(MultiFile::getId, MultiFile::getFileFullPath, MultiFile::getFileExtension)
                 .in(MultiFile::getFileName, fileNameList)
                 .eq(MultiFile::getFileMark, IMAGE_ARTICLE.getCurrentPath())
-                .eq(MultiFile::getDeletedFlag, false)
+                .eq(MultiFile::getDeletedCount, 0)
                 .eq(loginUser.getRoleWeight() > 300, MultiFile::getUserId, loginUser.getUserId()));
         if (mapList.size() != fileNameList.size())
             throw new OperationStatusException();
@@ -295,7 +295,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                     .set(MultiFile::getFileNameNew, fileNameNew)
                     .set(MultiFile::getFileFullPath, fileFullPathNew)
-                    .set(MultiFile::getDeletedFlag, true)
+                    .set(MultiFile::getDeletedCount, 1)
                     .set(MultiFile::getUpdateUser, loginUser.getUserId())
                     .set(MultiFile::getUpdateTime, new Date())
                     .eq(MultiFile::getId, e.get("id")));
@@ -369,7 +369,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                 .set(MultiFile::getFileNameNew, fileNameNew)
                 .set(MultiFile::getFileFullPath, fileFullPathNew)
-                .set(MultiFile::getDeletedFlag, true)
+                .set(MultiFile::getDeletedCount, 1)
                 .set(MultiFile::getUpdateUser, loginUserId)
                 .set(MultiFile::getUpdateTime, updateTime)
                 .eq(MultiFile::getFileName, getSplitStringByIndex(fileFullPathOld, "/", -1))
@@ -408,13 +408,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                         .set(MultiFile::getFileNameNew, fileNameNew)
                         .set(MultiFile::getFileFullPath, fileFullPathNew)
-                        .set(MultiFile::getDeletedFlag, true)
+                        .set(MultiFile::getDeletedCount, 1)
                         .set(MultiFile::getUpdateUser, loginUserId)
                         .set(MultiFile::getUpdateTime, updateTime)
                         .eq(MultiFile::getId, e.get("id")));
                 multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
-                        .set(MultiFile::getDeletedFlag, true)
-                        .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
+                        .setSql("deleted_count=deleted_count+1,file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                         .eq(MultiFile::getParentId, e.get("id")));
                 MultiFileUtil.rename(fileFullPath, fileFullPathNew);
             });
@@ -425,15 +424,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 String fileFullPathOld = fileFullPath.substring(0, fileFullPath.length() - fileFullName.length()) + getSplitStringByIndex(fileFullName, "[_.]", 0);
                 multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                         .set(MultiFile::getFileFullPath, fileFullPathOld)
-                        .set(MultiFile::getDeletedFlag, false)
+                        .set(MultiFile::getDeletedCount, 0)
                         .set(MultiFile::getPublicFlag, true)
                         .set(MultiFile::getHiddenFlag, false)
                         .set(MultiFile::getUpdateUser, loginUserId)
                         .set(MultiFile::getUpdateTime, updateTime)
                         .eq(MultiFile::getId, e.get("id")));
                 multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
-                        .set(MultiFile::getDeletedFlag, false)
-                        .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathOld+"')")
+                        .setSql("deleted_count=deleted_count-1,file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathOld+"')")
                         .eq(MultiFile::getParentId, e.get("id")));
                 MultiFileUtil.rename(fileFullPath, fileFullPathOld);
             });

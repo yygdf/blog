@@ -67,6 +67,11 @@ public class MultiFilesBackDTO {
     private Boolean deletableFlag;
 
     /**
+     * 删除次数
+     */
+    private Integer deletedCount;
+
+    /**
      * 创建时间
      */
     private Date createTime;

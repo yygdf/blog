@@ -36,8 +36,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.*;
-import static com.iksling.blog.constant.FlagConst.DELETED;
-import static com.iksling.blog.constant.FlagConst.HIDDEN;
+import static com.iksling.blog.constant.FlagConst.*;
 import static com.iksling.blog.enums.FileDirEnum.*;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
 
@@ -177,7 +176,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .select(MultiFile::getId, MultiFile::getFileFullPath)
                 .eq(MultiFile::getUserId, userId)
                 .eq(MultiFile::getFileName, IMAGE_AVATAR.getCurrentPath())
-                .eq(MultiFile::getDeletedFlag, false));
+                .eq(MultiFile::getDeletedCount, 0));
         if (mapList.isEmpty())
             throw new OperationStatusException();
         long fileName = IdWorker.getId();
@@ -242,7 +241,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .select(MultiFile::getId, MultiFile::getFileFullPath, MultiFile::getFileExtension)
                 .in(MultiFile::getFileName, fileNameList)
                 .eq(MultiFile::getFileMark, IMAGE_AVATAR.getCurrentPath())
-                .eq(MultiFile::getDeletedFlag, false)
+                .eq(MultiFile::getDeletedCount, 0)
                 .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUser.getUserId()));
         if (mapList.size() != fileNameList.size())
             throw new OperationStatusException();
@@ -254,7 +253,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                     .set(MultiFile::getFileNameNew, fileNameNew)
                     .set(MultiFile::getFileFullPath, fileFullPathNew)
-                    .set(MultiFile::getDeletedFlag, true)
+                    .set(MultiFile::getDeletedCount, 1)
                     .set(MultiFile::getUpdateUser, loginUser.getUserId())
                     .set(MultiFile::getUpdateTime, new Date())
                     .eq(MultiFile::getId, e.get("id")));
@@ -287,7 +286,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .select(MultiFile::getFileFullPath)
                 .eq(MultiFile::getUserId, loginUserId)
                 .eq(MultiFile::getFileMark, IMAGE_AVATAR.getCurrentPath())
-                .eq(MultiFile::getDeletedFlag, false));
+                .eq(MultiFile::getDeletedCount, 0));
+        if (objectList.isEmpty())
+            throw new OperationStatusException();
         String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         long fileName = IdWorker.getId();
         String targetAddr = objectList.get(0).toString();
@@ -373,12 +374,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         long fileNameNew = IdWorker.getId();
         String[] pathArr = fileFullPath.split("\\.");
         String fileFullPathOld = pathArr[0];
-        String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + HIDDEN + "." + pathArr[pathArr.length - 1];
+        String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + HISTORY + "." + pathArr[pathArr.length - 1];
         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                 .set(MultiFile::getFileNameNew, fileNameNew)
                 .set(MultiFile::getFileFullPath, fileFullPathNew)
-                .set(MultiFile::getDeletedFlag, true)
-                .set(MultiFile::getHiddenFlag, true)
+                .set(MultiFile::getDeletedCount, 2)
                 .set(MultiFile::getUpdateUser, loginUserId)
                 .set(MultiFile::getUpdateTime, updateTime)
                 .eq(MultiFile::getFileName, getSplitStringByIndex(fileFullPathOld, "/", -1)));

@@ -106,7 +106,7 @@
               size="small"
               style="width: 200px"
               show-password
-              @keyup.native="passwordInputChange()"
+              @keyup.native="passwordInputChange(false)"
             />&nbsp;
             <span
               v-if="confirmPasswordStatus === 2"
@@ -265,7 +265,7 @@ export default {
         }
       });
     },
-    passwordInputChange(flag = false) {
+    passwordInputChange(flag) {
       if (
         this.passwordForm.newPassword.trim() === "" &&
         this.passwordForm.confirmPassword.trim() === ""

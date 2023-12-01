@@ -226,7 +226,7 @@
             v-model="confirmPassword"
             style="width: 200px"
             show-password
-            @keyup.native="passwordInputChange()"
+            @keyup.native="passwordInputChange(false)"
           />&nbsp;
           <span
             v-if="confirmPasswordStatus === 2"
@@ -407,7 +407,7 @@ export default {
       }
       return loginMethods;
     },
-    passwordInputChange(flag = false) {
+    passwordInputChange(flag) {
       if (
         this.userAuth.password.trim() === "" &&
         this.confirmPassword.trim() === ""
@@ -489,7 +489,7 @@ export default {
       });
       this.editStatus = false;
     },
-    updateUserAuthStatus(userAuth, flag = false) {
+    updateUserAuthStatus(userAuth, flag) {
       let text = flag
         ? userAuth.lockedFlag
           ? "解锁"

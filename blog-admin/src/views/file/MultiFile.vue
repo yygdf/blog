@@ -417,7 +417,6 @@ export default {
       multiFileList: [],
       uploadFileList: [],
       multiFileIdList: [],
-      batchParentIdList: [],
       multiFile: {},
       multiFileOrigin: {},
       staticResourceUrl: "",
@@ -433,7 +432,8 @@ export default {
       multiFileTokenFlag: false,
       multiFileUploadFlag: false,
       treeNodeMap: new Map(),
-      lazyLoadIdSet: new Set()
+      lazyLoadIdSet: new Set(),
+      batchParentIdSet: new Set()
     };
   },
   methods: {
@@ -528,14 +528,14 @@ export default {
         .forEach(item => {
           if (this.multiFileIdList.every(e => e !== item.parentId)) {
             this.multiFileIdList.push(item.id);
-            this.batchParentIdList.push(item.parentId);
+            this.batchParentIdSet.add(item.parentId);
           }
         });
     },
     checkSelectable(row) {
       return row.deletableFlag && !this.multiFileIdList.includes(row.parentId);
     },
-    openModel(multiFile, flag = false) {
+    openModel(multiFile, flag) {
       if (multiFile != null) {
         if (flag) {
           this.multiFile = {
@@ -716,16 +716,15 @@ export default {
         param = { data: this.multiFileIdList };
       } else {
         param = { data: [multiFile.id] };
-        this.batchParentIdList.push(multiFile.parentId);
+        this.batchParentIdSet.add(multiFile.parentId);
       }
       this.axios.delete("/api/back/multiFiles", param).then(({ data }) => {
         if (data.flag) {
           if (
-            (this.batchParentIdList.length === 1 ||
-              Array.from(new Set(this.batchParentIdList)).length === 1) &&
-            this.batchParentIdList[0] !== -1
+            this.batchParentIdSet.size === 1 &&
+            !this.batchParentIdSet.has(-1)
           ) {
-            this.refreshLoad(this.batchParentIdList[0]);
+            this.refreshLoad(this.batchParentIdSet.values().next().value);
           } else {
             this.multiFileParentId = null;
             this.getMultiFiles(1);
@@ -814,7 +813,7 @@ export default {
       let param = {};
       if (multiFile != null) {
         param.idList = [multiFile.id];
-        this.batchParentIdList.push(multiFile.parentId);
+        this.batchParentIdSet.add(multiFile.parentId);
       } else {
         param.idList = this.multiFileIdList;
       }
@@ -824,11 +823,10 @@ export default {
       this.axios.put("/api/back/multiFiles/status", param).then(({ data }) => {
         if (data.flag) {
           if (
-            (this.batchParentIdList.length === 1 ||
-              Array.from(new Set(this.batchParentIdList)).length === 1) &&
-            this.batchParentIdList[0] !== -1
+            this.batchParentIdSet.size === 1 &&
+            !this.batchParentIdSet.has(-1)
           ) {
-            this.refreshLoad(this.batchParentIdList[0]);
+            this.refreshLoad(this.batchParentIdSet.values().next().value);
           } else {
             this.multiFileParentId = null;
             this.getMultiFiles(1);
@@ -850,11 +848,13 @@ export default {
   watch: {
     type() {
       this.lazyLoadIdSet.clear();
+      this.deepSearchFlag = false;
       this.multiFileParentId = null;
       this.getMultiFiles(0);
     },
     userId() {
       this.lazyLoadIdSet.clear();
+      this.deepSearchFlag = false;
       this.multiFileParentId = null;
       this.getMultiFiles(0);
     }

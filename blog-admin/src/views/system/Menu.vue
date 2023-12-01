@@ -313,7 +313,7 @@ export default {
         this.showIcon = false;
       }, 0);
     },
-    openModel(menu, flag = false) {
+    openModel(menu, flag) {
       if (menu == null) {
         this.menu = {
           name: "",

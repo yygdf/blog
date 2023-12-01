@@ -252,7 +252,7 @@ export default {
     };
   },
   methods: {
-    openModel(resource, flag = false) {
+    openModel(resource, flag) {
       if (resource == null) {
         this.resource = {
           parentId: null,

@@ -104,6 +104,11 @@ public class MultiFile implements Serializable {
     private Boolean deletableFlag;
 
     /**
+     * 删除次数, 默认0
+     */
+    private Integer deletedCount;
+
+    /**
      * ip来源, 默认空串
      */
     private String ipSource;

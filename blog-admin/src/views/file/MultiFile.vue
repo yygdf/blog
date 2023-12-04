@@ -467,7 +467,6 @@ export default {
     refreshLoad(id) {
       if (this.treeNodeMap.get(id)) {
         const { tree, treeNode, resolve } = this.treeNodeMap.get(id);
-        this.$set(this.$refs.table.store.states.lazyTreeNodeMap, id, []);
         this.load(tree, treeNode, resolve);
       } else {
         this.getMultiFiles(0);
@@ -533,7 +532,11 @@ export default {
         });
     },
     checkSelectable(row) {
-      return row.deletableFlag && !this.multiFileIdList.includes(row.parentId);
+      return (
+        row.deletableFlag &&
+        !this.multiFileIdList.includes(row.parentId) &&
+        (row.deletedCount === 0 || row.deletedCount === 1)
+      );
     },
     openModel(multiFile, flag) {
       if (multiFile != null) {

@@ -413,7 +413,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         .set(MultiFile::getUpdateTime, updateTime)
                         .eq(MultiFile::getId, e.get("id")));
                 multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
-                        .setSql("deleted_count=deleted_count+1,file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
+                        .setSql("deleted_count=if(deleted_count>0,deleted_count+1,deleted_count-1),file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                         .eq(MultiFile::getParentId, e.get("id")));
                 MultiFileUtil.rename(fileFullPath, fileFullPathNew);
             });
@@ -431,7 +431,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                         .set(MultiFile::getUpdateTime, updateTime)
                         .eq(MultiFile::getId, e.get("id")));
                 multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
-                        .setSql("deleted_count=deleted_count-1,file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathOld+"')")
+                        .setSql("deleted_count=if(deleted_count>0,deleted_count-1,deleted_count+1),file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathOld+"')")
                         .eq(MultiFile::getParentId, e.get("id")));
                 MultiFileUtil.rename(fileFullPath, fileFullPathOld);
             });

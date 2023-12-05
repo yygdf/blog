@@ -197,6 +197,7 @@
             @confirm="updateMultiFilesStatus(scope.row)"
           >
             <el-button
+              :disabled="scope.row.deletedCount !== 1"
               type="success"
               size="mini"
               slot="reference"
@@ -417,6 +418,7 @@ export default {
       multiFileList: [],
       uploadFileList: [],
       multiFileIdList: [],
+      multiFileIdListSelected: [],
       multiFile: {},
       multiFileOrigin: {},
       staticResourceUrl: "",
@@ -433,7 +435,8 @@ export default {
       multiFileUploadFlag: false,
       treeNodeMap: new Map(),
       lazyLoadIdSet: new Set(),
-      batchParentIdSet: new Set()
+      batchParentIdSet: new Set(),
+      multiFileIdSetExpended: new Set()
     };
   },
   methods: {
@@ -457,7 +460,7 @@ export default {
           })
           .then(({ data }) => {
             tree.children = data.data.dataList;
-            if (this.multiFileIdList.includes(tree.id)) {
+            if (this.multiFileIdListSelected.includes(tree.id)) {
               this.setChildren(data.data.dataList, true);
             }
             resolve(data.data.dataList);
@@ -474,12 +477,14 @@ export default {
     },
     expandChange(row, expanded) {
       if (expanded) {
+        this.multiFileIdSetExpended.add(row.id);
         this.multiFileParentId = row.id;
         if (this.lazyLoadIdSet.has(row.id)) {
           this.refreshLoad(row.id);
           this.lazyLoadIdSet.delete(row.id);
         }
       } else {
+        this.multiFileIdSetExpended.delete(row.id);
         this.multiFileParentId = row.parentId;
       }
     },
@@ -520,11 +525,13 @@ export default {
     },
     selectionChange(selection) {
       this.multiFileIdList = [];
+      this.multiFileIdListSelected = [];
       selection
         .sort((e1, e2) => {
           return e1.id - e2.id;
         })
         .forEach(item => {
+          this.multiFileIdListSelected.push(item.id);
           if (this.multiFileIdList.every(e => e !== item.parentId)) {
             this.multiFileIdList.push(item.id);
             this.batchParentIdSet.add(item.parentId);
@@ -534,7 +541,7 @@ export default {
     checkSelectable(row) {
       return (
         row.deletableFlag &&
-        !this.multiFileIdList.includes(row.parentId) &&
+        !this.multiFileIdListSelected.includes(row.parentId) &&
         (row.deletedCount === 0 || row.deletedCount === 1)
       );
     },
@@ -650,7 +657,7 @@ export default {
             message: data.message
           });
           if (this.treeNodeMap.get(this.multiFile.id)) {
-            if (this.multiFileParentId === this.multiFile.id) {
+            if (this.multiFileIdSetExpended.has(this.multiFile.id)) {
               this.refreshLoad(this.multiFile.id);
             } else {
               this.lazyLoadIdSet.add(this.multiFile.id);
@@ -763,9 +770,10 @@ export default {
       }
       this.axios.post("/api/back/multiFile", param).then(({ data }) => {
         if (data.flag) {
-          if (this.multiFile.parentId == null) {
-            this.getMultiFiles(0);
-          } else {
+          if (
+            this.multiFile.id != null ||
+            this.multiFileIdSetExpended.has(this.multiFile.parentId)
+          ) {
             this.refreshLoad(this.multiFile.parentId);
           }
           this.$notify.success({
@@ -793,7 +801,7 @@ export default {
           if (multiFile.fileExtension) {
             this.refreshLoad(multiFile.parentId);
           } else if (this.treeNodeMap.get(multiFile.id)) {
-            if (this.multiFileParentId === multiFile.id) {
+            if (this.multiFileIdSetExpended.has(multiFile.id)) {
               this.refreshLoad(multiFile.id);
             } else {
               this.lazyLoadIdSet.add(multiFile.id);
@@ -851,12 +859,14 @@ export default {
   watch: {
     type() {
       this.lazyLoadIdSet.clear();
+      this.multiFileIdSetExpended.clear();
       this.deepSearchFlag = false;
       this.multiFileParentId = null;
       this.getMultiFiles(0);
     },
     userId() {
       this.lazyLoadIdSet.clear();
+      this.multiFileIdSetExpended.clear();
       this.deepSearchFlag = false;
       this.multiFileParentId = null;
       this.getMultiFiles(0);

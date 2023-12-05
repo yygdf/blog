@@ -467,9 +467,12 @@ export default {
           });
       }
     },
-    refreshLoad(id) {
+    refreshLoad(id, allFlag) {
       if (this.treeNodeMap.get(id)) {
         const { tree, treeNode, resolve } = this.treeNodeMap.get(id);
+        if (allFlag) {
+          this.$set(this.$refs.table.store.states.lazyTreeNodeMap, id, []);
+        }
         this.load(tree, treeNode, resolve);
       } else {
         this.getMultiFiles(0);
@@ -488,11 +491,6 @@ export default {
         this.multiFileParentId = row.parentId;
       }
     },
-    toggleSelection(row, select) {
-      if (row) {
-        this.$nextTick(() => this.$refs.table.toggleRowSelection(row, select));
-      }
-    },
     setChildren(children, type) {
       children
         .filter(
@@ -502,7 +500,7 @@ export default {
             e.deletedCount === -1
         )
         .map(e => {
-          this.toggleSelection(e, type);
+          this.$nextTick(() => this.$refs.table.toggleRowSelection(e, type));
           if (e.children) {
             this.setChildren(e.children, type);
           }
@@ -694,12 +692,18 @@ export default {
       if (this.multiFileParentId != null && this.multiFileParentId !== -1) {
         params.categoryId = this.multiFileParentId;
       }
+      if (this.deepSearchFlag) {
+        params.flag = true;
+      }
       if (searchType > 0) {
+        this.multiFileList = [];
         this.$set(this.$refs.table.store.states, "lazyTreeNodeMap", {});
         this.treeNodeMap = new Map();
         if (searchType > 1) {
           if (this.keywords.trim() === "") {
+            delete params.flag;
             delete params.categoryId;
+            this.multiFileParentId = null;
             this.deepSearchFlag = false;
           } else {
             params.flag = true;
@@ -739,9 +743,15 @@ export default {
         if (data.flag) {
           if (
             this.batchParentIdSet.size === 1 &&
-            !this.batchParentIdSet.has(-1)
+            !this.batchParentIdSet.has(-1) &&
+            !this.deepSearchFlag
           ) {
-            this.refreshLoad(this.batchParentIdSet.values().next().value);
+            let parentId = this.batchParentIdSet.values().next().value;
+            const { tree } = this.treeNodeMap.get(parentId);
+            this.refreshLoad(
+              parentId,
+              tree.children.length === param.idList.length
+            );
           } else {
             this.multiFileParentId = null;
             this.getMultiFiles(1);
@@ -843,9 +853,15 @@ export default {
         if (data.flag) {
           if (
             this.batchParentIdSet.size === 1 &&
-            !this.batchParentIdSet.has(-1)
+            !this.batchParentIdSet.has(-1) &&
+            !this.deepSearchFlag
           ) {
-            this.refreshLoad(this.batchParentIdSet.values().next().value);
+            let parentId = this.batchParentIdSet.values().next().value;
+            const { tree } = this.treeNodeMap.get(parentId);
+            this.refreshLoad(
+              parentId,
+              tree.children.length === param.idList.length
+            );
           } else {
             this.multiFileParentId = null;
             this.getMultiFiles(1);

@@ -494,12 +494,19 @@ export default {
       }
     },
     setChildren(children, type) {
-      children.map(e => {
-        this.toggleSelection(e, type);
-        if (e.children) {
-          this.setChildren(e.children, type);
-        }
-      });
+      children
+        .filter(
+          e =>
+            e.deletedCount === 0 ||
+            e.deletedCount === 1 ||
+            e.deletedCount === -1
+        )
+        .map(e => {
+          this.toggleSelection(e, type);
+          if (e.children) {
+            this.setChildren(e.children, type);
+          }
+        });
     },
     select(selection, row) {
       if (selection.some(e => e.id === row.id)) {
@@ -772,6 +779,7 @@ export default {
         if (data.flag) {
           if (
             this.multiFile.id != null ||
+            this.multiFile.parentId == null ||
             this.multiFileIdSetExpended.has(this.multiFile.parentId)
           ) {
             this.refreshLoad(this.multiFile.parentId);

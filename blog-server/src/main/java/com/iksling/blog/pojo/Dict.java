@@ -15,4 +15,9 @@ public class Dict extends HashMap<String, Object> {
         super.put(key, value);
         return this;
     }
+
+    public Dict putAll(HashMap<String, Object> map) {
+        super.putAll(map);
+        return this;
+    }
 }

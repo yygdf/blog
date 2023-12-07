@@ -387,9 +387,59 @@
       <div class="dialog-title-container" slot="title">
         密令设置
       </div>
-      <div style="margin-top: -1.5rem;margin-bottom: 0.5rem;">
-        目录名称: {{ multiFile.fileNameOrigin }}
-      </div>
+      <el-form :model="multiFile" size="medium" label-width="80">
+        <el-form-item label="目录名称">
+          <el-input
+            v-model="multiFile.fileNameOrigin"
+            style="width: 200px"
+            disabled
+          />
+        </el-form-item>
+        <el-form-item label="访问密令">
+          <el-input
+            v-model="multiFile.token"
+            ref="input"
+            style="width: 200px"
+            placeholder="请输入6位访问密令"
+            @keyup.native="tokenInputChange($event)"
+          />&nbsp;
+          <span
+            v-if="multiFile.token.trim().length === 6"
+            class="el-icon-success"
+            style="color: green;"
+          ></span>
+          <span v-else class="el-icon-error" style="color: red;">
+            该密令不合法!</span
+          >
+        </el-form-item>
+        <el-form-item label="有效次数">
+          <el-input-number
+            v-model="multiFile.count"
+            :min="-1"
+            :max="2147483647"
+            value="-1"
+            controls-position="right"
+          />
+        </el-form-item>
+        <el-form-item label="过期时间">
+          <el-date-picker
+            v-model="multiFile.expireTime"
+            type="datetime"
+            placeholder="选择过期时间"
+          >
+          </el-date-picker>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="multiFileTokenFlag = false">取 消</el-button>
+        <el-button
+          :disabled="multiFile.token.trim().length !== 6"
+          type="primary"
+          @click="addOrEditMultiFileToken"
+        >
+          确 定
+        </el-button>
+      </span>
     </el-dialog>
   </el-card>
 </template>
@@ -596,6 +646,22 @@ export default {
       if (flag) {
         this.multiFileUploadFlag = true;
       } else {
+        this.axios
+          .get("/api/back/multiFile/" + multiFile.id)
+          .then(({ data }) => {
+            this.multiFile.expireTime = data.data.expireTime;
+            if (data.data.token == null) {
+              let token = "";
+              for (let i = 0; i < 6; i++) {
+                token += Math.floor(Math.random() * 10);
+              }
+              this.multiFile.token = token;
+              this.multiFile.count = -1;
+            } else {
+              this.multiFile.token = data.data.token;
+              this.multiFile.count = data.data.count;
+            }
+          });
         this.multiFileTokenFlag = true;
       }
     },
@@ -806,6 +872,37 @@ export default {
         }
       });
       this.addOrEditStatus = false;
+    },
+    addOrEditMultiFileToken() {
+      let param = {
+        id: this.multiFile.id
+      };
+      if (this.multiFile.expireTime != null) {
+        param.expireTime = this.multiFile.expireTime;
+      }
+      if (this.userId != null) {
+        param.userId = this.userId;
+      }
+      if (this.multiFile.token !== this.multiFileOrigin.token) {
+        param.token = this.multiFile.token;
+      }
+      if (this.multiFile.count !== this.multiFileOrigin.count) {
+        param.count = this.multiFile.count;
+      }
+      this.axios.post("/api/back/multiFile/token", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+      });
+      this.multiFileTokenFlag = false;
     },
     updateMultiFileStatus(multiFile, type) {
       let param = {

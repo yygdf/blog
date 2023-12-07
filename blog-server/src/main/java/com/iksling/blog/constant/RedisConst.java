@@ -32,7 +32,12 @@ public class RedisConst {
     public static final String COMMENT_LIKE_COUNT = "comment_like_count";
 
     /**
-     * 用户非法操作
+     * 用户非法操作前缀
      */
     public static final String USER_ILLEGAL_OPERATION = "user_illegal_operation";
+
+    /**
+     * 文件令牌前缀
+     */
+    public static final String MULTI_FILE_TOKEN = "multi_file_token";
 }

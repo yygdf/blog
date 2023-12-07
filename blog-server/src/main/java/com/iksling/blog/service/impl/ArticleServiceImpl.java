@@ -441,13 +441,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileFullPath)
                 .in(MultiFile::getFileName, idList));
-        mapList.forEach(e -> {
-            multiFileMapper.delete(new LambdaUpdateWrapper<MultiFile>()
-                    .eq(MultiFile::getId, e.get("id"))
-                    .or()
-                    .eq(MultiFile::getParentId, e.get("id")));
-            MultiFileUtil.delete(e.get("file_full_path").toString());
-        });
+        List<Object> objectList = mapList.stream()
+                .map(e -> e.get("id"))
+                .collect(Collectors.toList());
+        multiFileMapper.delete(new LambdaUpdateWrapper<MultiFile>()
+                .in(MultiFile::getId, objectList)
+                .or()
+                .in(MultiFile::getParentId, objectList));
+        mapList.forEach(e -> MultiFileUtil.delete(e.get("file_full_path").toString()));
     }
 }
 

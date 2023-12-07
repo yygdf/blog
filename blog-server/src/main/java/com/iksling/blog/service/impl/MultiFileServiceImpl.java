@@ -7,16 +7,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.MultiFilesBackDTO;
 import com.iksling.blog.entity.MultiFile;
 import com.iksling.blog.exception.FileStatusException;
+import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.MultiFileMapper;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.util.*;
-import com.iksling.blog.vo.ConditionBackVO;
-import com.iksling.blog.vo.MultiFileBackVO;
-import com.iksling.blog.vo.MultiFilesBackVO;
-import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.BoundHashOperations;
+import org.springframework.data.redis.core.BoundValueOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.FlagConst.*;
+import static com.iksling.blog.constant.RedisConst.*;
 import static com.iksling.blog.enums.FileDirEnum.OTHER;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
 
@@ -39,6 +42,9 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     implements MultiFileService{
     @Autowired
     private MultiFileMapper multiFileMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Resource
     private HttpServletRequest request;
@@ -145,6 +151,75 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             multiFile.setUpdateTime(new Date());
             multiFileMapper.updateById(multiFile);
         }
+    }
+
+    @Override
+    @Transactional
+    public void saveOrUpdateMultiFileTokenBackVO(TokenBackVO tokenBackVO) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        BoundHashOperations boundHashOperations = redisTemplate.boundHashOps(MULTI_FILE_TOKEN + "_" + tokenBackVO.getId());
+        Map<String, Object> map = boundHashOperations.entries();
+        if (map == null) {
+            if (tokenBackVO.getToken() == null || tokenBackVO.getCount() == null)
+                throw new OperationStatusException();
+            Integer multiFileUserId = tokenBackVO.getUserId();
+            if (multiFileUserId == null)
+                multiFileUserId = loginUser.getUserId();
+            else if (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(multiFileUserId))
+                throw new OperationStatusException();
+            Integer count = multiFileMapper.selectCount(new LambdaQueryWrapper<MultiFile>()
+                    .eq(MultiFile::getId, tokenBackVO.getId())
+                    .eq(MultiFile::getUserId, multiFileUserId)
+                    .eq(MultiFile::getPublicFlag, false)
+                    .eq(MultiFile::getDeletableFlag, true)
+                    .eq(MultiFile::getDeletedCount, 0));
+            if (count != 1)
+                throw new OperationStatusException();
+            map = new HashMap<>();
+            map.put("token", tokenBackVO.getToken());
+            map.put("count", tokenBackVO.getToken());
+            map.put("userId", multiFileUserId);
+        } else {
+            if (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(map.get("userId")))
+                throw new OperationStatusException();
+            if (tokenBackVO.getToken() != null)
+                map.put("token", tokenBackVO.getToken());
+            if (tokenBackVO.getCount() != null)
+                map.put("count", tokenBackVO.getToken());
+        }
+        if (tokenBackVO.getExpireTime() == null) {
+            boundHashOperations.persist();
+            map.put("expireTime", null);
+        } else {
+            boundHashOperations.expireAt(tokenBackVO.getExpireTime());
+            map.put("expireTime", tokenBackVO.getExpireTime());
+        }
+        boundHashOperations.putAll(map);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBackMultiFilesByIdList(List<Integer> idList) {
+        if (idList.isEmpty())
+            throw new IllegalRequestException();
+        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId, MultiFile::getFileFullPath, MultiFile::getFileExtension)
+                .ne(MultiFile::getDeletedCount, 0)
+                .eq(MultiFile::getDeletableFlag, true)
+                .in(MultiFile::getId, idList));
+        if (mapList.size() != idList.size())
+            throw new IllegalRequestException();
+        List<Integer> multiFileIdList = new ArrayList<>();
+        mapList.forEach(e -> {
+            String fileFullPath = e.get("file_full_path").toString();
+            if (e.get("file_extension").equals(""))
+                multiFileMapper.delete(new LambdaUpdateWrapper<MultiFile>()
+                        .likeRight(MultiFile::getFileFullPath, fileFullPath));
+            else
+                multiFileIdList.add((Integer) e.get("id"));
+        });
+        multiFileMapper.deleteBatchIds(multiFileIdList);
+        mapList.forEach(e -> MultiFileUtil.delete(e.get("file_full_path").toString()));
     }
 
     @Override
@@ -266,11 +341,10 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                         }
                     }
                     MultiFileUtil.rename(fileFullPath, fileFullPathNew);
-                } else {
+                } else
                     multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                             .setSql("public_flag = !public_flag")
                             .eq(MultiFile::getId, e.get("id")));
-                }
             });
         }
     }
@@ -394,6 +468,16 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                     return multiFilesBackDTO;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Dict getMultiFileTokenById(Integer id) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        BoundHashOperations boundHashOperations = redisTemplate.boundHashOps(MULTI_FILE_TOKEN + "_" + id);
+        Map<String, Object> map = boundHashOperations.entries();
+        if (map == null || (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(map.get("userId"))))
+            return Dict.create();
+        return Dict.create().putAll(new HashMap<>(map));
     }
 }
 

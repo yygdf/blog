@@ -11,6 +11,7 @@ import com.iksling.blog.pojo.Result;
 import com.iksling.blog.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,10 +35,12 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(value = IllegalRequestException.class)
     public Result exceptionAdvice(IllegalRequestException e) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).expire(1, TimeUnit.DAYS);
-        redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).increment(loginUser.getUserId().toString(), 1);
-        Integer count = (Integer) redisTemplate.boundHashOps(USER_ILLEGAL_OPERATION).get(loginUser.getUserId().toString());
-        if (count != null && count >= 3) {
+        BoundValueOperations<String, Integer> boundValueOperations = redisTemplate.boundValueOps(USER_ILLEGAL_OPERATION + loginUser.getUserId());
+        Integer count = boundValueOperations.get();
+        if (count == null || count < 3) {
+            boundValueOperations.increment(1);
+            boundValueOperations.expire(1, TimeUnit.DAYS);
+        } else {
             userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                     .set(UserAuth::getLockedFlag, true)
                     .set(UserAuth::getDisabledFlag, true)

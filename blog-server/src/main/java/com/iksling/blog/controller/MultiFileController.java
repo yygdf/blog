@@ -4,10 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MultiFileService;
-import com.iksling.blog.vo.ConditionBackVO;
-import com.iksling.blog.vo.MultiFileBackVO;
-import com.iksling.blog.vo.MultiFilesBackVO;
-import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -15,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
+import java.util.List;
 
 import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.LogConst.*;
@@ -43,6 +42,24 @@ public class MultiFileController {
         return Result.success().message("操作成功");
     }
 
+    @OptLog(optType = SAVE_OR_UPDATE)
+    @ApiOperation(value = "添加或修改文件令牌")
+    @ApiImplicitParam(name = "tokenBackVO", value = "令牌后台VO", required = true, dataType = "TokenBackVO")
+    @PostMapping("/back/multiFile/token")
+    public Result saveOrUpdateBackMultiFileToken(@Valid @RequestBody TokenBackVO tokenBackVO) {
+        multiFileService.saveOrUpdateMultiFileTokenBackVO(tokenBackVO);
+        return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = REMOVE)
+    @ApiOperation(value = "物理批量删除文件")
+    @ApiImplicitParam(name = "idList", value = "idList", required = true, dataType = "List<Integer>")
+    @DeleteMapping("/back/multiFiles")
+    public Result deleteBackMultiFiles(@RequestBody List<Integer> idList) {
+        multiFileService.deleteBackMultiFilesByIdList(idList);
+        return Result.success().message("操作成功");
+    }
+
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "修改文件状态")
     @ApiImplicitParam(name = "statusBackVO", value = "状态后台VO", required = true, dataType = "StatusBackVO")
@@ -68,5 +85,12 @@ public class MultiFileController {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("dataList", multiFileService.getMultiFilesBackDTO(condition))
                 .set("staticResourceUrl", STATIC_RESOURCE_URL));
+    }
+
+    @ApiOperation(value = "根据文件id查找文件令牌")
+    @ApiImplicitParam(name = "id", value = "文件id", required = true, dataType = "Integer")
+    @GetMapping("/back/multiFile/{id}")
+    public Result getBackMultiFileTokenById(@PathVariable Integer id) {
+        return Result.success().message("操作成功").data(multiFileService.getMultiFileTokenById(id));
     }
 }

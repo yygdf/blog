@@ -383,32 +383,36 @@
         </el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="multiFileTokenFlag" width="30%">
+    <el-dialog :visible.sync="multiFileTokenFlag" width="30%" @close="cancelAddOrEditMultiFileToken">
       <div class="dialog-title-container" slot="title">
         密令设置
       </div>
-      <el-form :model="multiFile" size="medium" label-width="80">
+      <el-form :model="multiFileToken" size="medium" label-width="80">
         <el-form-item label="目录名称">
           <el-input
-            v-model="multiFile.fileNameOrigin"
+            v-model="multiFileToken.fileNameOrigin"
             style="width: 200px"
             disabled
           />
         </el-form-item>
         <el-form-item label="访问密令">
           <el-input
-            v-model="multiFile.token"
+            v-model="multiFileToken.token"
             ref="input"
             style="width: 200px"
             placeholder="请输入6位访问密令"
-            @keyup.native="tokenInputChange($event)"
+            @keyup.native="tokenInputChange"
           />&nbsp;
           <span
-            v-if="multiFile.token.trim().length === 6"
+            v-if="tokenValidStatus === 2"
             class="el-icon-success"
             style="color: green;"
           ></span>
-          <span v-else class="el-icon-error" style="color: red;">
+          <span
+            v-if="tokenValidStatus === -1"
+            class="el-icon-error"
+            style="color: red;"
+          >
             该密令不合法!</span
           >
         </el-form-item>
@@ -425,6 +429,7 @@
           <el-date-picker
             v-model="multiFile.expireTime"
             type="datetime"
+            style="width: 200px"
             placeholder="选择过期时间"
           >
           </el-date-picker>
@@ -433,7 +438,7 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="multiFileTokenFlag = false">取 消</el-button>
         <el-button
-          :disabled="multiFile.token.trim().length !== 6"
+          :disabled="tokenValidStatus !== 2"
           type="primary"
           @click="addOrEditMultiFileToken"
         >
@@ -470,7 +475,9 @@ export default {
       multiFileIdList: [],
       multiFileIdListSelected: [],
       multiFile: {},
+      multiFileToken: {},
       multiFileOrigin: {},
+      multiFileTokenOrigin: {},
       staticResourceUrl: "",
       type: null,
       userId: null,
@@ -483,6 +490,8 @@ export default {
       addOrEditStatus: false,
       multiFileTokenFlag: false,
       multiFileUploadFlag: false,
+      tokenValidStatus: 0,
+      tokenMap: new Map(),
       treeNodeMap: new Map(),
       lazyLoadIdSet: new Set(),
       batchParentIdSet: new Set(),
@@ -639,29 +648,42 @@ export default {
       this.addOrEditStatus = true;
     },
     openOperateModel(multiFile, flag) {
-      this.multiFile = {
-        id: multiFile.id,
-        fileNameOrigin: multiFile.fileNameOrigin
-      };
       if (flag) {
+        this.multiFile = {
+          id: multiFile.id,
+          fileNameOrigin: multiFile.fileNameOrigin
+        };
         this.multiFileUploadFlag = true;
       } else {
-        this.axios
-          .get("/api/back/multiFile/" + multiFile.id)
-          .then(({ data }) => {
-            this.multiFile.expireTime = data.data.expireTime;
-            if (data.data.token == null) {
-              let token = "";
-              for (let i = 0; i < 6; i++) {
-                token += Math.floor(Math.random() * 10);
+        if (this.tokenMap.get(multiFile.id)) {
+          this.tokenValidStatus = 2;
+          this.multiFileToken = this.tokenMap.get(multiFile.id);
+        } else {
+          this.multiFileToken = {
+            id: multiFile.id,
+            fileNameOrigin: multiFile.fileNameOrigin
+          };
+          this.axios
+            .get("/api/back/multiFile/" + multiFile.id)
+            .then(({ data }) => {
+              this.multiFileToken.count =
+                data.data.token == null ? -1 : data.data.count;
+              this.multiFileToken.token = data.data.token;
+              this.multiFileToken.expireTime = data.data.expireTime;
+              this.multiFileTokenOrigin = JSON.parse(
+                JSON.stringify(this.multiFileToken)
+              );
+              if (data.data.token != null) {
+                this.tokenMap.set(multiFile.id, this.multiFileToken);
+                this.tokenValidStatus = 2;
+              } else {
+                this.tokenValidStatus = 0;
               }
-              this.multiFile.token = token;
-              this.multiFile.count = -1;
-            } else {
-              this.multiFile.token = data.data.token;
-              this.multiFile.count = data.data.count;
-            }
-          });
+            });
+        }
+        this.$nextTick(() => {
+          this.$refs.input.focus();
+        });
         this.multiFileTokenFlag = true;
       }
     },
@@ -684,6 +706,13 @@ export default {
     },
     beforeRemove(file) {
       return this.$confirm(`确定移除 ${file.name} ?`);
+    },
+    tokenInputChange() {
+      if (this.multiFileToken.token.trim().length === 6) {
+        this.tokenValidStatus = 2;
+      } else {
+        this.tokenValidStatus = -1;
+      }
     },
     changeMultiFiles(file, fileList) {
       let contentType = file.raw.type;
@@ -747,6 +776,12 @@ export default {
     },
     submitUpload() {
       this.uploadMultiFiles();
+    },
+    cancelAddOrEditMultiFileToken() {
+      this.tokenMap.set(
+        this.multiFileTokenOrigin.id,
+        this.multiFileTokenOrigin
+      );
     },
     getMultiFiles(searchType) {
       let params = {
@@ -875,22 +910,23 @@ export default {
     },
     addOrEditMultiFileToken() {
       let param = {
-        id: this.multiFile.id
+        id: this.multiFileToken.id
       };
-      if (this.multiFile.expireTime != null) {
-        param.expireTime = this.multiFile.expireTime;
+      if (this.multiFileToken.expireTime != null) {
+        param.expireTime = this.multiFileToken.expireTime;
       }
       if (this.userId != null) {
         param.userId = this.userId;
       }
-      if (this.multiFile.token !== this.multiFileOrigin.token) {
-        param.token = this.multiFile.token;
+      if (this.multiFileToken.token !== this.multiFileTokenOrigin.token) {
+        param.token = this.multiFileToken.token;
       }
-      if (this.multiFile.count !== this.multiFileOrigin.count) {
-        param.count = this.multiFile.count;
+      if (this.multiFileToken.count !== this.multiFileTokenOrigin.count) {
+        param.count = this.multiFileToken.count;
       }
       this.axios.post("/api/back/multiFile/token", param).then(({ data }) => {
         if (data.flag) {
+          this.tokenMap.set(this.multiFileToken.id, this.multiFileToken);
           this.$notify.success({
             title: "成功",
             message: data.message

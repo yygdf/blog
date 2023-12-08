@@ -185,7 +185,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             if (tokenBackVO.getToken() != null)
                 map.put("token", tokenBackVO.getToken());
             if (tokenBackVO.getCount() != null)
-                map.put("count", tokenBackVO.getToken());
+                map.put("count", tokenBackVO.getCount());
         }
         if (tokenBackVO.getExpireTime() == null) {
             boundHashOperations.persist();

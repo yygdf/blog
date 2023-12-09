@@ -651,7 +651,7 @@ export default {
       });
       this.addOrEditStatus = true;
     },
-    async openOperateModel(multiFile, flag) {
+    openOperateModel(multiFile, flag) {
       if (flag) {
         this.multiFile = {
           id: multiFile.id,
@@ -662,12 +662,19 @@ export default {
         if (this.tokenMap.get(multiFile.id)) {
           this.tokenValidStatus = 2;
           this.multiFileToken = this.tokenMap.get(multiFile.id);
+          this.multiFileTokenOrigin = JSON.parse(
+            JSON.stringify(this.multiFileToken)
+          );
+          this.$nextTick(() => {
+            this.$refs.input.focus();
+          });
+          this.multiFileTokenFlag = true;
         } else {
           this.multiFileToken = {
             id: multiFile.id,
             fileNameOrigin: multiFile.fileNameOrigin
           };
-          await this.axios
+          this.axios
             .get("/api/back/multiFile/" + multiFile.id)
             .then(({ data }) => {
               if (data.data.accessToken == null) {
@@ -679,15 +686,15 @@ export default {
                 this.tokenMap.set(multiFile.id, this.multiFileToken);
                 this.tokenValidStatus = 2;
               }
+              this.multiFileTokenOrigin = JSON.parse(
+                JSON.stringify(this.multiFileToken)
+              );
+              this.$nextTick(() => {
+                this.$refs.input.focus();
+              });
+              this.multiFileTokenFlag = true;
             });
         }
-        this.multiFileTokenOrigin = JSON.parse(
-          JSON.stringify(this.multiFileToken)
-        );
-        this.$nextTick(() => {
-          this.$refs.input.focus();
-        });
-        this.multiFileTokenFlag = true;
       }
     },
     checkWeight(weight) {

@@ -15,7 +15,7 @@
             prefix-icon="el-icon-user-solid"
             placeholder="用户名"
             @keyup.enter.native="validLogin"
-            autofocus
+            :autofocus="!loginForm.username"
           />
         </el-form-item>
         <el-form-item prop="password">
@@ -25,6 +25,7 @@
             placeholder="密码"
             show-password
             @keyup.enter.native="validLogin"
+            :autofocus="loginForm.username"
           />
         </el-form-item>
       </el-form>
@@ -54,6 +55,7 @@ import { generaMenu } from "../../assets/js/menu";
 import md5 from "js-md5";
 export default {
   created() {
+    this.loginForm.username = this.$cookie.getCookie("username");
     this.$store.commit("logout");
   },
   data: function() {
@@ -137,6 +139,7 @@ export default {
           if (data.flag) {
             that.$store.commit("login", data.data);
             generaMenu().then(() => {
+              that.$cookie.setCookie({ username: that.loginForm.username });
               that.$message.success("登录成功");
               that.$router.push({
                 path: that.$route.query.url ? that.$route.query.url : "/"

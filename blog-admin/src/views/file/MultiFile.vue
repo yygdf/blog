@@ -383,7 +383,11 @@
         </el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="multiFileTokenFlag" width="30%" @close="cancelAddOrEditMultiFileToken">
+    <el-dialog
+      :visible.sync="multiFileTokenFlag"
+      width="30%"
+      @close="cancelAddOrEditMultiFileToken"
+    >
       <div class="dialog-title-container" slot="title">
         密令设置
       </div>
@@ -397,7 +401,7 @@
         </el-form-item>
         <el-form-item label="访问密令">
           <el-input
-            v-model="multiFileToken.token"
+            v-model="multiFileToken.accessToken"
             ref="input"
             style="width: 200px"
             placeholder="请输入6位访问密令"
@@ -418,7 +422,7 @@
         </el-form-item>
         <el-form-item label="有效次数">
           <el-input-number
-            v-model="multiFile.count"
+            v-model="multiFileToken.effectiveCount"
             :min="-1"
             :max="2147483647"
             value="-1"
@@ -427,7 +431,7 @@
         </el-form-item>
         <el-form-item label="过期时间">
           <el-date-picker
-            v-model="multiFile.expireTime"
+            v-model="multiFileToken.expireTime"
             type="datetime"
             style="width: 200px"
             placeholder="选择过期时间"
@@ -647,7 +651,7 @@ export default {
       });
       this.addOrEditStatus = true;
     },
-    openOperateModel(multiFile, flag) {
+    async openOperateModel(multiFile, flag) {
       if (flag) {
         this.multiFile = {
           id: multiFile.id,
@@ -663,24 +667,23 @@ export default {
             id: multiFile.id,
             fileNameOrigin: multiFile.fileNameOrigin
           };
-          this.axios
+          await this.axios
             .get("/api/back/multiFile/" + multiFile.id)
             .then(({ data }) => {
-              this.multiFileToken.count =
-                data.data.token == null ? -1 : data.data.count;
-              this.multiFileToken.token = data.data.token;
-              this.multiFileToken.expireTime = data.data.expireTime;
-              this.multiFileTokenOrigin = JSON.parse(
-                JSON.stringify(this.multiFileToken)
-              );
-              if (data.data.token != null) {
+              if (data.data.accessToken == null) {
+                this.multiFileToken.accessToken = "";
+                this.multiFileToken.effectiveCount = -1;
+                this.tokenValidStatus = 0;
+              } else {
+                this.multiFileToken = { ...this.multiFileToken, ...data.data };
                 this.tokenMap.set(multiFile.id, this.multiFileToken);
                 this.tokenValidStatus = 2;
-              } else {
-                this.tokenValidStatus = 0;
               }
             });
         }
+        this.multiFileTokenOrigin = JSON.parse(
+          JSON.stringify(this.multiFileToken)
+        );
         this.$nextTick(() => {
           this.$refs.input.focus();
         });
@@ -708,7 +711,7 @@ export default {
       return this.$confirm(`确定移除 ${file.name} ?`);
     },
     tokenInputChange() {
-      if (this.multiFileToken.token.trim().length === 6) {
+      if (this.multiFileToken.accessToken.trim().length === 6) {
         this.tokenValidStatus = 2;
       } else {
         this.tokenValidStatus = -1;
@@ -918,11 +921,17 @@ export default {
       if (this.userId != null) {
         param.userId = this.userId;
       }
-      if (this.multiFileToken.token !== this.multiFileTokenOrigin.token) {
-        param.token = this.multiFileToken.token;
+      if (
+        this.multiFileToken.accessToken !==
+        this.multiFileTokenOrigin.accessToken
+      ) {
+        param.accessToken = this.multiFileToken.accessToken;
       }
-      if (this.multiFileToken.count !== this.multiFileTokenOrigin.count) {
-        param.count = this.multiFileToken.count;
+      if (
+        this.multiFileToken.effectiveCount !==
+        this.multiFileTokenOrigin.effectiveCount
+      ) {
+        param.effectiveCount = this.multiFileToken.effectiveCount;
       }
       this.axios.post("/api/back/multiFile/token", param).then(({ data }) => {
         if (data.flag) {

@@ -17,7 +17,6 @@ import com.iksling.blog.util.*;
 import com.iksling.blog.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
-import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -160,7 +159,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         BoundHashOperations boundHashOperations = redisTemplate.boundHashOps(MULTI_FILE_TOKEN + "_" + tokenBackVO.getId());
         Map<String, Object> map = boundHashOperations.entries();
         if (map == null) {
-            if (tokenBackVO.getToken() == null || tokenBackVO.getCount() == null)
+            if (tokenBackVO.getAccessToken() == null || tokenBackVO.getEffectiveCount() == null)
                 throw new OperationStatusException();
             Integer multiFileUserId = tokenBackVO.getUserId();
             if (multiFileUserId == null)
@@ -176,16 +175,16 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             if (count != 1)
                 throw new OperationStatusException();
             map = new HashMap<>();
-            map.put("token", tokenBackVO.getToken());
-            map.put("count", tokenBackVO.getToken());
+            map.put("accessToken", tokenBackVO.getAccessToken());
+            map.put("effectiveCount", tokenBackVO.getAccessToken());
             map.put("userId", multiFileUserId);
         } else {
             if (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(map.get("userId")))
                 throw new OperationStatusException();
-            if (tokenBackVO.getToken() != null)
-                map.put("token", tokenBackVO.getToken());
-            if (tokenBackVO.getCount() != null)
-                map.put("count", tokenBackVO.getCount());
+            if (tokenBackVO.getAccessToken() != null)
+                map.put("accessToken", tokenBackVO.getAccessToken());
+            if (tokenBackVO.getEffectiveCount() != null)
+                map.put("effectiveCount", tokenBackVO.getEffectiveCount());
         }
         if (tokenBackVO.getExpireTime() == null) {
             boundHashOperations.persist();

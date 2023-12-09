@@ -22,6 +22,7 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { generaMenu } from "./assets/js/menu";
 import commonMethod from "./assets/js/common";
+import cookie from "./assets/js/cookie";
 
 Vue.prototype.config = config;
 Vue.use(mavonEditor);
@@ -31,6 +32,7 @@ Vue.use(ElementUI);
 Vue.config.productionTip = false;
 Vue.prototype.$moment = moment;
 Vue.prototype.$commonMethod = commonMethod;
+Vue.prototype.$cookie = cookie;
 
 Vue.filter("date", function(value, formatStr = "yyyy-MM-DD") {
   return moment(value).format(formatStr);

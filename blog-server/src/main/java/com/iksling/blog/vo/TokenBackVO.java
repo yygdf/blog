@@ -36,14 +36,14 @@ public class TokenBackVO {
     /**
      * 访问密令
      */
-    @Size(min = 6, max = 6, message = "'token':{'length':6}")
-    @ApiModelProperty(name = "token", value = "访问密令", dataType = "String")
-    private String token;
+    @Size(min = 6, max = 6, message = "'accessToken':{'length':6}")
+    @ApiModelProperty(name = "accessToken", value = "访问密令", dataType = "String")
+    private String accessToken;
 
     /**
      * 有效次数
      */
-    @Range(min = -1, max = Integer.MAX_VALUE, message = "'rank':{'minvalue':-1,'maxvalue':2147483647}")
-    @ApiModelProperty(name = "count", value = "有效次数", dataType = "Integer")
-    private Integer count;
+    @Range(min = -1, max = Integer.MAX_VALUE, message = "'effectiveCount':{'minvalue':-1,'maxvalue':2147483647}")
+    @ApiModelProperty(name = "effectiveCount", value = "有效次数", dataType = "Integer")
+    private Integer effectiveCount;
 }

@@ -36,17 +36,16 @@
             tb_comment c
         LEFT JOIN tb_article a ON c.article_id = a.id
         <where>
-            1 = 1
             <choose>
                 <when test="condition.type == 6">
-                    AND c.recycle_flag = true
+                    c.recycle_flag = true
                     AND c.deleted_flag = false
                 </when>
                 <when test="condition.type == 7">
-                    AND c.deleted_flag = true
+                    c.deleted_flag = true
                 </when>
                 <otherwise>
-                    AND c.recycle_flag = false
+                    c.recycle_flag = false
                 </otherwise>
             </choose>
             <choose>
@@ -95,17 +94,16 @@
         LEFT JOIN tb_user u ON c.user_id = u.id
         LEFT JOIN tb_user u2 ON c.reply_id = u2.id
         <where>
-            1 = 1
             <choose>
                 <when test="condition.type == 6">
-                    AND c.recycle_flag = true
+                    c.recycle_flag = true
                     AND c.deleted_flag = false
                 </when>
                 <when test="condition.type == 7">
-                    AND c.deleted_flag = true
+                    c.deleted_flag = true
                 </when>
                 <otherwise>
-                    AND c.recycle_flag = false
+                    c.recycle_flag = false
                 </otherwise>
             </choose>
             <choose>

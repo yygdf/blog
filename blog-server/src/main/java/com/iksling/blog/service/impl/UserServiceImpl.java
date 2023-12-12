@@ -181,7 +181,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new OperationStatusException();
         long fileName = IdWorker.getId();
         String targetAddr = mapList.get(0).get("file_full_path").toString();
-        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+        String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
         String fullFileName = fileName + "." + originalFilenameArr[1];
         if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
             throw new FileStatusException("文件上传失败!");
@@ -289,7 +289,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .eq(MultiFile::getDeletedCount, 0));
         if (objectList.isEmpty())
             throw new OperationStatusException();
-        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+        String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
         long fileName = IdWorker.getId();
         String targetAddr = objectList.get(0).toString();
         String fullFileName = fileName + "." + originalFilenameArr[1];

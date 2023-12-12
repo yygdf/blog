@@ -76,7 +76,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         MultiFileUtil.checkValidFile(fileList, OTHER, checkSizeFlag);
         for (MultipartFile file : fileList) {
             long fileName = IdWorker.getId();
-            String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+            String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
             String targetAddr = objectList.get(0).toString();
             String fullFileName = fileName + "." + originalFilenameArr[1];
             String url = MultiFileUtil.upload(file, targetAddr, fullFileName);

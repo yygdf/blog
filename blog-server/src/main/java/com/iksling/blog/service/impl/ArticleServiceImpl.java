@@ -173,7 +173,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (mapList.isEmpty())
             throw new OperationStatusException();
         long fileName = IdWorker.getId();
-        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+        String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
         String targetAddr = mapList.get(0).get("file_full_path").toString();
         String fullFileName = fileName + "." + originalFilenameArr[1];
         if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
@@ -355,8 +355,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         Map<String, Integer> viewCountMap = redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).entries();
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).entries();
         articlesBackDTOList.forEach(e -> {
-            e.setViewCount(Objects.requireNonNull(viewCountMap).get(e.getId().toString()));
-            e.setLikeCount(Objects.requireNonNull(likeCountMap).get(e.getId().toString()));
+            e.setViewCount(viewCountMap.get(e.getId().toString()));
+            e.setLikeCount(likeCountMap.get(e.getId().toString()));
         });
         return new PagePojo<>(count, articlesBackDTOList);
     }

@@ -88,7 +88,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         if (commentsBackDTOList.size() == 0)
             return new PagePojo<>(count, new ArrayList<>());
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
-        commentsBackDTOList.forEach(e -> e.setLikeCount(Objects.requireNonNull(likeCountMap).get(e.getId().toString())));
+        commentsBackDTOList.forEach(e -> e.setLikeCount(likeCountMap.get(e.getId().toString())));
         return new PagePojo<>(count, commentsBackDTOList);
     }
 }

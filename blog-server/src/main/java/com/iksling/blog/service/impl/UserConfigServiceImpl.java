@@ -51,11 +51,7 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
     @Transactional
     public void updateUserConfigsStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        LambdaUpdateWrapper<UserConfig> lambdaUpdateWrapper = new LambdaUpdateWrapper<UserConfig>()
-                .in(UserConfig::getId, statusBackVO.getIdList())
-                .and(loginUser.getRoleWeight() > 100, e -> e.eq(UserConfig::getDeletedFlag, false).notIn(loginUser.getRoleWeight() > 100, UserConfig::getUserId, ROOT_USER_ID_LIST))
-                .set(UserConfig::getUpdateUser, loginUser.getUserId())
-                .set(UserConfig::getUpdateTime, new Date());
+        LambdaUpdateWrapper<UserConfig> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
         if (DELETED.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();
@@ -63,7 +59,11 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
                 lambdaUpdateWrapper.set(UserConfig::getDeletedFlag, false);
         } else
             lambdaUpdateWrapper.set(UserConfig::getDeletedFlag, true);
-        int count = userConfigMapper.update(null, lambdaUpdateWrapper);
+        int count = userConfigMapper.update(null, lambdaUpdateWrapper
+                .in(UserConfig::getId, statusBackVO.getIdList())
+                .and(loginUser.getRoleWeight() > 100, e -> e.eq(UserConfig::getDeletedFlag, false).notIn(loginUser.getRoleWeight() > 100, UserConfig::getUserId, ROOT_USER_ID_LIST))
+                .set(UserConfig::getUpdateUser, loginUser.getUserId())
+                .set(UserConfig::getUpdateTime, new Date()));
         if (count != statusBackVO.getIdList().size())
             throw new IllegalRequestException();
     }

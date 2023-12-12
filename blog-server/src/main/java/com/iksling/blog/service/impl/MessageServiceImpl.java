@@ -51,11 +51,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     @Transactional
     public void updateMessagesStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        LambdaUpdateWrapper<Message> lambdaUpdateWrapper = new LambdaUpdateWrapper<Message>()
-                .eq(loginUser.getRoleWeight() > 100, Message::getDeletedFlag, false)
-                .in(Message::getId, statusBackVO.getIdList())
-                .set(Message::getUpdateUser, loginUser.getUserId())
-                .set(Message::getUpdateTime, new Date());
+        LambdaUpdateWrapper<Message> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
         if (DELETED.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();
@@ -63,7 +59,11 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
                 lambdaUpdateWrapper.set(Message::getDeletedFlag, false);
         } else
             lambdaUpdateWrapper.set(Message::getDeletedFlag, true);
-        int count = messageMapper.update(null, lambdaUpdateWrapper);
+        int count = messageMapper.update(null, lambdaUpdateWrapper
+                .eq(loginUser.getRoleWeight() > 100, Message::getDeletedFlag, false)
+                .in(Message::getId, statusBackVO.getIdList())
+                .set(Message::getUpdateUser, loginUser.getUserId())
+                .set(Message::getUpdateTime, new Date()));
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
     }

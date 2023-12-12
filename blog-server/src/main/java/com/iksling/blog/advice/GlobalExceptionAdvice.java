@@ -35,7 +35,7 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(value = IllegalRequestException.class)
     public Result exceptionAdvice(IllegalRequestException e) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        BoundValueOperations<String, Integer> boundValueOperations = redisTemplate.boundValueOps(USER_ILLEGAL_OPERATION + loginUser.getUserId());
+        BoundValueOperations<String, Integer> boundValueOperations = redisTemplate.boundValueOps(USER_ILLEGAL_OPERATION + "_" + loginUser.getUserId());
         Integer count = boundValueOperations.get();
         if (count == null || count < 3) {
             boundValueOperations.increment(1);

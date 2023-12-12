@@ -239,12 +239,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     public void updateArticlesStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Date updateTime = new Date();
-        LambdaUpdateWrapper<Article> lambdaUpdateWrapper = new LambdaUpdateWrapper<Article>()
-                .eq(loginUser.getRoleWeight() > 100, Article::getDeletedFlag, false)
-                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
-                .in(Article::getId, statusBackVO.getIdList())
-                .set(Article::getUpdateUser, loginUser.getUserId())
-                .set(Article::getUpdateTime, updateTime);
+        LambdaUpdateWrapper<Article> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
         if (RECYCLE.equals(statusBackVO.getType())) {
             if (statusBackVO.getStatus() == Boolean.TRUE)
                 lambdaUpdateWrapper.set(Article::getRecycleFlag, false);
@@ -257,7 +252,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 lambdaUpdateWrapper.set(Article::getDeletedFlag, false);
         } else
             lambdaUpdateWrapper.set(Article::getDraftFlag, true).set(Article::getRecycleFlag, true);
-        int count = articleMapper.update(null, lambdaUpdateWrapper);
+        int count = articleMapper.update(null, lambdaUpdateWrapper
+                .eq(loginUser.getRoleWeight() > 100, Article::getDeletedFlag, false)
+                .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId())
+                .in(Article::getId, statusBackVO.getIdList())
+                .set(Article::getUpdateUser, loginUser.getUserId())
+                .set(Article::getUpdateTime, updateTime));
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
         if (RECYCLE.equals(statusBackVO.getType())) {

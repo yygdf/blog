@@ -52,12 +52,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     @Transactional
     public void updateCommentsStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        LambdaUpdateWrapper<Comment> lambdaUpdateWrapper = new LambdaUpdateWrapper<Comment>()
-                .eq(loginUser.getRoleWeight() > 100, Comment::getDeletedFlag, false)
-                .ne(loginUser.getRoleWeight() > 200, Comment::getArticleId, -1)
-                .and(loginUser.getRoleWeight() > 300, e -> e.eq(Comment::getUserId, loginUser.getUserId()).or().exists("select a.id from tb_article a where a.id = article_id and a.deleted_flag = false and a.user_id = " + loginUser.getUserId())
-                .set(Comment::getUpdateUser, loginUser.getUserId())
-                .set(Comment::getUpdateTime, new Date()));
+        LambdaUpdateWrapper<Comment> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
         if (RECYCLE.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 300)
                 throw new OperationStatusException();
@@ -72,7 +67,12 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                 lambdaUpdateWrapper.set(Comment::getDeletedFlag, false).in(Comment::getId, statusBackVO.getIdList());
         } else
             lambdaUpdateWrapper.set(Comment::getRecycleFlag, true).and(e -> e.in(Comment::getId, statusBackVO.getIdList()).or().in(Comment::getParentId, statusBackVO.getIdList()));
-        commentMapper.update(null, lambdaUpdateWrapper);
+        commentMapper.update(null, lambdaUpdateWrapper
+                .eq(loginUser.getRoleWeight() > 100, Comment::getDeletedFlag, false)
+                .ne(loginUser.getRoleWeight() > 200, Comment::getArticleId, -1)
+                .and(loginUser.getRoleWeight() > 300, e -> e.eq(Comment::getUserId, loginUser.getUserId()).or().exists("select a.id from tb_article a where a.id = article_id and a.deleted_flag = false and a.user_id = " + loginUser.getUserId())
+                .set(Comment::getUpdateUser, loginUser.getUserId())
+                .set(Comment::getUpdateTime, new Date())));
     }
 
     @Override

@@ -474,7 +474,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         LoginUser loginUser = UserUtil.getLoginUser();
         BoundHashOperations boundHashOperations = redisTemplate.boundHashOps(MULTI_FILE_TOKEN + "_" + id);
         Map<String, Object> map = boundHashOperations.entries();
-        if (map == null || (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(map.get("userId"))))
+        if (map.isEmpty() || (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(map.get("userId"))))
             return Dict.create();
         return Dict.create().putAll(new HashMap<>(map));
     }

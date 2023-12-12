@@ -231,7 +231,7 @@ export default {
       this.current = current;
       this.getLoginLogs();
     },
-    getLoginLogs(resetCurrentPage = false) {
+    getLoginLogs(resetCurrentPage) {
       if (resetCurrentPage) {
         this.current = 1;
       }

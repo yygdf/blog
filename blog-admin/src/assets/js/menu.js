@@ -3,7 +3,7 @@ import router from "../../router";
 import store from "../../store";
 import axios from "axios";
 
-export async function generaMenu() {
+export async function generateMenu() {
   await axios.get("/api/back/menus/user").then(({ data }) => {
     if (data.flag) {
       let userMenuList = data.data;

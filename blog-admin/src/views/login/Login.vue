@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { generaMenu } from "../../assets/js/menu";
+import { generateMenu } from "../../assets/js/menu";
 import md5 from "js-md5";
 export default {
   created() {
@@ -105,10 +105,10 @@ export default {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
           const that = this;
-          if (that.config.TENCENT_CAPTCHA) {
+          if (that.$config.TENCENT_CAPTCHA) {
             // eslint-disable-next-line no-undef
-            var captcha = new TencentCaptcha(
-              this.config.TENCENT_CAPTCHA,
+            let captcha = new TencentCaptcha(
+              that.$config.TENCENT_CAPTCHA,
               function(res) {
                 if (res.ret === 0) {
                   that.login(that);
@@ -138,7 +138,7 @@ export default {
         .then(({ data }) => {
           if (data.flag) {
             that.$store.commit("login", data.data);
-            generaMenu().then(() => {
+            generateMenu().then(() => {
               that.$cookie.setCookie({ username: that.loginForm.username });
               that.$message.success("登录成功");
               that.$router.push({

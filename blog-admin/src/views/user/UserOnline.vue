@@ -232,7 +232,7 @@ export default {
         this.userOnlineIdList.push(item.id);
       });
     },
-    getUserOnlines(resetCurrentPage = false) {
+    getUserOnlines(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
         this.oldKeywords = this.keywords;

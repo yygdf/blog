@@ -382,7 +382,7 @@ export default {
         this.friendLinkIdList.push(item.id);
       });
     },
-    getFriendLinks(resetCurrentPage = false) {
+    getFriendLinks(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
         this.oldKeywords = this.keywords;

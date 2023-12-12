@@ -20,11 +20,10 @@ import "mavon-editor/dist/css/index.css";
 import moment from "moment";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
-import { generaMenu } from "./assets/js/menu";
+import { generateMenu } from "./assets/js/menu";
 import commonMethod from "./assets/js/common";
 import cookie from "./assets/js/cookie";
 
-Vue.prototype.config = config;
 Vue.use(mavonEditor);
 Vue.component("v-chart", ECharts);
 Vue.use(VueAxios, axios);
@@ -33,6 +32,7 @@ Vue.config.productionTip = false;
 Vue.prototype.$moment = moment;
 Vue.prototype.$commonMethod = commonMethod;
 Vue.prototype.$cookie = cookie;
+Vue.prototype.$config = config;
 
 Vue.filter("date", function(value, formatStr = "yyyy-MM-DD") {
   return moment(value).format(formatStr);
@@ -109,7 +109,7 @@ new Vue({
   render: h => h(App),
   created() {
     if (store.state.userId) {
-      generaMenu();
+      generateMenu();
     }
   }
 }).$mount("#app");

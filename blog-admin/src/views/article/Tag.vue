@@ -306,7 +306,7 @@ export default {
         this.tagIdList.push(item.id);
       });
     },
-    getTags(resetCurrentPage = false) {
+    getTags(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
         this.oldKeywords = this.keywords;

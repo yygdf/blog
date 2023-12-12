@@ -318,7 +318,7 @@ export default {
       this.current = current;
       this.getExceptionLogs();
     },
-    getExceptionLogs(resetCurrentPage = false) {
+    getExceptionLogs(resetCurrentPage) {
       if (resetCurrentPage) {
         this.current = 1;
       }

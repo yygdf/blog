@@ -456,7 +456,7 @@
 <script>
 export default {
   created() {
-    this.getMultiFiles(0);
+    this.getMultiFiles();
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
@@ -482,11 +482,11 @@ export default {
       multiFileToken: {},
       multiFileOrigin: {},
       multiFileTokenOrigin: {},
-      staticResourceUrl: "",
       type: null,
       userId: null,
-      keywords: "",
       multiFileParentId: null,
+      keywords: "",
+      staticResourceUrl: "",
       loading: true,
       editStatus: false,
       removeStatus: false,
@@ -507,7 +507,7 @@ export default {
       if (this.deepSearchFlag) {
         this.keywords = "";
         this.multiFileParentId = tree.id;
-        this.getMultiFiles(0);
+        this.getMultiFiles();
         this.deepSearchFlag = false;
       } else {
         this.treeNodeMap.set(tree.id, { tree, treeNode, resolve });
@@ -538,7 +538,7 @@ export default {
         }
         this.load(tree, treeNode, resolve);
       } else {
-        this.getMultiFiles(0);
+        this.getMultiFiles();
       }
     },
     expandChange(row, expanded) {
@@ -1035,14 +1035,14 @@ export default {
       this.multiFileIdSetExpended.clear();
       this.deepSearchFlag = false;
       this.multiFileParentId = null;
-      this.getMultiFiles(0);
+      this.getMultiFiles();
     },
     userId() {
       this.lazyLoadIdSet.clear();
       this.multiFileIdSetExpended.clear();
       this.deepSearchFlag = false;
       this.multiFileParentId = null;
-      this.getMultiFiles(0);
+      this.getMultiFiles();
     }
   },
   computed: {

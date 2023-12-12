@@ -429,7 +429,7 @@ export default {
         this.articleIdList.push(item.id);
       });
     },
-    getArticles(resetCurrentPage = false) {
+    getArticles(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
         this.oldKeywords = this.keywords;
@@ -532,7 +532,7 @@ export default {
         }
       });
     },
-    updateArticlesStatus(id, isRec = false) {
+    updateArticlesStatus(id, isRec) {
       let param = {};
       if (id != null) {
         param.idList = [id];

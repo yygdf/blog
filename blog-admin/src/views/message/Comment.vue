@@ -24,7 +24,6 @@
       </el-button>
       <div style="margin-left:auto">
         <el-select
-          v-if="checkWeight(400)"
           v-model="userId"
           size="small"
           style="margin-right:1rem"
@@ -43,7 +42,7 @@
         </el-select>
         <el-select
           v-if="checkWeight(200)"
-          v-model="flag"
+          v-model="status"
           size="small"
           style="margin-right:1rem"
           placeholder="请选择来源"
@@ -71,7 +70,7 @@
         </el-select>
         <el-input
           v-model="keywords"
-          :disabled="flag"
+          :disabled="status"
           ref="input"
           size="small"
           style="width: 200px"
@@ -81,7 +80,7 @@
           @keyup.enter.native="getComments(false)"
         />
         <el-button
-          :disabled="flag"
+          :disabled="status"
           type="primary"
           size="small"
           icon="el-icon-search"
@@ -95,8 +94,12 @@
     <el-table
       v-loading="loading"
       :data="commentList"
-      border
+      :load="load"
+      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+      ref="table"
+      row-key="id"
       @selection-change="selectionChange"
+      lazy
     >
       <el-table-column type="selection" align="center" width="40" />
       <el-table-column
@@ -305,19 +308,68 @@ export default {
       commentIdList: [],
       flag: null,
       type: null,
+      status: null,
       userId: null,
-      keywords: null,
-      oldKeywords: null,
+      commentParentId: null,
+      keywords: "",
+      oldKeywords: "",
       loading: true,
       editStatus: false,
       removeStatus: false,
+      deepSearchFlag: false,
       size: 10,
       count: 0,
       current: 1,
-      defaultAvatar: require("../../assets/img/defaultAvatar.png")
+      defaultAvatar: require("../../assets/img/defaultAvatar.png"),
+      treeNodeMap: new Map()
     };
   },
   methods: {
+    load(tree, treeNode, resolve) {
+      if (this.deepSearchFlag) {
+        this.keywords = "";
+        this.commentParentId = tree.id;
+        this.getComments(0);
+        this.deepSearchFlag = false;
+      } else {
+        this.treeNodeMap.set(tree.id, { tree, treeNode, resolve });
+        let params = {
+          size: this.size,
+          type: this.type,
+          status: this.status,
+          current: this.current,
+          keywords: this.keywords
+        };
+        params = this.$commonMethod.skipEmptyValue(params);
+        params.categoryId = tree.id;
+        this.axios
+          .get("/api/back/comments", {
+            params
+          })
+          .then(({ data }) => {
+            tree.children = data.data.dataList;
+            if (this.commentIdList.includes(tree.id)) {
+              this.setChildren(data.data.dataList, true);
+            }
+            resolve(data.data.dataList);
+          });
+      }
+    },
+    setChildren(children, type) {
+      children
+        .filter(
+          e =>
+            e.deletedCount === 0 ||
+            e.deletedCount === 1 ||
+            e.deletedCount === -1
+        )
+        .map(e => {
+          this.$nextTick(() => this.$refs.table.toggleRowSelection(e, type));
+          if (e.children) {
+            this.setChildren(e.children, type);
+          }
+        });
+    },
     sizeChange(size) {
       this.size = size;
       this.getComments(true);
@@ -335,20 +387,42 @@ export default {
         this.commentIdList.push(item.id);
       });
     },
-    getComments(resetCurrentPage = false) {
+    getComments(resetCurrentPage, searchType) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
         this.oldKeywords = this.keywords;
       }
       let params = {
-        flag: this.flag,
         size: this.size,
         type: this.type,
+        status: this.status,
         userId: this.userId,
         current: this.current,
         keywords: this.keywords
       };
       params = this.$commonMethod.skipEmptyValue(params);
+      if (this.commentParentId != null && this.commentParentId !== -1) {
+        params.categoryId = this.commentParentId;
+      }
+      if (this.deepSearchFlag) {
+        params.flag = true;
+      }
+      if (searchType > 0) {
+        this.commentList = [];
+        this.$set(this.$refs.table.store.states, "lazyTreeNodeMap", {});
+        this.treeNodeMap = new Map();
+        if (searchType > 1) {
+          if (this.keywords.trim() === "") {
+            delete params.flag;
+            delete params.categoryId;
+            this.commentParentId = null;
+            this.deepSearchFlag = false;
+          } else {
+            params.flag = true;
+            this.deepSearchFlag = true;
+          }
+        }
+      }
       this.axios
         .get("/api/back/comments", {
           params
@@ -395,7 +469,7 @@ export default {
       });
       this.removeStatus = false;
     },
-    updateCommentsStatus(id, isRec = false) {
+    updateCommentsStatus(id, isRec) {
       let param = {};
       if (id != null) {
         param.idList = [id];

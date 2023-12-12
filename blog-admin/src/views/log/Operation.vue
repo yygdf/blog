@@ -283,7 +283,7 @@ export default {
       this.current = current;
       this.getOperationLogs();
     },
-    getOperationLogs(resetCurrentPage = false) {
+    getOperationLogs(resetCurrentPage) {
       if (resetCurrentPage) {
         this.current = 1;
       }

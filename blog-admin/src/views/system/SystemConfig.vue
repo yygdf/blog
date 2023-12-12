@@ -242,7 +242,7 @@ export default {
       this.current = current;
       this.getSystemConfigs();
     },
-    getSystemConfigs(resetCurrentPage = false) {
+    getSystemConfigs(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
         this.oldKeywords = this.keywords;

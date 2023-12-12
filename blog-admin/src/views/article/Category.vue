@@ -365,7 +365,7 @@ export default {
         this.categoryIdList.push(item.id);
       });
     },
-    getCategories(resetCurrentPage = false) {
+    getCategories(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {
         this.current = 1;
         this.oldKeywords = this.keywords;

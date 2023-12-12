@@ -72,23 +72,22 @@ public class FtpUtil {
                     ftpClient.changeWorkingDirectory(path);
                 }
             }
-            ftpClient.storeFile(fullFileName, file.getInputStream());
+            boolean flag = ftpClient.storeFile(fullFileName, file.getInputStream());
             ftpClient.logout();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            if (flag)
+                return address + targetAddr + "/" + fullFileName;
+        } catch (IOException ignored) {
         } finally {
             if (ftpClient != null) {
                 if (ftpClient.isConnected()) {
                     try {
                         ftpClient.disconnect();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (IOException ignored) {
                     }
                 }
             }
         }
-        return address + targetAddr + "/" + fullFileName;
+        return null;
     }
 
     private static boolean deleteFile(String uri) {
@@ -107,66 +106,60 @@ public class FtpUtil {
                 flag = ftpClient.deleteFile(paths[lastIndex]);
             ftpClient.logout();
             return flag;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+        } catch (IOException ignored) {
         } finally {
             if (ftpClient != null) {
                 if (ftpClient.isConnected()) {
                     try {
                         ftpClient.disconnect();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (IOException ignored) {
                     }
                 }
             }
         }
+        return false;
     }
 
     private static boolean renameFile(String uri, String uriNew) {
         FTPClient ftpClient = null;
         try {
             ftpClient = getFTPClient();
-            ftpClient.rename(uri, uriNew);
+            boolean flag = ftpClient.rename(uri, uriNew);
             ftpClient.logout();
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            return flag;
+        } catch (IOException ignored) {
         } finally {
             if (ftpClient != null) {
                 if (ftpClient.isConnected()) {
                     try {
                         ftpClient.disconnect();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (IOException ignored) {
                     }
                 }
             }
         }
+        return false;
     }
 
     private static boolean copyFile(String from, String to) {
         FTPClient ftpClient = null;
         try {
             ftpClient = getFTPClient();
-            ftpClient.retrieveFile(from, new FileOutputStream(to));
+            boolean flag = ftpClient.retrieveFile(from, new FileOutputStream(to));
             ftpClient.logout();
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            return flag;
+        } catch (IOException ignored) {
         } finally {
             if (ftpClient != null) {
                 if (ftpClient.isConnected()) {
                     try {
                         ftpClient.disconnect();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (IOException ignored) {
                     }
                 }
             }
         }
+        return false;
     }
 
     private static void deleteDirectory(FTPClient ftpClient) throws IOException {

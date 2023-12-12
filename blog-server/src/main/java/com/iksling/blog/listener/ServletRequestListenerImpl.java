@@ -36,6 +36,6 @@ public class ServletRequestListenerImpl implements ServletRequestListener {
 
     @Scheduled(cron = " 0 0 0 * * ?")
     private void clear() {
-        redisTemplate.delete(dateToStr(getSomeDay(new Date(), -2), YYYY_MM_DD));
+        redisTemplate.delete(dateToStr(getSomeDay(new Date(), -7), YYYY_MM_DD));
     }
 }

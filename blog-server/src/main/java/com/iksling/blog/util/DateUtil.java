@@ -27,8 +27,7 @@ public class DateUtil {
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         try {
             return formatter.parse(strDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
+        } catch (ParseException ignored) {
         }
         return null;
     }

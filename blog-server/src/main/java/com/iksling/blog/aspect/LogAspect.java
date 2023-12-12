@@ -33,7 +33,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.Objects;
 
 import static com.iksling.blog.constant.CommonConst.ADMIN_EMAIL;
 import static com.iksling.blog.constant.MQConst.EMAIL_EXCHANGE;
@@ -72,7 +71,7 @@ public class LogAspect {
         String ipSource = IpUtil.getIpSource(ipAddress);
         operationLogMapper.insert(OperationLog.builder()
                 .userId(UserUtil.getLoginUser().getUserId())
-                .optUri(Objects.requireNonNull(request).getRequestURI())
+                .optUri(request.getRequestURI())
                 .optType(optLog.optType())
                 .optDesc(apiOperation.value())
                 .optModule(api.tags()[0])
@@ -103,7 +102,7 @@ public class LogAspect {
         e.printStackTrace(pw);
         ExceptionLog exceptionLog = ExceptionLog.builder()
                 .userId(loginUser.getUserId())
-                .optUri(Objects.requireNonNull(request).getRequestURI())
+                .optUri(request.getRequestURI())
                 .optType(optLog == null ? QUERY : optLog.optType())
                 .optDesc(apiOperation.value())
                 .optModule(api.tags()[0])

@@ -157,7 +157,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
                             .resourceId(resourceId)
                             .build())
                     .collect(Collectors.toList()));
-            filterInvocationSecurityMetadataSource.clearResourceRoleList();
+            filterInvocationSecurityMetadataSource.loadResourceRoleList();
         }
     }
 

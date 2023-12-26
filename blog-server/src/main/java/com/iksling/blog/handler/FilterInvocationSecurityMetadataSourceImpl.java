@@ -20,27 +20,18 @@ import java.util.List;
 @Component
 public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocationSecurityMetadataSource {
 
-    private static List<ResourceRole> resourceRoleList;
+    private List<ResourceRole> resourceRoleList;
 
     @Autowired
     private ResourceMapper resourceMapper;
 
     @PostConstruct
-    private void loadResourceRoleList() {
+    public void loadResourceRoleList() {
         resourceRoleList = resourceMapper.getResourceRole();
-    }
-
-    public void clearResourceRoleList() {
-        resourceRoleList = new ArrayList<>();
     }
 
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
-        if (resourceRoleList.isEmpty()) {
-            this.loadResourceRoleList();
-            if (resourceRoleList.isEmpty())
-                throw new AuthenticationServiceException("服务器繁忙, 请稍后再试!");
-        }
         FilterInvocation fi = (FilterInvocation) object;
         String method = fi.getRequest().getMethod();
         String uri = fi.getRequest().getRequestURI();

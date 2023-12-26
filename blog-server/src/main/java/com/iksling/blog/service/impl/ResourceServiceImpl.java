@@ -110,7 +110,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
             resource.setUpdateTime(new Date());
             resourceMapper.updateById(resource);
         }
-        filterInvocationSecurityMetadataSource.clearResourceRoleList();
+        filterInvocationSecurityMetadataSource.loadResourceRoleList();
     }
 
     @Override
@@ -127,7 +127,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
         if (count != idList.size())
             throw new IllegalRequestException();
         roleResourceMapper.delete(new LambdaUpdateWrapper<RoleResource>().in(RoleResource::getResourceId, idList));
-        filterInvocationSecurityMetadataSource.clearResourceRoleList();
+        filterInvocationSecurityMetadataSource.loadResourceRoleList();
     }
 
     @Override
@@ -142,7 +142,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
         int count = resourceMapper.update(null, lambdaUpdateWrapper);
         if (count != statusBackVO.getIdList().size())
             throw new IllegalRequestException();
-        filterInvocationSecurityMetadataSource.clearResourceRoleList();
+        filterInvocationSecurityMetadataSource.loadResourceRoleList();
     }
 
     @Override

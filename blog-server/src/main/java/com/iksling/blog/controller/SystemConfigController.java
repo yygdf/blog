@@ -47,8 +47,6 @@ public class SystemConfigController {
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
     @GetMapping("/back/systemConfigs")
     public Result getBackSystemConfigs(@Valid ConditionBackVO condition) {
-        return Result.success().message("查询成功").data(Dict.create()
-                .set("rootUserId", ROOT_USER_ID)
-                .set("pagePojo", systemConfigService.getSystemConfigsBackDTO(condition)));
+        return Result.success().message("查询成功").data(systemConfigService.getSystemConfigsBackDTO(condition));
     }
 }

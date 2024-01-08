@@ -11,20 +11,6 @@
         新增
       </el-button>
       <div style="margin-left:auto">
-        <el-select
-          v-if="checkCurrentUserId"
-          v-model="type"
-          size="small"
-          style="margin-right:1rem"
-          placeholder="请选择"
-        >
-          <el-option
-            v-for="item in options"
-            :key="item.value"
-            :value="item.value"
-            :label="item.label"
-          />
-        </el-select>
         <el-input
           v-model="keywords"
           ref="input"
@@ -156,15 +142,6 @@
             show-word-limit
           />
         </el-form-item>
-        <el-form-item v-if="type && systemConfig.id" label="开启同步">
-          <el-switch
-            v-model="systemConfig.assimilateFlag"
-            :active-value="true"
-            :inactive-value="false"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
-          />
-        </el-form-item>
       </el-form>
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">取 消</el-button>
@@ -186,22 +163,10 @@ export default {
   },
   data: function() {
     return {
-      options: [
-        {
-          value: null,
-          label: "未同步"
-        },
-        {
-          value: 11,
-          label: "已同步"
-        }
-      ],
       systemConfigList: [],
       systemConfig: {},
       systemConfigOrigin: {},
-      type: null,
       keywords: null,
-      rootUserId: null,
       oldKeywords: null,
       loading: true,
       addOrEditStatus: false,
@@ -249,7 +214,6 @@ export default {
       }
       let params = {
         size: this.size,
-        type: this.type,
         current: this.current,
         keywords: this.keywords
       };
@@ -259,9 +223,8 @@ export default {
           params
         })
         .then(({ data }) => {
-          this.rootUserId = data.data.rootUserId;
-          this.count = data.data.pagePojo.count;
-          this.systemConfigList = data.data.pagePojo.pageList;
+          this.count = data.data.count;
+          this.systemConfigList = data.data.pageList;
           this.loading = false;
         });
     },
@@ -319,16 +282,6 @@ export default {
           });
         }
       });
-    }
-  },
-  computed: {
-    checkCurrentUserId() {
-      return this.$store.state.userId === this.rootUserId;
-    }
-  },
-  watch: {
-    type() {
-      this.getSystemConfigs(true);
     }
   }
 };

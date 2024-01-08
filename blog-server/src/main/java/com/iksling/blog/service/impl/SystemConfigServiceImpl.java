@@ -74,8 +74,6 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
 
     @Override
     public PagePojo<SystemConfigsBackDTO> getSystemConfigsBackDTO(ConditionBackVO condition) {
-        if (!UserUtil.getLoginUser().getUserId().equals(ROOT_USER_ID))
-            return new PagePojo<>();
         Integer count = systemConfigMapper.selectSystemConfigsBackDTOCount(condition);
         if (count == 0)
             return new PagePojo<>();

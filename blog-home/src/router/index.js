@@ -16,77 +16,77 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/",
+    path: "/:userId(\\d+)?",
     component: Home,
     meta: {
       title: "首页"
     }
   },
   {
-    path: "/articles/:articleId",
+    path: "/:userId(\\d+)?/articles/:articleId",
     component: Article,
     meta: {
       title: "文章"
     }
   },
   {
-    path: "/archives",
+    path: "/:userId(\\d+)?/archives",
     component: Archive,
     meta: {
       title: "归档"
     }
   },
   {
-    path: "/tags",
+    path: "/:userId(\\d+)?/tags",
     component: Tag,
     meta: {
       title: "标签"
     }
   },
   {
-    path: "/categories",
+    path: "/:userId(\\d+)?/categories",
     component: Category,
     meta: {
       title: "分类"
     }
   },
   {
-    path: "/categories/*",
+    path: "/:userId(\\d+)?/categories/*",
     component: ArticleList,
     meta: {
       title: "文章"
     }
   },
   {
-    path: "/links",
+    path: "/:userId(\\d+)?/links",
     component: Link,
     meta: {
       title: "友链"
     }
   },
   {
-    path: "/about",
+    path: "/:userId(\\d+)?/about",
     component: About,
     meta: {
       title: "关于"
     }
   },
   {
-    path: "/messages",
+    path: "/:userId(\\d+)?/messages",
     component: Message,
     meta: {
       title: "留言"
     }
   },
   {
-    path: "/tags/*",
+    path: "/:userId(\\d+)?/tags/*",
     component: ArticleList,
     meta: {
       title: "文章"
     }
   },
   {
-    path: "/user",
+    path: "/:userId(\\d+)?/user",
     component: User,
     meta: {
       title: "个人中心"

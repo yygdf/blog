@@ -201,7 +201,6 @@
           <el-input
             :disabled="true"
             v-model="userConfig.configName"
-            :ref="userConfig.id ? '' : 'input'"
             class="word-limit-input"
             style="width: 360px"
             maxlength="50"
@@ -212,7 +211,7 @@
         <el-form-item label="配 置 值">
           <el-input
             v-model="userConfig.configValue"
-            :ref="userConfig.id ? 'input' : ''"
+            ref="input"
             class="word-limit-input2"
             style="width: 360px"
             maxlength="255"
@@ -228,6 +227,15 @@
             maxlength="255"
             placeholder="请输入配置描述"
             show-word-limit
+          />
+        </el-form-item>
+        <el-form-item v-if="checkCurrentUserId" label="开启同步">
+          <el-switch
+            v-model="userConfig.assimilateFlag"
+            :active-value="true"
+            :inactive-value="false"
+            active-color="#13ce66"
+            inactive-color="#F4F4F5"
           />
         </el-form-item>
       </el-form>
@@ -270,6 +278,7 @@ export default {
       type: null,
       userId: null,
       keywords: null,
+      rootUserId: null,
       oldKeywords: null,
       loading: true,
       editStatus: false,
@@ -335,6 +344,7 @@ export default {
           params
         })
         .then(({ data }) => {
+          this.rootUserId = data.data.rootUserId;
           this.rootUserIdList = data.data.rootUserIdList;
           this.count = data.data.pagePojo.count;
           this.userConfigList = data.data.pagePojo.pageList;
@@ -412,6 +422,11 @@ export default {
     },
     userId() {
       this.getUserConfigs(true);
+    }
+  },
+  computed: {
+    checkCurrentUserId() {
+      return this.$store.state.userId === this.rootUserId;
     }
   }
 };

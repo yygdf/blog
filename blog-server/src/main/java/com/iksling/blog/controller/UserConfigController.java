@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
 import static com.iksling.blog.constant.LogConst.UPDATE;
 
@@ -47,6 +48,7 @@ public class UserConfigController {
     @GetMapping("/back/userConfigs")
     public Result getBackUserConfigs(@Valid ConditionBackVO condition) {
         return Result.success().message("查询成功").data(Dict.create()
+                .set("rootUserId", ROOT_USER_ID)
                 .set("rootUserIdList", ROOT_USER_ID_LIST)
                 .set("pagePojo", userConfigService.getUserConfigsBackDTO(condition)));
     }

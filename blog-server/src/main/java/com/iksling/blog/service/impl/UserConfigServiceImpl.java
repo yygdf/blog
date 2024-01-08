@@ -42,23 +42,20 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer loginUserId = loginUser.getUserId();
         LambdaUpdateWrapper<UserConfig> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
-        if (userConfigBackVO.getConfigValue() != null) {
-            if (userConfigBackVO.getAssimilateFlag() == Boolean.TRUE) {
-                if (!loginUserId.equals(ROOT_USER_ID))
-                    throw new IllegalRequestException();
-                lambdaUpdateWrapper.inSql(UserConfig::getConfigName, "select config_name from tb_system_config where id = " + userConfigBackVO.getId());
-            } else
-                lambdaUpdateWrapper.eq(UserConfig::getId, userConfigBackVO.getId());
-            lambdaUpdateWrapper.set(UserConfig::getConfigValue, userConfigBackVO.getConfigValue());
+        if (userConfigBackVO.getAssimilateFlag() == Boolean.TRUE) {
+            if (!loginUserId.equals(ROOT_USER_ID))
+                throw new IllegalRequestException();
+            lambdaUpdateWrapper.inSql(UserConfig::getConfigName, "select config_name from tb_system_config where id = " + userConfigBackVO.getId());
         } else
             lambdaUpdateWrapper.eq(UserConfig::getId, userConfigBackVO.getId());
         userConfigMapper.update(null, lambdaUpdateWrapper
                 .set(userConfigBackVO.getConfigDesc() != null, UserConfig::getConfigDesc, userConfigBackVO.getConfigDesc())
-                .set(UserConfig::getUpdateUser, loginUser.getUserId())
+                .set(userConfigBackVO.getConfigValue() != null, UserConfig::getConfigValue, userConfigBackVO.getConfigValue())
+                .set(UserConfig::getUpdateUser, loginUserId)
                 .set(UserConfig::getUpdateTime, new Date())
                 .and(loginUser.getRoleWeight() > 100, e -> e.eq(UserConfig::getDeletedFlag, false)
                             .notIn(UserConfig::getUserId, ROOT_USER_ID_LIST))
-                .eq(loginUser.getRoleWeight() > 200, UserConfig::getUserId, loginUser.getUserId()));
+                .eq(loginUser.getRoleWeight() > 200, UserConfig::getUserId, loginUserId));
     }
 
     @Override

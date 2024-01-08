@@ -229,7 +229,7 @@
             show-word-limit
           />
         </el-form-item>
-        <el-form-item v-if="checkCurrentUserId" label="开启同步">
+        <el-form-item v-if="assimilateStatus" label="开启同步">
           <el-switch
             v-model="userConfig.assimilateFlag"
             :active-value="true"
@@ -283,6 +283,7 @@ export default {
       loading: true,
       editStatus: false,
       editStatusBatch: false,
+      assimilateStatus: false,
       size: 10,
       count: 0,
       current: 1
@@ -297,6 +298,9 @@ export default {
         configDesc: userConfig.configDesc
       };
       this.$refs.userConfigTitle.innerHTML = "修改配置";
+      this.assimilateStatus =
+        userConfig.userId === this.rootUserId &&
+        this.$store.state.userId === this.rootUserId;
       this.userConfigOrigin = JSON.parse(JSON.stringify(this.userConfig));
       this.$nextTick(() => {
         this.$refs.input.focus();
@@ -422,11 +426,6 @@ export default {
     },
     userId() {
       this.getUserConfigs(true);
-    }
-  },
-  computed: {
-    checkCurrentUserId() {
-      return this.$store.state.userId === this.rootUserId;
     }
   }
 };

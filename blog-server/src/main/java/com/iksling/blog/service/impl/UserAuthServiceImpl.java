@@ -32,8 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID_LIST;
-import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
+import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.LOCKED;
 import static com.iksling.blog.enums.FileDirEnum.*;
@@ -110,18 +109,16 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                             .eq(UserConfig::getUserId, userId));
             }
             else if (count > 0) {
-                List<SystemConfig> systemConfigList = systemConfigMapper.selectList(new LambdaQueryWrapper<SystemConfig>()
-                        .select(SystemConfig::getConfigDesc, SystemConfig::getConfigName, SystemConfig::getConfigValue)
-                        .eq(SystemConfig::getAssimilateFlag, true));
-                userConfigService.saveBatch(systemConfigList.stream()
-                        .map(e -> UserConfig.builder()
-                                .userId(userId)
-                                .configDesc(e.getConfigDesc())
-                                .configName(e.getConfigName())
-                                .configValue(e.getConfigValue())
-                                .createUser(loginUserId)
-                                .createTime(createTime)
-                                .build()).collect(Collectors.toList()));
+                List<UserConfig> userConfigList = userConfigMapper.selectList(new LambdaQueryWrapper<UserConfig>()
+                        .select(UserConfig::getConfigDesc, UserConfig::getConfigName, UserConfig::getConfigValue)
+                        .eq(UserConfig::getUserId, ROOT_ROLE_ID));
+                userConfigService.saveBatch(userConfigList.stream()
+                        .peek(e -> {
+                            e.setUserId(userId);
+                            e.setCreateUser(loginUserId);
+                            e.setCreateTime(createTime);
+                        })
+                        .collect(Collectors.toList()));
                 userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                         .set(UserAuth::getAssimilateFlag, true)
                         .eq(UserAuth::getUserId, userId));

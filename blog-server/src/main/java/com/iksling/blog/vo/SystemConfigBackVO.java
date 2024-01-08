@@ -35,10 +35,4 @@ public class SystemConfigBackVO {
     @Size(min = 1, max = 50, message = "'configName':{'minlength':1,'maxlength':50}")
     @ApiModelProperty(name = "configName", value = "配置名", dataType = "String")
     private String configName;
-
-    /**
-     * 0未同步, 1已同步
-     */
-    @ApiModelProperty(name = "assimilateFlag", value = "0未同步, 1已同步", dataType = "Boolean")
-    private Boolean assimilateFlag;
 }

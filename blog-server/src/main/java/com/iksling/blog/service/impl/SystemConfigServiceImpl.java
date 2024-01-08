@@ -36,9 +36,6 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
     @Autowired
     private SystemConfigMapper systemConfigMapper;
 
-    @Autowired
-    private UserConfigMapper userConfigMapper;
-
     @Override
     @Transactional
     public void saveOrUpdateSystemConfigBackVO(SystemConfigBackVO systemConfigBackVO) {
@@ -51,25 +48,14 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
                     .eq(SystemConfig::getConfigName, systemConfig.getConfigName()));
             if (count > 0)
                 throw new OperationStatusException("该配置已存在!");
-            systemConfig.setAssimilateFlag(null);
             systemConfig.setUserId(loginUserId);
             systemConfig.setCreateUser(loginUserId);
             systemConfig.setCreateTime(new Date());
             systemConfigMapper.insert(systemConfig);
         } else {
-            Date updateTime = new Date();
-            if (systemConfig.getAssimilateFlag() == Boolean.TRUE && systemConfig.getConfigValue() != null) {
-                if (!loginUserId.equals(ROOT_USER_ID))
-                    throw new IllegalRequestException();
-                userConfigMapper.update(null, new LambdaUpdateWrapper<UserConfig>()
-                        .set(UserConfig::getConfigValue, systemConfig.getConfigValue())
-                        .set(UserConfig::getUpdateUser, loginUserId)
-                        .set(UserConfig::getUpdateTime, updateTime)
-                        .inSql(UserConfig::getConfigName, "select config_name from tb_system_config where id = " + systemConfig.getId()));
-            }
             systemConfig.setConfigName(null);
             systemConfig.setUpdateUser(loginUserId);
-            systemConfig.setUpdateTime(updateTime);
+            systemConfig.setUpdateTime(new Date());
             systemConfigMapper.updateById(systemConfig);
         }
     }
@@ -88,7 +74,7 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
 
     @Override
     public PagePojo<SystemConfigsBackDTO> getSystemConfigsBackDTO(ConditionBackVO condition) {
-        if (ASSIMILATE.equals(condition.getType()) && !UserUtil.getLoginUser().getUserId().equals(ROOT_USER_ID))
+        if (!UserUtil.getLoginUser().getUserId().equals(ROOT_USER_ID))
             return new PagePojo<>();
         Integer count = systemConfigMapper.selectSystemConfigsBackDTOCount(condition);
         if (count == 0)

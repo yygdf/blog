@@ -54,11 +54,6 @@ public class SystemConfig implements Serializable {
     private Boolean deletableFlag;
 
     /**
-     * 0未同步, 1已同步, 默认0
-     */
-    private Boolean assimilateFlag;
-
-    /**
      * 创建人
      */
     private Integer createUser;

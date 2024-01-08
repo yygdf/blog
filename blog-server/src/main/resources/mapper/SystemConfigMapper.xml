@@ -11,7 +11,6 @@
             <result property="configName" column="config_name" jdbcType="VARCHAR"/>
             <result property="configValue" column="config_value" jdbcType="VARCHAR"/>
             <result property="deletableFlag" column="deletable_flag" jdbcType="BOOLEAN"/>
-            <result property="assimilateFlag" column="assimilate_flag" jdbcType="BOOLEAN"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
@@ -21,8 +20,8 @@
     <sql id="Base_Column_List">
         id,user_id,config_desc,
         config_name,config_value,deletable_flag,
-        assimilate_flag,create_user,create_time,
-        update_user,update_time
+        create_user,create_time,update_user,
+        update_time
     </sql>
 
     <select id="selectSystemConfigsBackDTOCount" resultType="java.lang.Integer">
@@ -31,16 +30,8 @@
         FROM
             tb_system_config
         <where>
-            <choose>
-                <when test="condition.type == 11">
-                    assimilate_flag = true
-                </when>
-                <otherwise>
-                    assimilate_flag = false
-                </otherwise>
-            </choose>
             <if test="condition.keywords != null and condition.keywords != ''">
-                AND (config_desc LIKE concat('%', #{condition.keywords}, '%') OR config_name LIKE concat('%', #{condition.keywords}, '%'))
+                config_desc LIKE concat('%', #{condition.keywords}, '%') OR config_name LIKE concat('%', #{condition.keywords}, '%')
             </if>
         </where>
     </select>
@@ -53,16 +44,8 @@
         FROM
             tb_system_config
         <where>
-            <choose>
-                <when test="condition.type == 11">
-                    assimilate_flag = true
-                </when>
-                <otherwise>
-                    assimilate_flag = false
-                </otherwise>
-            </choose>
             <if test="condition.keywords != null and condition.keywords != ''">
-                AND (config_desc LIKE concat('%', #{condition.keywords}, '%') OR config_name LIKE concat('%', #{condition.keywords}, '%'))
+                config_desc LIKE concat('%', #{condition.keywords}, '%') OR config_name LIKE concat('%', #{condition.keywords}, '%')
             </if>
         </where>
         ORDER BY

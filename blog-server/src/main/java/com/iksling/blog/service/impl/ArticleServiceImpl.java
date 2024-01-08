@@ -248,8 +248,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         } else if (DELETED.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();
-            else
-                lambdaUpdateWrapper.set(Article::getDeletedFlag, false);
+            lambdaUpdateWrapper.set(Article::getDeletedFlag, false);
         } else
             lambdaUpdateWrapper.set(Article::getDraftFlag, true).set(Article::getRecycleFlag, true);
         int count = articleMapper.update(null, lambdaUpdateWrapper

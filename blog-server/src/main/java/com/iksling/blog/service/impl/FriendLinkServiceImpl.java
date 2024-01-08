@@ -72,8 +72,7 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
         if (DELETED.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();
-            else
-                lambdaUpdateWrapper.set(FriendLink::getDeletedFlag, false);
+            lambdaUpdateWrapper.set(FriendLink::getDeletedFlag, false);
         } else
             lambdaUpdateWrapper.set(FriendLink::getDeletedFlag, true);
         int count = friendLinkMapper.update(null, lambdaUpdateWrapper

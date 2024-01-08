@@ -63,8 +63,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         } else if (DELETED.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();
-            else
-                lambdaUpdateWrapper.set(Comment::getDeletedFlag, false).in(Comment::getId, statusBackVO.getIdList());
+            lambdaUpdateWrapper.set(Comment::getDeletedFlag, false).in(Comment::getId, statusBackVO.getIdList());
         } else
             lambdaUpdateWrapper.set(Comment::getRecycleFlag, true).and(e -> e.in(Comment::getId, statusBackVO.getIdList()).or().in(Comment::getParentId, statusBackVO.getIdList()));
         commentMapper.update(null, lambdaUpdateWrapper

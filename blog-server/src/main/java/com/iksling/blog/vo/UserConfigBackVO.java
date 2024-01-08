@@ -30,4 +30,10 @@ public class UserConfigBackVO {
     @Size(max = 255, message = "'configValue':{'maxlength':255}")
     @ApiModelProperty(name = "configValue", value = "配置值", dataType = "String")
     private String configValue;
+
+    /**
+     * 0未同步, 1已同步
+     */
+    @ApiModelProperty(name = "assimilateFlag", value = "0未同步, 1已同步", dataType = "Boolean")
+    private Boolean assimilateFlag;
 }

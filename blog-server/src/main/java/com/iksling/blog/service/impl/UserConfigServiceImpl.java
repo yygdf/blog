@@ -17,10 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
+import static com.iksling.blog.constant.FlagConst.ASSIMILATE;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 
 /**
@@ -36,12 +40,22 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
     @Transactional
     public void updateUserConfigBackVO(UserConfigBackVO userConfigBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        userConfigMapper.update(null, new LambdaUpdateWrapper<UserConfig>()
+        Integer loginUserId = loginUser.getUserId();
+        LambdaUpdateWrapper<UserConfig> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        if (userConfigBackVO.getConfigValue() != null) {
+            if (userConfigBackVO.getAssimilateFlag() == Boolean.TRUE) {
+                if (!loginUserId.equals(ROOT_USER_ID))
+                    throw new IllegalRequestException();
+                lambdaUpdateWrapper.inSql(UserConfig::getConfigName, "select config_name from tb_system_config where id = " + userConfigBackVO.getId());
+            } else
+                lambdaUpdateWrapper.eq(UserConfig::getId, userConfigBackVO.getId());
+            lambdaUpdateWrapper.set(UserConfig::getConfigValue, userConfigBackVO.getConfigValue());
+        } else
+            lambdaUpdateWrapper.eq(UserConfig::getId, userConfigBackVO.getId());
+        userConfigMapper.update(null, lambdaUpdateWrapper
                 .set(userConfigBackVO.getConfigDesc() != null, UserConfig::getConfigDesc, userConfigBackVO.getConfigDesc())
-                .set(userConfigBackVO.getConfigValue() != null, UserConfig::getConfigValue, userConfigBackVO.getConfigValue())
                 .set(UserConfig::getUpdateUser, loginUser.getUserId())
                 .set(UserConfig::getUpdateTime, new Date())
-                .eq(UserConfig::getId, userConfigBackVO.getId())
                 .and(loginUser.getRoleWeight() > 100, e -> e.eq(UserConfig::getDeletedFlag, false)
                             .notIn(UserConfig::getUserId, ROOT_USER_ID_LIST))
                 .eq(loginUser.getRoleWeight() > 200, UserConfig::getUserId, loginUser.getUserId()));
@@ -55,15 +69,16 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
         if (DELETED.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();
-            else
-                lambdaUpdateWrapper.set(UserConfig::getDeletedFlag, false);
+            lambdaUpdateWrapper.set(UserConfig::getDeletedFlag, false);
         } else
             lambdaUpdateWrapper.set(UserConfig::getDeletedFlag, true);
         int count = userConfigMapper.update(null, lambdaUpdateWrapper
-                .in(UserConfig::getId, statusBackVO.getIdList())
-                .and(loginUser.getRoleWeight() > 100, e -> e.eq(UserConfig::getDeletedFlag, false).notIn(loginUser.getRoleWeight() > 100, UserConfig::getUserId, ROOT_USER_ID_LIST))
                 .set(UserConfig::getUpdateUser, loginUser.getUserId())
-                .set(UserConfig::getUpdateTime, new Date()));
+                .set(UserConfig::getUpdateTime, new Date())
+                .in(UserConfig::getId, statusBackVO.getIdList())
+                .and(loginUser.getRoleWeight() > 100, e -> e.eq(UserConfig::getDeletedFlag, false)
+                        .notIn(UserConfig::getUserId, ROOT_USER_ID_LIST))
+                .eq(loginUser.getRoleWeight() > 200, UserConfig::getUserId, loginUser.getUserId()));
         if (count != statusBackVO.getIdList().size())
             throw new IllegalRequestException();
     }

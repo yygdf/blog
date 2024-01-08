@@ -55,8 +55,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
         if (DELETED.equals(statusBackVO.getType())) {
             if (loginUser.getRoleWeight() > 100)
                 throw new IllegalRequestException();
-            else
-                lambdaUpdateWrapper.set(Message::getDeletedFlag, false);
+            lambdaUpdateWrapper.set(Message::getDeletedFlag, false);
         } else
             lambdaUpdateWrapper.set(Message::getDeletedFlag, true);
         int count = messageMapper.update(null, lambdaUpdateWrapper

@@ -1,135 +1,135 @@
 export default {
-  "[666]": "https://ksling.cn/static/emoji/liuliuliu.png",
+  "[666]": "http://115.29.197.145/static/img/emoji/liuliuliu.png",
 
-  "[Emm]": "https://ksling.cn/static/emoji/emm.png",
+  "[Emm]": "http://115.29.197.145/static/img/emoji/emm.png",
 
-  "[ok]": "https://ksling.cn/static/emoji/ok.png",
+  "[ok]": "http://115.29.197.145/static/img/emoji/ok.png",
 
-  "[微笑]": "https://ksling.cn/static/emoji/smile.png",
+  "[微笑]": "http://115.29.197.145/static/img/emoji/smile.png",
 
-  "[呲牙]": "https://ksling.cn/static/emoji/ciya.png",
+  "[呲牙]": "http://115.29.197.145/static/img/emoji/ciya.png",
 
-  "[大哭]": "https://ksling.cn/static/emoji/daku.png",
+  "[大哭]": "http://115.29.197.145/static/img/emoji/daku.png",
 
-  "[害羞]": "https://ksling.cn/static/emoji/haixiu.png",
+  "[害羞]": "http://115.29.197.145/static/img/emoji/haixiu.png",
 
-  "[调皮]": "https://ksling.cn/static/emoji/tiaopi.png",
+  "[调皮]": "http://115.29.197.145/static/img/emoji/tiaopi.png",
 
-  "[奸笑]": "https://ksling.cn/static/emoji/jianxiao.png",
+  "[奸笑]": "http://115.29.197.145/static/img/emoji/jianxiao.png",
 
-  "[偷笑]": "https://ksling.cn/static/emoji/touxiao.png",
+  "[偷笑]": "http://115.29.197.145/static/img/emoji/touxiao.png",
 
-  "[阴险]": "https://ksling.cn/static/emoji/yinxian.png",
+  "[阴险]": "http://115.29.197.145/static/img/emoji/yinxian.png",
 
-  "[捂脸]": "https://ksling.cn/static/emoji/wulian.png",
+  "[捂脸]": "http://115.29.197.145/static/img/emoji/wulian.png",
 
-  "[抠鼻]": "https://ksling.cn/static/emoji/koubi.png",
+  "[抠鼻]": "http://115.29.197.145/static/img/emoji/koubi.png",
 
-  "[惊讶]": "https://ksling.cn/static/emoji/jingya.png",
+  "[惊讶]": "http://115.29.197.145/static/img/emoji/jingya.png",
 
-  "[吃瓜]": "https://ksling.cn/static/emoji/chigua.png",
+  "[吃瓜]": "http://115.29.197.145/static/img/emoji/chigua.png",
 
-  "[鼓掌]": "https://ksling.cn/static/emoji/guzhang.png",
+  "[鼓掌]": "http://115.29.197.145/static/img/emoji/guzhang.png",
 
-  "[尴尬]": "https://ksling.cn/static/emoji/ganga.png",
+  "[尴尬]": "http://115.29.197.145/static/img/emoji/ganga.png",
 
-  "[委屈]": "https://ksling.cn/static/emoji/weiqu.png",
+  "[委屈]": "http://115.29.197.145/static/img/emoji/weiqu.png",
 
-  "[吐]": "https://ksling.cn/static/emoji/tu.png",
+  "[吐]": "http://115.29.197.145/static/img/emoji/tu.png",
 
-  "[嘘声]": "https://ksling.cn/static/emoji/xu.png",
+  "[嘘声]": "http://115.29.197.145/static/img/emoji/xu.png",
 
-  "[再见]": "https://ksling.cn/static/emoji/zaijian.png",
+  "[再见]": "http://115.29.197.145/static/img/emoji/zaijian.png",
 
-  "[翻白眼]": "https://ksling.cn/static/emoji/fanbaiyan.png",
+  "[翻白眼]": "http://115.29.197.145/static/img/emoji/fanbaiyan.png",
 
-  "[难过]": "https://ksling.cn/static/emoji/nanguo.png",
+  "[难过]": "http://115.29.197.145/static/img/emoji/nanguo.png",
 
-  "[抓狂]": "https://ksling.cn/static/emoji/zhuakuang.png",
+  "[抓狂]": "http://115.29.197.145/static/img/emoji/zhuakuang.png",
 
-  "[嘿哈]": "https://ksling.cn/static/emoji/heiha.png",
+  "[嘿哈]": "http://115.29.197.145/static/img/emoji/heiha.png",
 
-  "[机制]": "https://ksling.cn/static/emoji/jizhi.png",
+  "[机制]": "http://115.29.197.145/static/img/emoji/jizhi.png",
 
-  "[耶]": "https://ksling.cn/static/emoji/ye.png",
+  "[耶]": "http://115.29.197.145/static/img/emoji/ye.png",
 
-  "[皱眉]": "https://ksling.cn/static/emoji/zhoumei.png",
+  "[皱眉]": "http://115.29.197.145/static/img/emoji/zhoumei.png",
 
-  "[加油]": "https://ksling.cn/static/emoji/jiayou.png",
+  "[加油]": "http://115.29.197.145/static/img/emoji/jiayou.png",
 
-  "[裂开]": "https://ksling.cn/static/emoji/liekai.png",
+  "[裂开]": "http://115.29.197.145/static/img/emoji/liekai.png",
 
-  "[苦涩]": "https://ksling.cn/static/emoji/kuse.png",
+  "[苦涩]": "http://115.29.197.145/static/img/emoji/kuse.png",
 
-  "[让我看看]": "https://ksling.cn/static/emoji/rangwokankan.png",
+  "[让我看看]": "http://115.29.197.145/static/img/emoji/rangwokankan.png",
 
-  "[天阿]": "https://ksling.cn/static/emoji/tiana.png",
+  "[天阿]": "http://115.29.197.145/static/img/emoji/tiana.png",
 
-  "[叹气]": "https://ksling.cn/static/emoji/tanqi.png",
+  "[叹气]": "http://115.29.197.145/static/img/emoji/tanqi.png",
 
-  "[打脸]": "https://ksling.cn/static/emoji/dalian.png",
+  "[打脸]": "http://115.29.197.145/static/img/emoji/dalian.png",
 
-  "[撇嘴]": "https://ksling.cn/static/emoji/piezui.png",
+  "[撇嘴]": "http://115.29.197.145/static/img/emoji/piezui.png",
 
-  "[色]": "https://ksling.cn/static/emoji/se.png",
+  "[色]": "http://115.29.197.145/static/img/emoji/se.png",
 
-  "[发呆]": "https://ksling.cn/static/emoji/fadai.png",
+  "[发呆]": "http://115.29.197.145/static/img/emoji/fadai.png",
 
-  "[得意]": "https://ksling.cn/static/emoji/deyi.png",
+  "[得意]": "http://115.29.197.145/static/img/emoji/deyi.png",
 
-  "[流泪]": "https://ksling.cn/static/emoji/liulei.png",
+  "[流泪]": "http://115.29.197.145/static/img/emoji/liulei.png",
 
-  "[闭嘴]": "https://ksling.cn/static/emoji/bizui.png",
+  "[闭嘴]": "http://115.29.197.145/static/img/emoji/bizui.png",
 
-  "[睡]": "https://ksling.cn/static/emoji/shui.png",
+  "[睡]": "http://115.29.197.145/static/img/emoji/shui.png",
 
-  "[发怒]": "https://ksling.cn/static/emoji/fanu.png",
+  "[发怒]": "http://115.29.197.145/static/img/emoji/fanu.png",
 
-  "[囧]": "https://ksling.cn/static/emoji/jiong.png",
+  "[囧]": "http://115.29.197.145/static/img/emoji/jiong.png",
 
-  "[愉快]": "https://ksling.cn/static/emoji/yukuai.png",
+  "[愉快]": "http://115.29.197.145/static/img/emoji/yukuai.png",
 
-  "[傲慢]": "https://ksling.cn/static/emoji/aoman.png",
+  "[傲慢]": "http://115.29.197.145/static/img/emoji/aoman.png",
 
-  "[困]": "https://ksling.cn/static/emoji/kun.png",
+  "[困]": "http://115.29.197.145/static/img/emoji/kun.png",
 
-  "[惊恐]": "https://ksling.cn/static/emoji/jingkong.png",
+  "[惊恐]": "http://115.29.197.145/static/img/emoji/jingkong.png",
 
-  "[憨笑]": "https://ksling.cn/static/emoji/hanxiao.png",
+  "[憨笑]": "http://115.29.197.145/static/img/emoji/hanxiao.png",
 
-  "[悠闲]": "https://ksling.cn/static/emoji/youxian.png",
+  "[悠闲]": "http://115.29.197.145/static/img/emoji/youxian.png",
 
-  "[咒骂]": "https://ksling.cn/static/emoji/zouma.png",
+  "[咒骂]": "http://115.29.197.145/static/img/emoji/zouma.png",
 
-  "[敲打]": "https://ksling.cn/static/emoji/qiaoda.png",
+  "[敲打]": "http://115.29.197.145/static/img/emoji/qiaoda.png",
 
-  "[骷髅]": "https://ksling.cn/static/emoji/kulo.png",
+  "[骷髅]": "http://115.29.197.145/static/img/emoji/kulo.png",
 
-  "[疑问]": "https://ksling.cn/static/emoji/yiwen.png",
+  "[疑问]": "http://115.29.197.145/static/img/emoji/yiwen.png",
 
-  "[晕]": "https://ksling.cn/static/emoji/yun.png",
+  "[晕]": "http://115.29.197.145/static/img/emoji/yun.png",
 
-  "[衰]": "https://ksling.cn/static/emoji/shuai.png",
+  "[衰]": "http://115.29.197.145/static/img/emoji/shuai.png",
 
-  "[擦汗]": "https://ksling.cn/static/emoji/cahan.png",
+  "[擦汗]": "http://115.29.197.145/static/img/emoji/cahan.png",
 
-  "[坏笑]": "https://ksling.cn/static/emoji/huaixiao.png",
+  "[坏笑]": "http://115.29.197.145/static/img/emoji/huaixiao.png",
 
-  "[右哼哼]": "https://ksling.cn/static/emoji/youhengheng.png",
+  "[右哼哼]": "http://115.29.197.145/static/img/emoji/youhengheng.png",
 
-  "[鄙视]": "https://ksling.cn/static/emoji/bishi.png",
+  "[鄙视]": "http://115.29.197.145/static/img/emoji/bishi.png",
 
-  "[快哭了]": "https://ksling.cn/static/emoji/kuaikule.png",
+  "[快哭了]": "http://115.29.197.145/static/img/emoji/kuaikule.png",
 
-  "[亲亲]": "https://ksling.cn/static/emoji/qinqin.png",
+  "[亲亲]": "http://115.29.197.145/static/img/emoji/qinqin.png",
 
-  "[可怜]": "https://ksling.cn/static/emoji/kelian.png",
+  "[可怜]": "http://115.29.197.145/static/img/emoji/kelian.png",
 
-  "[社会社会]": "https://ksling.cn/static/emoji/shehuishehui.png",
+  "[社会社会]": "http://115.29.197.145/static/img/emoji/shehuishehui.png",
 
-  "[汗]": "https://ksling.cn/static/emoji/han.png",
+  "[汗]": "http://115.29.197.145/static/img/emoji/han.png",
 
-  "[哇]": "https://ksling.cn/static/emoji/wa.png",
+  "[哇]": "http://115.29.197.145/static/img/emoji/wa.png",
 
-  "[旺柴]": "https://ksling.cn/static/emoji/wangchai.png"
+  "[旺柴]": "http://115.29.197.145/static/img/emoji/wangchai.png"
 }

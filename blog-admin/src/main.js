@@ -83,17 +83,19 @@ axios.interceptors.response.use(
           type: "error",
           message: response.data.message
         });
-        router.push({ path: "/login" });
+        router.push({ path: "/login" }).then();
         break;
       case 40004:
         Vue.prototype.$message({
           type: "error",
           message: response.data.message
         });
-        router.push({
-          path: "/login",
-          query: { url: store.state.currentRoutePath }
-        });
+        router
+          .push({
+            path: "/login",
+            query: { url: store.state.currentRoutePath }
+          })
+          .then();
         break;
     }
     return response;
@@ -109,7 +111,7 @@ new Vue({
   render: h => h(App),
   created() {
     if (store.state.userId) {
-      generateMenu();
+      generateMenu().then();
     }
   }
 }).$mount("#app");

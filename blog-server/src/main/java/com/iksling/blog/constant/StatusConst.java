@@ -52,7 +52,6 @@ public class StatusConst {
      */
     public static final int ACCOUNT_DISABLED = 50003;
 
-
     /**
      * 文件状态异常
      */

@@ -10,8 +10,8 @@ import "./assets/css/iconfont.css";
 import "./assets/css/markdown.css";
 import config from "./assets/js/config";
 import Share from "vue-social-share";
-import "./assets/css/vue-social-share/client.css"
-import { vueBaberrage } from "vue-baberrage";
+import "./assets/css/vue-social-share/client.css";
+import vueBaberrage from "vue-baberrage";
 import axios from "axios";
 import VueAxios from "vue-axios";
 import moment from "moment";
@@ -68,9 +68,8 @@ router.afterEach(() => {
 
 axios.interceptors.response.use(
   function(response) {
-    switch (response.data.code) {
-      case 50000:
-        Vue.prototype.$toast({ type: "error", message: "系统异常" });
+    if (response.data.code === 20001) {
+      Vue.prototype.$toast({ type: "error", message: response.data.message });
     }
     return response;
   },

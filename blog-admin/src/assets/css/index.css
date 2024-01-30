@@ -72,7 +72,7 @@ body {
   height: 100%;
   overflow: auto;
   scrollbar-color: rgba(144, 147 153, 0.3) transparent;
-  scrollbar-width: then;
+  scrollbar-width: thin;
 }
 .myScrollbar ::-webkit-scrollbar {
   width: 4px;

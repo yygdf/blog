@@ -8,6 +8,8 @@ import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.UserConfigBackVO;
 
+import java.util.HashMap;
+
 /**
  *
  */
@@ -18,4 +20,6 @@ public interface UserConfigService extends IService<UserConfig> {
     void updateUserConfigsStatusBackVO(StatusBackVO statusBackVO);
 
     PagePojo<UserConfigsBackDTO> getUserConfigsBackDTO(ConditionBackVO condition);
+
+    HashMap<String, Object> getUserConfigs(Integer userId);
 }

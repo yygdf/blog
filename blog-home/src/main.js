@@ -6,12 +6,12 @@ import vuetify from "./plugins/vuetify";
 import "@mdi/font/css/materialdesignicons.css";
 import animated from "animate.css";
 import "./assets/css/index.css";
-import "./assets/css/iconfont.css";
+import "./assets/icon/iconfont.css";
 import "./assets/css/markdown.css";
 import config from "./assets/js/config";
 import Share from "vue-social-share";
-import "./assets/css/vue-social-share/client.css";
-import vueBaberrage from "vue-baberrage";
+import "./assets/vue-social-share/client.css";
+import { vueBaberrage } from "vue-baberrage";
 import axios from "axios";
 import VueAxios from "vue-axios";
 import moment from "moment";
@@ -22,7 +22,7 @@ import "vue-image-swipe/dist/vue-image-swipe.css";
 import Toast from "./components/toast/index";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
-import { getBaseInfo } from "./assets/js/base";
+import { getUserConfigs } from "./assets/js/base";
 import "./assets/js/ribbon";
 
 Vue.prototype.config = config;
@@ -36,7 +36,7 @@ Vue.use(VueImageSwipe);
 Vue.use(Toast);
 
 Vue.filter("date", function(value) {
-  return moment(value).format("yyyy-MM-DD");
+  return moment(value).format("yyyy-MM-dd");
 });
 
 Vue.filter("hour", function(value) {
@@ -84,6 +84,6 @@ new Vue({
   vuetify,
   render: h => h(App),
   created() {
-    getBaseInfo();
+    getUserConfigs();
   }
 }).$mount("#app");

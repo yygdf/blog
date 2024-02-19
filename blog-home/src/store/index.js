@@ -22,8 +22,7 @@ export default new Vuex.Store({
     webSite: null,
     articleLikeSet: [],
     commentLikeSet: [],
-    blogInfo: {},
-    baseInfo: {}
+    userConfigs: {}
   },
   mutations: {
     login(state, user) {
@@ -60,11 +59,8 @@ export default new Vuex.Store({
     updateAvatar(state, avatar) {
       state.avatar = avatar;
     },
-    checkBlogInfo(state, blogInfo) {
-      state.blogInfo = blogInfo;
-    },
-    saveBaseInfo(state, baseInfo) {
-      state.baseInfo = baseInfo;
+    saveUserConfigs(state, userConfigs) {
+      state.userConfigs = userConfigs;
     },
     closeModel(state) {
       state.registerFlag = false;
@@ -73,16 +69,16 @@ export default new Vuex.Store({
       state.emailFlag = false;
     },
     articleLike(state, articleId) {
-      var articleLikeSet = state.articleLikeSet;
-      if (articleLikeSet.indexOf(articleId) != -1) {
+      let articleLikeSet = state.articleLikeSet;
+      if (articleLikeSet.indexOf(articleId) !== -1) {
         articleLikeSet.splice(articleLikeSet.indexOf(articleId), 1);
       } else {
         articleLikeSet.push(articleId);
       }
     },
     commentLike(state, commentId) {
-      var commentLikeSet = state.commentLikeSet;
-      if (commentLikeSet.indexOf(commentId) != -1) {
+      let commentLikeSet = state.commentLikeSet;
+      if (commentLikeSet.indexOf(commentId) !== -1) {
         commentLikeSet.splice(commentLikeSet.indexOf(commentId), 1);
       } else {
         commentLikeSet.push(commentId);

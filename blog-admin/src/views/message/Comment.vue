@@ -314,7 +314,7 @@ export default {
       size: 10,
       count: 0,
       current: 1,
-      defaultAvatar: require("../../assets/img/defaultAvatar.png")
+      defaultAvatar: require("../../assets/img/default/avatar.png")
     };
   },
   methods: {

@@ -22,7 +22,8 @@ export default new Vuex.Store({
     webSite: null,
     articleLikeSet: [],
     commentLikeSet: [],
-    userConfigs: {}
+    userConfigs: {},
+    userInfo: {}
   },
   mutations: {
     login(state, user) {
@@ -51,16 +52,19 @@ export default new Vuex.Store({
     saveEmail(state, email) {
       state.email = email;
     },
-    updateUserInfo(state, user) {
-      state.nickname = user.nickname;
-      state.intro = user.intro;
-      state.webSite = user.webSite;
+    updateLoginInfo(state, userInfo) {
+      state.nickname = userInfo.nickname;
+      state.intro = userInfo.intro;
+      state.webSite = userInfo.webSite;
     },
     updateAvatar(state, avatar) {
       state.avatar = avatar;
     },
     saveUserConfigs(state, userConfigs) {
       state.userConfigs = userConfigs;
+    },
+    saveUserInfo(state, userInfo) {
+      state.userInfo = userInfo;
     },
     closeModel(state) {
       state.registerFlag = false;

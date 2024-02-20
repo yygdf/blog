@@ -1,43 +1,37 @@
 <template>
   <div>
-    <!-- banner -->
     <div class="home-banner" :style="cover">
       <div class="banner-container">
-        <!-- 联系方式 -->
         <h1 class="blog-title animated zoomIn">
-          {{this.$store.state.baseInfo.home_banner_title}}
+          {{ this.$store.state.userConfigs.home_banner_title }}
         </h1>
-        <!-- 一言 -->
         <div class="blog-intro">
           {{ obj.output }} <span class="typed-cursor">|</span>
         </div>
-        <!-- 联系方式 -->
         <div class="blog-contact">
           <a
             class="iconfont my-icon-qq"
             target="_blank"
-            :href="this.$store.state.baseInfo.home_qq"
+            :href="this.$store.state.userConfigs.home_contact_qq"
           />
           <a
             target="_blank"
-            :href="this.$store.state.baseInfo.home_github"
+            :href="this.$store.state.userConfigs.home_github"
             class="ml-5 mr-5 iconfont my-icon-github"
           />
           <a
             target="_blank"
-            :href="this.$store.state.baseInfo.home_gitee"
+            :href="this.$store.state.userConfigs.home_gitee"
             class="iconfont my-icon-gitee"
           />
         </div>
       </div>
-      <!-- 向下滚动 -->
       <div class="scroll-down" @click="scrollDown">
         <v-icon color="#fff" class="scroll-down-effects">
           mdi-chevron-down
         </v-icon>
       </div>
     </div>
-    <!-- 主页文章 -->
     <v-row class="home-container">
       <v-col md="9" cols="12">
         <v-card
@@ -46,14 +40,13 @@
           v-for="(item, index) of articleList"
           :key="item.id"
         >
-          <!-- 文章封面图 -->
           <div :class="isRight(index)">
-            <router-link :to="'/articles/' + item.id">
+            <router-link :target="item.userId !== user_id ? '_blank' : '_self'" :to="'/article/' + item.id">
               <v-img
                 class="on-hover"
                 width="100%"
                 height="100%"
-                :src="item.articleCover"
+                :src="item.articleCover ? item.articleCover : defaultArticleCover"
               />
             </router-link>
           </div>
@@ -225,14 +218,13 @@ export default {
       },
       articleList: [],
       blogInfo: {},
-      current: 1
+      current: 1,
+      defaultArticleCover: require("../../assets/img/default/article.png")
     };
   },
   methods: {
-    // 初始化
     init() {
       document.title = this.$route.meta.title;
-      // 一言Api进行打字机循环输出效果
       fetch("https://v1.hitokoto.cn?c=i")
         .then(res => {
           return res.json();
@@ -253,13 +245,13 @@ export default {
       });
     },
     runTime() {
-      var timeold =
+      let timeOld =
         new Date().getTime() - new Date("December 12,2022").getTime();
-      var msPerDay = 24 * 60 * 60 * 1000;
-      var daysold = Math.floor(timeold / msPerDay);
-      var str = "";
-      var day = new Date();
-      str += daysold + "天";
+      let msPerDay = 24 * 60 * 60 * 1000;
+      let daysOld = Math.floor(timeOld / msPerDay);
+      let str = "";
+      let day = new Date();
+      str += daysOld + "天";
       str += day.getHours() + "时";
       str += day.getMinutes() + "分";
       str += day.getSeconds() + "秒";
@@ -301,7 +293,7 @@ export default {
   computed: {
     isRight() {
       return function(index) {
-        if (index % 2 == 0) {
+        if (index % 2 === 0) {
           return "article-cover left-radius";
         }
         return "article-cover right-radius";
@@ -310,9 +302,12 @@ export default {
     cover() {
       return (
         "background: url(" +
-        this.$store.state.baseInfo.home +
+        this.$store.state.userConfigs.home_banner_cover +
         ") center center / cover no-repeat"
       );
+    },
+    user_id() {
+      return this.$store.state.userConfigs.user_id;
     }
   }
 };

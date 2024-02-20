@@ -22,7 +22,7 @@ import "vue-image-swipe/dist/vue-image-swipe.css";
 import Toast from "./components/toast/index";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
-import { getUserConfigs } from "./assets/js/base";
+import { getUserConfigs, getUserInfo } from "./assets/js/base";
 import "./assets/js/ribbon";
 
 Vue.prototype.config = config;
@@ -85,5 +85,6 @@ new Vue({
   render: h => h(App),
   created() {
     getUserConfigs();
+    getUserInfo();
   }
 }).$mount("#app");

@@ -1,32 +1,19 @@
 <template>
   <v-app id="app">
-    <!-- 导航栏 -->
     <TopNavBar></TopNavBar>
-    <!-- 侧边导航栏 -->
     <SideNavBar></SideNavBar>
-    <!-- 内容 -->
     <v-content>
       <router-view :key="$route.fullPath" />
     </v-content>
-    <!-- 页脚 -->
     <Footer></Footer>
-    <!-- 返回顶部 -->
     <BackTop></BackTop>
-    <!-- 搜索模态框 -->
     <searchModel></searchModel>
-    <!-- 登录模态框 -->
     <LoginModel></LoginModel>
-    <!-- 注册模态框 -->
     <RegisterModel></RegisterModel>
-    <!-- 重设密码模态框 -->
     <ResetModel></ResetModel>
-    <!-- 忘记密码模态框 -->
     <ForgetModel></ForgetModel>
-    <!-- 绑定邮箱模态框 -->
     <EmailModel></EmailModel>
-    <!-- 音乐播放器 -->
     <Player></Player>
-    <!-- 聊天室 -->
     <ChatRoom></ChatRoom>
   </v-app>
 </template>

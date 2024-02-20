@@ -23,7 +23,7 @@ const routes = [
     }
   },
   {
-    path: "/:userId(\\d+)?/articles/:articleId",
+    path: "/:userId(\\d+)?/article/:articleId",
     component: Article,
     meta: {
       title: "文章"

@@ -102,7 +102,7 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
                 .eq(UserConfig::getDeletedFlag, false))
                 .stream()
                 .collect(Collectors.toMap(UserConfig::getConfigName, UserConfig::getConfigValue, (key1, key2) -> key2, HashMap::new));
-        hashMap.put("userId", userId);
+        hashMap.put("user_id", userId);
         return hashMap;
     }
 }

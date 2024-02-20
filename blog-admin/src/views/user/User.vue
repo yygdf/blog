@@ -101,10 +101,10 @@
       <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
           <el-image
-            :src="scope.row.avatar === '' ? defaultAvatar : scope.row.avatar"
+            :src="scope.row.avatar ? defaultAvatar : scope.row.avatar"
             style="width: 40px;height: 40px;"
             :preview-src-list="[
-              scope.row.avatar === '' ? defaultAvatar : scope.row.avatar
+              scope.row.avatar ? defaultAvatar : scope.row.avatar
             ]"
           />
         </template>
@@ -430,7 +430,7 @@ export default {
       lastTimeStamp: 0,
       emailExistStatus: 0,
       usernameExistStatus: 0,
-      defaultAvatar: require("../../assets/img/defaultAvatar.png"),
+      defaultAvatar: require("../../assets/img/default/avatar.png"),
       gender1: require("../../assets/img/gender1.png"),
       gender2: require("../../assets/img/gender2.png"),
       gender3: require("../../assets/img/gender3.png"),

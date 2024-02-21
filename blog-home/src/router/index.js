@@ -51,7 +51,7 @@ const routes = [
     }
   },
   {
-    path: "/:userId(\\d+)?/categories/*",
+    path: "/:userId(\\d+)?/category/:categoryId",
     component: ArticleList,
     meta: {
       title: "文章"
@@ -79,7 +79,7 @@ const routes = [
     }
   },
   {
-    path: "/:userId(\\d+)?/tags/*",
+    path: "/:userId(\\d+)?/tag/:tagId",
     component: ArticleList,
     meta: {
       title: "文章"

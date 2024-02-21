@@ -48,8 +48,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     private RoleMapper roleMapper;
 
     @Autowired
-    private UserRoleMapper userRoleMapper;
-    @Autowired
     private RoleResourceMapper roleResourceMapper;
     @Autowired
     private RoleMenuMapper roleMenuMapper;

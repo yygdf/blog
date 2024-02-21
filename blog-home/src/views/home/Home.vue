@@ -41,7 +41,7 @@
           :key="item.id"
         >
           <div :class="isRight(index)">
-            <router-link :target="item.userId !== user_id ? '_blank' : '_self'" :to="'/article/' + item.id">
+            <router-link :to="'/article/' + item.id">
               <v-img
                 class="on-hover"
                 width="100%"
@@ -50,35 +50,30 @@
               />
             </router-link>
           </div>
-          <!-- 文章信息 -->
           <div class="article-wrapper">
             <div style="line-height:1.4">
-              <router-link :to="'/articles/' + item.id">
+              <router-link :to="'/article/' + item.id">
                 {{ item.articleTitle }}
               </router-link>
             </div>
             <div class="article-info">
-              <!-- 是否置顶 -->
-              <span v-if="item.isTop == 1">
+              <span v-if="item.topFlag">
                 <span style="color:#ff7242">
                   <i class="iconfont my-icon-top" /> 置顶
                 </span>
                 <span class="separator">|</span>
               </span>
-              <!-- 发表时间 -->
               <v-icon size="14">mdi-calendar-month-outline</v-icon>
-              {{ item.createTime | date }}
+              {{ item.publishTime | date }}
               <span class="separator">|</span>
-              <!-- 文章分类 -->
-              <router-link :to="'/categories/' + item.categoryId">
+              <router-link :to="'/category/' + item.categoryId">
                 <v-icon size="14">mdi-inbox-full</v-icon>
                 {{ item.categoryName }}
               </router-link>
               <span class="separator">|</span>
-              <!-- 文章标签 -->
               <router-link
                 style="display:inline-block"
-                :to="'/tags/' + tag.id"
+                :to="'/tag/' + tag.id"
                 class="mr-1"
                 v-for="tag of item.tagDTOList"
                 :key="tag.id"
@@ -86,30 +81,25 @@
                 <v-icon size="14">mdi-tag-multiple</v-icon>{{ tag.tagName }}
               </router-link>
             </div>
-            <!-- 文章内容 -->
             <div class="article-content">
               {{ item.articleContent }}
             </div>
           </div>
         </v-card>
-        <!-- 无限加载 -->
         <infinite-loading @infinite="infiniteHandler">
           <div slot="no-more" />
         </infinite-loading>
       </v-col>
-      <!-- 博主信息 -->
       <v-col md="3" cols="12" class="d-md-block d-none">
         <div class="blog-wrapper">
           <v-card class="animated zoomIn blog-card mt-5">
             <div class="author-wrapper">
-              <!-- 博主头像 -->
               <v-avatar size="110">
                 <img class="author-avatar" :src="blogInfo.avatar" />
               </v-avatar>
               <div style="font-size: 1.375rem">{{ blogInfo.nickname }}</div>
               <div style="font-size: 0.875rem;">{{ blogInfo.intro }}</div>
             </div>
-            <!-- 博客信息 -->
             <div class="blog-info-wrapper">
               <div class="blog-info-data">
                 <router-link to="/archives">
@@ -134,7 +124,6 @@
                 </router-link>
               </div>
             </div>
-            <!-- 收藏按钮 -->
             <a class="collection-btn" @click="tip = true">
               <v-icon color="#fff" size="18" class="mr-1">mdi-bookmark</v-icon>
               加入书签

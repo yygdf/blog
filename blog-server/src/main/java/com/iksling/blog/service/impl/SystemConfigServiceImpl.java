@@ -21,8 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 import static com.iksling.blog.constant.FlagConst.ASSIMILATE;
@@ -33,8 +36,22 @@ import static com.iksling.blog.constant.FlagConst.ASSIMILATE;
 @Service
 public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, SystemConfig>
     implements SystemConfigService{
+    private HashMap<String, String> systemConfigMap;
+
     @Autowired
     private SystemConfigMapper systemConfigMapper;
+
+    @PostConstruct
+    public void loadSystemConfigMap() {
+        systemConfigMap = systemConfigMapper.selectList(new LambdaQueryWrapper<SystemConfig>()
+                .select(SystemConfig::getConfigName, SystemConfig::getConfigValue))
+                .stream()
+                .collect(Collectors.toMap(SystemConfig::getConfigName, SystemConfig::getConfigValue, (key1, key2) -> key2, HashMap::new));
+    }
+
+    public HashMap<String, String> getSystemConfigMap() {
+        return systemConfigMap;
+    }
 
     @Override
     @Transactional

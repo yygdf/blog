@@ -52,8 +52,6 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     private UserRoleMapper userRoleMapper;
     @Autowired
     private UserConfigMapper userConfigMapper;
-    @Autowired
-    private SystemConfigMapper systemConfigMapper;
 
     @Autowired
     private UserRoleService userRoleService;

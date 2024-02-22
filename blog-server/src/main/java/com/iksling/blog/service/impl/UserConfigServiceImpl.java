@@ -4,13 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.UserConfigsBackDTO;
-import com.iksling.blog.entity.SystemConfig;
 import com.iksling.blog.entity.UserConfig;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.UserConfigMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
-import com.iksling.blog.service.SystemConfigService;
 import com.iksling.blog.service.UserConfigService;
 import com.iksling.blog.util.RegexUtil;
 import com.iksling.blog.util.UserUtil;
@@ -22,12 +20,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID_LIST;
-import static com.iksling.blog.constant.FlagConst.ASSIMILATE;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 
 /**
@@ -41,9 +40,6 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
     @Autowired
     private UserConfigMapper userConfigMapper;
 
-    @Autowired
-    private SystemConfigServiceImpl systemConfigServiceImpl;
-
     @PostConstruct
     public void loadUserConfigMap() {
         userConfigMap = userConfigMapper.selectList(new LambdaQueryWrapper<UserConfig>()
@@ -51,6 +47,10 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
                 .eq(UserConfig::getUserId, ROOT_USER_ID))
                 .stream()
                 .collect(Collectors.toMap(UserConfig::getConfigName, UserConfig::getConfigValue, (key1, key2) -> key2, HashMap::new));
+    }
+
+    public HashMap<String, String> getUserConfigMap() {
+        return userConfigMap;
     }
 
     @Override
@@ -108,28 +108,6 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<UserConfigsBackDTO> userConfigsBackDTOList = userConfigMapper.selectUserConfigsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         return new PagePojo<>(count, userConfigsBackDTOList);
-    }
-
-    @Override
-    public HashMap<String, Object> getUserConfigs(Integer userId) {
-        HashMap<String, Object> hashMap = new HashMap<>();
-        if (userId == null) {
-            hashMap.putAll(userConfigMap);
-            userId = ROOT_USER_ID;
-        } else if (userId.equals(ROOT_USER_ID) || !"true".equals(systemConfigServiceImpl.getSystemConfigMap().get("enable_user_config"))) {
-            hashMap.putAll(userConfigMap);
-        } else {
-            hashMap = userConfigMapper.selectList(new LambdaQueryWrapper<UserConfig>()
-                    .select(UserConfig::getConfigName, UserConfig::getConfigValue)
-                    .eq(UserConfig::getUserId, userId)
-                    .eq(UserConfig::getDeletedFlag, false))
-                    .stream()
-                    .collect(Collectors.toMap(UserConfig::getConfigName, UserConfig::getConfigValue, (key1, key2) -> key2, HashMap::new));
-            if (hashMap.size() == 0)
-                hashMap.putAll(userConfigMap);
-        }
-        hashMap.put("user_id", userId);
-        return hashMap;
     }
 }
 

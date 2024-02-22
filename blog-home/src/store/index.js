@@ -20,9 +20,10 @@ export default new Vuex.Store({
     intro: null,
     email: null,
     webSite: null,
+    bloggerId: null,
     articleLikeSet: [],
     commentLikeSet: [],
-    userConfigs: {},
+    userConfig: {},
     userInfo: {}
   },
   mutations: {
@@ -60,11 +61,14 @@ export default new Vuex.Store({
     updateAvatar(state, avatar) {
       state.avatar = avatar;
     },
-    saveUserConfigs(state, userConfigs) {
-      state.userConfigs = userConfigs;
+    saveUserConfig(state, userConfig) {
+      state.userConfig = userConfig;
     },
     saveUserInfo(state, userInfo) {
       state.userInfo = userInfo;
+    },
+    saveBloggerId(state, bloggerId) {
+      state.bloggerId = bloggerId;
     },
     closeModel(state) {
       state.registerFlag = false;

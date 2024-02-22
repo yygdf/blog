@@ -57,7 +57,7 @@ public class MenuController {
     public Result getBackMenus(String keywords) {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("homeMenuId", HOME_MENU_ID)
-                .set("dataList",menuService.getMenusBackDTO(keywords)));
+                .set("dataList", menuService.getMenusBackDTO(keywords)));
     }
 
     @ApiOperation(value = "查看用户菜单")

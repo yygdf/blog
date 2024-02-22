@@ -20,6 +20,4 @@ public interface UserConfigService extends IService<UserConfig> {
     void updateUserConfigsStatusBackVO(StatusBackVO statusBackVO);
 
     PagePojo<UserConfigsBackDTO> getUserConfigsBackDTO(ConditionBackVO condition);
-
-    HashMap<String, Object> getUserConfigs(Integer userId);
 }

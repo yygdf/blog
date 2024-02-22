@@ -52,13 +52,4 @@ public class UserConfigController {
                 .set("rootUserIdList", ROOT_USER_ID_LIST)
                 .set("pagePojo", userConfigService.getUserConfigsBackDTO(condition)));
     }
-
-    /****************************************************************************************************/
-
-    @ApiOperation(value = "查看用户配置列表")
-    @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer")
-    @GetMapping("/userConfigs")
-    public Result getUserConfigs(Integer userId) {
-        return Result.success().message("查询成功").data(userConfigService.getUserConfigs(userId));
-    }
 }

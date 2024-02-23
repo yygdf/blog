@@ -100,4 +100,13 @@ public class ArticleController {
     public Result getBackArticles(@Valid ConditionBackVO condition) {
         return Result.success().message("查询成功").data(articleService.getArticlesBackDTO(condition));
     }
+
+    /****************************************************************************************************/
+
+    @ApiOperation(value = "查看文章列表")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
+    @GetMapping("/articles")
+    public Result getArticles(@Valid ConditionBackVO condition) {
+        return Result.success().message("查询成功").data(articleService.getArticlesDTO(condition));
+    }
 }

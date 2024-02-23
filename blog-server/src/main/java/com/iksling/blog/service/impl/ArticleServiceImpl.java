@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.dto.ArticleBackDTO;
-import com.iksling.blog.dto.ArticleOptionBackDTO;
-import com.iksling.blog.dto.ArticlesBackDTO;
-import com.iksling.blog.dto.LabelBackDTO;
+import com.iksling.blog.dto.*;
 import com.iksling.blog.entity.*;
 import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.IllegalRequestException;
@@ -358,6 +355,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             e.setLikeCount(likeCountMap.get(e.getId().toString()));
         });
         return new PagePojo<>(count, articlesBackDTOList);
+    }
+
+    @Override
+    public List<ArticlesDTO> getArticlesDTO(ConditionBackVO condition) {
+        return null;
     }
 
     private void updateArticleImageBy(Integer loginUserId, Integer articleId, String fileFullPath, Date updateTime) {

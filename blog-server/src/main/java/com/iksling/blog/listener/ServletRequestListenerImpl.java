@@ -10,10 +10,10 @@ import javax.servlet.ServletRequestEvent;
 import javax.servlet.ServletRequestListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
 import java.util.Date;
 
-import static com.iksling.blog.constant.RedisConst.*;
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
+import static com.iksling.blog.constant.RedisConst.BLOG_VIEW_COUNT;
 import static com.iksling.blog.util.DateUtil.*;
 
 @Component
@@ -24,14 +24,18 @@ public class ServletRequestListenerImpl implements ServletRequestListener {
     @Override
     public void requestInitialized(ServletRequestEvent sre) {
         HttpServletRequest request = (HttpServletRequest) sre.getServletRequest();
-        HttpSession session = request.getSession();
-        String ip = (String) session.getAttribute("ip");
-        String ipAddress = IpUtil.getIpAddress(request);
-        if (!ipAddress.equals(ip)) {
-            session.setAttribute("ip", ipAddress);
-            redisTemplate.boundValueOps(BLOG_VIEW_COUNT).increment(1);
+        String bloggerId = request.getParameter("bloggerId");
+        if (bloggerId != null) {
+            if (bloggerId.equals("-1"))
+                bloggerId = ROOT_USER_ID.toString();
+            HttpSession session = request.getSession();
+            if (session.getAttribute(bloggerId) == null) {
+                String ipAddress = IpUtil.getIpAddress(request);
+                session.setAttribute(bloggerId, "");
+                redisTemplate.boundValueOps(BLOG_VIEW_COUNT + "_" + bloggerId).increment(1);
+                redisTemplate.boundSetOps(dateToStr(new Date(), YYYY_MM_DD)).add(ipAddress + "-" + bloggerId);
+            }
         }
-        redisTemplate.boundSetOps(dateToStr(new Date(), YYYY_MM_DD)).add(ipAddress);
     }
 
     @Scheduled(cron = " 0 0 0 * * ?")

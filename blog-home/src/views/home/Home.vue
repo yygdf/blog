@@ -3,7 +3,7 @@
     <div class="home-banner" :style="cover">
       <div class="banner-container">
         <h1 class="blog-title animated zoomIn">
-          {{ this.$store.state.userConfigs.home_banner_title }}
+          {{ blogConfig.home_banner_title }}
         </h1>
         <div class="blog-intro">
           {{ obj.output }} <span class="typed-cursor">|</span>
@@ -12,16 +12,16 @@
           <a
             class="iconfont my-icon-qq"
             target="_blank"
-            :href="this.$store.state.userConfigs.home_contact_qq"
+            :href="blogConfig.home_contact_qq"
           />
           <a
             target="_blank"
-            :href="this.$store.state.userConfigs.home_github"
+            :href="blogConfig.home_github"
             class="ml-5 mr-5 iconfont my-icon-github"
           />
           <a
             target="_blank"
-            :href="this.$store.state.userConfigs.home_gitee"
+            :href="blogConfig.home_gitee"
             class="iconfont my-icon-gitee"
           />
         </div>
@@ -46,7 +46,9 @@
                 class="on-hover"
                 width="100%"
                 height="100%"
-                :src="item.articleCover ? item.articleCover : defaultArticleCover"
+                :src="
+                  item.articleCover ? item.articleCover : defaultArticleCover
+                "
               />
             </router-link>
           </div>
@@ -95,17 +97,17 @@
           <v-card class="animated zoomIn blog-card mt-5">
             <div class="author-wrapper">
               <v-avatar size="110">
-                <img class="author-avatar" :src="blogInfo.avatar" />
+                <img class="author-avatar" :src="bloggerInfo.avatar" alt="" />
               </v-avatar>
-              <div style="font-size: 1.375rem">{{ blogInfo.nickname }}</div>
-              <div style="font-size: 0.875rem;">{{ blogInfo.intro }}</div>
+              <div style="font-size: 1.375rem">{{ bloggerInfo.nickname }}</div>
+              <div style="font-size: 0.875rem;">{{ bloggerInfo.intro }}</div>
             </div>
             <div class="blog-info-wrapper">
               <div class="blog-info-data">
                 <router-link to="/archives">
                   <div style="font-size: 0.875rem">文章</div>
                   <div style="font-size: 1.25rem">
-                    {{ blogInfo.articleCount }}
+                    {{ bloggerInfo.articleCount }}
                   </div>
                 </router-link>
               </div>
@@ -113,14 +115,16 @@
                 <router-link to="/categories">
                   <div style="font-size: 0.875rem">分类</div>
                   <div style="font-size: 1.25rem">
-                    {{ blogInfo.categoryCount }}
+                    {{ bloggerInfo.categoryCount }}
                   </div>
                 </router-link>
               </div>
               <div class="blog-info-data">
                 <router-link to="/tags">
                   <div style="font-size: 0.875rem">标签</div>
-                  <div style="font-size: 1.25rem">{{ blogInfo.tagCount }}</div>
+                  <div style="font-size: 1.25rem">
+                    {{ bloggerInfo.tagCount }}
+                  </div>
                 </router-link>
               </div>
             </div>
@@ -130,33 +134,31 @@
             </a>
             <div class="card-info-social">
               <a
+                target="_blank"
                 class="iconfont my-icon-qq"
-                target="_blank"
-                href="https://wpa.qq.com/msgrd?v=3&uin=294513634&site=qq&menu=yes"
+                :href="blogConfig.home_contact_qq"
               />
               <a
                 target="_blank"
-                href="https://github.com/yygdf"
                 class="ml-5 mr-5 iconfont my-icon-github"
+                :href="blogConfig.home_github"
               />
               <a
                 target="_blank"
-                href="https://gitee.com/yygdf"
                 class="iconfont my-icon-gitee"
+                :href="blogConfig.home_gitee"
               />
             </div>
           </v-card>
-          <!-- 网站信息 -->
           <v-card class="blog-card animated zoomIn mt-5 big">
             <div class="web-info-title">
               <v-icon size="18">mdi-bell</v-icon>
               公告
             </div>
             <div style="font-size:0.875rem">
-              {{ blogInfo.notice }}
+              {{ blogConfig.home_notice }}
             </div>
           </v-card>
-          <!-- 网站信息 -->
           <v-card class="blog-card animated zoomIn mt-5">
             <div class="web-info-title">
               <v-icon size="18">mdi-chart-line</v-icon>
@@ -168,7 +170,7 @@
               </div>
               <div style="padding:4px 0 0">
                 总访问量:<span class="float-right">
-                  {{ blogInfo.viewsCount }}
+                  {{ bloggerInfo.viewCount }}
                 </span>
               </div>
             </div>
@@ -176,7 +178,6 @@
         </div>
       </v-col>
     </v-row>
-    <!-- 提示消息 -->
     <v-snackbar v-model="tip" top color="#49b1f5" :timeout="2000">
       按CTRL+D 键将本页加入书签
     </v-snackbar>
@@ -188,8 +189,7 @@ import EasyTyper from "easy-typer-js";
 export default {
   created() {
     this.init();
-    this.getBlogInfo();
-    this.timer = setInterval(this.runTime, 1000);
+    setInterval(this.runTime, 1000);
   },
   data: function() {
     return {
@@ -206,7 +206,6 @@ export default {
         sentencePause: true
       },
       articleList: [],
-      blogInfo: {},
       current: 1,
       defaultArticleCover: require("../../assets/img/default/article.png")
     };
@@ -246,23 +245,17 @@ export default {
       str += day.getSeconds() + "秒";
       this.time = str;
     },
-    getBlogInfo() {
-      this.axios.get("/api/").then(({ data }) => {
-        this.blogInfo = data.data;
-        this.$store.commit("checkBlogInfo", data.data);
-      });
-    },
     infiniteHandler($state) {
       let md = require("markdown-it")();
       this.axios
         .get("/api/articles", {
           params: {
-            current: this.current
+            current: this.current,
+            userId: this.bloggerId
           }
         })
         .then(({ data }) => {
           if (data.data.length) {
-            // 去除markdown标签
             data.data.forEach(item => {
               item.articleContent = md
                 .render(item.articleContent)
@@ -291,12 +284,18 @@ export default {
     cover() {
       return (
         "background: url(" +
-        this.$store.state.userConfigs.home_banner_cover +
+        this.blogConfig.home_banner_cover +
         ") center center / cover no-repeat"
       );
     },
-    user_id() {
-      return this.$store.state.userConfigs.user_id;
+    blogConfig() {
+      return this.$store.state.blogConfig;
+    },
+    bloggerInfo() {
+      return this.$store.state.bloggerInfo;
+    },
+    bloggerId() {
+      return this.$store.state.bloggerId;
     }
   }
 };

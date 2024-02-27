@@ -13,7 +13,7 @@
 export default {
   computed: {
     isMessages() {
-      return this.$route.path == "/messages";
+      return this.$route.path === "/messages";
     }
   }
 };

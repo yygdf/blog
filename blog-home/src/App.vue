@@ -2,9 +2,9 @@
   <v-app id="app">
     <TopNavBar></TopNavBar>
     <SideNavBar></SideNavBar>
-    <v-content>
+    <v-main>
       <router-view :key="$route.fullPath" />
-    </v-content>
+    </v-main>
     <Footer></Footer>
     <BackTop></BackTop>
     <searchModel></searchModel>

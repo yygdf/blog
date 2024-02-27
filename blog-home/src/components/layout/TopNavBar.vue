@@ -90,6 +90,7 @@
 </template>
 
 <script>
+import logoPic from "../../assets/img/logo.png";
 export default {
   mounted() {
     window.addEventListener("scroll", this.scroll);
@@ -126,7 +127,6 @@ export default {
       this.$store.state.resetFlag = true;
     },
     logout() {
-      //如果在个人中心则跳回上一页
       if (this.$route.path == "/user") {
         this.$router.go(-1);
       }
@@ -148,7 +148,11 @@ export default {
       if (this.$store.state.nickname) {
         return this.$store.state.nickname;
       }
-      return "../../assets/img/logo.png";
+      return (
+        "<img src='" +
+        logoPic +
+        "' style='width: 64px;height: 64px;margin-top: 0.5rem;' alt=''/>"
+      );
     }
   }
 };

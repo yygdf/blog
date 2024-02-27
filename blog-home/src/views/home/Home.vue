@@ -65,6 +65,18 @@
                 </span>
                 <span class="separator">|</span>
               </span>
+              <span v-if="item.hiddenFlag">
+                <span style="color:#444444">
+                  <i class="iconfont my-icon-open-eye" /> 已隐藏
+                </span>
+                <span class="separator">|</span>
+              </span>
+              <span v-else-if="!item.publicFlag">
+                <span style="color:#555555">
+                  <i class="iconfont my-icon-open-eye" /> 已加密
+                </span>
+                <span class="separator">|</span>
+              </span>
               <v-icon size="14">mdi-calendar-month-outline</v-icon>
               {{ item.publishTime | date }}
               <span class="separator">|</span>

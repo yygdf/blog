@@ -175,7 +175,7 @@
         SELECT
             a.id,a.user_id,ua.username,
             a.category_id,a.article_title,a.article_cover,
-            a.article_content,a.top_flag,a.public_flag,
+            CASE WHEN (a.public_flag = false AND #{condition.flag}) THEN "" ELSE a.article_content END AS article_content,a.top_flag,a.public_flag,
             a.hidden_flag,a.commentable_flag,a.publish_time,
             c.category_name,ata.tag tagList
         FROM
@@ -185,7 +185,7 @@
         LEFT JOIN tb_user_auth ua ON a.user_id = ua.user_id
         <where>
             a.draft_flag = false AND a.user_id = #{condition.userId}
-            <if test="roleWeight > 300 or userId != condition.userId">
+            <if test="condition.flag">
                 AND a.hidden_flag = false
             </if>
         </where>

@@ -363,11 +363,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (condition.getUserId() == null)
             condition.setUserId(ROOT_USER_ID);
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        return articleMapper.selectArticlesDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight()).stream()
-                .peek(item -> {
-                    if (!item.getPublicFlag() && !loginUser.getUserId().equals(condition.getUserId()) && loginUser.getRoleWeight() > 300)
-                        item.setArticleContent("");
-                }).collect(Collectors.toList());
+        condition.setFlag(loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(condition.getUserId()));
+        return articleMapper.selectArticlesDTO(condition);
     }
 
     private void updateArticleImageBy(Integer loginUserId, Integer articleId, String fileFullPath, Date updateTime) {

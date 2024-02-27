@@ -161,7 +161,6 @@ export default {
       this.$store.state.resetFlag = true;
     },
     logout() {
-      // 如果在个人中心则跳回上一页
       if (this.$route.path == "/user") {
         this.$router.go(-1);
       }

@@ -36,10 +36,10 @@ Vue.use(VueImageSwipe);
 Vue.use(Toast);
 
 Vue.filter("date", function(value) {
-  return moment(value).format("yyyy-MM-dd");
+  return moment(value).format("yyyy-MM-DD");
 });
 
-Vue.filter("hour", function(value) {
+Vue.filter("time", function(value) {
   return moment(value).format("HH:mm:ss");
 });
 

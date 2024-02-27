@@ -7,19 +7,17 @@
     right
     overlay-opacity="0.8"
   >
-    <!-- 博主介绍 -->
     <div class="blogger-info">
       <v-avatar size="110" style="margin-bottom:0.5rem">
-        <img :src="this.$store.state.blogInfo.avatar" />
+        <img :src="bloggerInfo.avatar" />
       </v-avatar>
     </div>
-    <!-- 博客信息 -->
     <div class="blog-info-wrapper">
       <div class="blog-info-data">
         <router-link to="/archives">
           <div style="font-size: 0.875rem">文章</div>
           <div style="font-size: 1.125rem;">
-            {{ this.$store.state.blogInfo.articleCount }}
+            {{ bloggerInfo.articleCount }}
           </div>
         </router-link>
       </div>
@@ -27,7 +25,7 @@
         <router-link to="/categories">
           <div style="font-size: 0.875rem">分类</div>
           <div style="font-size: 1.125rem">
-            {{ this.$store.state.blogInfo.categoryCount }}
+            {{ bloggerInfo.categoryCount }}
           </div>
         </router-link>
       </div>
@@ -35,13 +33,12 @@
         <router-link to="/tags">
           <div style="font-size: 0.875rem">标签</div>
           <div style="font-size: 1.125rem">
-            {{ this.$store.state.blogInfo.tagCount }}
+            {{ bloggerInfo.tagCount }}
           </div>
         </router-link>
       </div>
     </div>
     <hr />
-    <!-- 页面导航 -->
     <div class="menu-container">
       <div class="menus-item">
         <router-link to="/">
@@ -152,8 +149,8 @@ export default {
         return this.$store.state.drawer;
       }
     },
-    isLogin() {
-      return this.$store.state.userId;
+    bloggerInfo() {
+      return this.$store.state.bloggerInfo;
     }
   },
   methods: {
@@ -164,7 +161,7 @@ export default {
       this.$store.state.resetFlag = true;
     },
     logout() {
-      //如果在个人中心则跳回上一页
+      // 如果在个人中心则跳回上一页
       if (this.$route.path == "/user") {
         this.$router.go(-1);
       }

@@ -1,12 +1,8 @@
 <template>
   <v-app-bar app :class="navClass" hide-on-scroll flat height="60">
-    <!-- 手机端导航栏 -->
     <div class="d-md-none nav-mobile-container">
       <div style="font-size:18px;font-weight:bold">
-        <router-link
-          to="/"
-          v-html="logo"
-        ></router-link>
+        <router-link to="/" v-html="logo"></router-link>
       </div>
       <div style="margin-left:auto">
         <a @click="openSearch"><i class="iconfont my-icon-search"/></a>
@@ -15,13 +11,9 @@
         </a>
       </div>
     </div>
-    <!-- 电脑导航栏 -->
     <div class="d-md-block d-none nav-container">
       <div class="float-left blog-title">
-        <router-link
-          to="/"
-          v-html="logo"
-        ></router-link>
+        <router-link to="/" v-html="logo"></router-link>
       </div>
       <div class="float-right nav-title">
         <div class="menus-btn">
@@ -156,7 +148,7 @@ export default {
       if (this.$store.state.nickname) {
         return this.$store.state.nickname;
       }
-      return this.$store.state.baseInfo.logo_top_left;
+      return "../../assets/img/logo.png";
     }
   }
 };

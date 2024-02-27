@@ -1,17 +1,9 @@
 <template>
   <v-footer app padless absolute v-if="!this.isMessages">
     <div class="footer-wrap">
-      <div>
-        ©{{
-          this.$store.state.baseInfo.foot_year +
-            " - " +
-            new Date().getFullYear() +
-            " " +
-            this.$store.state.baseInfo.foot_author
-        }}
-      </div>
+      <div>©{{ 2022 + " - " + new Date().getFullYear() + " by KS" }}</div>
       <a href="https://beian.miit.gov.cn/" target="_blank">
-        {{ this.$store.state.baseInfo.foot_beian }}
+        {{ "XXX-XXX-XXX" }}
       </a>
     </div>
   </v-footer>

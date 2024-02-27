@@ -45,6 +45,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer loginUserId = loginUser.getUserId();
         Tag tag = BeanCopyUtil.copyObject(tagBackVO, Tag.class);
+        tag.setTagName(tag.getTagName().replace(",", "，"));
         if (tag.getId() == null) {
             Integer count = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
                     .eq(Tag::getTagName, tag.getTagName())

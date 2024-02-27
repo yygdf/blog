@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
+import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.constant.FlagConst.*;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_LIKE_COUNT;
 import static com.iksling.blog.constant.RedisConst.ARTICLE_VIEW_COUNT;
@@ -359,7 +359,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     public List<ArticlesDTO> getArticlesDTO(ConditionBackVO condition) {
-        return null;
+        LoginUser loginUser = UserUtil.getLoginUser();
+        if (condition.getUserId() == null)
+            condition.setUserId(ROOT_USER_ID);
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
+        return articleMapper.selectArticlesDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight()).stream()
+                .peek(item -> {
+                    if (!item.getPublicFlag() && !loginUser.getUserId().equals(condition.getUserId()) && loginUser.getRoleWeight() > 300)
+                        item.setArticleContent("");
+                }).collect(Collectors.toList());
     }
 
     private void updateArticleImageBy(Integer loginUserId, Integer articleId, String fileFullPath, Date updateTime) {

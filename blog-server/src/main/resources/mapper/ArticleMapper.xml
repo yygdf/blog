@@ -170,4 +170,29 @@
         LIMIT
             #{condition.current}, #{condition.size}
     </select>
+
+    <select id="selectArticlesDTO" resultType="com.iksling.blog.dto.ArticlesDTO">
+        SELECT
+            a.id,a.user_id,ua.username,
+            a.category_id,a.article_title,a.article_cover,
+            a.article_content,a.top_flag,a.public_flag,
+            a.hidden_flag,a.commentable_flag,a.publish_time,
+            c.category_name,ata.tag tagList
+        FROM
+            tb_article a
+        LEFT JOIN tb_category c ON a.category_id = c.id
+        LEFT JOIN (SELECT article_id, GROUP_CONCAT(CONCAT(t.id, "=", t.tag_name)) tag FROM tb_article_tag ata LEFT JOIN tb_tag t ON ata.tag_id = t.id WHERE ata.deleted_flag = FALSE AND t.deleted_flag = FALSE GROUP BY article_id) ata ON a.id = ata.article_id
+        LEFT JOIN tb_user_auth ua ON a.user_id = ua.user_id
+        <where>
+            a.draft_flag = false AND a.user_id = #{condition.userId}
+            <if test="roleWeight > 300 or userId != condition.userId">
+                AND a.hidden_flag = false
+            </if>
+        </where>
+        ORDER BY
+            a.top_flag DESC,
+            a.id DESC
+        LIMIT
+            #{condition.current}, #{condition.size}
+    </select>
 </mapper>

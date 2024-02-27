@@ -23,6 +23,11 @@ public class ArticlesDTO {
     private Integer userId;
 
     /**
+     * 用户名
+     */
+    private String username;
+
+    /**
      * 分类id
      */
     private Integer categoryId;
@@ -46,6 +51,21 @@ public class ArticlesDTO {
      * 0未置顶, 1已置顶
      */
     private Boolean topFlag;
+
+    /**
+     * 0未公开, 1已公开, 默认1
+     */
+    private Boolean publicFlag;
+
+    /**
+     * 0未隐藏, 1已隐藏, 默认0
+     */
+    private Boolean hiddenFlag;
+
+    /**
+     * 0不可评论, 1可评论, 默认1
+     */
+    private Boolean commentableFlag;
 
     /**
      * 发表时间

@@ -77,7 +77,15 @@
                 style="display:inline-block"
                 :to="'/tag/' + tag.id"
                 class="mr-1"
-                v-for="tag of item.tagDTOList"
+                v-for="tag of item.tagList == null
+                  ? []
+                  : item.tagList.split(',').map(e => {
+                      let tagArr = e.split('=');
+                      return {
+                        id: tagArr[0],
+                        tagName: tagArr[1]
+                      };
+                    })"
                 :key="tag.id"
               >
                 <v-icon size="14">mdi-tag-multiple</v-icon>{{ tag.tagName }}
@@ -207,7 +215,7 @@ export default {
       },
       articleList: [],
       current: 1,
-      defaultArticleCover: require("../../assets/img/default/article.png")
+      defaultArticleCover: require("../../assets/img/default/article.jpg")
     };
   },
   methods: {

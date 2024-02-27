@@ -12,6 +12,7 @@ public class UserUtil {
     public static LoginUser getAnonymousUser() {
         return LoginUser.builder()
                 .userId(-1)
+                .roleWeight(1000)
                 .build();
     }
 }

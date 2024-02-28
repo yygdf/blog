@@ -6,20 +6,21 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    searchFlag: false,
+    loginUrl: "",
+    drawer: false,
     loginFlag: false,
-    registerFlag: false,
-    forgetFlag: false,
     emailFlag: false,
     resetFlag: false,
-    drawer: false,
-    loginUrl: "",
+    searchFlag: false,
+    forgetFlag: false,
+    registerFlag: false,
     userId: null,
-    nickname: null,
-    avatar: null,
     intro: null,
     email: null,
+    avatar: null,
+    gender: null,
     webSite: null,
+    nickname: null,
     bloggerId: null,
     articleLikeSet: [],
     commentLikeSet: [],
@@ -29,21 +30,23 @@ export default new Vuex.Store({
   mutations: {
     login(state, user) {
       state.userId = user.userId;
-      state.nickname = user.nickname;
-      state.avatar = user.avatar;
       state.intro = user.intro;
       state.email = user.email;
+      state.avatar = user.avatar;
+      state.gender = user.gender;
       state.webSite = user.webSite;
+      state.nickname = user.nickname;
       state.articleLikeSet = user.articleLikeSet ? user.articleLikeSet : [];
       state.commentLikeSet = user.commentLikeSet ? user.commentLikeSet : [];
     },
     logout(state) {
       state.userId = null;
-      state.nickname = null;
-      state.avatar = null;
       state.intro = null;
       state.email = null;
+      state.avatar = null;
+      state.gender = null;
       state.webSite = null;
+      state.nickname = null;
       state.articleLikeSet = [];
       state.commentLikeSet = [];
     },
@@ -54,9 +57,9 @@ export default new Vuex.Store({
       state.email = email;
     },
     updateLoginInfo(state, userInfo) {
-      state.nickname = userInfo.nickname;
       state.intro = userInfo.intro;
       state.webSite = userInfo.webSite;
+      state.nickname = userInfo.nickname;
     },
     updateAvatar(state, avatar) {
       state.avatar = avatar;
@@ -71,10 +74,10 @@ export default new Vuex.Store({
       state.bloggerId = bloggerId;
     },
     closeModel(state) {
-      state.registerFlag = false;
       state.loginFlag = false;
-      state.searchFlag = false;
       state.emailFlag = false;
+      state.searchFlag = false;
+      state.registerFlag = false;
     },
     articleLike(state, articleId) {
       let articleLikeSet = state.articleLikeSet;

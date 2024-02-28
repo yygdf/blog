@@ -5,45 +5,44 @@
         mdi-close
       </v-icon>
       <div class="login-wrapper">
-        <!-- 用户名 -->
         <v-text-field
           v-model="username"
-          label="邮箱号"
-          placeholder="请输入您的邮箱号"
+          label="用户名"
+          placeholder="请输入您的用户名"
           clearable
-          @keyup.enter="login"
+          @keyup.enter="validLogin"
           autofocus="autofocus"
         />
-        <!-- 密码 -->
         <v-text-field
           v-model="password"
           class="mt-7"
           label="密码"
           placeholder="请输入您的密码"
-          @keyup.enter="login"
+          @keyup.enter="validLogin"
           :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
           :type="show ? 'text' : 'password'"
           @click:append="show = !show"
         />
-        <!-- 按钮 -->
         <v-btn
           class="mt-7"
           block
           color="blue"
           style="color:#fff"
-          @click="login"
+          @click="validLogin"
         >
           登录
         </v-btn>
-        <!-- 注册和找回密码 -->
         <div class="mt-10 login-tip">
           <span @click="openRegister">立即注册</span>
           <span @click="openForget" class="float-right">忘记密码?</span>
         </div>
         <div class="social-login-title">社交账号登录</div>
         <div class="social-login-wrapper">
-          <!-- qq登录 -->
-          <a class="iconfont my-icon-qq" style="color:#00AAEE" @click="qqLogin" />
+          <a
+            class="iconfont my-icon-qq"
+            style="color:#00AAEE"
+            @click="qqLogin"
+          />
         </div>
       </div>
     </v-card>
@@ -71,10 +70,7 @@ export default {
     },
     isMobile() {
       const clientWidth = document.documentElement.clientWidth;
-      if (clientWidth > 960) {
-        return false;
-      }
-      return true;
+      return clientWidth <= 960;
     }
   },
   methods: {
@@ -86,44 +82,47 @@ export default {
       this.$store.state.loginFlag = false;
       this.$store.state.forgetFlag = true;
     },
-    login() {
-      var reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-      if (!reg.test(this.username)) {
-        this.$toast({ type: "error", message: "邮箱格式不正确" });
+    validLogin() {
+      if (this.username.trim().length === 0) {
+        this.$toast({ type: "error", message: "用户名不能为空" });
         return false;
       }
-      if (this.password.trim().length == 0) {
+      if (this.password.trim().length === 0) {
         this.$toast({ type: "error", message: "密码不能为空" });
         return false;
       }
       const that = this;
-      // eslint-disable-next-line no-undef
-      var captcha = new TencentCaptcha(this.config.TENCENT_CAPTCHA, function(
-        res
-      ) {
-        if (res.ret === 0) {
-          //发送登录请求
-          let param = new URLSearchParams();
-          param.append("username", that.username);
-          param.append("password", md5(that.password));
-          that.axios.post("/api/login", param).then(({ data }) => {
-            if (data.flag) {
-              that.username = "";
-              that.password = "";
-              that.$store.commit("login", data.data);
-              that.$store.commit("closeModel");
-              that.$toast({ type: "success", message: data.message });
-            } else {
-              that.$toast({ type: "error", message: data.message });
-            }
-          });
+      if (that.config.TENCENT_CAPTCHA) {
+        // eslint-disable-next-line no-undef
+        let captcha = new TencentCaptcha(that.config.TENCENT_CAPTCHA, function(
+          res
+        ) {
+          if (res.ret === 0) {
+            that.login(that);
+          }
+        });
+        captcha.show();
+      } else {
+        that.login(that);
+      }
+    },
+    login(that) {
+      let param = new URLSearchParams();
+      param.append("username", that.username);
+      param.append("password", md5(that.password));
+      that.axios.post("/api/login", param).then(({ data }) => {
+        if (data.flag) {
+          that.username = "";
+          that.password = "";
+          that.$store.commit("login", data.data);
+          that.$store.commit("closeModel");
+          that.$toast({ type: "success", message: data.message });
+        } else {
+          that.$toast({ type: "error", message: data.message });
         }
       });
-      // 显示验证码
-      captcha.show();
     },
     qqLogin() {
-      //保留当前路径
       this.$store.commit("saveLoginUrl", this.$route.path);
       if (
         navigator.userAgent.match(

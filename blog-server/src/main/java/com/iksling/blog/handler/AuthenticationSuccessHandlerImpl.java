@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.iksling.blog.dto.LoginUserBackDTO;
+import com.iksling.blog.dto.LoginUserDTO;
 import com.iksling.blog.entity.LoginLog;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.entity.UserAuth;
@@ -16,6 +17,7 @@ import com.iksling.blog.util.IpUtil;
 import com.iksling.blog.util.UserUtil;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -25,6 +27,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Set;
+
+import static com.iksling.blog.constant.RedisConst.ARTICLE_USER_LIKE;
+import static com.iksling.blog.constant.RedisConst.COMMENT_USER_LIKE;
 
 @Component
 public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHandler {
@@ -34,6 +40,9 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
     private UserAuthMapper userAuthMapper;
     @Autowired
     private LoginLogMapper loginLogMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException {
@@ -60,6 +69,22 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
                     .build();
             httpServletResponse.setContentType("application/json;charset=UTF-8");
             httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message("登录成功!").data(loginUserBackDTO)));
+        } else {
+            Set<Integer> articleLikeSet = (Set<Integer>) redisTemplate.boundHashOps(ARTICLE_USER_LIKE).get(userId.toString());
+            Set<Integer> commentLikeSet = (Set<Integer>) redisTemplate.boundHashOps(COMMENT_USER_LIKE).get(userId.toString());
+            LoginUserDTO loginUserDTO = LoginUserDTO.builder()
+                    .userId(userId)
+                    .intro(user.getIntro())
+                    .email(user.getEmail())
+                    .avatar(user.getAvatar())
+                    .gender(user.getGender())
+                    .website(user.getWebsite())
+                    .nickname(user.getNickname())
+                    .articleLikeSet(articleLikeSet)
+                    .commentLikeSet(commentLikeSet)
+                    .build();
+            httpServletResponse.setContentType("application/json;charset=UTF-8");
+            httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message("登录成功!").data(loginUserDTO)));
         }
     }
 

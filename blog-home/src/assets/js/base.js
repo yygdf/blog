@@ -4,10 +4,10 @@ import axios from "axios";
 export function getBlogInfo() {
   let params = {};
   let currentPathArr = window.location.pathname.split("/");
-  if (currentPathArr.length > 1 && typeof currentPathArr[0] === "number") {
-    params.bloggerId = currentPathArr[0];
-  } else {
+  if (currentPathArr[1] === "" || isNaN(Number(currentPathArr[1]))) {
     params.bloggerId = -1;
+  } else {
+    params.bloggerId = currentPathArr[1];
   }
   axios.get("/api/blog/info", { params }).then(({ data }) => {
     if (data.flag) {

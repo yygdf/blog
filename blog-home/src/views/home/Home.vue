@@ -41,7 +41,7 @@
           :key="item.id"
         >
           <div :class="isRight(index)">
-            <router-link :to="'/article/' + item.id">
+            <router-link :to="rootUri + '/article/' + item.id">
               <v-img
                 class="on-hover"
                 width="100%"
@@ -54,7 +54,7 @@
           </div>
           <div class="article-wrapper">
             <div style="line-height:1.4">
-              <router-link :to="'/article/' + item.id">
+              <router-link :to="rootUri + '/article/' + item.id">
                 {{ item.articleTitle }}
               </router-link>
             </div>
@@ -80,14 +80,14 @@
               <v-icon size="14">mdi-calendar-month-outline</v-icon>
               {{ item.publishTime | date }}
               <span class="separator">|</span>
-              <router-link :to="'/category/' + item.categoryId">
+              <router-link :to="rootUri + '/category/' + item.categoryId">
                 <v-icon size="14">mdi-inbox-full</v-icon>
                 {{ item.categoryName }}
               </router-link>
               <span class="separator">|</span>
               <router-link
                 style="display:inline-block"
-                :to="'/tag/' + tag.id"
+                :to="rootUri + '/tag/' + tag.id"
                 class="mr-1"
                 v-for="tag of item.tagList == null
                   ? []
@@ -316,6 +316,9 @@ export default {
     },
     bloggerId() {
       return this.$store.state.bloggerId;
+    },
+    rootUri() {
+      return this.$store.state.rootUri;
     }
   }
 };

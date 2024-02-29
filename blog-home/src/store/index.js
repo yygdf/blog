@@ -7,6 +7,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     loginUrl: "",
+    rootUri: "",
     drawer: false,
     loginFlag: false,
     emailFlag: false,
@@ -52,6 +53,9 @@ export default new Vuex.Store({
     },
     saveLoginUrl(state, url) {
       state.loginUrl = url;
+    },
+    saveRootUri(state, uri) {
+      state.rootUri = uri;
     },
     saveEmail(state, email) {
       state.email = email;

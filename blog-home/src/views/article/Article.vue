@@ -209,7 +209,7 @@
           <comment
             :commentList="commentList"
             :count="count"
-            @reloadComment="listComment"
+            @reloadComment="getComments"
           />
         </v-card>
       </v-col>
@@ -266,8 +266,8 @@ export default {
   },
   created() {
     this.getArticle();
-    this.listComment();
-    this.listNewestArticles();
+    this.getComments();
+    this.getArticlesNewest();
   },
   destroyed() {
     this.clipboard.destroy();
@@ -353,7 +353,7 @@ export default {
         });
       });
     },
-    listComment() {
+    getComments() {
       const path = this.$route.path;
       const arr = path.split("/");
       const articleId = arr[arr.length - 1];
@@ -366,7 +366,7 @@ export default {
           this.count = data.data.count;
         });
     },
-    listNewestArticles() {
+    getArticlesNewest() {
       this.axios.get("/api/articles/newest").then(({ data }) => {
         this.articleLatestList = data.data;
       });
@@ -460,12 +460,15 @@ export default {
   },
   computed: {
     articleCover() {
-      let cover = this.article.articleCover == '' ? this.$store.state.baseInfo.article : this.article.articleCover;
+      let cover =
+        this.article.articleCover === ""
+          ? this.$store.state.blogConfig.article_banner_cover
+          : this.article.articleCover;
       return "background: url(" + cover + ") center center / cover no-repeat";
     },
     isLike() {
-      var articleLikeSet = this.$store.state.articleLikeSet;
-      return articleLikeSet.indexOf(this.article.id) != -1
+      let articleLikeSet = this.$store.state.articleLikeSet;
+      return articleLikeSet.indexOf(this.article.id) !== -1
         ? "like-btn-active"
         : "like-btn";
     },

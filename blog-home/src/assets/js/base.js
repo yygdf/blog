@@ -3,9 +3,11 @@ import axios from "axios";
 
 export function getBlogInfo() {
   let params = {};
+  let commonUserFlag = true;
   let currentPathArr = window.location.pathname.split("/");
   if (currentPathArr[1] === "" || isNaN(Number(currentPathArr[1]))) {
     params.bloggerId = -1;
+    commonUserFlag = false;
   } else {
     params.bloggerId = currentPathArr[1];
   }
@@ -35,9 +37,16 @@ export function getBlogInfo() {
       if (!data.data.blogConfig.home_notice) {
         data.data.blogConfig.home_notice = "暂无内容~~~";
       }
+      if (!data.data.blogConfig.article_banner_cover) {
+        data.data.blogConfig.article_banner_cover =
+          "../../assets/img/banner/article.jpg";
+      }
       store.commit("saveBlogConfig", data.data.blogConfig);
       store.commit("saveBloggerInfo", data.data.bloggerInfo);
       store.commit("saveBloggerId", data.data.bloggerId);
+      if (commonUserFlag) {
+        store.commit("saveRootUri", "/" + data.data.bloggerId);
+      }
     }
   });
 }

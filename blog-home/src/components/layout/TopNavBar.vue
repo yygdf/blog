@@ -2,7 +2,7 @@
   <v-app-bar app :class="navClass" hide-on-scroll flat height="60">
     <div class="d-md-none nav-mobile-container">
       <div style="font-size:18px;font-weight:bold">
-        <router-link to="/" v-html="logo"></router-link>
+        <router-link :to="rootUri + '/'" v-html="logo"></router-link>
       </div>
       <div style="margin-left:auto">
         <a @click="openSearch"><i class="iconfont my-icon-search"/></a>
@@ -13,44 +13,44 @@
     </div>
     <div class="d-md-block d-none nav-container">
       <div class="float-left blog-title">
-        <router-link to="/" v-html="logo"></router-link>
+        <router-link :to="rootUri + '/'" v-html="logo"></router-link>
       </div>
       <div class="float-right nav-title">
         <div class="menus-btn">
           <a @click="openSearch"><i class="iconfont my-icon-search" /> 搜索</a>
         </div>
         <div class="menus-item">
-          <router-link to="/">
+          <router-link :to="rootUri + '/'">
             <i class="iconfont my-icon-home" /> 首页
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link to="/archives">
+          <router-link :to="rootUri + '/archives'">
             <i class="iconfont my-icon-archives" /> 归档
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link to="/categories">
+          <router-link :to="rootUri + '/categories'">
             <i class="iconfont my-icon-sort" /> 分类
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link to="/tags">
+          <router-link :to="rootUri + '/tags'">
             <i class="iconfont my-icon-label" /> 标签
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link to="/links">
+          <router-link :to="rootUri + '/links'">
             <i class="iconfont my-icon-link" /> 友链
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link to="/about">
+          <router-link :to="rootUri + '/about'">
             <i class="iconfont my-icon-paper-plane" /> 关于
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link to="/messages">
+          <router-link :to="rootUri + '/messages'">
             <i class="iconfont my-icon-comment-group" /> 留言
           </router-link>
         </div>
@@ -64,10 +64,11 @@
               :src="this.$store.state.avatar"
               height="30"
               width="30"
+              alt=""
             />
             <ul class="user-submenu">
               <li>
-                <router-link to="/user">
+                <router-link :to="rootUri + '/user'">
                   <i class="iconfont my-icon-personal" /> 个人中心
                 </router-link>
               </li>
@@ -91,6 +92,7 @@
 
 <script>
 import logoPic from "../../assets/img/logo.png";
+
 export default {
   mounted() {
     window.addEventListener("scroll", this.scroll);
@@ -103,11 +105,10 @@ export default {
   methods: {
     scroll() {
       const that = this;
-      let scrollTop =
+      that.scrollTop =
         window.pageYOffset ||
         document.documentElement.scrollTop ||
         document.body.scrollTop;
-      that.scrollTop = scrollTop;
       if (that.scrollTop > 60) {
         that.navClass = "nav-fixed";
       } else {
@@ -127,7 +128,7 @@ export default {
       this.$store.state.resetFlag = true;
     },
     logout() {
-      if (this.$route.path == "/user") {
+      if (this.$route.path === this.rootUri + "/user") {
         this.$router.go(-1);
       }
       this.axios.get("/api/logout").then(({ data }) => {
@@ -153,6 +154,9 @@ export default {
         logoPic +
         "' style='width: 64px;height: 64px;margin-top: 0.5rem;' alt=''/>"
       );
+    },
+    rootUri() {
+      return this.$store.state.rootUri;
     }
   }
 };
@@ -259,7 +263,7 @@ ul {
   display: none;
   right: 0;
   width: max-content;
-  margin-top: 0px;
+  margin-top: 0;
   margin-right: -35px;
   box-shadow: 0 5px 20px -4px rgba(0, 0, 0, 0.5);
   background-color: rgba(255, 255, 255, 1);
@@ -267,10 +271,10 @@ ul {
   border-radius: 10px;
 }
 .user-submenu li:nth-of-type(1) a:hover {
-  border-radius: 10px 10px 0px 0px;
+  border-radius: 10px 10px 0 0;
 }
 .user-submenu li:nth-last-of-type(1) a:hover {
-  border-radius: 0px 0px 10px 10px;
+  border-radius: 0 0 10px 10px;
 }
 .theme--dark.nav-fixed .user-submenu {
   background: rgba(18, 18, 18, 0.8) !important;

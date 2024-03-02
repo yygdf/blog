@@ -1,18 +1,17 @@
 <template>
   <div>
-    <div class="comment-title"><i class="iconfont my-icon-comment-group" />评论</div>
-    <!-- 评论框 -->
+    <div class="comment-title">
+      <i class="iconfont my-icon-comment-group" />评论
+    </div>
     <div class="comment-input-wrapper">
       <div style="display:flex">
         <v-avatar size="40">
           <img
             v-if="this.$store.state.avatar"
             :src="this.$store.state.avatar"
+            alt=""
           />
-          <img
-            v-else
-            :src = "this.$store.state.baseInfo.default_avatar"
-          />
+          <img v-else :src="defaultAvatar" alt="" />
         </v-avatar>
         <div style="width:100%" class="ml-3">
           <div class="comment-input">
@@ -24,7 +23,6 @@
               dense
             />
           </div>
-          <!-- 操作按钮 -->
           <div class="emoji-container">
             <span
               :class="chooseEmoji ? 'emoji-btn-active' : 'emoji-btn'"
@@ -33,101 +31,84 @@
               <i class="iconfont my-icon-expression" />
             </span>
             <button
-              @click="insertComment"
+              @click="addComment"
               class="upload-btn v-comment-btn"
               style="margin-left:auto"
             >
               提交
             </button>
           </div>
-          <!-- 表情框 -->
           <emoji @addEmoji="addEmoji" :chooseEmoji="chooseEmoji" />
         </div>
       </div>
     </div>
-    <!-- 评论详情 -->
     <div v-if="count > 0 && reFresh">
-      <!-- 评论数量 -->
       <div class="count">{{ count }} 评论</div>
-      <!-- 评论列表 -->
       <div
         style="display:flex"
         class="pt-5"
         v-for="(item, index) of commentList"
         :key="item.id"
       >
-        <!-- 头像 -->
         <v-avatar size="40" class="comment-avatar">
-          <img :src="item.avatar" />
+          <img :src="item.avatar" alt="" />
         </v-avatar>
         <div class="comment-meta">
-          <!-- 用户名 -->
           <div class="comment-user">
             <span v-if="!item.webSite">{{ item.nickname }}</span>
             <a v-else :href="item.webSite" target="_blank">
               {{ item.nickname }}
             </a>
-            <span class="blogger-tag" v-if="item.userId == 1">博主</span>
+            <span class="blogger-tag" v-if="item.userId === bloggerId"
+              >博主</span
+            >
           </div>
-          <!-- 信息 -->
           <div class="comment-info">
-            <!-- 楼层 -->
             <span style="margin-right:10px">{{ count - index }}楼</span>
-            <!-- 发表时间 -->
             <span style="margin-right:10px">{{ item.createTime | date }}</span>
-            <!-- 点赞 -->
             <span
               :class="isLike(item.id) + ' iconfont icondianzan'"
               @click="like(item)"
             />
             <span v-show="item.likeCount > 0"> {{ item.likeCount }}</span>
-            <!-- 回复 -->
             <span class="reply-btn" @click="replyComment(index, item)">
               回复
             </span>
           </div>
-          <!-- 评论内容 -->
           <p v-html="item.commentContent" class="comment-content"></p>
-          <!-- 回复人 -->
           <div
             style="display:flex"
             v-for="reply of item.replyDTOList"
             :key="reply.id"
           >
-            <!-- 头像 -->
             <v-avatar size="36" class="comment-avatar">
-              <img :src="reply.avatar" />
+              <img :src="reply.avatar" alt="" />
             </v-avatar>
             <div class="reply-meta">
-              <!-- 用户名 -->
               <div class="comment-user">
                 <span v-if="!reply.webSite">{{ reply.nickname }}</span>
                 <a v-else :href="reply.webSite" target="_blank">
                   {{ reply.nickname }}
                 </a>
-                <span class="blogger-tag" v-if="reply.userId == 1">博主</span>
+                <span class="blogger-tag" v-if="reply.userId === bloggerId"
+                  >博主</span
+                >
               </div>
-              <!-- 信息 -->
               <div class="comment-info">
-                <!-- 发表时间 -->
                 <span style="margin-right:10px">
                   {{ reply.createTime | date }}
                 </span>
-                <!-- 点赞 -->
                 <span
                   :class="isLike(reply.id) + ' iconfont my-icon-like'"
                   @click="like(reply)"
                 />
                 <span v-show="reply.likeCount > 0"> {{ reply.likeCount }}</span>
-                <!-- 回复 -->
                 <span class="reply-btn" @click="replyComment(index, reply)">
                   回复
                 </span>
               </div>
-              <!-- 回复内容 -->
               <p class="comment-content">
-                <!-- 回复用户名 -->
-                <template v-if="reply.replyId != item.userId">
+                <template v-if="reply.replyId !== item.userId">
                   <span v-if="!reply.replyWebSite" class="ml-1">
                     @{{ reply.replyNickname }}
                   </span>
@@ -145,7 +126,6 @@
               </p>
             </div>
           </div>
-          <!-- 回复数量 -->
           <div
             class="mb-3"
             style="font-size:0.75rem;color:#6d757a"
@@ -162,7 +142,6 @@
               点击查看
             </span>
           </div>
-          <!-- 回复分页 -->
           <div
             class="mb-3"
             style="font-size:0.75rem;color:#222;display:none"
@@ -179,18 +158,15 @@
               @changeReplyCurrent="changeReplyCurrent"
             />
           </div>
-          <!-- 回复框 -->
           <Reply ref="reply" @reloadReply="reloadReply" />
         </div>
       </div>
-      <!-- 加载按钮 -->
       <div class="load-wrapper">
-        <v-btn outlined v-if="count > commentList.length" @click="listComments">
+        <v-btn outlined v-if="count > commentList.length" @click="getComments">
           加载更多...
         </v-btn>
       </div>
     </div>
-    <!-- 没有评论提示 -->
     <div v-else style="padding:1.25rem;text-align:center">
       来发评论吧~
     </div>
@@ -221,7 +197,8 @@ export default {
       reFresh: true,
       commentContent: "",
       chooseEmoji: false,
-      current: 1
+      current: 1,
+      defaultAvatar: require("../assets/img/default/avatar.png")
     };
   },
   methods: {
@@ -265,7 +242,7 @@ export default {
           this.commentList[index].replyDTOList = data.data;
         });
     },
-    listComments() {
+    getComments() {
       //查看下一页评论
       this.current++;
       const path = this.$route.path;
@@ -278,30 +255,30 @@ export default {
           this.commentList.push(...data.data.recordList);
         });
     },
-    insertComment() {
+    addComment() {
       //判断登录
       if (!this.$store.state.userId) {
         this.$store.state.loginFlag = true;
         return false;
       }
       //判空
-      if (this.commentContent.trim() == "") {
+      if (this.commentContent.trim() === "") {
         this.$toast({ type: "error", message: "评论不能为空" });
         return false;
       }
       //解析表情
-      var reg = /\[.+?\]/g;
+      const reg = /\[.+?]/g;
       this.commentContent = this.commentContent.replace(reg, function(str) {
         return (
           "<img src= '" +
           EmojiList[str] +
-          "' width='22'height='20' style='padding: 0 1px'/>"
+          "' width='22' height='20' style='padding: 0 1px' alt='' />"
         );
       });
       //发送请求
       const path = this.$route.path;
       const arr = path.split("/");
-      var comment = {
+      let comment = {
         articleId: arr[2],
         commentContent: this.commentContent
       };
@@ -328,7 +305,7 @@ export default {
       this.axios.post("/api/comments/like", param).then(({ data }) => {
         if (data.flag) {
           //判断是否点赞
-          if (this.$store.state.commentLikeSet.indexOf(comment.id) != -1) {
+          if (this.$store.state.commentLikeSet.indexOf(comment.id) !== -1) {
             this.$set(comment, "likeCount", comment.likeCount - 1);
           } else {
             this.$set(comment, "likeCount", comment.likeCount + 1);
@@ -359,9 +336,14 @@ export default {
   computed: {
     isLike() {
       return function(commentId) {
-        var commentLikeSet = this.$store.state.commentLikeSet;
-        return commentLikeSet.indexOf(commentId) != -1 ? "like-active" : "like";
+        let commentLikeSet = this.$store.state.commentLikeSet;
+        return commentLikeSet.indexOf(commentId) !== -1
+          ? "like-active"
+          : "like";
       };
+    },
+    bloggerId() {
+      return this.$store.state.bloggerId;
     }
   },
   watch: {

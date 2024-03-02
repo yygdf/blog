@@ -66,6 +66,18 @@ router.afterEach(() => {
   NProgress.done();
 });
 
+axios.interceptors.request.use(
+  function(request) {
+    if (store.state.bloggerId) {
+      request.headers["Blogger-Id"] = store.state.bloggerId;
+    }
+    return request;
+  },
+  function(error) {
+    return Promise.reject(error);
+  }
+);
+
 axios.interceptors.response.use(
   function(response) {
     if (response.data.code === 20001) {
@@ -84,6 +96,6 @@ new Vue({
   vuetify,
   render: h => h(App),
   created() {
-    getBlogInfo();
+    getBlogInfo().then();
   }
 }).$mount("#app");

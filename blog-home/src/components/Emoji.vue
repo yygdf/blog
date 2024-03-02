@@ -6,7 +6,14 @@
       :key="index"
       @click="addEmoji(key)"
     >
-      <img :src="value" :title="key" class="emoji" width="24" height="24" />
+      <img
+        :src="value"
+        :title="key"
+        class="emoji"
+        width="24"
+        height="24"
+        alt=""
+      />
     </span>
   </div>
 </template>

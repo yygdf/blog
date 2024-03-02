@@ -1,8 +1,6 @@
 <template>
   <div class="paging">
-    <!-- 上一页按钮 第一页不显示 -->
-    <a @click="prePage" v-show="current != 1" class="ml-1 mr-1">上一页</a>
-    <!-- 小于6页直接显示 -->
+    <a @click="prePage" v-show="current !== 1" class="ml-1 mr-1">上一页</a>
     <template v-if="totalPage < 6">
       <a
         v-for="i of totalPage"
@@ -13,7 +11,6 @@
         {{ i }}
       </a>
     </template>
-    <!-- 大于等于6页且在前两页 -->
     <template v-else-if="current < 3">
       <a
         v-for="i in 4"
@@ -28,7 +25,6 @@
         {{ totalPage }}
       </a>
     </template>
-    <!-- 大于等于6页且在3-4页 -->
     <template v-else-if="current < 5">
       <a
         v-for="i in current + 2"
@@ -47,7 +43,6 @@
         {{ totalPage }}
       </a>
     </template>
-    <!-- 大于等于6页且在最后两页-->
     <template v-else-if="current > totalPage - 2">
       <a class="ml-1 mr-1" @click="changeReplyCurrent(1)">1</a>
       <span class="ml-1 mr-1">···</span>
@@ -60,7 +55,6 @@
         {{ i + (totalPage - 4) }}
       </a>
     </template>
-    <!-- 大于等于6页且在最后三四页-->
     <template v-else-if="current > totalPage - 4">
       <a class="ml-1 mr-1" @click="changeReplyCurrent(1)">1</a>
       <span class="ml-1 mr-1">···</span>
@@ -73,7 +67,6 @@
         {{ i + current - 3 }}
       </a>
     </template>
-    <!-- 大于等于6页且在中间页-->
     <template v-else>
       <a class="ml-1 mr-1" @click="changeReplyCurrent(1)">1</a>
       <span class="ml-1 mr-1">···</span>
@@ -91,10 +84,11 @@
         {{ current + 2 }}
       </a>
       <span class="ml-1 mr-1">···</span>
-      <a class="ml-1 mr-1" @click="changeReplyCurrent(totalPage)">{{totalPage}}</a>
+      <a class="ml-1 mr-1" @click="changeReplyCurrent(totalPage)">{{
+        totalPage
+      }}</a>
     </template>
-    <!-- 下一页按钮 最后一页不显示 -->
-    <a @click="nextPage" v-show="current != totalPage" class="ml-1 mr-1">
+    <a @click="nextPage" v-show="current !== totalPage" class="ml-1 mr-1">
       下一页
     </a>
   </div>
@@ -150,7 +144,7 @@ export default {
   computed: {
     isActive() {
       return function(i) {
-        if (i == this.current) {
+        if (i === this.current) {
           return "active";
         }
       };

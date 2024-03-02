@@ -1,17 +1,16 @@
 import store from "../../store";
 import axios from "axios";
 
-export function getBlogInfo() {
+export async function getBlogInfo() {
   let params = {};
   let commonUserFlag = true;
   let currentPathArr = window.location.pathname.split("/");
   if (currentPathArr[1] === "" || isNaN(Number(currentPathArr[1]))) {
-    params.bloggerId = -1;
     commonUserFlag = false;
   } else {
     params.bloggerId = currentPathArr[1];
   }
-  axios.get("/api/blog/info", { params }).then(({ data }) => {
+  await axios.get("/api/blog/info", { params }).then(({ data }) => {
     if (data.flag) {
       if (!data.data.blogConfig.home_banner_cover) {
         data.data.blogConfig.home_banner_cover =
@@ -40,6 +39,12 @@ export function getBlogInfo() {
       if (!data.data.blogConfig.article_banner_cover) {
         data.data.blogConfig.article_banner_cover =
           "../../assets/img/banner/article.jpg";
+      }
+      if (!data.data.blogConfig.wx_pay_code) {
+        data.data.blogConfig.wx_pay_code = "../../assets/img/wxPay.png";
+      }
+      if (!data.data.blogConfig.ali_pay_code) {
+        data.data.blogConfig.ali_pay_code = "../../assets/img/aliPay.png";
       }
       store.commit("saveBlogConfig", data.data.blogConfig);
       store.commit("saveBloggerInfo", data.data.bloggerInfo);

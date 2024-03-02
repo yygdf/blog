@@ -1,17 +1,12 @@
 package com.iksling.blog.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ArticlesDTO {
+public class ArticleDTO {
     /**
      * id
      */
@@ -43,19 +38,19 @@ public class ArticlesDTO {
     private String articleContent;
 
     /**
-     * 0未置顶, 1已置顶
-     */
-    private Boolean topFlag;
-
-    /**
      * 0未公开, 1已公开
      */
     private Boolean publicFlag;
 
     /**
-     * 0未隐藏, 1已隐藏
+     * 0不可评论, 1可评论
      */
-    private Boolean hiddenFlag;
+    private Boolean commentableFlag;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
 
     /**
      * 发表时间
@@ -71,4 +66,30 @@ public class ArticlesDTO {
      * 标签list字符串
      */
     private String tagList;
+
+    /**
+     * 点赞量
+     */
+    private Integer likeCount;
+
+    /**
+     * 浏览量
+     */
+    private Integer viewCount;
+
+
+    /**
+     * 上一篇文章
+     */
+    private ArticlePaginationDTO lastArticle;
+
+    /**
+     * 下一篇文章
+     */
+    private ArticlePaginationDTO nextArticle;
+
+    /**
+     * 推荐文章
+     */
+    private List<ArticleRecommendDTO> articleRecommendList;
 }

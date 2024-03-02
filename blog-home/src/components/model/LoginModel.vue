@@ -92,33 +92,33 @@ export default {
         return false;
       }
       const that = this;
-      if (that.config.TENCENT_CAPTCHA) {
+      if (this.config.TENCENT_CAPTCHA) {
         // eslint-disable-next-line no-undef
-        let captcha = new TencentCaptcha(that.config.TENCENT_CAPTCHA, function(
+        let captcha = new TencentCaptcha(this.config.TENCENT_CAPTCHA, function(
           res
         ) {
           if (res.ret === 0) {
-            that.login(that);
+            that.login();
           }
         });
         captcha.show();
       } else {
-        that.login(that);
+        this.login(this);
       }
     },
-    login(that) {
+    login() {
       let param = new URLSearchParams();
-      param.append("username", that.username);
-      param.append("password", md5(that.password));
-      that.axios.post("/api/login", param).then(({ data }) => {
+      param.append("username", this.username);
+      param.append("password", md5(this.password));
+      this.axios.post("/api/login", param).then(({ data }) => {
         if (data.flag) {
-          that.username = "";
-          that.password = "";
-          that.$store.commit("login", data.data);
-          that.$store.commit("closeModel");
-          that.$toast({ type: "success", message: data.message });
+          this.username = "";
+          this.password = "";
+          this.$store.commit("login", data.data);
+          this.$store.commit("closeModel");
+          this.$toast({ type: "success", message: data.message });
         } else {
-          that.$toast({ type: "error", message: data.message });
+          this.$toast({ type: "error", message: data.message });
         }
       });
     },

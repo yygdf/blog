@@ -23,7 +23,6 @@
         </button>
       </div>
     </div>
-    <!-- 表情框 -->
     <emoji @addEmoji="addEmoji" :chooseEmoji="chooseEmoji"></emoji>
   </div>
 </template>
@@ -50,27 +49,25 @@ export default {
       this.$refs.reply.style.display = "none";
     },
     insertReply() {
-      //判断登录
       if (!this.$store.state.userId) {
         this.$store.state.loginFlag = true;
         return false;
       }
-      if (this.commentContent.trim() == "") {
+      if (this.commentContent.trim() === "") {
         this.$toast({ type: "error", message: "回复不能为空" });
         return false;
       }
-      //解析表情
-      var reg = /\[.+?\]/g;
+      const reg = /\[.+?]/g;
       this.commentContent = this.commentContent.replace(reg, function(str) {
         return (
           "<img src= '" +
           EmojiList[str] +
-          "' width='22'height='20' style='padding: 0 1px'/>"
+          "' width='22' height='20' style='padding: 0 1px' alt=''/>"
         );
       });
       const path = this.$route.path;
       const arr = path.split("/");
-      var comment = {
+      let comment = {
         articleId: arr[2],
         replyId: this.replyId,
         parentId: this.parentId,

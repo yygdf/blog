@@ -109,4 +109,11 @@ public class ArticleController {
     public Result getArticles(@Valid ConditionBackVO condition) {
         return Result.success().message("查询成功").data(articleService.getArticlesDTO(condition));
     }
+
+    @ApiOperation(value = "根据文章id查找文章")
+    @ApiImplicitParam(name = "id", value = "文章id", required = true, dataType = "Integer")
+    @GetMapping("/article/{id}")
+    public Result getArticleById(@PathVariable Integer id) {
+        return Result.success().message("查询成功").data(articleService.getArticleDTOById(id));
+    }
 }

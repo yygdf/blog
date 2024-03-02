@@ -26,7 +26,6 @@ export async function generateMenu() {
       store.commit("saveUserMenuList", userMenuList);
       router.addRoutes(userMenuList);
     }
-    return Promise;
   });
 }
 

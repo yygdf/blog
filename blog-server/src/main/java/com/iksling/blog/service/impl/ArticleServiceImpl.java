@@ -21,12 +21,14 @@ import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -360,11 +362,40 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public List<ArticlesDTO> getArticlesDTO(ConditionBackVO condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        if (condition.getUserId() == null)
+        String bloggerId = request.getHeader("Blogger-Id");
+        if (bloggerId == null)
             condition.setUserId(ROOT_USER_ID);
+        else
+            condition.setUserId(Integer.valueOf(bloggerId));
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         condition.setFlag(loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(condition.getUserId()));
         return articleMapper.selectArticlesDTO(condition);
+    }
+
+    @Override
+    public ArticleDTO getArticleDTOById(Integer id) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer bloggerId = request.getHeader("Blogger-Id") == null ? ROOT_ROLE_ID : Integer.valueOf(request.getHeader("Blogger-Id"));
+        boolean flag = loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(bloggerId);
+        ArticleDTO articleDTO = articleMapper.selectArticleDTOById(id, bloggerId, flag);
+        if (articleDTO == null)
+            return null;
+        updateArticleViewCount(id.toString());
+        List<ArticlePaginationDTO> articlePaginationDTOList = articleMapper.selectArticlePaginationDTOById(id, bloggerId, flag);
+        List<ArticleRecommendDTO> articleRecommendDTOList = articleMapper.selectArticleRecommendDTOById(id, bloggerId, flag);
+        if (articlePaginationDTOList.size() == 2) {
+            articleDTO.setLastArticle(articlePaginationDTOList.get(0));
+            articleDTO.setNextArticle(articlePaginationDTOList.get(1));
+        } else if (articlePaginationDTOList.size() == 1) {
+            if (articlePaginationDTOList.get(0).getId() < id)
+                articleDTO.setLastArticle(articlePaginationDTOList.get(0));
+            else
+                articleDTO.setNextArticle(articlePaginationDTOList.get(0));
+        }
+        articleDTO.setArticleRecommendList(articleRecommendDTOList);
+        articleDTO.setViewCount((Integer) redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).get(id.toString()));
+        articleDTO.setLikeCount((Integer) redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).get(id.toString()));
+        return articleDTO;
     }
 
     private void updateArticleImageBy(Integer loginUserId, Integer articleId, String fileFullPath, Date updateTime) {
@@ -455,6 +486,20 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .or()
                 .in(MultiFile::getParentId, objectList));
         mapList.forEach(e -> MultiFileUtil.delete(e.get("file_full_path").toString()));
+    }
+
+    @Async
+    public void updateArticleViewCount(String id) {
+        HttpSession session = request.getSession();
+        Set<String> articleIdSet = (Set<String>) session.getAttribute("articleIdSet");
+        if (articleIdSet == null) {
+            articleIdSet = new HashSet<>();
+        }
+        if (!articleIdSet.contains(id)) {
+            articleIdSet.add(id);
+            session.setAttribute("articleIdSet", articleIdSet);
+            redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).increment(id, 1);
+        }
     }
 }
 

@@ -2,7 +2,7 @@
   <v-app-bar app :class="navClass" hide-on-scroll flat height="60">
     <div class="d-md-none nav-mobile-container">
       <div style="font-size:18px;font-weight:bold">
-        <router-link :to="rootUri + '/'" v-html="logo"></router-link>
+        <router-link :to="'/'" v-html="logo"></router-link>
       </div>
       <div style="margin-left:auto">
         <a @click="openSearch"><i class="iconfont my-icon-search"/></a>
@@ -13,44 +13,44 @@
     </div>
     <div class="d-md-block d-none nav-container">
       <div class="float-left blog-title">
-        <router-link :to="rootUri + '/'" v-html="logo"></router-link>
+        <router-link :to="'/'" v-html="logo"></router-link>
       </div>
       <div class="float-right nav-title">
         <div class="menus-btn">
           <a @click="openSearch"><i class="iconfont my-icon-search" /> 搜索</a>
         </div>
         <div class="menus-item">
-          <router-link :to="rootUri + '/'">
+          <router-link :to="'/'">
             <i class="iconfont my-icon-home" /> 首页
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link :to="rootUri + '/archives'">
+          <router-link :to="'/archives'">
             <i class="iconfont my-icon-archives" /> 归档
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link :to="rootUri + '/categories'">
+          <router-link :to="'/categories'">
             <i class="iconfont my-icon-sort" /> 分类
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link :to="rootUri + '/tags'">
+          <router-link :to="'/tags'">
             <i class="iconfont my-icon-label" /> 标签
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link :to="rootUri + '/links'">
+          <router-link :to="'/links'">
             <i class="iconfont my-icon-link" /> 友链
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link :to="rootUri + '/about'">
+          <router-link :to="'/about'">
             <i class="iconfont my-icon-paper-plane" /> 关于
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link :to="rootUri + '/messages'">
+          <router-link :to="'/messages'">
             <i class="iconfont my-icon-comment-group" /> 留言
           </router-link>
         </div>
@@ -68,7 +68,7 @@
             />
             <ul class="user-submenu">
               <li>
-                <router-link :to="rootUri + '/user'">
+                <router-link :to="'/user'">
                   <i class="iconfont my-icon-personal" /> 个人中心
                 </router-link>
               </li>
@@ -104,15 +104,14 @@ export default {
   },
   methods: {
     scroll() {
-      const that = this;
-      that.scrollTop =
+      this.scrollTop =
         window.pageYOffset ||
         document.documentElement.scrollTop ||
         document.body.scrollTop;
-      if (that.scrollTop > 60) {
-        that.navClass = "nav-fixed";
+      if (this.scrollTop > 60) {
+        this.navClass = "nav-fixed";
       } else {
-        that.navClass = "nav";
+        this.navClass = "nav";
       }
     },
     openSearch() {
@@ -128,7 +127,7 @@ export default {
       this.$store.state.resetFlag = true;
     },
     logout() {
-      if (this.$route.path === this.rootUri + "/user") {
+      if (this.$route.path === this.$store.state.rootUri + "/user") {
         this.$router.go(-1);
       }
       this.axios.get("/api/logout").then(({ data }) => {
@@ -154,9 +153,6 @@ export default {
         logoPic +
         "' style='width: 64px;height: 64px;margin-top: 0.5rem;' alt=''/>"
       );
-    },
-    rootUri() {
-      return this.$store.state.rootUri;
     }
   }
 };

@@ -23,7 +23,7 @@ const routes = [
     }
   },
   {
-    path: "/:userId(\\d+)?/article/:articleId",
+    path: "/:userId(\\d+)?/article/:articleId(\\d+)",
     component: Article,
     meta: {
       title: "文章"
@@ -51,7 +51,7 @@ const routes = [
     }
   },
   {
-    path: "/:userId(\\d+)?/category/:categoryId",
+    path: "/:userId(\\d+)?/category/:categoryId(\\d+)",
     component: ArticleList,
     meta: {
       title: "文章"
@@ -79,7 +79,7 @@ const routes = [
     }
   },
   {
-    path: "/:userId(\\d+)?/tag/:tagId",
+    path: "/:userId(\\d+)?/tag/:tagId(\\d+)",
     component: ArticleList,
     meta: {
       title: "文章"

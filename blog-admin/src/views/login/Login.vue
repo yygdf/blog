@@ -105,31 +105,31 @@ export default {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
           const that = this;
-          if (that.$config.TENCENT_CAPTCHA) {
+          if (this.$config.TENCENT_CAPTCHA) {
             // eslint-disable-next-line no-undef
             let captcha = new TencentCaptcha(
-              that.$config.TENCENT_CAPTCHA,
+              this.$config.TENCENT_CAPTCHA,
               function(res) {
                 if (res.ret === 0) {
-                  that.login(that);
+                  that.login();
                 }
               }
             );
             captcha.show();
           } else {
-            that.login(that);
+            this.login();
           }
         } else {
           return false;
         }
       });
     },
-    login(that) {
+    login() {
       let param = new URLSearchParams();
-      param.append("username", that.loginForm.username);
-      param.append("password", md5(that.loginForm.password));
-      // param.append("remember-me", that.remember);
-      that.axios
+      param.append("username", this.loginForm.username);
+      param.append("password", md5(this.loginForm.password));
+      // param.append("remember-me", this.remember);
+      this.axios
         .post("/api/login", param, {
           headers: {
             "Login-Platform": "true"
@@ -137,16 +137,16 @@ export default {
         })
         .then(({ data }) => {
           if (data.flag) {
-            that.$store.commit("login", data.data);
+            this.$store.commit("login", data.data);
             generateMenu().then(() => {
-              that.$cookie.setCookie({ username: that.loginForm.username });
-              that.$message.success("登录成功");
-              that.$router.push({
-                path: that.$route.query.url ? that.$route.query.url : "/"
+              this.$cookie.setCookie({ username: this.loginForm.username });
+              this.$message.success("登录成功");
+              this.$router.push({
+                path: this.$route.query.url ? this.$route.query.url : "/"
               });
             });
           } else {
-            that.$message.error(data.message);
+            this.$message.error(data.message);
           }
         });
     }

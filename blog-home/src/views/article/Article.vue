@@ -1,19 +1,15 @@
 <template>
   <div>
-    <!-- 封面图 -->
     <div class="banner" :style="articleCover">
       <div class="article-info-container">
-        <!-- 文章标题 -->
         <div class="article-title">{{ article.articleTitle }}</div>
         <div class="article-info">
           <div class="first-line">
-            <!-- 发表时间 -->
             <span>
               <i class="iconfont my-icon-calendar" />
-              发表于 {{ article.createTime | date }}
+              发表于 {{ article.publishTime | date }}
             </span>
             <span class="separator">|</span>
-            <!-- 发表时间 -->
             <span>
               <i class="iconfont my-icon-update-time" />
               更新于
@@ -21,26 +17,23 @@
                 {{ article.updateTime | date }}
               </template>
               <template v-else>
-                {{ article.createTime | date }}
+                {{ article.publishTime | date }}
               </template>
             </span>
             <span class="separator">|</span>
-            <!-- 文章分类 -->
             <span class="article-category">
               <i class="iconfont my-icon-sort-1" />
-              <router-link :to="'/categories/' + article.categoryId">
+              <router-link :to="'/category/' + article.categoryId">
                 {{ article.categoryName }}
               </router-link>
             </span>
           </div>
           <div class="second-line">
-            <!-- 字数统计 -->
             <span>
               <i class="iconfont my-icon-word" />
               字数统计: {{ wordNum | num }}
             </span>
             <span class="separator">|</span>
-            <!-- 阅读时长 -->
             <span>
               <i class="iconfont my-icon-time" />
               阅读时长: {{ readTime }}
@@ -48,12 +41,11 @@
           </div>
           <div class="third-line">
             <span class="separator">|</span>
-            <!-- 阅读量 -->
             <span>
-              <i class="iconfont my-icon-open-eye" /> 阅读量: {{ article.viewsCount }}
+              <i class="iconfont my-icon-open-eye" /> 阅读量:
+              {{ article.viewsCount }}
             </span>
             <span class="separator">|</span>
-            <!-- 评论量 -->
             <span>
               <i class="iconfont my-icon-comment-group-1" />评论数:
               <template v-if="count">{{ count }}</template>
@@ -63,7 +55,6 @@
         </div>
       </div>
     </div>
-    <!-- 内容 -->
     <v-row class="article-container">
       <v-col md="9" cols="12">
         <v-card class="article-wrapper">
@@ -73,11 +64,12 @@
             v-html="article.articleContent"
             ref="article"
           />
-          <!-- 版权声明 -->
           <div class="article-copyright">
             <div>
               <span>文章作者：</span>
-              <a :href="this.$store.state.baseInfo.article_author_link" target="_blank"> {{this.$store.state.baseInfo.article_author}} </a>
+              <a :href="serverHost + rootUri" target="_blank">
+                {{ bloggerInfo.nickname }}
+              </a>
             </div>
             <div>
               <span>文章链接：</span>
@@ -94,43 +86,50 @@
               许可协议。转载请注明文章出处。
             </div>
           </div>
-          <!-- 转发 -->
           <div class="article-operation">
             <div class="tag-container">
               <router-link
-                v-for="item of article.tagDTOList"
-                :key="item.id"
-                :to="'/tags/' + item.id"
+                v-for="tag of article.tagList == null
+                  ? []
+                  : item.tagList.split(',').map(e => {
+                      let tagArr = e.split('=');
+                      return {
+                        id: tagArr[0],
+                        tagName: tagArr[1]
+                      };
+                    })"
+                :key="tag.id"
+                :to="'/tag/' + tag.id"
               >
                 {{ item.tagName }}
               </router-link>
             </div>
             <share style="margin-left:auto" :config="config" />
           </div>
-          <!-- 点赞打赏等 -->
           <div class="article-reward">
-            <!-- 点赞按钮 -->
             <a :class="isLike" @click="like">
               <v-icon size="14" color="#fff">mdi-thumb-up</v-icon> 点赞
-              <span v-show="article.likeCount > 0">{{article.likeCount}}</span>
+              <span v-show="article.likeCount > 0">{{
+                article.likeCount
+              }}</span>
             </a>
             <a class="reward-btn">
-              <!-- 打赏按钮 -->
               <i class="iconfont my-icon-QR-code" /> 打赏
-              <!-- 二维码 -->
               <div class="animated fadeInDown reward-main">
                 <ul class="reward-all">
                   <li class="reward-item">
                     <img
                       class="reward-img"
-                      :src="this.$store.state.baseInfo.wepay"
+                      :src="blogConfig.wx_pay_code"
+                      alt=""
                     />
                     <div class="reward-desc">微信</div>
                   </li>
                   <li class="reward-item">
                     <img
                       class="reward-img"
-                      :src="this.$store.state.baseInfo.alipay"
+                      :src="blogConfig.ali_pay_code"
+                      alt=""
                     />
                     <div class="reward-desc">支付宝</div>
                   </li>
@@ -139,15 +138,15 @@
             </a>
           </div>
           <div class="pagination-post">
-            <!-- 上一篇 -->
             <div
               :class="isFull(article.lastArticle.id)"
               v-if="article.lastArticle.id"
             >
-              <router-link :to="'/articles/' + article.lastArticle.id">
+              <router-link :to="'/article/' + article.lastArticle.id">
                 <img
                   class="post-cover"
                   :src="article.lastArticle.articleCover"
+                  alt=""
                 />
                 <div class="post-info">
                   <div class="label">上一篇</div>
@@ -157,15 +156,15 @@
                 </div>
               </router-link>
             </div>
-            <!-- 下一篇 -->
             <div
               :class="isFull(article.nextArticle.id)"
               v-if="article.nextArticle.id"
             >
-              <router-link :to="'/articles/' + article.nextArticle.id">
+              <router-link :to="'/article/' + article.nextArticle.id">
                 <img
                   class="post-cover"
                   :src="article.nextArticle.articleCover"
+                  alt=""
                 />
                 <div class="post-info" style="text-align: right">
                   <div class="label">下一篇</div>
@@ -176,7 +175,6 @@
               </router-link>
             </div>
           </div>
-          <!-- 推荐文章 -->
           <div
             class="recommend-container"
             v-if="article.articleRecommendList.length"
@@ -190,12 +188,16 @@
                 v-for="item of article.articleRecommendList"
                 :key="item.id"
               >
-                <router-link :to="'/articles/' + item.id">
-                  <img class="recommend-cover" :src="item.articleCover" />
+                <router-link :to="'/article/' + item.id">
+                  <img
+                    class="recommend-cover"
+                    :src="item.articleCover"
+                    alt=""
+                  />
                   <div class="recommend-info">
                     <div class="recommend-date">
                       <i class="iconfont my-icon-calendar" />
-                      {{ item.createTime | date }}
+                      {{ item.publishTime | date }}
                     </div>
                     <div>{{ item.articleTitle }}</div>
                   </div>
@@ -203,9 +205,7 @@
               </div>
             </div>
           </div>
-          <!-- 分割线 -->
           <hr />
-          <!-- 评论 -->
           <comment
             :commentList="commentList"
             :count="count"
@@ -213,39 +213,36 @@
           />
         </v-card>
       </v-col>
-      <!-- 侧边功能 -->
       <v-col md="3" cols="12" class="d-md-block d-none">
         <div style="position: sticky;top: 20px;">
-          <!-- 文章目录 -->
           <v-card class="right-container">
             <div class="right-title">
-              <i class="iconfont my-icon-hamburger" style="font-size:16.8px" />
+              <i class="iconfont my-icon-hamburger" style="font-size:16px" />
               <span style="margin-left:10px">目录</span>
             </div>
             <div id="toc" />
           </v-card>
-          <!-- 最新文章 -->
           <v-card class="right-container" style="margin-top:20px">
             <div class="right-title">
-              <i class="iconfont my-icon-update-time" style="font-size:16.8px" />
+              <i class="iconfont my-icon-update-time" style="font-size:16px" />
               <span style="margin-left:10px">最新文章</span>
             </div>
             <div class="article-list">
               <div
                 class="article-item"
-                v-for="item of articleLatestList"
+                v-for="item of articleListLatest"
                 :key="item.id"
               >
-                <router-link :to="'/articles/' + item.id" class="content-cover">
-                  <img :src="item.articleCover" />
+                <router-link :to="'/article/' + item.id" class="content-cover">
+                  <img :src="item.articleCover" alt="" />
                 </router-link>
                 <div class="content">
                   <div class="content-title">
-                    <router-link :to="'/articles/' + item.id">
+                    <router-link :to="'/article/' + item.id">
                       {{ item.articleTitle }}
                     </router-link>
                   </div>
-                  <div class="content-time">{{ item.createTime | date }}</div>
+                  <div class="content-time">{{ item.publishTime | date }}</div>
                 </div>
               </div>
             </div>
@@ -290,85 +287,91 @@ export default {
         },
         articleRecommendList: []
       },
-      articleLatestList: [],
+      articleListLatest: [],
       commentList: [],
       count: 0,
       wordNum: "",
       readTime: "",
       articleHref: window.location.href,
+      serverHost: window.location.host,
       clipboard: null
     };
   },
   methods: {
     getArticle() {
-      const that = this;
-      //查询文章
-      this.axios.get("/api" + this.$route.path).then(({ data }) => {
-        document.title = data.data.articleTitle;
-        //将markdown转换为Html
-        this.markdownToHtml(data.data);
-        this.$nextTick(() => {
-          // 统计文章字数
-          this.wordNum = this.deleteHTMLTag(this.article.articleContent).length;
-          // 计算阅读时间
-          this.readTime = Math.round(this.wordNum / 400) + "分钟";
-          // 添加代码复制功能
-          this.clipboard = new Clipboard(".copy-btn");
-          this.clipboard.on("success", () => {
-            this.$toast({ type: "success", message: "复制成功" });
-          });
-          this.clipboard.on("error", () => {
-            this.$toast({ type: "error", message: "该浏览器不支持自动复制" });
-          });
-          // 添加文章生成目录功能
-          let nodes = this.$refs.article.children;
-          if (nodes.length) {
-            for (let i = 0; i < nodes.length; i++) {
-              let node = nodes[i];
-              let reg = /^H[1-4]{1}$/;
-              if (reg.exec(node.tagName)) {
-                node.id = i;
+      let pathArr = this.$route.path.split("/");
+      this.axios
+        .get("/api/article/" + pathArr[pathArr.length - 1])
+        .then(({ data }) => {
+          if (data.data) {
+            document.title = data.data.articleTitle;
+            this.markdownToHtml(data.data);
+            this.$nextTick(() => {
+              this.wordNum = this.deleteHTMLTag(
+                this.article.articleContent
+              ).length;
+              this.readTime = Math.round(this.wordNum / 400) + "分钟";
+              this.clipboard = new Clipboard(".copy-btn");
+              this.clipboard.on("success", () => {
+                this.$toast({ type: "success", message: "复制成功" });
+              });
+              this.clipboard.on("error", () => {
+                this.$toast({
+                  type: "error",
+                  message: "该浏览器不支持自动复制"
+                });
+              });
+              let nodes = this.$refs.article.children;
+              if (nodes.length) {
+                for (let i = 0; i < nodes.length; i++) {
+                  let node = nodes[i];
+                  let reg = /^H[1-4]$/;
+                  if (reg.exec(node.tagName)) {
+                    node.id = i;
+                  }
+                }
               }
-            }
-          }
-          tocbot.init({
-            tocSelector: "#toc", //要把目录添加元素位置，支持选择器
-            contentSelector: ".article-content", //获取html的元素
-            headingSelector: "h1, h2, h3", //要显示的id的目录
-            hasInnerContainers: true,
-            onClick: function(e) {
-              e.preventDefault();
-            }
-          });
-          // 添加图片预览功能
-          const imgList = this.$refs.article.getElementsByTagName("img");
-          for (var i = 0; i < imgList.length; i++) {
-            this.imgList.push(imgList[i].src);
-            imgList[i].addEventListener("click", function(e) {
-              that.previewImg(
-                e.target.currentSrc
-              );
+              tocbot.init({
+                tocSelector: "#toc",
+                contentSelector: ".article-content",
+                headingSelector: "h1, h2, h3",
+                hasInnerContainers: true,
+                onClick: function(e) {
+                  e.preventDefault();
+                }
+              });
+              const imgList = this.$refs.article.getElementsByTagName("img");
+              for (let i = 0; i < imgList.length; i++) {
+                this.imgList.push(imgList[i].src);
+                imgList[i].addEventListener("click", function(e) {
+                  this.previewImg(e.target.currentSrc);
+                });
+              }
+            });
+          } else {
+            this.$router.push({
+              path: this.rootUri + "/"
             });
           }
         });
-      });
     },
     getComments() {
-      const path = this.$route.path;
-      const arr = path.split("/");
-      const articleId = arr[arr.length - 1];
+      let pathArr = this.$route.path.split("/");
+      let params = {
+        articleId: pathArr[pathArr.length - 1]
+      };
       this.axios
         .get("/api/comments", {
-          params: { current: 1, articleId: articleId }
+          params
         })
         .then(({ data }) => {
-          this.commentList = data.data.recordList;
+          this.commentList = data.data.pageList;
           this.count = data.data.count;
         });
     },
     getArticlesNewest() {
       this.axios.get("/api/articles/newest").then(({ data }) => {
-        this.articleLatestList = data.data;
+        this.articleListLatest = data.data;
       });
     },
     like() {
@@ -400,8 +403,7 @@ export default {
         linkify: true,
         typographer: true,
         highlight: function(str, lang) {
-          // 当前时间加随机数生成唯一的id标识
-          var d = new Date().getTime();
+          let d = new Date().getTime();
           if (
             window.performance &&
             typeof window.performance.now === "function"
@@ -411,37 +413,31 @@ export default {
           const codeIndex = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
             /[xy]/g,
             function(c) {
-              var r = (d + Math.random() * 16) % 16 | 0;
+              let r = (d + Math.random() * 16) % 16 | 0;
               d = Math.floor(d / 16);
-              return (c == "x" ? r : (r & 0x3) | 0x8).toString(16);
+              return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
             }
           );
-          // 复制功能主要使用的是 clipboard.js
           let html = `<button class="copy-btn iconfont my-icon-copy" type="button" data-clipboard-action="copy" data-clipboard-target="#copy${codeIndex}"></button>`;
-          // 移除最后一个回车换行符
           str = str.substring(0, str.length - 1);
           const linesLength = str.split(/\n/).length;
-          // 生成行号
           let linesNum = '<span aria-hidden="true" class="line-numbers-rows">';
           for (let index = 0; index < linesLength; index++) {
             linesNum = linesNum + "<span></span>";
           }
           linesNum += "</span>";
           if (lang && hljs.getLanguage(lang)) {
-            // highlight.js 高亮代码
             const preCode = hljs.highlight(lang, str, true).value;
             html = html + preCode;
             if (linesLength) {
               html += '<b class="name">' + lang + "</b>";
             }
-            // 将代码包裹在 textarea 中，由于防止textarea渲染出现问题，这里将 "<" 用 "<" 代替，不影响复制功能
-            return `<pre class="hljs"><code>${html}</code>${linesNum}</pre><textarea style="position: absolute;left: -1000px;z-index: -1000" id="copy${codeIndex}">${str.replace(
-                    /<\/textarea>/g, "</textarea>"
-            ).trim()}</textarea>`;
+            return `<pre class="hljs"><code>${html}</code>${linesNum}</pre><textarea style="position: absolute;left: -1000px;z-index: -1000" id="copy${codeIndex}">${str
+              .replace(/<\/textarea>/g, "</textarea>")
+              .trim()}</textarea>`;
           }
         }
       });
-      // 将markdown替换为html标签
       article.articleContent = md.render(article.articleContent);
       this.article = article;
     },
@@ -462,7 +458,7 @@ export default {
     articleCover() {
       let cover =
         this.article.articleCover === ""
-          ? this.$store.state.blogConfig.article_banner_cover
+          ? this.blogConfig.article_banner_cover
           : this.article.articleCover;
       return "background: url(" + cover + ") center center / cover no-repeat";
     },
@@ -476,6 +472,15 @@ export default {
       return function(id) {
         return id ? "post full" : "post";
       };
+    },
+    blogConfig() {
+      return this.$store.state.blogConfig;
+    },
+    bloggerInfo() {
+      return this.$store.state.bloggerInfo;
+    },
+    rootUri() {
+      return this.$store.state.rootUri;
     }
   }
 };
@@ -684,7 +689,7 @@ export default {
   border-radius: 4px;
   background: #f5f5f5;
 }
-@media(max-width: 759px) {
+@media (max-width: 759px) {
   .reward-all {
     display: inline-block;
     margin: 0 0 0 -50px;

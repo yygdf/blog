@@ -12,7 +12,7 @@ public class RedisConst {
     public static final String COMMENT_USER_LIKE = "comment_user_like";
 
     /**
-     * 博客访问量前缀
+     * 博客访问量
      */
     public static final String BLOG_VIEW_COUNT = "blog_view_count";
 

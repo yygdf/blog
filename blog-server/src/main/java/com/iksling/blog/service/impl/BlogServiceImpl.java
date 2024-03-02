@@ -43,7 +43,7 @@ public class BlogServiceImpl implements BlogService {
         HashMap<String, Object> hashMap = new HashMap<>();
         HashMap<String, Object> blogConfigMap = new HashMap<>();
         HashMap<String, Object> bloggerInfoMap = new HashMap<>();
-        if (bloggerId == null || bloggerId == -1) {
+        if (bloggerId == null) {
             blogConfigMap.putAll(userConfigServiceImpl.getUserConfigMap());
             bloggerId = ROOT_USER_ID;
         } else if (bloggerId.equals(ROOT_USER_ID) || !"true".equals(systemConfigServiceImpl.getSystemConfigMap().get("enable_user_config"))) {

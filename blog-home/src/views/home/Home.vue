@@ -41,7 +41,7 @@
           :key="item.id"
         >
           <div :class="isRight(index)">
-            <router-link :to="rootUri + '/article/' + item.id">
+            <router-link :to="'/article/' + item.id">
               <v-img
                 class="on-hover"
                 width="100%"
@@ -54,7 +54,7 @@
           </div>
           <div class="article-wrapper">
             <div style="line-height:1.4">
-              <router-link :to="rootUri + '/article/' + item.id">
+              <router-link :to="'/article/' + item.id">
                 {{ item.articleTitle }}
               </router-link>
             </div>
@@ -73,21 +73,21 @@
               </span>
               <span v-else-if="!item.publicFlag">
                 <span style="color:#555555">
-                  <i class="iconfont my-icon-open-eye" /> 已加密
+                  <i class="iconfont my-icon-open-eye" /> 未公开
                 </span>
                 <span class="separator">|</span>
               </span>
               <v-icon size="14">mdi-calendar-month-outline</v-icon>
               {{ item.publishTime | date }}
               <span class="separator">|</span>
-              <router-link :to="rootUri + '/category/' + item.categoryId">
+              <router-link :to="'/category/' + item.categoryId">
                 <v-icon size="14">mdi-inbox-full</v-icon>
                 {{ item.categoryName }}
               </router-link>
               <span class="separator">|</span>
               <router-link
                 style="display:inline-block"
-                :to="rootUri + '/tag/' + tag.id"
+                :to="'/tag/' + tag.id"
                 class="mr-1"
                 v-for="tag of item.tagList == null
                   ? []
@@ -270,8 +270,7 @@ export default {
       this.axios
         .get("/api/articles", {
           params: {
-            current: this.current,
-            userId: this.bloggerId
+            current: this.current
           }
         })
         .then(({ data }) => {
@@ -313,12 +312,6 @@ export default {
     },
     bloggerInfo() {
       return this.$store.state.bloggerInfo;
-    },
-    bloggerId() {
-      return this.$store.state.bloggerId;
-    },
-    rootUri() {
-      return this.$store.state.rootUri;
     }
   }
 };

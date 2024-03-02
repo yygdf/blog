@@ -26,33 +26,29 @@ export default {
     };
   },
   methods: {
-    // 回到顶部方法
     backTop() {
       window.scrollTo({
         behavior: "smooth",
         top: 0
       });
     },
-    // 为了计算距离顶部的高度，当高度大于100显示回顶部图标，小于100则隐藏
     scrollToTop() {
-      const that = this;
-      let scrollTop =
+      this.scrollTop =
         window.pageYOffset ||
         document.documentElement.scrollTop ||
         document.body.scrollTop;
-      that.scrollTop = scrollTop;
-      if (that.scrollTop > 20) {
-        that.isShow = "opacity: 1;transform: translateX(-38px);";
+      if (this.scrollTop > 20) {
+        this.isShow = "opacity: 1;transform: translateX(-38px);";
       } else {
-        that.isShow = "";
+        this.isShow = "";
       }
     },
     show() {
-      const flag = this.isOut == "rightSide-out";
+      const flag = this.isOut === "rightSide-out";
       this.isOut = flag ? "rightSide-in" : "rightSide-out";
     },
     check() {
-      const flag = this.icon == "my-icon-moon";
+      const flag = this.icon === "my-icon-moon";
       this.icon = flag ? "my-icon-sun" : "my-icon-moon";
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
     }

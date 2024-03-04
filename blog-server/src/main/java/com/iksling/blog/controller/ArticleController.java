@@ -6,7 +6,7 @@ import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ArticleService;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleImageBackVO;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.StatusBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -95,18 +95,18 @@ public class ArticleController {
     }
 
     @ApiOperation(value = "查看后台文章列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/articles")
-    public Result getBackArticles(@Valid ConditionBackVO condition) {
+    public Result getBackArticles(@Valid Condition condition) {
         return Result.success().message("查询成功").data(articleService.getArticlesBackDTO(condition));
     }
 
     /****************************************************************************************************/
 
     @ApiOperation(value = "查看文章列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/articles")
-    public Result getArticles(@Valid ConditionBackVO condition) {
+    public Result getArticles(@Valid Condition condition) {
         return Result.success().message("查询成功").data(articleService.getArticlesDTO(condition));
     }
 
@@ -115,5 +115,11 @@ public class ArticleController {
     @GetMapping("/article/{id}")
     public Result getArticleById(@PathVariable Integer id) {
         return Result.success().message("查询成功").data(articleService.getArticleDTOById(id));
+    }
+
+    @ApiOperation(value = "查看最新文章列表")
+    @GetMapping("/articles/newest")
+    public Result getArticlesNewest() {
+        return Result.success().message("查询成功").data(articleService.getArticlesRecommendDTO());
     }
 }

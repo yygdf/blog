@@ -1,4 +1,4 @@
-package com.iksling.blog.vo;
+package com.iksling.blog.pojo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 @ApiModel(description = "查询条件")
-public class ConditionBackVO {
+public class Condition {
     /**
      * 每页数量
      */

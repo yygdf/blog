@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.vo.*;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -31,9 +31,9 @@ public interface UserService extends IService<User> {
 
     String updateUserAvatarVO(UserAvatarVO userAvatarVO);
 
-    PagePojo<UsersBackDTO> getUsersBackDTO(ConditionBackVO condition);
+    PagePojo<UsersBackDTO> getUsersBackDTO(Condition condition);
 
     boolean getBackUserExistFlag(String email, String username);
 
-    PagePojo<UserOnlinesBackDTO> getUserOnlinesBackDTO(ConditionBackVO condition);
+    PagePojo<UserOnlinesBackDTO> getUserOnlinesBackDTO(Condition condition);
 }

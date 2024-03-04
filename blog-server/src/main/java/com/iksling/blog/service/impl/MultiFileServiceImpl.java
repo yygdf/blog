@@ -10,6 +10,7 @@ import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.MultiFileMapper;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MultiFileService;
@@ -419,7 +420,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     }
 
     @Override
-    public List<MultiFilesBackDTO> getMultiFilesBackDTO(ConditionBackVO condition) {
+    public List<MultiFilesBackDTO> getMultiFilesBackDTO(Condition condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer userId = condition.getUserId();
         LambdaQueryWrapper<MultiFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();

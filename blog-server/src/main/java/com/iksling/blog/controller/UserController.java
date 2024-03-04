@@ -1,6 +1,7 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserService;
@@ -85,9 +86,9 @@ public class UserController {
     }
 
     @ApiOperation(value = "查看后台用户列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/users")
-    public Result getBackUsers(@Valid ConditionBackVO condition) {
+    public Result getBackUsers(@Valid Condition condition) {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("rootUserIdList", ROOT_USER_ID_LIST)
                 .set("pagePojo", userService.getUsersBackDTO(condition)));
@@ -117,9 +118,9 @@ public class UserController {
     }
 
     @ApiOperation(value = "查看后台在线用户列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/user/onlines")
-    public Result getBackUserOnlines(@Valid ConditionBackVO condition) {
+    public Result getBackUserOnlines(@Valid Condition condition) {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("rootUserIdList", ROOT_USER_ID_LIST)
                 .set("pagePojo", userService.getUserOnlinesBackDTO(condition)));

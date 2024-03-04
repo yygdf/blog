@@ -17,7 +17,7 @@ import com.iksling.blog.service.ArticleTagService;
 import com.iksling.blog.util.*;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleImageBackVO;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -168,7 +168,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileFullPath)
                 .eq(MultiFile::getFileName, articleId)
-                .exists("select id from tb_article where id="+articleId+" and userId="+articleUserId+" and deleted_flag=false and recycle_flag=false"));
+                .exists("select id from tb_article where id="+articleId+" and user_id="+articleUserId+" and deleted_flag=false and recycle_flag=false"));
         if (mapList.isEmpty())
             throw new OperationStatusException();
         long fileName = IdWorker.getId();
@@ -339,7 +339,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     @Override
-    public PagePojo<ArticlesBackDTO> getArticlesBackDTO(ConditionBackVO condition) {
+    public PagePojo<ArticlesBackDTO> getArticlesBackDTO(Condition condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
         if (DELETED.equals(condition.getType()) && loginUser.getRoleWeight() > 100)
             return new PagePojo<>();
@@ -360,13 +360,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     @Override
-    public List<ArticlesDTO> getArticlesDTO(ConditionBackVO condition) {
+    public List<ArticlesDTO> getArticlesDTO(Condition condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        String bloggerId = request.getHeader("Blogger-Id");
-        if (bloggerId == null)
-            condition.setUserId(ROOT_USER_ID);
-        else
-            condition.setUserId(Integer.valueOf(bloggerId));
+        condition.setUserId(Integer.valueOf(request.getHeader("Blogger-Id")));
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         condition.setFlag(loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(condition.getUserId()));
         return articleMapper.selectArticlesDTO(condition);
@@ -375,27 +371,41 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public ArticleDTO getArticleDTOById(Integer id) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        Integer bloggerId = request.getHeader("Blogger-Id") == null ? ROOT_ROLE_ID : Integer.valueOf(request.getHeader("Blogger-Id"));
+        Integer bloggerId = Integer.valueOf(request.getHeader("Blogger-Id"));
         boolean flag = loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(bloggerId);
         ArticleDTO articleDTO = articleMapper.selectArticleDTOById(id, bloggerId, flag);
         if (articleDTO == null)
             return null;
         updateArticleViewCount(id.toString());
-        List<ArticlePaginationDTO> articlePaginationDTOList = articleMapper.selectArticlePaginationDTOById(id, bloggerId, flag);
-        List<ArticleRecommendDTO> articleRecommendDTOList = articleMapper.selectArticleRecommendDTOById(id, bloggerId, flag);
-        if (articlePaginationDTOList.size() == 2) {
-            articleDTO.setLastArticle(articlePaginationDTOList.get(0));
-            articleDTO.setNextArticle(articlePaginationDTOList.get(1));
-        } else if (articlePaginationDTOList.size() == 1) {
-            if (articlePaginationDTOList.get(0).getId() < id)
-                articleDTO.setLastArticle(articlePaginationDTOList.get(0));
+        List<ArticlesPaginationDTO> articlesPaginationDTOList = articleMapper.selectArticlePaginationDTOById(id, bloggerId, flag);
+        List<ArticlesRecommendDTO> articlesRecommendDTOList = articleMapper.selectArticleRecommendDTOById(id, bloggerId, flag);
+        if (articlesPaginationDTOList.size() == 2) {
+            articleDTO.setLastArticle(articlesPaginationDTOList.get(0));
+            articleDTO.setNextArticle(articlesPaginationDTOList.get(1));
+        } else if (articlesPaginationDTOList.size() == 1) {
+            if (articlesPaginationDTOList.get(0).getId() < id)
+                articleDTO.setLastArticle(articlesPaginationDTOList.get(0));
             else
-                articleDTO.setNextArticle(articlePaginationDTOList.get(0));
+                articleDTO.setNextArticle(articlesPaginationDTOList.get(0));
         }
-        articleDTO.setArticleRecommendList(articleRecommendDTOList);
+        articleDTO.setArticleRecommendList(articlesRecommendDTOList);
         articleDTO.setViewCount((Integer) redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).get(id.toString()));
         articleDTO.setLikeCount((Integer) redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).get(id.toString()));
         return articleDTO;
+    }
+
+    @Override
+    public List<ArticlesRecommendDTO> getArticlesRecommendDTO() {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer bloggerId = Integer.valueOf(request.getHeader("Blogger-Id"));
+        boolean flag = loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(bloggerId);
+        return BeanCopyUtil.copyList(articleMapper.selectList(new LambdaQueryWrapper<Article>()
+                .select(Article::getId, Article::getUserId, Article::getArticleTitle, Article::getArticleCover, Article::getPublicFlag, Article::getPublishTime)
+                .eq(Article::getDraftFlag, false)
+                .eq(flag, Article::getHiddenFlag, false)
+                .eq(Article::getUserId, bloggerId)
+                .orderByDesc(Article::getId)
+                .last("limit 5")), ArticlesRecommendDTO.class);
     }
 
     private void updateArticleImageBy(Integer loginUserId, Integer articleId, String fileFullPath, Date updateTime) {

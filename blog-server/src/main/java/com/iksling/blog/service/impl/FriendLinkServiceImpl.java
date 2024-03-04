@@ -12,7 +12,7 @@ import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.FriendLinkService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.FriendLinkBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +85,7 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     }
 
     @Override
-    public PagePojo<FriendLinksBackDTO> getFriendLinksBackDTO(ConditionBackVO condition) {
+    public PagePojo<FriendLinksBackDTO> getFriendLinksBackDTO(Condition condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
         if (DELETED.equals(condition.getType()) && loginUser.getRoleWeight() > 100)
             return new PagePojo<>();

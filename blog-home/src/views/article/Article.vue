@@ -91,7 +91,7 @@
               <router-link
                 v-for="tag of article.tagList == null
                   ? []
-                  : item.tagList.split(',').map(e => {
+                  : article.tagList.split(',').map(e => {
                       let tagArr = e.split('=');
                       return {
                         id: tagArr[0],
@@ -101,7 +101,7 @@
                 :key="tag.id"
                 :to="'/tag/' + tag.id"
               >
-                {{ item.tagName }}
+                {{ tag.tagName }}
               </router-link>
             </div>
             <share style="margin-left:auto" :config="config" />
@@ -140,7 +140,7 @@
           <div class="pagination-post">
             <div
               :class="isFull(article.lastArticle.id)"
-              v-if="article.lastArticle.id"
+              v-if="article.lastArticle"
             >
               <router-link :to="'/article/' + article.lastArticle.id">
                 <img
@@ -158,7 +158,7 @@
             </div>
             <div
               :class="isFull(article.nextArticle.id)"
-              v-if="article.nextArticle.id"
+              v-if="article.nextArticle"
             >
               <router-link :to="'/article/' + article.nextArticle.id">
                 <img
@@ -358,7 +358,7 @@ export default {
     getComments() {
       let pathArr = this.$route.path.split("/");
       let params = {
-        articleId: pathArr[pathArr.length - 1]
+        categoryId: pathArr[pathArr.length - 1]
       };
       this.axios
         .get("/api/comments", {

@@ -14,7 +14,7 @@ import com.iksling.blog.service.CategoryService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.CategoryBackVO;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -122,7 +122,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     }
 
     @Override
-    public PagePojo<CategoriesBackDTO> getCategoriesBackDTO(ConditionBackVO condition) {
+    public PagePojo<CategoriesBackDTO> getCategoriesBackDTO(Condition condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
         if (DELETED.equals(condition.getType()) && loginUser.getRoleWeight() > 100)
             return new PagePojo<>();

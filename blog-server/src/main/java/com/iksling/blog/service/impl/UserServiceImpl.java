@@ -17,6 +17,7 @@ import com.iksling.blog.mapper.MultiFileMapper;
 import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.mapper.UserRoleMapper;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.MultiFileService;
@@ -329,7 +330,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public PagePojo<UsersBackDTO> getUsersBackDTO(ConditionBackVO condition) {
+    public PagePojo<UsersBackDTO> getUsersBackDTO(Condition condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
         if (DELETED.equals(condition.getType()) && loginUser.getRoleWeight() > 100)
             return new PagePojo<>();
@@ -349,7 +350,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public PagePojo<UserOnlinesBackDTO> getUserOnlinesBackDTO(ConditionBackVO condition) {
+    public PagePojo<UserOnlinesBackDTO> getUserOnlinesBackDTO(Condition condition) {
         List<Integer> onlineUserIdList = sessionRegistry.getAllPrincipals().stream()
                 .filter(e -> sessionRegistry.getAllSessions(e, false).size() > 0)
                 .map(e -> BeanCopyUtil.copyObject(e, LoginUser.class))

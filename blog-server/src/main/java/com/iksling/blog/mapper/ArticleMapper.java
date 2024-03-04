@@ -3,7 +3,7 @@ package com.iksling.blog.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iksling.blog.dto.*;
 import com.iksling.blog.entity.Article;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -15,17 +15,17 @@ public interface ArticleMapper extends BaseMapper<Article> {
 
     ArticleBackDTO selectArticleBackDTOById(Integer id, Integer userId, Integer roleWeight);
 
-    Integer selectArticlesBackDTOCount(@Param("condition") ConditionBackVO condition, Integer userId, Integer roleWeight);
+    Integer selectArticlesBackDTOCount(@Param("condition") Condition condition, Integer userId, Integer roleWeight);
 
-    List<ArticlesBackDTO> selectArticlesBackDTO(@Param("condition") ConditionBackVO condition, Integer userId, Integer roleWeight);
+    List<ArticlesBackDTO> selectArticlesBackDTO(@Param("condition") Condition condition, Integer userId, Integer roleWeight);
 
-    List<ArticlesDTO> selectArticlesDTO(@Param("condition") ConditionBackVO condition);
+    List<ArticlesDTO> selectArticlesDTO(@Param("condition") Condition condition);
 
     ArticleDTO selectArticleDTOById(Integer id, Integer bloggerId, boolean flag);
 
-    List<ArticlePaginationDTO> selectArticlePaginationDTOById(Integer id, Integer bloggerId, boolean flag);
+    List<ArticlesPaginationDTO> selectArticlePaginationDTOById(Integer id, Integer bloggerId, boolean flag);
 
-    List<ArticleRecommendDTO> selectArticleRecommendDTOById(Integer id, Integer bloggerId, boolean flag);
+    List<ArticlesRecommendDTO> selectArticleRecommendDTOById(Integer id, Integer bloggerId, boolean flag);
 }
 
 

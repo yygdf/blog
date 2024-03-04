@@ -18,7 +18,7 @@ import com.iksling.blog.service.UserRoleService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.CommonUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.PasswordVO;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.UserAuthBackVO;
@@ -203,7 +203,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     }
 
     @Override
-    public PagePojo<UserAuthsBackDTO> getUserAuthsBackDTO(ConditionBackVO condition) {
+    public PagePojo<UserAuthsBackDTO> getUserAuthsBackDTO(Condition condition) {
         if (DELETED.equals(condition.getType()) && UserUtil.getLoginUser().getRoleWeight() > 100)
             return new PagePojo<>();
         Integer count = userAuthMapper.selectUserAuthsBackDTOCount(condition);

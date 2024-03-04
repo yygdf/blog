@@ -6,7 +6,7 @@ import com.iksling.blog.entity.OperationLog;
 import com.iksling.blog.mapper.OperationLogMapper;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.OperationLogService;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     private OperationLogMapper operationLogMapper;
 
     @Override
-    public PagePojo<OperationLogsBackDTO> getOperationLogsBackDTO(ConditionBackVO condition) {
+    public PagePojo<OperationLogsBackDTO> getOperationLogsBackDTO(Condition condition) {
         Integer count = operationLogMapper.selectOperationLogsBackDTOCount(condition);
         if (count == 0)
             return new PagePojo<>();

@@ -4,7 +4,7 @@ import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -14,9 +14,9 @@ import java.util.List;
  */
 public interface UserMapper extends BaseMapper<User> {
 
-    Integer selectUsersBackDTOCount(@Param("condition") ConditionBackVO condition);
+    Integer selectUsersBackDTOCount(@Param("condition") Condition condition);
 
-    List<UsersBackDTO> selectUsersBackDTO(@Param("condition") ConditionBackVO condition);
+    List<UsersBackDTO> selectUsersBackDTO(@Param("condition") Condition condition);
 
     List<UserOnlinesBackDTO> selectUserOnlinesBackDTO(@Param("idList") List<Integer> idList);
 

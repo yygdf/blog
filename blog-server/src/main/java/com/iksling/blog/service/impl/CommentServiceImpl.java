@@ -3,22 +3,28 @@ package com.iksling.blog.service.impl;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.CommentsBackDTO;
+import com.iksling.blog.dto.CommentsDTO;
+import com.iksling.blog.dto.CommentsReplyDTO;
 import com.iksling.blog.entity.Comment;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.CommentMapper;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.CommentService;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.RECYCLE;
@@ -75,7 +81,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     }
 
     @Override
-    public PagePojo<CommentsBackDTO> getCommentsBackDTO(ConditionBackVO condition) {
+    public PagePojo<CommentsBackDTO> getCommentsBackDTO(Condition condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
         if ((DELETED.equals(condition.getType()) && loginUser.getRoleWeight() > 100) || (condition.getFlag() == Boolean.TRUE && loginUser.getRoleWeight() > 200))
             return new PagePojo<>();
@@ -89,6 +95,31 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
         commentsBackDTOList.forEach(e -> e.setLikeCount(likeCountMap.get(e.getId().toString())));
         return new PagePojo<>(count, commentsBackDTOList);
+    }
+
+    @Override
+    public PagePojo<CommentsDTO> getCommentsDTO(Condition condition) {
+        Integer count = commentMapper.selectCommentsDTOCount(condition);
+        if (count == 0)
+            return new PagePojo<>();
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
+        List<CommentsDTO> commentsDTOList = commentMapper.selectCommentsDTO(condition);
+        if (commentsDTOList.size() == 0)
+            return new PagePojo<>(count, new ArrayList<>());
+        Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
+        List<Integer> commentsDTOIdList = new ArrayList<>();
+        commentsDTOList.forEach(e -> {
+            commentsDTOIdList.add(e.getId());
+            e.setLikeCount(likeCountMap.get(e.getId().toString()));
+        });
+        List<CommentsReplyDTO> commentsReplyDTOList = commentMapper.selectCommentsReplyDTO(commentsDTOIdList);
+        commentsReplyDTOList.forEach(e -> e.setLikeCount(likeCountMap.get(e.getId().toString())));
+        Map<Integer, List<CommentsReplyDTO>> commentsReplyDTOMap = commentsReplyDTOList.stream().collect(Collectors.groupingBy(CommentsReplyDTO::getParentId));
+        commentsDTOList.forEach(e -> {
+            e.setCommentsReplyDTOList(commentsReplyDTOMap.get(e.getId()));
+            e.setReplyCount(commentsReplyDTOMap.get(e.getId()).size());
+        });
+        return new PagePojo<>(count, commentsDTOList);
     }
 }
 

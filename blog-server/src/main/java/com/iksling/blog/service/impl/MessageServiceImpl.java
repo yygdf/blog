@@ -15,7 +15,7 @@ import com.iksling.blog.service.MessageService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.CommonUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -68,7 +68,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     }
 
     @Override
-    public PagePojo<MessagesBackDTO> getMessagesBackDTO(ConditionBackVO condition) {
+    public PagePojo<MessagesBackDTO> getMessagesBackDTO(Condition condition) {
         LambdaQueryWrapper<Message> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         if (DELETED.equals(condition.getType())) {
             if (UserUtil.getLoginUser().getRoleWeight() > 100)

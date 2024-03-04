@@ -81,15 +81,15 @@ public class ArticleDTO {
     /**
      * 上一篇文章
      */
-    private ArticlePaginationDTO lastArticle;
+    private ArticlesPaginationDTO lastArticle;
 
     /**
      * 下一篇文章
      */
-    private ArticlePaginationDTO nextArticle;
+    private ArticlesPaginationDTO nextArticle;
 
     /**
      * 推荐文章
      */
-    private List<ArticleRecommendDTO> articleRecommendList;
+    private List<ArticlesRecommendDTO> articleRecommendList;
 }

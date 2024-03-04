@@ -3,7 +3,7 @@ package com.iksling.blog.dto;
 import lombok.Data;
 
 @Data
-public class ArticlePaginationDTO {
+public class ArticlesPaginationDTO {
     /**
      * id
      */

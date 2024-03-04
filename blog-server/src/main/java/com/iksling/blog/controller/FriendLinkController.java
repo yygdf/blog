@@ -3,7 +3,7 @@ package com.iksling.blog.controller;
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.FriendLinkService;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.FriendLinkBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import io.swagger.annotations.Api;
@@ -51,9 +51,9 @@ public class FriendLinkController {
     }
 
     @ApiOperation(value = "查看后台友链列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/friendLinks")
-    public Result getBackFriendLinks(@Valid ConditionBackVO condition) {
+    public Result getBackFriendLinks(@Valid Condition condition) {
         return Result.success().message("查询成功").data(friendLinkService.getFriendLinksBackDTO(condition));
     }
 }

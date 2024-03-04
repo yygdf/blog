@@ -2,7 +2,7 @@ package com.iksling.blog.controller;
 
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.OperationLogService;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -19,9 +19,9 @@ public class OperationLogController {
     private OperationLogService operationLogService;
 
     @ApiOperation(value = "查看后台操作日志列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/operationLogs")
-    public Result getBackOperationLogs(@Valid ConditionBackVO condition) {
+    public Result getBackOperationLogs(@Valid Condition condition) {
         return Result.success().message("查询成功").data(operationLogService.getOperationLogsBackDTO(condition));
     }
 }

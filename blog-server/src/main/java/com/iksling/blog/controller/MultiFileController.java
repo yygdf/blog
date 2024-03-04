@@ -1,6 +1,7 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MultiFileService;
@@ -79,9 +80,9 @@ public class MultiFileController {
     }
 
     @ApiOperation(value = "查看后台文件列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/multiFiles")
-    public Result getBackMultiFiles(@Valid ConditionBackVO condition) {
+    public Result getBackMultiFiles(@Valid Condition condition) {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("dataList", multiFileService.getMultiFilesBackDTO(condition))
                 .set("staticResourceUrl", STATIC_RESOURCE_URL));

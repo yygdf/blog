@@ -7,7 +7,7 @@ import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.vo.PasswordVO;
 import com.iksling.blog.vo.StatusBackVO;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.UserAuthBackVO;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public interface UserAuthService extends IService<UserAuth> {
 
     void updateUserPasswordVO(PasswordVO passwordVO);
 
-    PagePojo<UserAuthsBackDTO> getUserAuthsBackDTO(ConditionBackVO condition);
+    PagePojo<UserAuthsBackDTO> getUserAuthsBackDTO(Condition condition);
 
     List<LabelBackDTO> getBackUsernames(String keywords);
 }

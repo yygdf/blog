@@ -1,10 +1,9 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
-import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.SystemConfigService;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.SystemConfigBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 import static com.iksling.blog.constant.LogConst.REMOVE;
 import static com.iksling.blog.constant.LogConst.SAVE_OR_UPDATE;
 
@@ -44,9 +42,9 @@ public class SystemConfigController {
     }
 
     @ApiOperation(value = "查看后台系统配置列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionBackVO")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/systemConfigs")
-    public Result getBackSystemConfigs(@Valid ConditionBackVO condition) {
+    public Result getBackSystemConfigs(@Valid Condition condition) {
         return Result.success().message("查询成功").data(systemConfigService.getSystemConfigsBackDTO(condition));
     }
 }

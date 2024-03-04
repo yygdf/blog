@@ -3,6 +3,7 @@ package com.iksling.blog.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.iksling.blog.dto.MultiFilesBackDTO;
 import com.iksling.blog.entity.MultiFile;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.vo.*;
 
@@ -25,7 +26,7 @@ public interface MultiFileService extends IService<MultiFile> {
 
     void updateMultiFilesStatusBackVO(StatusBackVO statusBackVO);
 
-    List<MultiFilesBackDTO> getMultiFilesBackDTO(ConditionBackVO condition);
+    List<MultiFilesBackDTO> getMultiFilesBackDTO(Condition condition);
 
     Dict getMultiFileTokenById(Integer id);
 }

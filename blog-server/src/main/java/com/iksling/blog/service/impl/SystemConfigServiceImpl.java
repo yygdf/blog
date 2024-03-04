@@ -5,17 +5,14 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.SystemConfigsBackDTO;
 import com.iksling.blog.entity.SystemConfig;
-import com.iksling.blog.entity.UserConfig;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.SystemConfigMapper;
-import com.iksling.blog.mapper.UserConfigMapper;
-import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.SystemConfigService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.SystemConfigBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,9 +23,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
-import static com.iksling.blog.constant.FlagConst.ASSIMILATE;
 
 /**
  *
@@ -90,7 +84,7 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
     }
 
     @Override
-    public PagePojo<SystemConfigsBackDTO> getSystemConfigsBackDTO(ConditionBackVO condition) {
+    public PagePojo<SystemConfigsBackDTO> getSystemConfigsBackDTO(Condition condition) {
         Integer count = systemConfigMapper.selectSystemConfigsBackDTOCount(condition);
         if (count == 0)
             return new PagePojo<>();

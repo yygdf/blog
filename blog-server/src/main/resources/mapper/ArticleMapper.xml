@@ -212,39 +212,49 @@
         </where>
     </select>
 
-    <select id="selectArticlePaginationDTOById" resultType="com.iksling.blog.dto.ArticlePaginationDTO">
+    <select id="selectArticlePaginationDTOById" resultType="com.iksling.blog.dto.ArticlesPaginationDTO">
         SELECT
-            a.id,a.user_id,a.article_title,
-            a.article_cover,a.public_flag
-        FROM
-            tb_article a
-        <where>
-            a.draft_flag = false AND a.id &lt; #{id} AND a.user_id = #{bloggerId}
-            <if test="condition.flag">
-                AND a.hidden_flag = false
-            </if>
-        </where>
-        ORDER BY
-            a.id DESC
-        LIMIT 1
+            a1.id,a1.user_id,a1.article_title,
+            a1.article_cover,a1.public_flag
+        FROM (
+            SELECT
+                a.id,a.user_id,a.article_title,
+                a.article_cover,a.public_flag
+            FROM
+                tb_article a
+            <where>
+                a.draft_flag = false AND a.id &lt; #{id} AND a.user_id = #{bloggerId}
+                <if test="flag">
+                    AND a.hidden_flag = false
+                </if>
+            </where>
+            ORDER BY
+                a.id DESC
+            LIMIT 1
+        ) a1
         UNION
         SELECT
-            a.id,a.user_id,a.article_title,
-            a.article_cover,a.public_flag
-        FROM
-            tb_article a
-        <where>
-            a.draft_flag = false AND a.id > #{id} AND a.user_id = #{bloggerId}
-            <if test="flag">
-                AND a.hidden_flag = false
-            </if>
-        </where>
-        ORDER BY
-            a.id ASC
-        LIMIT 1
+            a2.id,a2.user_id,a2.article_title,
+            a2.article_cover,a2.public_flag
+        FROM (
+            SELECT
+                a.id,a.user_id,a.article_title,
+                a.article_cover,a.public_flag
+            FROM
+                tb_article a
+            <where>
+                a.draft_flag = false AND a.id > #{id} AND a.user_id = #{bloggerId}
+                <if test="flag">
+                    AND a.hidden_flag = false
+                </if>
+            </where>
+            ORDER BY
+                a.id ASC
+            LIMIT 1
+        ) a2
     </select>
 
-    <select id="selectArticleRecommendDTOById" resultType="com.iksling.blog.dto.ArticleRecommendDTO">
+    <select id="selectArticleRecommendDTOById" resultType="com.iksling.blog.dto.ArticlesRecommendDTO">
         SELECT
             a.id,a.user_id,a.article_title,
             a.article_cover,a.public_flag,a.publish_time
@@ -261,7 +271,7 @@
             ) t
             LEFT JOIN tb_article_tag ata ON t.tag_id = ata.tag_id AND ata.deleted_flag = false
             WHERE
-                ata.article_id != {id}
+                ata.article_id != #{id}
         ) t2
         LEFT JOIN tb_article a ON t2.article_id = a.id
         <where>

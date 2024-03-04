@@ -6,7 +6,7 @@ import com.iksling.blog.entity.ExceptionLog;
 import com.iksling.blog.mapper.ExceptionLogMapper;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.ExceptionLogService;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class ExceptionLogServiceImpl extends ServiceImpl<ExceptionLogMapper, Exc
     private ExceptionLogMapper exceptionLogMapper;
 
     @Override
-    public PagePojo<ExceptionLogsBackDTO> getExceptionLogsBackDTO(ConditionBackVO condition) {
+    public PagePojo<ExceptionLogsBackDTO> getExceptionLogsBackDTO(Condition condition) {
         Integer count = exceptionLogMapper.selectExceptionLogsBackDTOCount(condition);
         if (count == 0)
             return new PagePojo<>();

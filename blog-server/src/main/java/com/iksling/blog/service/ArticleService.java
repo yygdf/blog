@@ -6,7 +6,7 @@ import com.iksling.blog.entity.Article;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleImageBackVO;
-import com.iksling.blog.vo.ConditionBackVO;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.StatusBackVO;
 
 import java.util.List;
@@ -32,9 +32,11 @@ public interface ArticleService extends IService<Article> {
 
     ArticleOptionBackDTO getArticleOptionBackDTO(Integer userId);
 
-    PagePojo<ArticlesBackDTO> getArticlesBackDTO(ConditionBackVO condition);
+    PagePojo<ArticlesBackDTO> getArticlesBackDTO(Condition condition);
 
-    List<ArticlesDTO> getArticlesDTO(ConditionBackVO condition);
+    List<ArticlesDTO> getArticlesDTO(Condition condition);
 
     ArticleDTO getArticleDTOById(Integer id);
+
+    List<ArticlesRecommendDTO> getArticlesRecommendDTO();
 }

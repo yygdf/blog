@@ -22,7 +22,6 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { generateMenu } from "./assets/js/menu";
 import commonMethod from "./assets/js/common";
-import cookie from "./assets/js/cookie";
 
 Vue.use(mavonEditor);
 Vue.component("v-chart", ECharts);
@@ -31,7 +30,6 @@ Vue.use(ElementUI);
 Vue.config.productionTip = false;
 Vue.prototype.$moment = moment;
 Vue.prototype.$commonMethod = commonMethod;
-Vue.prototype.$cookie = cookie;
 Vue.prototype.$config = config;
 
 Vue.filter("date", function(value, formatStr = "yyyy-MM-DD") {

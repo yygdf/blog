@@ -55,7 +55,7 @@ import { generateMenu } from "../../assets/js/menu";
 import md5 from "js-md5";
 export default {
   created() {
-    this.loginForm.username = this.$cookie.getCookie("username");
+    this.loginForm.username = localStorage.getItem("username");
     this.$store.commit("logout");
   },
   data: function() {
@@ -139,7 +139,7 @@ export default {
           if (data.flag) {
             this.$store.commit("login", data.data);
             generateMenu().then(() => {
-              this.$cookie.setCookie({ username: this.loginForm.username });
+              localStorage.setItem("username", this.loginForm.username);
               this.$message.success("登录成功");
               this.$router.push({
                 path: this.$route.query.url ? this.$route.query.url : "/"

@@ -83,7 +83,7 @@ public class BlogServiceImpl implements BlogService {
                 .eq(Category::getDeletedFlag, false));
         Integer tagCount = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
                 .eq(Tag::getDeletedFlag, false));
-        Object viewCount = redisTemplate.boundValueOps(BLOG_VIEW_COUNT + "_" + bloggerId).get();
+        Object viewCount = redisTemplate.boundHashOps(BLOG_VIEW_COUNT).get(bloggerId.toString());
         bloggerInfoMap.put("avatar", blogger.getAvatar());
         bloggerInfoMap.put("nickname", blogger.getNickname());
         bloggerInfoMap.put("intro", blogger.getIntro());

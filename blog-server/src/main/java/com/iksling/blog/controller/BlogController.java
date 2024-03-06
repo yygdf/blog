@@ -15,6 +15,12 @@ public class BlogController {
     @Autowired
     private BlogService blogService;
 
+    @ApiOperation(value = "查看后台首页信息")
+    @GetMapping("/back/blog/home")
+    public Result getBack() {
+        return Result.success().message("查询成功");
+    }
+
     @ApiOperation(value = "查看博主id")
     @ApiImplicitParam(name = "bloggerId", value = "博主id", dataType = "Integer")
     @GetMapping("/blog/id")

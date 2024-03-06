@@ -67,7 +67,7 @@
           <div class="article-copyright">
             <div>
               <span>文章作者：</span>
-              <a :href="serverHost + rootUri" target="_blank">
+              <a :href="bloggerHref" target="_blank">
                 {{ bloggerInfo.nickname }}
               </a>
             </div>
@@ -115,7 +115,7 @@
             </a>
             <a class="reward-btn">
               <i class="iconfont my-icon-QR-code" /> 打赏
-              <div class="animated fadeInDown reward-main">
+              <div class="animated fadeIn reward-main">
                 <ul class="reward-all">
                   <li class="reward-item">
                     <img
@@ -145,7 +145,11 @@
               <router-link :to="'/article/' + article.lastArticle.id">
                 <img
                   class="post-cover"
-                  :src="article.lastArticle.articleCover"
+                  :src="
+                    article.lastArticle.articleCover
+                      ? article.lastArticle.articleCover
+                      : defaultArticleCover
+                  "
                   alt=""
                 />
                 <div class="post-info">
@@ -163,7 +167,11 @@
               <router-link :to="'/article/' + article.nextArticle.id">
                 <img
                   class="post-cover"
-                  :src="article.nextArticle.articleCover"
+                  :src="
+                    article.nextArticle.articleCover
+                      ? article.nextArticle.articleCover
+                      : defaultArticleCover
+                  "
                   alt=""
                 />
                 <div class="post-info" style="text-align: right">
@@ -191,7 +199,11 @@
                 <router-link :to="'/article/' + item.id">
                   <img
                     class="recommend-cover"
-                    :src="item.articleCover"
+                    :src="
+                      item.articleCover
+                        ? item.articleCover
+                        : defaultArticleCover
+                    "
                     alt=""
                   />
                   <div class="recommend-info">
@@ -234,7 +246,14 @@
                 :key="item.id"
               >
                 <router-link :to="'/article/' + item.id" class="content-cover">
-                  <img :src="item.articleCover" alt="" />
+                  <img
+                    :src="
+                      item.articleCover
+                        ? item.articleCover
+                        : defaultArticleCover
+                    "
+                    alt=""
+                  />
                 </router-link>
                 <div class="content">
                   <div class="content-title">
@@ -292,9 +311,9 @@ export default {
       count: 0,
       wordNum: "",
       readTime: "",
-      articleHref: window.location.href,
-      serverHost: window.location.host,
-      clipboard: null
+      articleHref: location.href,
+      clipboard: null,
+      defaultArticleCover: require("../../assets/img/default/article.jpg")
     };
   },
   methods: {
@@ -481,6 +500,11 @@ export default {
     },
     rootUri() {
       return this.$store.state.rootUri;
+    },
+    bloggerHref() {
+      let currentHref = location.href;
+      let lastHref = currentHref.substring(0, currentHref.lastIndexOf("/"));
+      return lastHref.substring(0, lastHref.lastIndexOf("/"));
     }
   }
 };
@@ -579,7 +603,6 @@ export default {
     position: relative;
     display: inline-block;
     overflow: hidden;
-    margin: 3px;
     width: calc(100% - 4px);
     height: 150px;
     margin: 2px;
@@ -816,7 +839,7 @@ hr {
   display: flex;
   align-items: center;
   line-height: 2;
-  font-size: 16.8px;
+  font-size: 16px;
   margin-bottom: 6px;
 }
 .right-title i {
@@ -888,8 +911,8 @@ hr {
   -webkit-box-orient: vertical;
 }
 .content-cover {
-  width: 58.8px;
-  height: 58.8px;
+  width: 58px;
+  height: 58px;
   overflow: hidden;
 }
 .content-title a {

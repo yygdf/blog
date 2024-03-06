@@ -84,7 +84,7 @@
                 <v-icon size="14">mdi-inbox-full</v-icon>
                 {{ item.categoryName }}
               </router-link>
-              <span class="separator">|</span>
+              <span v-if="item.tagList != null" class="separator">|</span>
               <router-link
                 style="display:inline-block"
                 :to="'/tag/' + tag.id"

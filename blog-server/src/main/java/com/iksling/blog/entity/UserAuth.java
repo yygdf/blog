@@ -69,9 +69,14 @@ public class UserAuth implements Serializable {
     private Boolean disabledFlag;
 
     /**
-     * 0未同步, 1已同步, 默认0
+     * 0未同步, 1已同步, 默认0(历史角色)
      */
     private Boolean assimilateFlag;
+
+    /**
+     * 0未同步，1已同步，默认0(当前角色)
+     */
+    private Boolean assimilateNowFlag;
 
     /**
      * 创建人

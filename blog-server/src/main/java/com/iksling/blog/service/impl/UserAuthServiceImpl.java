@@ -71,7 +71,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         LoginUser loginUser = UserUtil.getLoginUser();
         UserAuth userAuth = BeanCopyUtil.copyObject(userAuthBackVO, UserAuth.class);
         List<Map<String, Object>> mapList = userAuthMapper.selectMaps(new LambdaQueryWrapper<UserAuth>()
-                .select(UserAuth::getUserId, UserAuth::getAssimilateFlag)
+                .select(UserAuth::getUserId, UserAuth::getAssimilateFlag, UserAuth::getAssimilateNowFlag)
                 .eq(UserAuth::getId, userAuth.getId())
                 .eq(UserAuth::getDeletedFlag, false));
         if (mapList.isEmpty())
@@ -101,10 +101,14 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                     .le(Role::getRoleWeight, 400)
                     .in(Role::getId, userAuthBackVO.getRoleIdList()));
             if ((Boolean) mapList.get(0).get("assimilate_flag")) {
-                if (count == 0)
+                if (count == 0) {
                     userConfigMapper.update(null, new LambdaUpdateWrapper<UserConfig>()
                             .set(UserConfig::getDeletedFlag, true)
                             .eq(UserConfig::getUserId, userId));
+                    userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
+                            .set(UserAuth::getAssimilateNowFlag, false)
+                            .eq(UserAuth::getUserId, userId));
+                }
             }
             else if (count > 0) {
                 List<UserConfig> userConfigList = userConfigMapper.selectList(new LambdaQueryWrapper<UserConfig>()
@@ -119,6 +123,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                         .collect(Collectors.toList()));
                 userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                         .set(UserAuth::getAssimilateFlag, true)
+                        .set(UserAuth::getAssimilateNowFlag, true)
                         .eq(UserAuth::getUserId, userId));
                 List<Object> objectList = multiFileService.listObjs(new LambdaQueryWrapper<MultiFile>()
                         .select(MultiFile::getId)

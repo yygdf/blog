@@ -6,5 +6,7 @@ import java.util.HashMap;
  *
  */
 public interface BlogService {
-    HashMap<String, Object> getBlogInfo(Integer bloggerId);
+    Integer getBlogId(Integer bloggerId);
+
+    HashMap<String, Object> getBlogInfo();
 }

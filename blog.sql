@@ -11,7 +11,7 @@
  Target Server Version : 50731
  File Encoding         : 65001
 
- Date: 08/01/2024 09:43:11
+ Date: 06/03/2024 16:51:29
 */
 
 SET NAMES utf8mb4;
@@ -44,7 +44,7 @@ CREATE TABLE `tb_article`  (
   `publish_user` int(11) NULL DEFAULT NULL COMMENT '发表人, 默认null',
   `publish_time` datetime(0) NULL DEFAULT NULL COMMENT '发表时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 37 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 38 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_article_tag
@@ -56,7 +56,7 @@ CREATE TABLE `tb_article_tag`  (
   `article_id` int(11) NOT NULL COMMENT '文章id',
   `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除, 1已删除, 默认0',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_category
@@ -149,7 +149,7 @@ CREATE TABLE `tb_exception_log`  (
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 168 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 244 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_friend_link
@@ -186,7 +186,7 @@ CREATE TABLE `tb_login_log`  (
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源, 默认空串',
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址, 默认空串',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 633 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 649 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_menu
@@ -261,7 +261,7 @@ CREATE TABLE `tb_multi_file`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 109 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 112 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_operation_log
@@ -282,7 +282,7 @@ CREATE TABLE `tb_operation_log`  (
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 907 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 933 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_qq_auth
@@ -323,7 +323,7 @@ CREATE TABLE `tb_resource`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1354 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1362 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_role
@@ -382,7 +382,7 @@ CREATE TABLE `tb_system_config`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_tag
@@ -433,7 +433,8 @@ CREATE TABLE `tb_user_auth`  (
   `locked_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未锁定, 1已锁定, 默认0',
   `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除, 1已删除, 默认0',
   `disabled_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未禁用, 1已禁用, 默认0',
-  `assimilate_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未同步, 1已同步, 默认0',
+  `assimilate_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未同步, 1已同步, 默认0(历史角色)',
+  `assimilate_now_flag` tinyint(1) NOT NULL COMMENT '0未同步，1已同步，默认0(当前角色)',
   `create_user` int(11) NOT NULL COMMENT '创建人',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',

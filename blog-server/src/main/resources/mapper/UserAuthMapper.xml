@@ -15,6 +15,7 @@
             <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
             <result property="disabledFlag" column="disabled_flag" jdbcType="BOOLEAN"/>
             <result property="assimilateFlag" column="assimilate_flag" jdbcType="BOOLEAN"/>
+            <result property="assimilateNowFlag" column="assimilate_now_flag" jdbcType="BOOLEAN"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
@@ -25,8 +26,8 @@
         id,user_id,login_log_id,
         username,password,login_method,
         locked_flag,deleted_flag,disabled_flag,
-        assimilate_flag,create_user,create_time,
-        update_user,update_time
+        assimilate_flag,assimilate_now_flag,create_user,
+        create_time,update_user,update_time
     </sql>
 
     <select id="selectUserAuthsBackDTOCount" resultType="java.lang.Integer">

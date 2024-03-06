@@ -15,10 +15,16 @@ public class BlogController {
     @Autowired
     private BlogService blogService;
 
-    @ApiOperation(value = "查看博客信息")
+    @ApiOperation(value = "查看博主id")
     @ApiImplicitParam(name = "bloggerId", value = "博主id", dataType = "Integer")
+    @GetMapping("/blog/id")
+    public Result getBlogId(Integer bloggerId) {
+        return Result.success().message("查询成功").data(blogService.getBlogId(bloggerId));
+    }
+
+    @ApiOperation(value = "查看博客信息")
     @GetMapping("/blog/info")
-    public Result getBlogInfo(Integer bloggerId) {
-        return Result.success().message("查询成功").data(blogService.getBlogInfo(bloggerId));
+    public Result getBlogInfo() {
+        return Result.success().message("查询成功").data(blogService.getBlogInfo());
     }
 }

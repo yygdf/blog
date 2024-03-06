@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,8 @@ import static com.iksling.blog.constant.RedisConst.BLOG_VIEW_COUNT;
  */
 @Service
 public class BlogServiceImpl implements BlogService {
+    @Autowired
+    private UserAuthMapper userAuthMapper;
     @Autowired
     private UserConfigMapper userConfigMapper;
     @Autowired
@@ -32,6 +36,8 @@ public class BlogServiceImpl implements BlogService {
 
     @Autowired
     private RedisTemplate redisTemplate;
+    @Resource
+    private HttpServletRequest request;
 
     @Autowired
     private SystemConfigServiceImpl systemConfigServiceImpl;
@@ -39,15 +45,25 @@ public class BlogServiceImpl implements BlogService {
     private UserConfigServiceImpl userConfigServiceImpl;
 
     @Override
-    public HashMap<String, Object> getBlogInfo(Integer bloggerId) {
+    public Integer getBlogId(Integer bloggerId) {
+        if (bloggerId == null)
+            return ROOT_USER_ID;
+        Integer count = userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
+                .eq(UserAuth::getUserId, bloggerId)
+                .eq(UserAuth::getAssimilateNowFlag, true));
+        if (count == 0)
+            return ROOT_USER_ID;
+        return bloggerId;
+    }
+
+    @Override
+    public HashMap<String, Object> getBlogInfo() {
         HashMap<String, Object> hashMap = new HashMap<>();
-        HashMap<String, Object> blogConfigMap = new HashMap<>();
+        HashMap<String, Object> blogConfigMap;
         HashMap<String, Object> bloggerInfoMap = new HashMap<>();
-        if (bloggerId == null) {
-            blogConfigMap.putAll(userConfigServiceImpl.getUserConfigMap());
-            bloggerId = ROOT_USER_ID;
-        } else if (bloggerId.equals(ROOT_USER_ID) || !"true".equals(systemConfigServiceImpl.getSystemConfigMap().get("enable_user_config"))) {
-            blogConfigMap.putAll(userConfigServiceImpl.getUserConfigMap());
+        Integer bloggerId = Integer.valueOf(request.getHeader("Blogger-Id"));
+        if (bloggerId.equals(ROOT_USER_ID) || !"true".equals(systemConfigServiceImpl.getSystemConfigMap().get("enable_user_config"))) {
+            blogConfigMap = new HashMap<>(userConfigServiceImpl.getUserConfigMap());
         } else {
             blogConfigMap = userConfigMapper.selectList(new LambdaQueryWrapper<UserConfig>()
                     .select(UserConfig::getConfigName, UserConfig::getConfigValue)
@@ -55,8 +71,6 @@ public class BlogServiceImpl implements BlogService {
                     .eq(UserConfig::getDeletedFlag, false))
                     .stream()
                     .collect(Collectors.toMap(UserConfig::getConfigName, UserConfig::getConfigValue, (key1, key2) -> key2, HashMap::new));
-            if (blogConfigMap.size() == 0)
-                blogConfigMap.putAll(userConfigServiceImpl.getUserConfigMap());
         }
         User blogger = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .select(User::getAvatar, User::getNickname, User::getIntro)

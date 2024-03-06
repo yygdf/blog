@@ -22,7 +22,7 @@ import "vue-image-swipe/dist/vue-image-swipe.css";
 import Toast from "./components/toast/index";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
-import { getBlogInfo } from "./assets/js/base";
+import {getBloggerId, getBlogInfo} from "./assets/js/base";
 import "./assets/js/ribbon";
 
 Vue.prototype.config = config;
@@ -96,6 +96,7 @@ new Vue({
   vuetify,
   render: h => h(App),
   created() {
+    getBloggerId();
     getBlogInfo().then();
   }
 }).$mount("#app");

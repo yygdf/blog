@@ -20,7 +20,7 @@ export default new Vuex.Store({
     email: null,
     avatar: null,
     gender: null,
-    webSite: null,
+    website: null,
     nickname: null,
     bloggerId: null,
     articleLikeSet: [],
@@ -35,7 +35,7 @@ export default new Vuex.Store({
       state.email = user.email;
       state.avatar = user.avatar;
       state.gender = user.gender;
-      state.webSite = user.webSite;
+      state.website = user.website;
       state.nickname = user.nickname;
       state.articleLikeSet = user.articleLikeSet ? user.articleLikeSet : [];
       state.commentLikeSet = user.commentLikeSet ? user.commentLikeSet : [];
@@ -46,7 +46,7 @@ export default new Vuex.Store({
       state.email = null;
       state.avatar = null;
       state.gender = null;
-      state.webSite = null;
+      state.website = null;
       state.nickname = null;
       state.articleLikeSet = [];
       state.commentLikeSet = [];
@@ -62,7 +62,7 @@ export default new Vuex.Store({
     },
     updateLoginInfo(state, userInfo) {
       state.intro = userInfo.intro;
-      state.webSite = userInfo.webSite;
+      state.website = userInfo.website;
       state.nickname = userInfo.nickname;
     },
     updateAvatar(state, avatar) {
@@ -92,12 +92,11 @@ export default new Vuex.Store({
       }
     },
     commentLike(state, commentId) {
+      state.commentLikeSet.push(commentId);
+    },
+    commentUnLike(state, commentId) {
       let commentLikeSet = state.commentLikeSet;
-      if (commentLikeSet.indexOf(commentId) !== -1) {
-        commentLikeSet.splice(commentLikeSet.indexOf(commentId), 1);
-      } else {
-        commentLikeSet.push(commentId);
-      }
+      commentLikeSet.splice(commentLikeSet.indexOf(commentId), 1);
     }
   },
   actions: {},

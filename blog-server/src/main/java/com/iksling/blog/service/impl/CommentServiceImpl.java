@@ -1,34 +1,40 @@
 package com.iksling.blog.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.CommentsBackDTO;
 import com.iksling.blog.dto.CommentsDTO;
 import com.iksling.blog.dto.CommentsReplyDTO;
+import com.iksling.blog.entity.Article;
 import com.iksling.blog.entity.Comment;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
+import com.iksling.blog.mapper.ArticleMapper;
 import com.iksling.blog.mapper.CommentMapper;
 import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.CommentService;
+import com.iksling.blog.util.IpUtil;
+import com.iksling.blog.util.RegexUtil;
 import com.iksling.blog.util.UserUtil;
+import com.iksling.blog.vo.CommentVO;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.RECYCLE;
 import static com.iksling.blog.constant.RedisConst.COMMENT_LIKE_COUNT;
+import static com.iksling.blog.constant.RedisConst.COMMENT_USER_LIKE;
 
 /**
  *
@@ -40,7 +46,12 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     private CommentMapper commentMapper;
 
     @Autowired
+    private ArticleMapper articleMapper;
+
+    @Autowired
     private RedisTemplate redisTemplate;
+    @Resource
+    private HttpServletRequest request;
 
     @Override
     @Transactional
@@ -98,6 +109,82 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     }
 
     @Override
+    @Transactional
+    public void saveCommentVO(CommentVO commentVO) {
+        LoginUser loginUser =  UserUtil.getLoginUser();
+        Integer loginUserId = loginUser.getUserId();
+        Integer articleId = commentVO.getArticleId();
+        Comment comment = new Comment();
+        if (articleId != null && articleId != -1) {
+            Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
+                    .eq(Article::getId, articleId)
+                    .eq(Article::getDraftFlag, false)
+                    .and(loginUser.getRoleWeight() > 300, e -> e.eq(Article::getHiddenFlag, false)
+                            .or()
+                            .eq(Article::getUserId, loginUserId)));
+            if (count == 0)
+                throw new OperationStatusException();
+            comment.setArticleId(articleId);
+            Integer parentId = commentVO.getParentId();
+            if (parentId != null) {
+                count = commentMapper.selectCount(new LambdaQueryWrapper<Comment>()
+                        .eq(Comment::getId, parentId)
+                        .eq(Comment::getArticleId, articleId)
+                        .eq(Comment::getParentId, -1)
+                        .eq(Comment::getRecycleFlag, false));
+                if (count == 0)
+                    throw new OperationStatusException();
+                comment.setParentId(parentId);
+                Integer replyId = commentVO.getReplyId();
+                if (replyId != null) {
+                    count = commentMapper.selectCount(new LambdaQueryWrapper<Comment>()
+                            .eq(Comment::getArticleId, articleId)
+                            .eq(Comment::getParentId, parentId)
+                            .eq(Comment::getUserId, replyId)
+                            .eq(Comment::getRecycleFlag, false));
+                    if (count == 0)
+                        throw new OperationStatusException();
+                    comment.setReplyId(replyId);
+                }
+            }
+        }
+        comment.setUserId(loginUserId);
+        comment.setCommentContent(RegexUtil.deleteHTMLTag(commentVO.getCommentContent()));
+        comment.setIpAddress(IpUtil.getIpAddress(request));
+        comment.setIpSource(comment.getIpAddress());
+        comment.setCreateUser(loginUserId);
+        comment.setCreateTime(new Date());
+        commentMapper.insert(comment);
+    }
+
+    @Override
+    @Transactional
+    public void saveCommentLike(Integer id) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer loginUserId = loginUser.getUserId();
+        Integer count = commentMapper.selectCount(new LambdaQueryWrapper<Comment>()
+                .eq(Comment::getId, id)
+                .eq(Comment::getRecycleFlag, false)
+                .and(loginUser.getRoleWeight() > 300, e -> e.eq(Comment::getArticleId, -1)
+                        .or()
+                        .exists("select a.id from tb_article a where a.id=article_id and a.draft_flag=false and(a.hidden_flag=false or a.user_id="+loginUserId+")"))
+                .exists(loginUser.getRoleWeight() > 300, ""));
+        if (count == 0)
+            throw new OperationStatusException();
+        HashSet<Integer> commentLikeSet = (HashSet<Integer>) redisTemplate.boundHashOps(COMMENT_USER_LIKE).get(loginUserId.toString());
+        if (commentLikeSet == null)
+            commentLikeSet = new HashSet<>();
+        if (commentLikeSet.contains(id)) {
+            commentLikeSet.remove(id);
+            redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).increment(id.toString(), -1);
+        } else {
+            commentLikeSet.add(id);
+            redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).increment(id.toString(), 1);
+        }
+        redisTemplate.boundHashOps(COMMENT_USER_LIKE).put(loginUserId.toString(), commentLikeSet);
+    }
+
+    @Override
     public PagePojo<CommentsDTO> getCommentsDTO(Condition condition) {
         Integer count = commentMapper.selectCommentsDTOCount(condition);
         if (count == 0)
@@ -117,7 +204,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         Map<Integer, List<CommentsReplyDTO>> commentsReplyDTOMap = commentsReplyDTOList.stream().collect(Collectors.groupingBy(CommentsReplyDTO::getParentId));
         commentsDTOList.forEach(e -> {
             e.setCommentsReplyDTOList(commentsReplyDTOMap.get(e.getId()));
-            e.setReplyCount(commentsReplyDTOMap.get(e.getId()).size());
+            List<CommentsReplyDTO> list = commentsReplyDTOMap.get(e.getId());
+            e.setReplyCount(list == null ? 0 : list.size());
         });
         return new PagePojo<>(count, commentsDTOList);
     }

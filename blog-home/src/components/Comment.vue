@@ -7,11 +7,13 @@
       <div style="display:flex">
         <v-avatar size="40">
           <img
-            v-if="this.$store.state.avatar"
-            :src="this.$store.state.avatar"
+            :src="
+              this.$store.state.avatar
+                ? this.$store.state.avatar
+                : defaultAvatar
+            "
             alt=""
           />
-          <img v-else :src="defaultAvatar" alt="" />
         </v-avatar>
         <div style="width:100%" class="ml-3">
           <div class="comment-input">
@@ -51,12 +53,12 @@
         :key="item.id"
       >
         <v-avatar size="40" class="comment-avatar">
-          <img :src="item.avatar" alt="" />
+          <img :src="item.avatar ? item.avatar : defaultAvatar" alt="" />
         </v-avatar>
         <div class="comment-meta">
           <div class="comment-user">
-            <span v-if="!item.webSite">{{ item.nickname }}</span>
-            <a v-else :href="item.webSite" target="_blank">
+            <span v-if="!item.website">{{ item.nickname }}</span>
+            <a v-else :href="item.website" target="_blank">
               {{ item.nickname }}
             </a>
             <span class="blogger-tag" v-if="item.userId === bloggerId"
@@ -67,7 +69,7 @@
             <span style="margin-right:10px">{{ count - index }}楼</span>
             <span style="margin-right:10px">{{ item.createTime | date }}</span>
             <span
-              :class="isLike(item.id) + ' iconfont icondianzan'"
+              :class="isLike(item.id) + ' iconfont my-icon-like'"
               @click="like(item)"
             />
             <span v-show="item.likeCount > 0"> {{ item.likeCount }}</span>
@@ -82,12 +84,12 @@
             :key="reply.id"
           >
             <v-avatar size="36" class="comment-avatar">
-              <img :src="reply.avatar" alt="" />
+              <img :src="reply.avatar ? reply.avatar : defaultAvatar" alt="" />
             </v-avatar>
             <div class="reply-meta">
               <div class="comment-user">
-                <span v-if="!reply.webSite">{{ reply.nickname }}</span>
-                <a v-else :href="reply.webSite" target="_blank">
+                <span v-if="!reply.website">{{ reply.nickname }}</span>
+                <a v-else :href="reply.website" target="_blank">
                   {{ reply.nickname }}
                 </a>
                 <span class="blogger-tag" v-if="reply.userId === bloggerId"
@@ -109,12 +111,12 @@
               </div>
               <p class="comment-content">
                 <template v-if="reply.replyId !== item.userId">
-                  <span v-if="!reply.replyWebSite" class="ml-1">
+                  <span v-if="!reply.replyWebsite" class="ml-1">
                     @{{ reply.replyNickname }}
                   </span>
                   <a
                     v-else
-                    :href="reply.replyWebSite"
+                    :href="reply.replyWebsite"
                     target="_blank"
                     class="comment-nickname ml-1"
                   >
@@ -206,7 +208,6 @@ export default {
       this.$refs.reply.forEach(item => {
         item.$el.style.display = "none";
       });
-      //传值给回复框
       this.$refs.reply[index].commentContent = "";
       this.$refs.reply[index].nickname = item.nickname;
       this.$refs.reply[index].replyId = item.userId;
@@ -226,14 +227,12 @@ export default {
         .then(({ data }) => {
           this.$refs.check[index].style.display = "none";
           item.replyDTOList = data.data;
-          //超过1页才显示分页
           if (Math.ceil(item.replyCount / 5) > 1) {
             this.$refs.paging[index].style.display = "flex";
           }
         });
     },
     changeReplyCurrent(current, index, commentId) {
-      //查看下一页回复
       this.axios
         .get("/api/comments/replies/" + commentId, {
           params: { current: current }
@@ -243,7 +242,6 @@ export default {
         });
     },
     getComments() {
-      //查看下一页评论
       this.current++;
       const path = this.$route.path;
       const arr = path.split("/");
@@ -256,61 +254,52 @@ export default {
         });
     },
     addComment() {
-      //判断登录
       if (!this.$store.state.userId) {
         this.$store.state.loginFlag = true;
         return false;
       }
-      //判空
       if (this.commentContent.trim() === "") {
         this.$toast({ type: "error", message: "评论不能为空" });
         return false;
       }
-      //解析表情
       const reg = /\[.+?]/g;
-      this.commentContent = this.commentContent.replace(reg, function(str) {
+      let content = this.commentContent;
+      content = content.replace(reg, function(str) {
         return (
           "<img src= '" +
           EmojiList[str] +
-          "' width='22' height='20' style='padding: 0 1px' alt='' />"
+          "' width='20' height='20' style='padding: 0 1px' alt='' />"
         );
       });
-      //发送请求
-      const path = this.$route.path;
-      const arr = path.split("/");
-      let comment = {
-        articleId: arr[2],
-        commentContent: this.commentContent
+      let pathArr = this.$route.path.split("/");
+      let param = {
+        articleId: pathArr[pathArr.length - 1],
+        commentContent: content
       };
-      this.commentContent = "";
-      this.axios.post("/api/comments", comment).then(({ data }) => {
+      this.axios.post("/api/comment", param).then(({ data }) => {
         if (data.flag) {
-          //查询最新评论
           this.$emit("reloadComment");
-          this.$toast({ type: "success", message: data.message });
+          this.commentContent = "";
+          this.$toast({ type: "success", message: "评论成功" });
         } else {
           this.$toast({ type: "error", message: data.message });
         }
       });
     },
     like(comment) {
-      //判断登录
       if (!this.$store.state.userId) {
         this.$store.state.loginFlag = true;
         return false;
       }
-      //发送请求
-      let param = new URLSearchParams();
-      param.append("commentId", comment.id);
-      this.axios.post("/api/comments/like", param).then(({ data }) => {
+      this.axios.post("/api/comment/" + comment.id).then(({ data }) => {
         if (data.flag) {
-          //判断是否点赞
           if (this.$store.state.commentLikeSet.indexOf(comment.id) !== -1) {
             this.$set(comment, "likeCount", comment.likeCount - 1);
+            this.$store.commit("commentUnLike", comment.id);
           } else {
             this.$set(comment, "likeCount", comment.likeCount + 1);
+            this.$store.commit("commentLike", comment.id);
           }
-          this.$store.commit("commentLike", comment.id);
         }
       });
     },
@@ -323,7 +312,6 @@ export default {
         })
         .then(({ data }) => {
           this.commentList[index].replyCount++;
-          //回复大于5条展示分页
           if (this.commentList[index].replyCount > 5) {
             this.$refs.paging[index].style.display = "flex";
           }

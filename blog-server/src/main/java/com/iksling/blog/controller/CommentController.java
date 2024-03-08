@@ -1,9 +1,10 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.CommentService;
-import com.iksling.blog.pojo.Condition;
+import com.iksling.blog.vo.CommentVO;
 import com.iksling.blog.vo.StatusBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -14,8 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.iksling.blog.constant.LogConst.REMOVE;
-import static com.iksling.blog.constant.LogConst.UPDATE;
+import static com.iksling.blog.constant.LogConst.*;
 
 @RestController
 @Api(tags = "评论模块")
@@ -50,10 +50,28 @@ public class CommentController {
 
     /****************************************************************************************************/
 
+    @OptLog(optType = SAVE)
+    @ApiOperation(value = "添加评论")
+    @ApiImplicitParam(name = "commentVO", value = "评论VO", required = true, dataType = "CommentVO")
+    @PostMapping("/comment")
+    public Result saveComment(@Valid @RequestBody CommentVO commentVO) {
+        commentService.saveCommentVO(commentVO);
+        return Result.success().message("操作成功");
+    }
+
     @ApiOperation(value = "查看评论列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/comments")
     public Result getComments(@Valid Condition condition) {
         return Result.success().message("查询成功").data(commentService.getCommentsDTO(condition));
+    }
+
+    @OptLog(optType = SAVE)
+    @ApiOperation(value = "点赞评论")
+    @ApiImplicitParam(name = "id", value = "评论id", required = true, dataType = "Integer")
+    @PostMapping("/comment/{id}")
+    public Result saveCommentLike(@PathVariable Integer id) {
+        commentService.saveCommentLike(id);
+        return Result.success().message("操作成功");
     }
 }

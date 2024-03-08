@@ -33,7 +33,7 @@ public class UserController {
         return Result.success().message("操作成功");
     }
 
-    @OptLog(optType = UPLOAD)
+    @OptLog(optType = SAVE)
     @ApiOperation(value = "上传用户头像")
     @ApiImplicitParam(name = "userAvatarBackVO", value = "用户头像后台VO", required = true, dataType = "UserAvatarBackVO")
     @PostMapping("/back/user/avatar")

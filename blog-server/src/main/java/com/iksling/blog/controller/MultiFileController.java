@@ -25,7 +25,7 @@ public class MultiFileController {
     @Autowired
     private MultiFileService multiFileService;
 
-    @OptLog(optType = UPLOAD)
+    @OptLog(optType = SAVE)
     @ApiOperation(value = "批量上传文件")
     @ApiImplicitParam(name = "multiFilesBackVO", value = "文件后台VO", required = true, dataType = "MultiFilesBackVO")
     @PostMapping("/back/multiFiles")

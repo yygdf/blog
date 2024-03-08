@@ -22,7 +22,7 @@ import "vue-image-swipe/dist/vue-image-swipe.css";
 import Toast from "./components/toast/index";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
-import {getBloggerId, getBlogInfo} from "./assets/js/base";
+import { getBloggerId, getBlogInfo } from "./assets/js/base";
 import "./assets/js/ribbon";
 
 Vue.prototype.config = config;

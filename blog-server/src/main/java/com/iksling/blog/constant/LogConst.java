@@ -2,9 +2,9 @@ package com.iksling.blog.constant;
 
 public class LogConst {
     /**
-     * 上传
+     * 新增
      */
-    public static final int UPLOAD = 1;
+    public static final int SAVE = 1;
 
     /**
      * 删除

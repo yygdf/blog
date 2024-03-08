@@ -34,7 +34,7 @@ public class ArticleController {
         return Result.success().message("操作成功").data(articleService.saveOrUpdateArticleBackVO(articleBackVO));
     }
 
-    @OptLog(optType = UPLOAD)
+    @OptLog(optType = SAVE)
     @ApiOperation(value = "上传文章图片")
     @ApiImplicitParam(name = "articleImageBackVO", value = "文章图片后台VO", required = true, dataType = "ArticleImageBackVO")
     @PostMapping("/back/article/image")

@@ -1,6 +1,7 @@
 package com.iksling.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.CommentsBackDTO;
@@ -113,41 +114,41 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     public void saveCommentVO(CommentVO commentVO) {
         LoginUser loginUser =  UserUtil.getLoginUser();
         Integer loginUserId = loginUser.getUserId();
-        Integer articleId = commentVO.getArticleId();
+        Integer replyId = commentVO.getReplyId();
+        Integer articleId = commentVO.getArticleId() == null ? -1 : commentVO.getArticleId();
+        Integer parentId = commentVO.getParentId();
         Comment comment = new Comment();
-        if (articleId != null && articleId != -1) {
-            Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
-                    .eq(Article::getId, articleId)
-                    .eq(Article::getDraftFlag, false)
-                    .and(loginUser.getRoleWeight() > 300, e -> e
-                            .and(e2 -> e2.eq(Article::getHiddenFlag, false).eq(Article::getCommentableFlag, true))
-                            .or()
-                            .eq(Article::getUserId, loginUserId)));
-            if (count == 0)
-                throw new OperationStatusException();
-            comment.setArticleId(articleId);
-            Integer parentId = commentVO.getParentId();
-            if (parentId != null) {
-                count = commentMapper.selectCount(new LambdaQueryWrapper<Comment>()
-                        .eq(Comment::getId, parentId)
-                        .eq(Comment::getArticleId, articleId)
-                        .eq(Comment::getParentId, -1)
-                        .eq(Comment::getRecycleFlag, false));
+        if (parentId == null) {
+            if (articleId != -1) {
+                Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
+                        .eq(Article::getId, articleId)
+                        .eq(Article::getDraftFlag, false)
+                        .and(loginUser.getRoleWeight() > 300, e -> e
+                                .and(e2 -> e2.eq(Article::getHiddenFlag, false).eq(Article::getCommentableFlag, true))
+                                .or()
+                                .eq(Article::getUserId, loginUserId)));
                 if (count == 0)
                     throw new OperationStatusException();
-                comment.setParentId(parentId);
-                Integer replyId = commentVO.getReplyId();
-                if (replyId != null) {
-                    count = commentMapper.selectCount(new LambdaQueryWrapper<Comment>()
-                            .eq(Comment::getUserId, replyId)
-                            .eq(Comment::getArticleId, articleId)
-                            .eq(Comment::getParentId, parentId)
-                            .eq(Comment::getRecycleFlag, false));
-                    if (count == 0)
-                        throw new OperationStatusException();
-                    comment.setReplyId(replyId);
-                }
+                comment.setArticleId(articleId);
             }
+        } else {
+            LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<Comment>()
+                    .eq(Comment::getId, parentId)
+                    .eq(Comment::getArticleId, articleId)
+                    .eq(Comment::getParentId, -1)
+                    .eq(Comment::getRecycleFlag, false);
+            if (articleId != -1) {
+                lambdaQueryWrapper.exists("select a.id from tb_article a where a.draft_flag=false and a.id="+articleId+(loginUser.getRoleWeight() > 300 ? " and ((a.hidden_flag=false and a.commentable_flag=true) or a.user_id="+loginUser.getUserId()+")" : ""));
+                comment.setArticleId(articleId);
+            }
+            if (replyId != null) {
+                lambdaQueryWrapper.exists("select c.id from tb_comment c where c.parent_id="+parentId+" and c.user_id="+replyId+" and c.recycle_flag=false");
+                comment.setReplyId(replyId);
+            }
+            Integer count = commentMapper.selectCount(lambdaQueryWrapper);
+            if (count == 0)
+                throw new OperationStatusException();
+            comment.setParentId(parentId);
         }
         comment.setUserId(loginUserId);
         comment.setCommentContent(RegexUtil.deleteHTMLTag(commentVO.getCommentContent()));
@@ -166,11 +167,10 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         Integer count = commentMapper.selectCount(new LambdaQueryWrapper<Comment>()
                 .eq(Comment::getId, id)
                 .eq(Comment::getRecycleFlag, false)
-                .and(loginUser.getRoleWeight() > 300, e -> e
+                .and(e -> e
                         .eq(Comment::getArticleId, -1)
                         .or()
-                        .exists("select a.id from tb_article a where a.id=article_id and a.draft_flag=false and(a.hidden_flag=false or a.user_id="+loginUserId+")"))
-                .exists(loginUser.getRoleWeight() > 300, ""));
+                        .exists("select a.id from tb_article a where a.id=article_id and a.draft_flag=false"+(loginUser.getRoleWeight() > 300 ? " and ((a.hidden_flag=false and a.commentable_flag=true) or a.user_id="+loginUser.getUserId()+")" : ""))));
         if (count == 0)
             throw new OperationStatusException();
         HashSet<Integer> commentLikeSet = (HashSet<Integer>) redisTemplate.boundHashOps(COMMENT_USER_LIKE).get(loginUserId.toString());
@@ -202,13 +202,19 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
             commentsDTOIdList.add(e.getId());
             e.setLikeCount(likeCountMap.get(e.getId().toString()));
         });
+        List<Map<String, Object>> mapList = commentMapper.selectMaps(new QueryWrapper<Comment>()
+                .select("parent_id,count(0) count")
+                .eq("recycle_flag", false)
+                .in("parent_id", commentsDTOIdList)
+                .groupBy("parent_id"));
+        Map<Integer, Long> map = mapList.stream().collect(Collectors.toMap(e -> (Integer) e.get("parent_id"), e -> (Long) e.get("count"), (key1, key2) -> key2, HashMap::new));
         List<CommentsReplyDTO> commentsReplyDTOList = commentMapper.selectCommentsReplyDTO(commentsDTOIdList);
         commentsReplyDTOList.forEach(e -> e.setLikeCount(likeCountMap.get(e.getId().toString())));
         Map<Integer, List<CommentsReplyDTO>> commentsReplyDTOMap = commentsReplyDTOList.stream().collect(Collectors.groupingBy(CommentsReplyDTO::getParentId));
         commentsDTOList.forEach(e -> {
             e.setCommentsReplyDTOList(commentsReplyDTOMap.get(e.getId()));
-            List<CommentsReplyDTO> list = commentsReplyDTOMap.get(e.getId());
-            e.setReplyCount(list == null ? 0 : list.size());
+            Long replyCount = map.get(e.getId());
+            e.setReplyCount(replyCount == null ? 0 : replyCount.intValue());
         });
         return new PagePojo<>(count, commentsDTOList);
     }

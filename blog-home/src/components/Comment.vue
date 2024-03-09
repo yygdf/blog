@@ -95,6 +95,20 @@
                 <span class="blogger-tag" v-if="reply.userId === bloggerId"
                   >博主</span
                 >
+                <template v-if="reply.replyId !== -1">
+                  <span v-if="!reply.replyWebsite" class="ml-1">
+                    回复 @{{ reply.replyNickname }}
+                  </span>
+                  <a
+                    v-else
+                    :href="reply.replyWebsite"
+                    target="_blank"
+                    class="comment-nickname ml-1"
+                  >
+                    回复 @{{ reply.replyNickname }}
+                  </a>
+                  :
+                </template>
               </div>
               <div class="comment-info">
                 <span style="margin-right:10px">
@@ -110,20 +124,6 @@
                 </span>
               </div>
               <p class="comment-content">
-                <template v-if="reply.replyId !== item.userId">
-                  <span v-if="!reply.replyWebsite" class="ml-1">
-                    @{{ reply.replyNickname }}
-                  </span>
-                  <a
-                    v-else
-                    :href="reply.replyWebsite"
-                    target="_blank"
-                    class="comment-nickname ml-1"
-                  >
-                    @{{ reply.replyNickname }}
-                  </a>
-                  ，
-                </template>
                 <span v-html="reply.commentContent" />
               </p>
             </div>
@@ -139,7 +139,7 @@
             条回复，
             <span
               style="color:#00a1d6;cursor:pointer"
-              @click="checkReplies(index, item)"
+              @click="getCommentsReply(index, item)"
             >
               点击查看
             </span>
@@ -157,10 +157,10 @@
               :totalPage="Math.ceil(item.replyCount / 5)"
               :index="index"
               :commentId="item.id"
-              @changeReplyCurrent="changeReplyCurrent"
+              @changeCommentsReply="changeCommentsReply"
             />
           </div>
-          <Reply ref="reply" @reloadReply="reloadReply" />
+          <Reply ref="reply" @reloadCommentsReply="reloadCommentsReply" />
         </div>
       </div>
       <div class="load-wrapper">
@@ -212,6 +212,7 @@ export default {
       this.$refs.reply[index].nickname = item.nickname;
       this.$refs.reply[index].replyId = item.userId;
       this.$refs.reply[index].parentId = this.commentList[index].id;
+      this.$refs.reply[index].layer = item.parentId == null;
       this.$refs.reply[index].chooseEmoji = false;
       this.$refs.reply[index].index = index;
       this.$refs.reply[index].$el.style.display = "block";
@@ -219,23 +220,31 @@ export default {
     addEmoji(key) {
       this.commentContent += key;
     },
-    checkReplies(index, item) {
+    getCommentsReply(index, item) {
       this.axios
-        .get("/api/comments/replies/" + item.id, {
-          params: { current: 1 }
+        .get("/api/comments/reply", {
+          params: {
+            size: 5,
+            current: 1,
+            categoryId: item.id
+          }
         })
         .then(({ data }) => {
           this.$refs.check[index].style.display = "none";
           item.commentsReplyDTOList = data.data;
-          if (Math.ceil(item.replyCount / 5) > 1) {
+          if (item.replyCount > 5) {
             this.$refs.paging[index].style.display = "flex";
           }
         });
     },
-    changeReplyCurrent(current, index, commentId) {
+    changeCommentsReply(current, index, commentId) {
       this.axios
-        .get("/api/comments/replies/" + commentId, {
-          params: { current: current }
+        .get("/api/comments/reply", {
+          params: {
+            size: 5,
+            current: current,
+            categoryId: commentId
+          }
         })
         .then(({ data }) => {
           this.commentList[index].commentsReplyDTOList = data.data;
@@ -303,7 +312,7 @@ export default {
         }
       });
     },
-    reloadReply(index) {
+    reloadCommentsReply(index) {
       this.axios
         .get("/api/comments/reply", {
           params: {

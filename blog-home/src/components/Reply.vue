@@ -38,6 +38,7 @@ export default {
     return {
       index: 0,
       chooseEmoji: false,
+      layer: false,
       nickname: "",
       replyId: null,
       parentId: null,
@@ -69,15 +70,17 @@ export default {
       const path = this.$route.path;
       const arr = path.split("/");
       let comment = {
-        replyId: this.replyId,
         parentId: this.parentId,
         articleId: arr[2],
         commentContent: content
       };
+      if (!this.layer) {
+        comment.replyId = this.replyId;
+      }
       this.commentContent = "";
       this.axios.post("/api/comment", comment).then(({ data }) => {
         if (data.flag) {
-          this.$emit("reloadReply", this.index);
+          this.$emit("reloadCommentsReply", this.index);
           this.$toast({ type: "success", message: "回复成功" });
         } else {
           this.$toast({ type: "error", message: data.message });

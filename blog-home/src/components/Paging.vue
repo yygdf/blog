@@ -6,7 +6,7 @@
         v-for="i of totalPage"
         :key="i"
         :class="'ml-1 mr-1 ' + isActive(i)"
-        @click="changeReplyCurrent(i)"
+        @click="changeCommentsReply(i)"
       >
         {{ i }}
       </a>
@@ -14,21 +14,21 @@
     <template v-else-if="current < 3">
       <a
         v-for="i in 4"
-        @click="changeReplyCurrent(i)"
+        @click="changeCommentsReply(i)"
         :class="'ml-1 mr-1 ' + isActive(i)"
         :key="i"
       >
         {{ i }}
       </a>
       <span class="ml-1 mr-1">···</span>
-      <a class="ml-1 mr-1" @click="changeReplyCurrent(totalPage)">
+      <a class="ml-1 mr-1" @click="changeCommentsReply(totalPage)">
         {{ totalPage }}
       </a>
     </template>
     <template v-else-if="current < 5">
       <a
         v-for="i in current + 2"
-        @click="changeReplyCurrent(i)"
+        @click="changeCommentsReply(i)"
         :class="'ml-1 mr-1 ' + isActive(i)"
         :key="i"
       >
@@ -37,18 +37,18 @@
       <span class="ml-1 mr-1" v-if="current + 2 < totalPage - 1">···</span>
       <a
         class="ml-1 mr-1"
-        @click="changeReplyCurrent(totalPage)"
+        @click="changeCommentsReply(totalPage)"
         v-if="current + 2 < totalPage"
       >
         {{ totalPage }}
       </a>
     </template>
     <template v-else-if="current > totalPage - 2">
-      <a class="ml-1 mr-1" @click="changeReplyCurrent(1)">1</a>
+      <a class="ml-1 mr-1" @click="changeCommentsReply(1)">1</a>
       <span class="ml-1 mr-1">···</span>
       <a
         v-for="i in 4"
-        @click="changeReplyCurrent(i + (totalPage - 4))"
+        @click="changeCommentsReply(i + (totalPage - 4))"
         :class="'ml-1 mr-1 ' + isActive(i + (totalPage - 4))"
         :key="i"
       >
@@ -56,11 +56,11 @@
       </a>
     </template>
     <template v-else-if="current > totalPage - 4">
-      <a class="ml-1 mr-1" @click="changeReplyCurrent(1)">1</a>
+      <a class="ml-1 mr-1" @click="changeCommentsReply(1)">1</a>
       <span class="ml-1 mr-1">···</span>
       <a
         v-for="i in totalPage - current + 3"
-        @click="changeReplyCurrent(i + current - 3)"
+        @click="changeCommentsReply(i + current - 3)"
         :class="'ml-1 mr-1 ' + isActive(i + current - 3)"
         :key="i"
       >
@@ -68,23 +68,23 @@
       </a>
     </template>
     <template v-else>
-      <a class="ml-1 mr-1" @click="changeReplyCurrent(1)">1</a>
+      <a class="ml-1 mr-1" @click="changeCommentsReply(1)">1</a>
       <span class="ml-1 mr-1">···</span>
-      <a class="ml-1 mr-1" @click="changeReplyCurrent(current - 2)">
+      <a class="ml-1 mr-1" @click="changeCommentsReply(current - 2)">
         {{ current - 2 }}
       </a>
-      <a class="ml-1 mr-1" @click="changeReplyCurrent(current - 1)">
+      <a class="ml-1 mr-1" @click="changeCommentsReply(current - 1)">
         {{ current - 1 }}
       </a>
       <a class="active ml-1 mr-1">{{ current }}</a>
-      <a class="ml-1 mr-1" @click="changeReplyCurrent(current + 1)">
+      <a class="ml-1 mr-1" @click="changeCommentsReply(current + 1)">
         {{ current + 1 }}
       </a>
-      <a class="ml-1 mr-1" @click="changeReplyCurrent(current + 2)">
+      <a class="ml-1 mr-1" @click="changeCommentsReply(current + 2)">
         {{ current + 2 }}
       </a>
       <span class="ml-1 mr-1">···</span>
-      <a class="ml-1 mr-1" @click="changeReplyCurrent(totalPage)">{{
+      <a class="ml-1 mr-1" @click="changeCommentsReply(totalPage)">{{
         totalPage
       }}</a>
     </template>
@@ -113,10 +113,10 @@ export default {
     };
   },
   methods: {
-    changeReplyCurrent(i) {
+    changeCommentsReply(i) {
       this.current = i;
       this.$emit(
-        "changeReplyCurrent",
+        "changeCommentsReply",
         this.current,
         this.index,
         this.commentId
@@ -125,7 +125,7 @@ export default {
     prePage() {
       this.current -= 1;
       this.$emit(
-        "changeReplyCurrent",
+        "changeCommentsReply",
         this.current,
         this.index,
         this.commentId
@@ -134,7 +134,7 @@ export default {
     nextPage() {
       this.current += 1;
       this.$emit(
-        "changeReplyCurrent",
+        "changeCommentsReply",
         this.current,
         this.index,
         this.commentId

@@ -197,16 +197,28 @@
             c.parent_id,c.comment_content,c.create_time,
             u.avatar,u.website,u.nickname,
             u2.website replyWebsite,u2.nickname replyNickname
-        FROM
-            tb_comment c
+        FROM (
+            SELECT
+                c1.id,c1.user_id,c1.reply_id,
+                c1.parent_id,c1.comment_content,c1.create_time
+            FROM
+                tb_comment c1
+            WHERE
+                c1.recycle_flag = false AND c1.parent_id IN
+                <foreach collection="commentsDTOIdList" item="replyId" index="index" open="(" separator="," close=")">
+                    #{replyId}
+                </foreach>
+                AND (
+                    SELECT
+                        COUNT(0)
+                    FROM
+                        tb_comment c2
+                    WHERE
+                        c1.parent_id = c2.parent_id AND c1.create_time &lt;= c2.create_time
+                ) &lt;= 3
+        ) c
         LEFT JOIN tb_user u ON c.user_id = u.id
         LEFT JOIN tb_user u2 ON c.reply_id = u2.id
-        <where>
-            c.recycle_flag = false AND c.parent_id IN
-            <foreach collection="commentsDTOIdList" item="replyId" index="index" open="(" separator="," close=")">
-                #{replyId}
-            </foreach>
-        </where>
         ORDER BY
             c.create_time ASC
     </select>

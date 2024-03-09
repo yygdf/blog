@@ -77,7 +77,6 @@ public class ArticleDTO {
      */
     private Integer viewCount;
 
-
     /**
      * 上一篇文章
      */

@@ -18,7 +18,7 @@
         <button @click="cancelReply" class="cancel-btn v-comment-btn">
           取消
         </button>
-        <button @click="insertReply" class="upload-btn v-comment-btn">
+        <button @click="addReply" class="upload-btn v-comment-btn">
           提交
         </button>
       </div>
@@ -48,8 +48,8 @@ export default {
     cancelReply() {
       this.$refs.reply.style.display = "none";
     },
-    insertReply() {
-      if (!this.$store.state.userId) {
+    addReply() {
+      if (this.$store.state.userId == null) {
         this.$store.state.loginFlag = true;
         return false;
       }
@@ -58,23 +58,24 @@ export default {
         return false;
       }
       const reg = /\[.+?]/g;
-      this.commentContent = this.commentContent.replace(reg, function(str) {
+      let content = this.commentContent;
+      content = content.replace(reg, function(str) {
         return (
           "<img src= '" +
           EmojiList[str] +
-          "' width='22' height='20' style='padding: 0 1px' alt=''/>"
+          "' width='20' height='20' style='padding: 0 1px' alt=''/>"
         );
       });
       const path = this.$route.path;
       const arr = path.split("/");
       let comment = {
-        articleId: arr[2],
         replyId: this.replyId,
         parentId: this.parentId,
-        commentContent: this.commentContent
+        articleId: arr[2],
+        commentContent: content
       };
       this.commentContent = "";
-      this.axios.post("/api/comments", comment).then(({ data }) => {
+      this.axios.post("/api/comment", comment).then(({ data }) => {
         if (data.flag) {
           this.$emit("reloadReply", this.index);
           this.$toast({ type: "success", message: "回复成功" });

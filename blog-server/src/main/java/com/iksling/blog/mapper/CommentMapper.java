@@ -18,11 +18,13 @@ public interface CommentMapper extends BaseMapper<Comment> {
 
     List<CommentsBackDTO> selectCommentsBackDTO(@Param("condition") Condition condition, Integer userId, Integer roleWeight);
 
-    Integer selectCommentsDTOCount(@Param("condition") Condition condition);
+    Integer selectCommentsDTOCount(@Param("condition") Condition condition, Integer userId, Integer roleWeight);
 
     List<CommentsDTO> selectCommentsDTO(@Param("condition") Condition condition);
 
     List<CommentsReplyDTO> selectCommentsReplyDTO(@Param("commentsDTOIdList") List<Integer> commentsDTOIdList);
+
+    List<CommentsReplyDTO> selectCommentsReplyDTOById(@Param("condition") Condition condition, Integer userId, Integer roleWeight);
 }
 
 

@@ -80,7 +80,7 @@
           <p v-html="item.commentContent" class="comment-content"></p>
           <div
             style="display:flex"
-            v-for="reply of item.replyDTOList"
+            v-for="reply of item.commentsReplyDTOList"
             :key="reply.id"
           >
             <v-avatar size="36" class="comment-avatar">
@@ -226,7 +226,7 @@ export default {
         })
         .then(({ data }) => {
           this.$refs.check[index].style.display = "none";
-          item.replyDTOList = data.data;
+          item.commentsReplyDTOList = data.data;
           if (Math.ceil(item.replyCount / 5) > 1) {
             this.$refs.paging[index].style.display = "flex";
           }
@@ -238,7 +238,7 @@ export default {
           params: { current: current }
         })
         .then(({ data }) => {
-          this.commentList[index].replyDTOList = data.data;
+          this.commentList[index].commentsReplyDTOList = data.data;
         });
     },
     getComments() {
@@ -254,7 +254,7 @@ export default {
         });
     },
     addComment() {
-      if (!this.$store.state.userId) {
+      if (this.$store.state.userId == null) {
         this.$store.state.loginFlag = true;
         return false;
       }
@@ -287,7 +287,7 @@ export default {
       });
     },
     like(comment) {
-      if (!this.$store.state.userId) {
+      if (this.$store.state.userId == null) {
         this.$store.state.loginFlag = true;
         return false;
       }
@@ -305,9 +305,11 @@ export default {
     },
     reloadReply(index) {
       this.axios
-        .get("/api/comments/replies/" + this.commentList[index].id, {
+        .get("/api/comments/reply", {
           params: {
-            current: this.$refs.page[index].current
+            size: 5,
+            current: this.$refs.page[index].current,
+            categoryId: this.commentList[index].id
           }
         })
         .then(({ data }) => {
@@ -317,7 +319,7 @@ export default {
           }
           this.$refs.check[index].style.display = "none";
           this.$refs.reply[index].$el.style.display = "none";
-          this.commentList[index].replyDTOList = data.data;
+          this.commentList[index].commentsReplyDTOList = data.data;
         });
     }
   },

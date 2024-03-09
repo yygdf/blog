@@ -149,16 +149,20 @@
             COUNT(1)
         FROM
             tb_comment c
+        LEFT JOIN tb_article a ON c.article_id = a.id
         <where>
             <choose>
-                <when test="condition.categoryId == null">
+                <when test="condition.categoryId == null || condition.categoryId == -1">
                     c.article_id = -1
                 </when>
                 <otherwise>
                     c.article_id = #{condition.categoryId}
+                    <if test="roleWeight > 300">
+                        AND (a.hidden_flag = false OR a.user_id = #{userId})
+                    </if>
                 </otherwise>
             </choose>
-            AND c.parent_id = -1 AND c.recycle_flag = false AND c.deleted_flag = false
+            AND c.parent_id = -1 AND c.recycle_flag = false
         </where>
     </select>
 
@@ -179,7 +183,7 @@
                     c.article_id = #{condition.categoryId}
                 </otherwise>
             </choose>
-            AND c.parent_id = -1 AND c.recycle_flag = false AND c.deleted_flag = false
+            AND c.parent_id = -1 AND c.recycle_flag = false
         </where>
         ORDER BY
             c.create_time DESC
@@ -192,18 +196,41 @@
             c.id,c.user_id,c.reply_id,
             c.parent_id,c.comment_content,c.create_time,
             u.avatar,u.website,u.nickname,
-            u2.website replyWebSite,u2.nickname replyNickname
+            u2.website replyWebsite,u2.nickname replyNickname
         FROM
             tb_comment c
         LEFT JOIN tb_user u ON c.user_id = u.id
         LEFT JOIN tb_user u2 ON c.reply_id = u2.id
         <where>
-            c.recycle_flag = false AND c.deleted_flag = false AND c.parent_id IN
+            c.recycle_flag = false AND c.parent_id IN
             <foreach collection="commentsDTOIdList" item="replyId" index="index" open="(" separator="," close=")">
                 #{replyId}
             </foreach>
         </where>
         ORDER BY
             c.create_time ASC
+    </select>
+
+    <select id="selectCommentsReplyDTOById" resultType="com.iksling.blog.dto.CommentsReplyDTO">
+        SELECT
+            c.id,c.user_id,c.reply_id,
+            c.parent_id,c.comment_content,c.create_time,
+            u.avatar,u.website,u.nickname,
+            u2.website replyWebsite,u2.nickname replyNickname
+        FROM
+            tb_comment c
+        LEFT JOIN tb_article a ON c.article_id = a.id
+        LEFT JOIN tb_user u ON c.user_id = u.id
+        LEFT JOIN tb_user u2 ON c.reply_id = u2.id
+        <where>
+            c.recycle_flag = false AND c.parent_id = #{condition.categoryId}
+            <if test="roleWeight > 300">
+                AND (a.hidden_flag = false OR a.user_id = #{userId})
+            </if>
+        </where>
+        ORDER BY
+            c.create_time ASC
+        LIMIT
+            #{condition.current}, #{condition.size}
     </select>
 </mapper>

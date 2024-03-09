@@ -119,7 +119,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
             Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
                     .eq(Article::getId, articleId)
                     .eq(Article::getDraftFlag, false)
-                    .and(loginUser.getRoleWeight() > 300, e -> e.eq(Article::getHiddenFlag, false)
+                    .and(loginUser.getRoleWeight() > 300, e -> e
+                            .and(e2 -> e2.eq(Article::getHiddenFlag, false).eq(Article::getCommentableFlag, true))
                             .or()
                             .eq(Article::getUserId, loginUserId)));
             if (count == 0)
@@ -138,9 +139,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                 Integer replyId = commentVO.getReplyId();
                 if (replyId != null) {
                     count = commentMapper.selectCount(new LambdaQueryWrapper<Comment>()
+                            .eq(Comment::getUserId, replyId)
                             .eq(Comment::getArticleId, articleId)
                             .eq(Comment::getParentId, parentId)
-                            .eq(Comment::getUserId, replyId)
                             .eq(Comment::getRecycleFlag, false));
                     if (count == 0)
                         throw new OperationStatusException();
@@ -165,7 +166,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         Integer count = commentMapper.selectCount(new LambdaQueryWrapper<Comment>()
                 .eq(Comment::getId, id)
                 .eq(Comment::getRecycleFlag, false)
-                .and(loginUser.getRoleWeight() > 300, e -> e.eq(Comment::getArticleId, -1)
+                .and(loginUser.getRoleWeight() > 300, e -> e
+                        .eq(Comment::getArticleId, -1)
                         .or()
                         .exists("select a.id from tb_article a where a.id=article_id and a.draft_flag=false and(a.hidden_flag=false or a.user_id="+loginUserId+")"))
                 .exists(loginUser.getRoleWeight() > 300, ""));
@@ -186,7 +188,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
 
     @Override
     public PagePojo<CommentsDTO> getCommentsDTO(Condition condition) {
-        Integer count = commentMapper.selectCommentsDTOCount(condition);
+        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer count = commentMapper.selectCommentsDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (count == 0)
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
@@ -208,6 +211,16 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
             e.setReplyCount(list == null ? 0 : list.size());
         });
         return new PagePojo<>(count, commentsDTOList);
+    }
+
+    @Override
+    public List<CommentsReplyDTO> getCommentsReplyDTO(Condition condition) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
+        List<CommentsReplyDTO> commentsReplyDTOList = commentMapper.selectCommentsReplyDTOById(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
+        commentsReplyDTOList.forEach(e -> e.setLikeCount(likeCountMap.get(e.getId().toString())));
+        return commentsReplyDTOList;
     }
 }
 

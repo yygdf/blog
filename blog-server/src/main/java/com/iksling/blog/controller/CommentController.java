@@ -59,13 +59,6 @@ public class CommentController {
         return Result.success().message("操作成功");
     }
 
-    @ApiOperation(value = "查看评论列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
-    @GetMapping("/comments")
-    public Result getComments(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(commentService.getCommentsDTO(condition));
-    }
-
     @OptLog(optType = SAVE)
     @ApiOperation(value = "点赞评论")
     @ApiImplicitParam(name = "id", value = "评论id", required = true, dataType = "Integer")
@@ -73,5 +66,19 @@ public class CommentController {
     public Result saveCommentLike(@PathVariable Integer id) {
         commentService.saveCommentLike(id);
         return Result.success().message("操作成功");
+    }
+
+    @ApiOperation(value = "查看评论列表")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
+    @GetMapping("/comments")
+    public Result getComments(@Valid Condition condition) {
+        return Result.success().message("查询成功").data(commentService.getCommentsDTO(condition));
+    }
+
+    @ApiOperation(value = "查看评论回复列表")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
+    @GetMapping("/comments/reply")
+    public Result getCommentsReply(@Valid  Condition condition) {
+        return Result.success().message("查询成功").data(commentService.getCommentsReplyDTO(condition));
     }
 }

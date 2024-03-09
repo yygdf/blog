@@ -54,7 +54,7 @@ public class CommentsReplyDTO {
     /**
      * 回复用户网站
      */
-    private String replyWebSite;
+    private String replyWebsite;
 
     /**
      * 回复用户昵称

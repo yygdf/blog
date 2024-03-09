@@ -3,6 +3,7 @@ package com.iksling.blog.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.iksling.blog.dto.CommentsBackDTO;
 import com.iksling.blog.dto.CommentsDTO;
+import com.iksling.blog.dto.CommentsReplyDTO;
 import com.iksling.blog.entity.Comment;
 import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.PagePojo;
@@ -26,4 +27,6 @@ public interface CommentService extends IService<Comment> {
     void saveCommentLike(Integer id);
 
     PagePojo<CommentsDTO> getCommentsDTO(Condition condition);
+
+    List<CommentsReplyDTO> getCommentsReplyDTO(Condition condition);
 }

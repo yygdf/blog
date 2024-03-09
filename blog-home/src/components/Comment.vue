@@ -300,7 +300,7 @@ export default {
         this.$store.state.loginFlag = true;
         return false;
       }
-      this.axios.post("/api/comment/" + comment.id).then(({ data }) => {
+      this.axios.post("/api/comment/like/" + comment.id).then(({ data }) => {
         if (data.flag) {
           if (this.$store.state.commentLikeSet.indexOf(comment.id) !== -1) {
             this.$set(comment, "likeCount", comment.likeCount - 1);

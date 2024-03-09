@@ -394,25 +394,25 @@ export default {
       });
     },
     like() {
-      // 判断登录
-      if (!this.$store.state.userId) {
+      if (this.$store.state.userId == null) {
         this.$store.state.loginFlag = true;
         return false;
       }
-      //发送请求
-      let param = new URLSearchParams();
-      param.append("articleId", this.article.id);
-      this.axios.post("/api/articles/like", param).then(({ data }) => {
-        if (data.flag) {
-          //判断是否点赞
-          if (this.$store.state.articleLikeSet.indexOf(this.article.id) != -1) {
-            this.$set(this.article, "likeCount", this.article.likeCount - 1);
-          } else {
-            this.$set(this.article, "likeCount", this.article.likeCount + 1);
+      this.axios
+        .post("/api/article/like/" + this.article.id)
+        .then(({ data }) => {
+          if (data.flag) {
+            if (
+              this.$store.state.articleLikeSet.indexOf(this.article.id) !== -1
+            ) {
+              this.$set(this.article, "likeCount", this.article.likeCount - 1);
+              this.$store.commit("articleUnLike", this.article.id);
+            } else {
+              this.$set(this.article, "likeCount", this.article.likeCount + 1);
+              this.$store.commit("articleLike", this.article.id);
+            }
           }
-          this.$store.commit("articleLike", this.article.id);
-        }
-      });
+        });
     },
     markdownToHtml(article) {
       const MarkdownIt = require("markdown-it");

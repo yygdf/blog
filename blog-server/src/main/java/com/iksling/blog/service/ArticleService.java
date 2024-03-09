@@ -34,6 +34,8 @@ public interface ArticleService extends IService<Article> {
 
     PagePojo<ArticlesBackDTO> getArticlesBackDTO(Condition condition);
 
+    void saveArticleLike(Integer id);
+
     List<ArticlesDTO> getArticlesDTO(Condition condition);
 
     ArticleDTO getArticleDTOById(Integer id);

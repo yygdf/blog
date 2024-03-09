@@ -34,8 +34,7 @@ import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.constant.FlagConst.*;
-import static com.iksling.blog.constant.RedisConst.ARTICLE_LIKE_COUNT;
-import static com.iksling.blog.constant.RedisConst.ARTICLE_VIEW_COUNT;
+import static com.iksling.blog.constant.RedisConst.*;
 import static com.iksling.blog.enums.FileDirEnum.IMAGE_ARTICLE;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
 
@@ -357,6 +356,30 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             e.setLikeCount(likeCountMap.get(e.getId().toString()));
         });
         return new PagePojo<>(count, articlesBackDTOList);
+    }
+
+    @Override
+    @Transactional
+    public void saveArticleLike(Integer id) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer loginUserId = loginUser.getUserId();
+        Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
+                .eq(Article::getId, id)
+                .eq(Article::getDraftFlag, false)
+                .eq(loginUser.getRoleWeight() > 300, Article::getHiddenFlag, false));
+        if (count == 0)
+            throw new OperationStatusException();
+        HashSet<Integer> articleLikeSet = (HashSet<Integer>) redisTemplate.boundHashOps(ARTICLE_USER_LIKE).get(loginUserId.toString());
+        if (articleLikeSet == null)
+            articleLikeSet = new HashSet<>();
+        if (articleLikeSet.contains(id)) {
+            articleLikeSet.remove(id);
+            redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).increment(id.toString(), -1);
+        } else {
+            articleLikeSet.add(id);
+            redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).increment(id.toString(), 1);
+        }
+        redisTemplate.boundHashOps(ARTICLE_USER_LIKE).put(loginUserId.toString(), articleLikeSet);
     }
 
     @Override

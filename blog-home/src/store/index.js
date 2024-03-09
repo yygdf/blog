@@ -84,12 +84,11 @@ export default new Vuex.Store({
       state.registerFlag = false;
     },
     articleLike(state, articleId) {
+      state.articleLikeSet.push(articleId);
+    },
+    articleUnLike(state, articleId) {
       let articleLikeSet = state.articleLikeSet;
-      if (articleLikeSet.indexOf(articleId) !== -1) {
-        articleLikeSet.splice(articleLikeSet.indexOf(articleId), 1);
-      } else {
-        articleLikeSet.push(articleId);
-      }
+      articleLikeSet.splice(articleLikeSet.indexOf(articleId), 1);
     },
     commentLike(state, commentId) {
       state.commentLikeSet.push(commentId);

@@ -62,7 +62,7 @@ public class CommentController {
     @OptLog(optType = SAVE)
     @ApiOperation(value = "点赞评论")
     @ApiImplicitParam(name = "id", value = "评论id", required = true, dataType = "Integer")
-    @PostMapping("/comment/{id}")
+    @PostMapping("/comment/like/{id}")
     public Result saveCommentLike(@PathVariable Integer id) {
         commentService.saveCommentLike(id);
         return Result.success().message("操作成功");

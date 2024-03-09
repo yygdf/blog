@@ -103,6 +103,15 @@ public class ArticleController {
 
     /****************************************************************************************************/
 
+    @OptLog(optType = SAVE)
+    @ApiOperation(value = "点赞文章")
+    @ApiImplicitParam(name = "id", value = "文章id", required = true, dataType = "Integer")
+    @PostMapping("/article/like/{id}")
+    public Result saveArticleLike(@PathVariable Integer id) {
+        articleService.saveArticleLike(id);
+        return Result.success().message("操作成功");
+    }
+
     @ApiOperation(value = "查看文章列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/articles")

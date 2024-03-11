@@ -1,10 +1,8 @@
 <template>
   <div>
-    <!-- banner -->
     <div class="category-banner banner" :style="cover">
       <h1 class="banner-title">分类</h1>
     </div>
-    <!-- 分类列表 -->
     <v-card class="blog-container">
       <div class="category-title">分类 - {{ count }}</div>
       <ul class="category-list">
@@ -13,7 +11,7 @@
           v-for="item of categoryList"
           :key="item.id"
         >
-          <router-link :to="'/categories/' + item.id">
+          <router-link :to="'/category/' + item.id">
             {{ item.categoryName }}
             <span class="category-count">({{ item.articleCount }})</span>
           </router-link>
@@ -26,7 +24,7 @@
 <script>
 export default {
   created() {
-    this.listCategories();
+    this.getCategories();
   },
   data: function() {
     return {
@@ -35,9 +33,9 @@ export default {
     };
   },
   methods: {
-    listCategories() {
+    getCategories() {
       this.axios.get("/api/categories").then(({ data }) => {
-        this.categoryList = data.data.recordList;
+        this.categoryList = data.data.pageList;
         this.count = data.data.count;
       });
     }
@@ -46,7 +44,7 @@ export default {
     cover() {
       return (
         "background: url(" +
-        this.$store.state.baseInfo.category +
+        this.$store.state.blogConfig.category_banner_cover +
         ") center center / cover no-repeat"
       );
     }

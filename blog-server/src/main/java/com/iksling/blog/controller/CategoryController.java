@@ -65,4 +65,12 @@ public class CategoryController {
     public Result getBackCategories(@Valid Condition condition) {
         return Result.success().message("查询成功").data(categoryService.getCategoriesBackDTO(condition));
     }
+
+    /****************************************************************************************************/
+
+    @ApiOperation(value = "查看分类列表")
+    @GetMapping("/categories")
+    public Result getCategories() {
+        return Result.success().message("查询成功").data(categoryService.getCategoriesDTO());
+    }
 }

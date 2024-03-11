@@ -242,7 +242,7 @@
             <div class="article-list">
               <div
                 class="article-item"
-                v-for="item of articleListLatest"
+                v-for="item of articleNewestList"
                 :key="item.id"
               >
                 <router-link :to="'/article/' + item.id" class="content-cover">
@@ -306,7 +306,7 @@ export default {
         },
         articleRecommendList: []
       },
-      articleListLatest: [],
+      articleNewestList: [],
       commentList: [],
       count: 0,
       wordNum: "",
@@ -390,7 +390,7 @@ export default {
     },
     getArticlesNewest() {
       this.axios.get("/api/articles/newest").then(({ data }) => {
-        this.articleListLatest = data.data;
+        this.articleNewestList = data.data;
       });
     },
     like() {

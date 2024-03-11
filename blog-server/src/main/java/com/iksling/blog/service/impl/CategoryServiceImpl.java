@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.CategoriesBackDTO;
+import com.iksling.blog.dto.CategoriesDTO;
 import com.iksling.blog.entity.Category;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
@@ -20,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
@@ -34,6 +37,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     implements CategoryService{
     @Autowired
     private CategoryMapper categoryMapper;
+
+    @Resource
+    private HttpServletRequest request;
 
     @Override
     @Transactional
@@ -132,6 +138,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<CategoriesBackDTO> categoriesBackDTOList = categoryMapper.selectCategoriesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         return new PagePojo<>(count, categoriesBackDTOList);
+    }
+
+    @Override
+    public PagePojo<CategoriesDTO> getCategoriesDTO() {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer bloggerId = Integer.valueOf(request.getHeader("Blogger-Id"));
+        boolean flag = loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(bloggerId);
+        List<CategoriesDTO> categoriesDTOList = categoryMapper.selectCategoriesDTO(bloggerId, flag);
+        return new PagePojo<>(categoriesDTOList.size(), categoriesDTOList);
     }
 }
 

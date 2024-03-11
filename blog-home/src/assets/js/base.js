@@ -59,6 +59,10 @@ export async function getBlogInfo() {
       if (!data.data.blogConfig.ali_pay_code) {
         data.data.blogConfig.ali_pay_code = "../../assets/img/aliPay.png";
       }
+      if (!data.data.blogConfig.category_banner_cover) {
+        data.data.blogConfig.category_banner_cover =
+          "../../assets/img/banner/category.jpg";
+      }
       store.commit("saveBlogConfig", data.data.blogConfig);
       store.commit("saveBloggerInfo", data.data.bloggerInfo);
     }

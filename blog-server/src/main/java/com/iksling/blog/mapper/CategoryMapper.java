@@ -1,6 +1,7 @@
 package com.iksling.blog.mapper;
 
 import com.iksling.blog.dto.CategoriesBackDTO;
+import com.iksling.blog.dto.CategoriesDTO;
 import com.iksling.blog.entity.Category;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.iksling.blog.pojo.Condition;
@@ -15,6 +16,8 @@ public interface CategoryMapper extends BaseMapper<Category> {
     Integer selectCategoriesBackDTOCount(@Param("condition") Condition condition, Integer userId, Integer roleWeight);
 
     List<CategoriesBackDTO> selectCategoriesBackDTO(@Param("condition") Condition condition, Integer userId, Integer roleWeight);
+
+    List<CategoriesDTO> selectCategoriesDTO(Integer bloggerId, Boolean flag);
 }
 
 

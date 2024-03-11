@@ -56,4 +56,12 @@ public class TagController {
     public Result getBackTags(@Valid Condition condition) {
         return Result.success().message("查询成功").data(tagService.getTagsBackDTO(condition));
     }
+
+    /****************************************************************************************************/
+
+    @ApiOperation(value = "查看标签列表")
+    @GetMapping("/tags")
+    public Result getTags() {
+        return Result.success().message("查询成功").data(tagService.getTagsDTO());
+    }
 }

@@ -100,7 +100,7 @@
             tb_category c
         LEFT JOIN ( SELECT category_id,COUNT(1) article_count FROM tb_article WHERE draft_flag = false GROUP BY category_id ) a ON c.id = a.category_id
         <where>
-            c.deleted_flag = false
+            c.deleted_flag = false AND c.user_id = #{bloggerId}
             <if test="flag">
                 AND c.hidden_flag = false
             </if>

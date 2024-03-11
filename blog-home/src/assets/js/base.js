@@ -63,6 +63,10 @@ export async function getBlogInfo() {
         data.data.blogConfig.category_banner_cover =
           "../../assets/img/banner/category.jpg";
       }
+      if (!data.data.blogConfig.tag_banner_cover) {
+        data.data.blogConfig.tag_banner_cover =
+          "../../assets/img/banner/tag.jpg";
+      }
       store.commit("saveBlogConfig", data.data.blogConfig);
       store.commit("saveBloggerInfo", data.data.bloggerInfo);
     }

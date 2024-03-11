@@ -4,24 +4,27 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.TagsBackDTO;
+import com.iksling.blog.dto.TagsDTO;
 import com.iksling.blog.entity.ArticleTag;
 import com.iksling.blog.entity.Tag;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.ArticleTagMapper;
 import com.iksling.blog.mapper.TagMapper;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.TagService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.TagBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
@@ -38,6 +41,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
 
     @Autowired
     private ArticleTagMapper articleTagMapper;
+
+    @Resource
+    private HttpServletRequest request;
 
     @Override
     @Transactional
@@ -120,6 +126,18 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<TagsBackDTO> tagsBackDTOList = tagMapper.selectTagsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         return new PagePojo<>(count, tagsBackDTOList);
+    }
+
+    @Override
+    public PagePojo<TagsDTO> getTagsDTO() {
+        Integer bloggerId = Integer.valueOf(request.getHeader("Blogger-Id"));
+        List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>()
+                .select(Tag::getId, Tag::getUserId, Tag::getTagName)
+                .eq(Tag::getDeletedFlag, false)
+                .eq(Tag::getUserId, bloggerId));
+        if (tagList.isEmpty())
+            return new PagePojo<>();
+        return new PagePojo<>(tagList.size(), BeanCopyUtil.copyList(tagList, TagsDTO.class));
     }
 }
 

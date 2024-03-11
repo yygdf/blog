@@ -1,10 +1,8 @@
 <template>
   <div>
-    <!-- banner -->
     <div class="tag-banner banner" :style="cover">
       <h1 class="banner-title">标签</h1>
     </div>
-    <!-- 标签列表 -->
     <v-card class="blog-container">
       <div class="tag-cloud-title">标签 - {{ count }}</div>
       <div class="tag-cloud">
@@ -12,7 +10,7 @@
           :style="{ 'font-size': Math.floor(Math.random() * 10) + 18 + 'px' }"
           v-for="item of tagList"
           :key="item.id"
-          :to="'/tags/' + item.id"
+          :to="'/tag/' + item.id"
         >
           {{ item.tagName }}
         </router-link>
@@ -24,7 +22,7 @@
 <script>
 export default {
   created() {
-    this.listTags();
+    this.getTags();
   },
   data: function() {
     return {
@@ -33,9 +31,9 @@ export default {
     };
   },
   methods: {
-    listTags() {
+    getTags() {
       this.axios.get("/api/tags").then(({ data }) => {
-        this.tagList = data.data.recordList;
+        this.tagList = data.data.pageList;
         this.count = data.data.count;
       });
     }
@@ -44,7 +42,7 @@ export default {
     cover() {
       return (
         "background: url(" +
-        this.$store.state.baseInfo.tag +
+        this.$store.state.bloggerInfo.tag_banner_cover +
         ") center center / cover no-repeat"
       );
     }

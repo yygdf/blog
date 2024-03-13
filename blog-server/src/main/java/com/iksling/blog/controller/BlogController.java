@@ -1,13 +1,15 @@
 package com.iksling.blog.controller;
 
+import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.BlogService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import static com.iksling.blog.constant.LogConst.UPDATE;
 
 @RestController
 @Api(tags = "博客模块")
@@ -15,10 +17,25 @@ public class BlogController {
     @Autowired
     private BlogService blogService;
 
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "修改关于我")
+    @ApiImplicitParam(name = "aboutContent", value = "关于我", required = true, dataType = "String")
+    @PutMapping("/back/about")
+    public Result updateBackAbout(@RequestBody String aboutContent) {
+        blogService.updateBackAbout(aboutContent);
+        return Result.success().message("操作成功");
+    }
+
     @ApiOperation(value = "查看后台首页信息")
     @GetMapping("/back/blog/home")
     public Result getBack() {
         return Result.success().message("查询成功");
+    }
+
+    @ApiOperation(value = "查看关于我")
+    @GetMapping("/about")
+    public Result getAbout() {
+        return Result.success().message("查询成功").data(blogService.getAbout());
     }
 
     @ApiOperation(value = "查看博主id")

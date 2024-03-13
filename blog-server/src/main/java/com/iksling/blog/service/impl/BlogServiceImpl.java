@@ -1,19 +1,25 @@
 package com.iksling.blog.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.iksling.blog.entity.*;
 import com.iksling.blog.mapper.*;
+import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.BlogService;
+import com.iksling.blog.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
+import static com.iksling.blog.constant.RedisConst.BLOGGER_ABOUT_ME;
 import static com.iksling.blog.constant.RedisConst.BLOG_VIEW_COUNT;
 
 /**
@@ -43,6 +49,28 @@ public class BlogServiceImpl implements BlogService {
     private SystemConfigServiceImpl systemConfigServiceImpl;
     @Autowired
     private UserConfigServiceImpl userConfigServiceImpl;
+
+    @Override
+    @Transactional
+    public void updateBackAbout(String aboutContent) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        if (loginUser.getRoleWeight() <= 400) {
+            Object o = JSON.parseObject(aboutContent, Map.class).get("aboutContent");
+            if (o != null)
+                redisTemplate.boundHashOps(BLOGGER_ABOUT_ME).put(loginUser.getUserId().toString(), o);
+        }
+    }
+
+    @Override
+    public String getAbout() {
+        String bloggerId = request.getHeader("Blogger-Id");
+        if (bloggerId != null) {
+            Object aboutContent = redisTemplate.boundHashOps(BLOGGER_ABOUT_ME).get(bloggerId);
+            return aboutContent == null ? "" : aboutContent.toString();
+        }
+        Object aboutContent = redisTemplate.boundHashOps(BLOGGER_ABOUT_ME).get(UserUtil.getLoginUser().getUserId().toString());
+        return aboutContent == null ? "" : aboutContent.toString();
+    }
 
     @Override
     public Integer getBlogId(Integer bloggerId) {

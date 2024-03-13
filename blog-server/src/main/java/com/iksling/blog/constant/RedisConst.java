@@ -40,4 +40,9 @@ public class RedisConst {
      * 文件令牌前缀
      */
     public static final String MULTI_FILE_TOKEN = "multi_file_token";
+
+    /**
+     * 关于我
+     */
+    public static final String BLOGGER_ABOUT_ME = "blogger_about_me";
 }

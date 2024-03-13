@@ -154,6 +154,21 @@
           </el-form-item>
         </el-form>
       </el-tab-pane>
+      <el-tab-pane label="关于我" name="about" v-if="this.$store.state.weight <= 400">
+        <mavon-editor
+          :toolbars="toolbars"
+          v-model="aboutContent"
+          style="height:calc(100vh - 300px);"
+        />
+        <el-button
+          type="danger"
+          size="medium"
+          class="edit-btn"
+          @click="updateAbout"
+        >
+          修改
+        </el-button>
+      </el-tab-pane>
     </el-tabs>
   </el-card>
 </template>
@@ -163,6 +178,9 @@ import md5 from "js-md5";
 import AvatarCropper from "vue-avatar-cropper";
 export default {
   components: { AvatarCropper },
+  created() {
+    this.getAbout();
+  },
   data: function() {
     return {
       oldPasswordStatus: 0,
@@ -188,6 +206,39 @@ export default {
         oldPassword: "",
         newPassword: "",
         confirmPassword: ""
+      },
+      aboutContent: "",
+      aboutContentOrigin: "",
+      toolbars: {
+        bold: true,
+        italic: true,
+        header: true,
+        underline: true,
+        strikethrough: true,
+        mark: true,
+        superscript: true,
+        subscript: true,
+        quote: true,
+        ol: true,
+        ul: true,
+        link: true,
+        imagelink: false,
+        code: true,
+        table: true,
+        fullscreen: true,
+        readmodel: true,
+        htmlcode: true,
+        help: true,
+        undo: true,
+        redo: true,
+        trash: true,
+        save: true,
+        navigation: true,
+        alignleft: true,
+        aligncenter: true,
+        alignright: true,
+        subfield: true,
+        preview: true
       }
     };
   },
@@ -300,6 +351,33 @@ export default {
         return;
       }
       this.oldPasswordStatus = 2;
+    },
+    getAbout() {
+      this.axios.get("/api/about").then(({ data }) => {
+        this.aboutContent = data.data;
+        this.aboutContentOrigin = data.data;
+      });
+    },
+    updateAbout() {
+      if (this.aboutContent.trim() === this.aboutContentOrigin.trim()) {
+        return;
+      }
+      this.axios
+        .put("/api/back/about", { aboutContent: this.aboutContent })
+        .then(({ data }) => {
+          if (data.flag) {
+            this.aboutContentOrigin = this.aboutContent;
+            this.$notify.success({
+              title: "成功",
+              message: data.message
+            });
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: data.message
+            });
+          }
+        });
     }
   }
 };
@@ -345,5 +423,13 @@ export default {
 /deep/ .el-upload .el-upload-dragger {
   width: 200px;
   height: 200px;
+}
+.edit-btn {
+  float: right;
+  margin: 1rem 0;
+}
+>>> .add-image-link .title {
+  font-size: 16px !important;
+  margin-top: -20px !important;
 }
 </style>

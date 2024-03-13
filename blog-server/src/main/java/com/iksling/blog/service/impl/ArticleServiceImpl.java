@@ -10,6 +10,7 @@ import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.*;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.ArticleService;
@@ -347,7 +348,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<ArticlesBackDTO> articlesBackDTOList = articleMapper.selectArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (articlesBackDTOList.size() == 0)
+        if (articlesBackDTOList.isEmpty())
             return new PagePojo<>(count, new ArrayList<>());
         Map<String, Integer> viewCountMap = redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).entries();
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).entries();
@@ -400,8 +401,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (articleDTO == null)
             return null;
         updateArticleViewCount(id.toString());
-        List<ArticlesPaginationDTO> articlesPaginationDTOList = articleMapper.selectArticlePaginationDTOById(id, bloggerId, flag);
-        List<ArticlesRecommendDTO> articlesRecommendDTOList = articleMapper.selectArticleRecommendDTOById(id, bloggerId, flag);
+        List<ArticlesPaginationDTO> articlesPaginationDTOList = articleMapper.selectArticlesPaginationDTOById(id, bloggerId, flag);
+        List<ArticlesRecommendDTO> articlesRecommendDTOList = articleMapper.selectArticlesRecommendDTOById(id, bloggerId, flag);
         if (articlesPaginationDTOList.size() == 2) {
             articleDTO.setLastArticle(articlesPaginationDTOList.get(0));
             articleDTO.setNextArticle(articlesPaginationDTOList.get(1));
@@ -411,7 +412,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             else
                 articleDTO.setNextArticle(articlesPaginationDTOList.get(0));
         }
-        articleDTO.setArticleRecommendList(articlesRecommendDTOList);
+        articleDTO.setArticlesRecommendDTOList(articlesRecommendDTOList);
         articleDTO.setViewCount((Integer) redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).get(id.toString()));
         articleDTO.setLikeCount((Integer) redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).get(id.toString()));
         return articleDTO;
@@ -429,6 +430,38 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .eq(Article::getUserId, bloggerId)
                 .orderByDesc(Article::getId)
                 .last("limit 5")), ArticlesRecommendDTO.class);
+    }
+
+    @Override
+    public Dict getArticlesPreviewDTO(Condition condition) {
+        if (condition.getCategoryId() == null)
+            throw new OperationStatusException();
+        LoginUser loginUser = UserUtil.getLoginUser();
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
+        condition.setFlag(loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(condition.getUserId()));
+        Dict dict = Dict.create();
+        if (condition.getType() != null) {
+            List<Map<String, Object>> mapList = categoryMapper.selectMaps(new LambdaQueryWrapper<Category>()
+                    .select(Category::getCategoryName)
+                    .eq(Category::getId, condition.getCategoryId())
+                    .eq(Category::getUserId, Integer.valueOf(request.getHeader("Blogger-Id")))
+                    .eq(Category::getDeletedFlag, false)
+                    .and(condition.getFlag(), e -> e.eq(Category::getPublicFlag, true).eq(Category::getHiddenFlag, false)));
+            if (mapList.isEmpty())
+                return dict.set("articlesPreviewDTOList", new ArrayList<>());
+            List<ArticlesPreviewDTO> articlesPreviewDTOList = articleMapper.selectArticlesPreviewDTOByCategoryId(condition);
+            return dict.set("name", mapList.get(0).get("category_name")).set("articlesPreviewDTOList", articlesPreviewDTOList);
+        } else {
+            List<Map<String, Object>> mapList = tagMapper.selectMaps(new LambdaQueryWrapper<Tag>()
+                    .select(Tag::getTagName)
+                    .eq(Tag::getId, condition.getCategoryId())
+                    .eq(Tag::getDeletedFlag, false)
+                    .eq(Tag::getUserId, Integer.valueOf(request.getHeader("Blogger-Id"))));
+            if (mapList.isEmpty())
+                return dict.set("articlesPreviewDTOList", new ArrayList<>());
+            List<ArticlesPreviewDTO> articlesPreviewDTOList = articleMapper.selectArticlesPreviewDTOByTagId(condition);
+            return dict.set("name", mapList.get(0).get("tag_name")).set("articlesPreviewDTOList", articlesPreviewDTOList);
+        }
     }
 
     private void updateArticleImageBy(Integer loginUserId, Integer articleId, String fileFullPath, Date updateTime) {

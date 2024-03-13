@@ -102,7 +102,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<CommentsBackDTO> commentsBackDTOList = commentMapper.selectCommentsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        if (commentsBackDTOList.size() == 0)
+        if (commentsBackDTOList.isEmpty())
             return new PagePojo<>(count, new ArrayList<>());
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
         commentsBackDTOList.forEach(e -> e.setLikeCount(likeCountMap.get(e.getId().toString())));
@@ -194,7 +194,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<CommentsDTO> commentsDTOList = commentMapper.selectCommentsDTO(condition);
-        if (commentsDTOList.size() == 0)
+        if (commentsDTOList.isEmpty())
             return new PagePojo<>(count, new ArrayList<>());
         Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
         List<Integer> commentsDTOIdList = new ArrayList<>();

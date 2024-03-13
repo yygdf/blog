@@ -3,6 +3,7 @@ package com.iksling.blog.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.iksling.blog.dto.*;
 import com.iksling.blog.entity.Article;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleImageBackVO;
@@ -41,4 +42,6 @@ public interface ArticleService extends IService<Article> {
     ArticleDTO getArticleDTOById(Integer id);
 
     List<ArticlesRecommendDTO> getArticlesRecommendDTO();
+
+    Dict getArticlesPreviewDTO(Condition condition);
 }

@@ -23,9 +23,13 @@ public interface ArticleMapper extends BaseMapper<Article> {
 
     ArticleDTO selectArticleDTOById(Integer id, Integer bloggerId, boolean flag);
 
-    List<ArticlesPaginationDTO> selectArticlePaginationDTOById(Integer id, Integer bloggerId, boolean flag);
+    List<ArticlesPaginationDTO> selectArticlesPaginationDTOById(Integer id, Integer bloggerId, boolean flag);
 
-    List<ArticlesRecommendDTO> selectArticleRecommendDTOById(Integer id, Integer bloggerId, boolean flag);
+    List<ArticlesRecommendDTO> selectArticlesRecommendDTOById(Integer id, Integer bloggerId, boolean flag);
+
+    List<ArticlesPreviewDTO> selectArticlesPreviewDTOByCategoryId(@Param("condition") Condition condition);
+
+    List<ArticlesPreviewDTO> selectArticlesPreviewDTOByTagId(@Param("condition") Condition condition);
 }
 
 

@@ -32,6 +32,11 @@ public class ArticlesRecommendDTO {
     private Boolean publicFlag;
 
     /**
+     * 0未隐藏, 1已隐藏
+     */
+    private Boolean hiddenFlag;
+
+    /**
      * 发表时间
      */
     private Date publishTime;

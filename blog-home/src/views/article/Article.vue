@@ -185,7 +185,7 @@
           </div>
           <div
             class="recommend-container"
-            v-if="article.articleRecommendList.length"
+            v-if="article.articlesRecommendDTOList.length"
           >
             <div class="recommend-title">
               <v-icon size="20" color="#4c4948">mdi-thumb-up</v-icon> 相关推荐
@@ -193,7 +193,7 @@
             <div class="recommend-list">
               <div
                 class="recommend-item"
-                v-for="item of article.articleRecommendList"
+                v-for="item of article.articlesRecommendDTOList"
                 :key="item.id"
               >
                 <router-link :to="'/article/' + item.id">
@@ -304,7 +304,7 @@ export default {
           id: 0,
           articleCover: ""
         },
-        articleRecommendList: []
+        articlesRecommendDTOList: []
       },
       articleNewestList: [],
       commentList: [],

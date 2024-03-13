@@ -131,4 +131,11 @@ public class ArticleController {
     public Result getArticlesNewest() {
         return Result.success().message("查询成功").data(articleService.getArticlesRecommendDTO());
     }
+
+    @ApiOperation(value = "预览文章列表")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
+    @GetMapping("/articles/preview")
+    public Result getArticlesPreview(@Valid Condition condition) {
+        return Result.success().message("查询成功").data(articleService.getArticlesPreviewDTO(condition));
+    }
 }

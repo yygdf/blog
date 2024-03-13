@@ -28,4 +28,9 @@ public class ArticlesPaginationDTO {
      * 0未公开, 1已公开
      */
     private Boolean publicFlag;
+
+    /**
+     * 0未隐藏, 1已隐藏
+     */
+    private Boolean hiddenFlag;
 }

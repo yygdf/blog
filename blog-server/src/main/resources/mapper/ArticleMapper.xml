@@ -198,8 +198,9 @@
         SELECT
             a.id,a.user_id,a.category_id,
             a.article_title,a.article_cover,CASE WHEN (a.public_flag = false AND #{flag}) THEN "" ELSE a.article_content END AS article_content,
-            a.public_flag,a.commentable_flag,a.update_time,
-            a.publish_time,c.category_name,ata.tag tagList
+            a.public_flag,a.hidden_flag,a.commentable_flag,
+            a.update_time,a.publish_time,c.category_name,
+            ata.tag tagList
         FROM
             tb_article a
         LEFT JOIN tb_category c ON a.category_id = c.id
@@ -212,14 +213,14 @@
         </where>
     </select>
 
-    <select id="selectArticlePaginationDTOById" resultType="com.iksling.blog.dto.ArticlesPaginationDTO">
+    <select id="selectArticlesPaginationDTOById" resultType="com.iksling.blog.dto.ArticlesPaginationDTO">
         SELECT
             a1.id,a1.user_id,a1.article_title,
-            a1.article_cover,a1.public_flag
+            a1.article_cover,a1.public_flag,a1.hidden_flag
         FROM (
             SELECT
                 a.id,a.user_id,a.article_title,
-                a.article_cover,a.public_flag
+                a.article_cover,a.public_flag,a.hidden_flag
             FROM
                 tb_article a
             <where>
@@ -235,11 +236,11 @@
         UNION
         SELECT
             a2.id,a2.user_id,a2.article_title,
-            a2.article_cover,a2.public_flag
+            a2.article_cover,a2.public_flag,a2.hidden_flag
         FROM (
             SELECT
                 a.id,a.user_id,a.article_title,
-                a.article_cover,a.public_flag
+                a.article_cover,a.public_flag,a.hidden_flag
             FROM
                 tb_article a
             <where>
@@ -254,10 +255,11 @@
         ) a2
     </select>
 
-    <select id="selectArticleRecommendDTOById" resultType="com.iksling.blog.dto.ArticlesRecommendDTO">
+    <select id="selectArticlesRecommendDTOById" resultType="com.iksling.blog.dto.ArticlesRecommendDTO">
         SELECT
             a.id,a.user_id,a.article_title,
-            a.article_cover,a.public_flag,a.publish_time
+            a.article_cover,a.public_flag,a.hidden_flag,
+            a.publish_time
         FROM (
             SELECT DISTINCT
                 article_id
@@ -284,5 +286,56 @@
             a.top_flag DESC,
             a.id DESC
         LIMIT 6
+    </select>
+
+    <select id="selectArticlesPreviewDTOByCategoryId" resultType="com.iksling.blog.dto.ArticlesPreviewDTO">
+        SELECT
+            a.id,a.user_id,a.category_id,
+            a.article_title,a.article_cover,a.public_flag,
+            a.hidden_flag,a.publish_time,c.category_name,
+            ata.tag tagList
+        FROM
+            tb_article a
+        LEFT JOIN tb_category c ON a.category_id = c.id
+        LEFT JOIN (SELECT article_id, GROUP_CONCAT(CONCAT(t.id, "=", t.tag_name)) tag FROM tb_article_tag ata LEFT JOIN tb_tag t ON ata.tag_id = t.id WHERE ata.deleted_flag = FALSE AND t.deleted_flag = FALSE GROUP BY article_id) ata ON a.id = ata.article_id
+        <where>
+            a.category_id = #{condition.categoryId} AND a.draft_flag = false
+            <if test="condition.flag">
+                AND a.hidden_flag = false
+            </if>
+        </where>
+        ORDER BY
+            a.id DESC
+        LIMIT
+            #{condition.current}, #{condition.size}
+    </select>
+
+    <select id="selectArticlesPreviewDTOByTagId" resultType="com.iksling.blog.dto.ArticlesPreviewDTO">
+        SELECT
+            a.id,a.user_id,a.category_id,
+            a.article_title,a.article_cover,a.public_flag,
+            a.hidden_flag,a.publish_time,c.category_name,
+            ata.tag tagList
+        FROM
+            tb_article a
+        LEFT JOIN tb_category c ON a.category_id = c.id
+        LEFT JOIN (SELECT article_id, GROUP_CONCAT(CONCAT(t.id, "=", t.tag_name)) tag FROM tb_article_tag ata LEFT JOIN tb_tag t ON ata.tag_id = t.id WHERE ata.deleted_flag = FALSE AND t.deleted_flag = FALSE GROUP BY article_id) ata ON a.id = ata.article_id
+        <where>
+            a.draft_flag = false AND a.id IN (
+                SELECT
+                    article_id
+                FROM
+                    tb_article_tag
+                WHERE
+                    tag_id = #{condition.categoryId}
+            )
+            <if test="condition.flag">
+                AND a.hidden_flag = false
+            </if>
+        </where>
+        ORDER BY
+            a.id DESC
+        LIMIT
+            #{condition.current}, #{condition.size}
     </select>
 </mapper>

@@ -1,53 +1,55 @@
 <template>
   <div>
-    <!-- 标签或分类名 -->
     <div :class="categoryOrTag + ' banner'" :style="cover">
       <h1 class="banner-title animated fadeInDown">{{ title }} - {{ name }}</h1>
     </div>
     <div class="article-list-wrapper">
       <v-row>
         <v-col md="4" cols="12" v-for="item of articleList" :key="item.id">
-          <!-- 文章 -->
           <v-card class="animated zoomIn article-item-card">
             <div class="article-item-cover">
-              <router-link :to="'/articles/' + item.id">
-                <!-- 缩略图 -->
+              <router-link :to="'/article/' + item.id">
                 <v-img
                   class="on-hover"
                   width="100%"
                   height="100%"
-                  :src="item.articleCover"
+                  :src="
+                    item.articleCover ? item.articleCover : defaultArticleCover
+                  "
                 />
               </router-link>
             </div>
             <div class="article-item-info">
-              <!-- 文章标题 -->
               <div>
-                <router-link :to="'/articles/' + item.id">
+                <router-link :to="'/article/' + item.id">
                   {{ item.articleTitle }}
                 </router-link>
               </div>
               <div style="margin-top:0.375rem">
-                <!-- 发表时间 -->
                 <v-icon size="20">mdi-clock-outline</v-icon>
-                {{ item.createTime | date }}
-                <!-- 文章分类 -->
+                {{ item.publicTime | date }}
                 <router-link
-                  :to="'/categories/' + item.categoryId"
+                  :to="'/category/' + item.categoryId"
                   class="float-right"
                 >
                   <v-icon>mdi-bookmark</v-icon>{{ item.categoryName }}
                 </router-link>
               </div>
             </div>
-            <!-- 分割线 -->
             <v-divider></v-divider>
-            <!-- 文章标签 -->
             <div class="tag-wrapper">
               <router-link
-                :to="'/tags/' + tag.id"
+                :to="'/tag/' + tag.id"
                 class="tag-btn"
-                v-for="tag of item.tagDTOList"
+                v-for="tag of item.tagList == null
+                  ? []
+                  : item.tagList.split(',').map(e => {
+                      let tagArr = e.split('=');
+                      return {
+                        id: tagArr[0],
+                        tagName: tagArr[1]
+                      };
+                    })"
                 :key="tag.id"
               >
                 {{ tag.tagName }}
@@ -56,7 +58,6 @@
           </v-card>
         </v-col>
       </v-row>
-      <!-- 无限加载 -->
       <infinite-loading @infinite="infiniteHandler">
         <div slot="no-more" />
       </infinite-loading>
@@ -67,20 +68,20 @@
 <script>
 export default {
   created() {
-    const path = this.$route.path;
-    if (path.indexOf("/categories") != -1) {
+    if (this.$route.path.indexOf("/category") !== -1) {
+      this.type = 1;
       this.title = "分类";
       this.categoryOrTag = "category-banner";
       this.cover =
         "background: url(" +
-        this.$store.state.baseInfo.category +
+        this.$store.state.blogConfig.category_banner_cover +
         ") center center / cover no-repeat";
     } else {
       this.title = "标签";
       this.categoryOrTag = "tag-banner";
       this.cover =
         "background: url(" +
-        this.$store.state.baseInfo.tag +
+        this.$store.state.blogConfig.tag_banner_cover +
         ") center center / cover no-repeat";
     }
   },
@@ -91,24 +92,32 @@ export default {
       name: "",
       title: "",
       categoryOrTag: "",
-      cover: ""
+      cover: "",
+      type: null,
+      defaultArticleCover: require("../assets/img/default/article.jpg")
     };
   },
   methods: {
     infiniteHandler($state) {
-      const path = this.$route.path;
+      let pathArr = this.$route.path.split("/");
+      let params = {
+        size: 9,
+        current: this.current,
+        categoryId: pathArr[pathArr.length - 1]
+      };
+      if (this.type) {
+        params.type = 1;
+      }
       this.axios
-        .get("/api" + path, {
-          params: {
-            current: this.current
-          }
+        .get("/api/articles/preview", {
+          params
         })
         .then(({ data }) => {
-          if (data.data.articlePreviewDTOList.length) {
+          if (data.data.articlesPreviewDTOList.length) {
             this.current++;
             this.name = data.data.name;
             document.title = this.title + " - " + this.name;
-            this.articleList.push(...data.data.articlePreviewDTOList);
+            this.articleList.push(...data.data.articlesPreviewDTOList);
             $state.loaded();
           } else {
             $state.complete();

@@ -67,7 +67,14 @@ export async function getBlogInfo() {
         data.data.blogConfig.tag_banner_cover =
           "../../assets/img/banner/tag.jpg";
       }
+      if (!data.data.blogConfig.about_banner_cover) {
+        data.data.blogConfig.about_banner_cover =
+          "../../assets/img/banner/about.jpg";
+      }
       store.commit("saveBlogConfig", data.data.blogConfig);
+      if (!data.data.bloggerInfo.avatar) {
+        data.data.bloggerInfo.avatar = "../../assets/img/default/avatar.png";
+      }
       store.commit("saveBloggerInfo", data.data.bloggerInfo);
     }
   });

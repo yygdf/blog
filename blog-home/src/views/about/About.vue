@@ -1,16 +1,15 @@
 <template>
   <div>
-    <!-- banner -->
     <div class="about-banner banner" :style="cover">
       <h1 class="banner-title">关于我</h1>
     </div>
-    <!-- 关于我内容 -->
     <v-card class="blog-container">
       <div class="my-wrapper">
         <v-avatar size="110">
           <img
             class="author-avatar"
-            src="https://ksling.cn/static/img/avatar/master.jpg"
+            :src="this.$store.state.bloggerInfo.avatar"
+            alt=""
           />
         </v-avatar>
       </div>
@@ -42,7 +41,7 @@ export default {
     cover() {
       return (
         "background: url(" +
-        this.$store.state.baseInfo.about +
+        this.$store.state.blogConfig.about_banner_cover +
         ") center center / cover no-repeat"
       );
     }

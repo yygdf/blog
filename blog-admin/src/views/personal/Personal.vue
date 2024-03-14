@@ -154,7 +154,11 @@
           </el-form-item>
         </el-form>
       </el-tab-pane>
-      <el-tab-pane label="关于我" name="about" v-if="this.$store.state.weight <= 400">
+      <el-tab-pane
+        label="关于我"
+        name="about"
+        v-if="this.$store.state.weight <= 400"
+      >
         <mavon-editor
           :toolbars="toolbars"
           v-model="aboutContent"

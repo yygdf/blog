@@ -44,5 +44,5 @@ public class RedisConst {
     /**
      * 关于我
      */
-    public static final String BLOGGER_ABOUT_ME = "blogger_about_me";
+    public static final String BLOG_ABOUT_ME = "blog_about_me";
 }

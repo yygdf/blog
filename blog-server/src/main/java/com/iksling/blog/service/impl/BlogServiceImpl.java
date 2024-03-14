@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
-import static com.iksling.blog.constant.RedisConst.BLOGGER_ABOUT_ME;
+import static com.iksling.blog.constant.RedisConst.BLOG_ABOUT_ME;
 import static com.iksling.blog.constant.RedisConst.BLOG_VIEW_COUNT;
 
 /**
@@ -57,7 +57,7 @@ public class BlogServiceImpl implements BlogService {
         if (loginUser.getRoleWeight() <= 400) {
             Object o = JSON.parseObject(aboutContent, Map.class).get("aboutContent");
             if (o != null)
-                redisTemplate.boundHashOps(BLOGGER_ABOUT_ME).put(loginUser.getUserId().toString(), o);
+                redisTemplate.boundHashOps(BLOG_ABOUT_ME).put(loginUser.getUserId().toString(), o);
         }
     }
 
@@ -65,10 +65,10 @@ public class BlogServiceImpl implements BlogService {
     public String getAbout() {
         String bloggerId = request.getHeader("Blogger-Id");
         if (bloggerId != null) {
-            Object aboutContent = redisTemplate.boundHashOps(BLOGGER_ABOUT_ME).get(bloggerId);
+            Object aboutContent = redisTemplate.boundHashOps(BLOG_ABOUT_ME).get(bloggerId);
             return aboutContent == null ? "" : aboutContent.toString();
         }
-        Object aboutContent = redisTemplate.boundHashOps(BLOGGER_ABOUT_ME).get(UserUtil.getLoginUser().getUserId().toString());
+        Object aboutContent = redisTemplate.boundHashOps(BLOG_ABOUT_ME).get(UserUtil.getLoginUser().getUserId().toString());
         return aboutContent == null ? "" : aboutContent.toString();
     }
 

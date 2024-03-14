@@ -9,12 +9,12 @@
   >
     <div class="blogger-info">
       <v-avatar size="110" style="margin-bottom:0.5rem">
-        <img :src="bloggerInfo.avatar" />
+        <img :src="bloggerInfo.avatar" alt="" />
       </v-avatar>
     </div>
     <div class="blog-info-wrapper">
       <div class="blog-info-data">
-        <router-link :to="rootUri + '/archives'">
+        <router-link to="/archives">
           <div style="font-size: 0.875rem">文章</div>
           <div style="font-size: 1.125rem;">
             {{ bloggerInfo.articleCount }}
@@ -22,7 +22,7 @@
         </router-link>
       </div>
       <div class="blog-info-data">
-        <router-link :to="rootUri + '/categories'">
+        <router-link to="/categories">
           <div style="font-size: 0.875rem">分类</div>
           <div style="font-size: 1.125rem">
             {{ bloggerInfo.categoryCount }}
@@ -30,7 +30,7 @@
         </router-link>
       </div>
       <div class="blog-info-data">
-        <router-link :to="rootUri + '/tags'">
+        <router-link to="/tags">
           <div style="font-size: 0.875rem">标签</div>
           <div style="font-size: 1.125rem">
             {{ bloggerInfo.tagCount }}
@@ -41,46 +41,46 @@
     <hr />
     <div class="menu-container">
       <div class="menus-item">
-        <router-link :to="rootUri + '/'">
+        <router-link to="/">
           <i class="iconfont my-icon-home" /> 首页
         </router-link>
       </div>
       <div class="menus-item">
-        <router-link :to="rootUri + '/archives'">
+        <router-link to="/archives">
           <i class="iconfont my-icon-archives" /> 归档
         </router-link>
       </div>
       <div class="menus-item">
-        <router-link :to="rootUri + '/categories'">
+        <router-link to="/categories">
           <i class="iconfont my-icon-sort" /> 分类
         </router-link>
       </div>
       <div class="menus-item">
-        <router-link :to="rootUri + '/tags'">
+        <router-link to="/tags">
           <i class="iconfont my-icon-label" /> 标签
         </router-link>
       </div>
       <div class="menus-item">
-        <router-link :to="rootUri + '/links'">
+        <router-link to="/friendLinks">
           <i class="iconfont my-icon-link" /> 友链
         </router-link>
       </div>
       <div class="menus-item">
-        <router-link :to="rootUri + '/about'">
+        <router-link to="/about">
           <i class="iconfont my-icon-paper-plane" /> 关于
         </router-link>
       </div>
       <div class="menus-item">
-        <router-link :to="rootUri + '/messages'">
+        <router-link to="/messages">
           <i class="iconfont my-icon-comment-group" /> 留言
         </router-link>
       </div>
-      <div class="menus-item" v-if="!this.$store.state.avatar">
+      <div class="menus-item" v-if="this.$store.state.userId == null">
         <a @click="openLogin"><i class="iconfont my-icon-login" /> 登录 </a>
       </div>
       <div v-else>
         <div class="menus-item">
-          <router-link :to="rootUri + '/user'">
+          <router-link to="/user">
             <i class="iconfont my-icon-personal" /> 个人中心
           </router-link>
         </div>

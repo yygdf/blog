@@ -138,4 +138,10 @@ public class ArticleController {
     public Result getArticlesPreview(@Valid Condition condition) {
         return Result.success().message("查询成功").data(articleService.getArticlesPreviewDTO(condition));
     }
+
+    @ApiOperation(value = "查看文章归档")
+    @GetMapping("/articles/archive")
+    public Result getArticlesArchive(@Valid Condition condition) {
+        return Result.success().message("查询成功").data(articleService.getArticlesArchiveDTO(condition));
+    }
 }

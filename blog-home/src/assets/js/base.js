@@ -71,6 +71,14 @@ export async function getBlogInfo() {
         data.data.blogConfig.about_banner_cover =
           "../../assets/img/banner/about.jpg";
       }
+      if (!data.data.blogConfig.archive_banner_cover) {
+        data.data.blogConfig.archive_banner_cover =
+          "../../assets/img/banner/archive.jpg";
+      }
+      if (!data.data.blogConfig.link_banner_cover) {
+        data.data.blogConfig.link_banner_cover =
+          "../../assets/img/banner/link.jpg";
+      }
       store.commit("saveBlogConfig", data.data.blogConfig);
       if (!data.data.bloggerInfo.avatar) {
         data.data.bloggerInfo.avatar = "../../assets/img/default/avatar.png";

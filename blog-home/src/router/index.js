@@ -5,7 +5,7 @@ import Article from "../views/article/Article.vue";
 import Archive from "../views/archive/Archive.vue";
 import Tag from "../views/tag/Tag.vue";
 import Category from "../views/category/Category.vue";
-import Link from "../views/link/Link.vue";
+import FriendLink from "../views/link/FriendLink.vue";
 import About from "../views/about/About.vue";
 import Message from "../views/message/Messsage.vue";
 import ArticleList from "../components/ArticleList.vue";
@@ -58,8 +58,8 @@ const routes = [
     }
   },
   {
-    path: "/:userId(\\d+)?/links",
-    component: Link,
+    path: "/:userId(\\d+)?/friendLinks",
+    component: FriendLink,
     meta: {
       title: "友链"
     }

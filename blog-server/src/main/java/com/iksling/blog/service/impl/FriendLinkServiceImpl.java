@@ -1,8 +1,10 @@
 package com.iksling.blog.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.FriendLinksBackDTO;
+import com.iksling.blog.dto.FriendLinksDTO;
 import com.iksling.blog.entity.FriendLink;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
@@ -95,6 +97,13 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<FriendLinksBackDTO> friendLinksBackDTOList = friendLinkMapper.selectFriendLinksBackDTO(condition);
         return new PagePojo<>(count, friendLinksBackDTOList);
+    }
+
+    @Override
+    public List<FriendLinksDTO> getFriendLinksDTO() {
+        return BeanCopyUtil.copyList(friendLinkMapper.selectList(new LambdaQueryWrapper<FriendLink>()
+                .select(FriendLink::getId, FriendLink::getUserId, FriendLink::getLinkUrl, FriendLink::getLinkDesc, FriendLink::getLinkLogo, FriendLink::getLinkName)
+                .eq(FriendLink::getDeletedFlag, false)), FriendLinksDTO.class);
     }
 }
 

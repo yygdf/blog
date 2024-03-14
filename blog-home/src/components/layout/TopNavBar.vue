@@ -2,7 +2,7 @@
   <v-app-bar app :class="navClass" hide-on-scroll flat height="60">
     <div class="d-md-none nav-mobile-container">
       <div style="font-size:18px;font-weight:bold">
-        <router-link :to="'/'" v-html="logo"></router-link>
+        <router-link to="/" v-html="logo"></router-link>
       </div>
       <div style="margin-left:auto">
         <a @click="openSearch"><i class="iconfont my-icon-search"/></a>
@@ -13,44 +13,44 @@
     </div>
     <div class="d-md-block d-none nav-container">
       <div class="float-left blog-title">
-        <router-link :to="'/'" v-html="logo"></router-link>
+        <router-link to="/" v-html="logo"></router-link>
       </div>
       <div class="float-right nav-title">
         <div class="menus-btn">
           <a @click="openSearch"><i class="iconfont my-icon-search" /> 搜索</a>
         </div>
         <div class="menus-item">
-          <router-link :to="'/'">
+          <router-link to="/">
             <i class="iconfont my-icon-home" /> 首页
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link :to="'/archives'">
+          <router-link to="/archives">
             <i class="iconfont my-icon-archives" /> 归档
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link :to="'/categories'">
+          <router-link to="/categories">
             <i class="iconfont my-icon-sort" /> 分类
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link :to="'/tags'">
+          <router-link to="/tags">
             <i class="iconfont my-icon-label" /> 标签
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link :to="'/links'">
+          <router-link to="/friendLinks">
             <i class="iconfont my-icon-link" /> 友链
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link :to="'/about'">
+          <router-link to="/about">
             <i class="iconfont my-icon-paper-plane" /> 关于
           </router-link>
         </div>
         <div class="menus-item">
-          <router-link :to="'/messages'">
+          <router-link to="/messages">
             <i class="iconfont my-icon-comment-group" /> 留言
           </router-link>
         </div>
@@ -68,7 +68,7 @@
             />
             <ul class="user-submenu">
               <li>
-                <router-link :to="'/user'">
+                <router-link to="/user">
                   <i class="iconfont my-icon-personal" /> 个人中心
                 </router-link>
               </li>

@@ -32,11 +32,7 @@ public class BlogController {
         return Result.success().message("查询成功");
     }
 
-    @ApiOperation(value = "查看关于我")
-    @GetMapping("/about")
-    public Result getAbout() {
-        return Result.success().message("查询成功").data(blogService.getAbout());
-    }
+    /****************************************************************************************************/
 
     @ApiOperation(value = "查看博主id")
     @ApiImplicitParam(name = "bloggerId", value = "博主id", dataType = "Integer")
@@ -49,5 +45,11 @@ public class BlogController {
     @GetMapping("/blog/info")
     public Result getBlogInfo() {
         return Result.success().message("查询成功").data(blogService.getBlogInfo());
+    }
+
+    @ApiOperation(value = "查看关于我")
+    @GetMapping("/about")
+    public Result getAbout() {
+        return Result.success().message("查询成功").data(blogService.getAbout());
     }
 }

@@ -3,6 +3,7 @@ package com.iksling.blog.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.*;
 import com.iksling.blog.entity.*;
@@ -10,6 +11,7 @@ import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.*;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
@@ -18,7 +20,6 @@ import com.iksling.blog.service.ArticleTagService;
 import com.iksling.blog.util.*;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleImageBackVO;
-import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,7 +34,7 @@ import javax.servlet.http.HttpSession;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.*;
+import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.FlagConst.*;
 import static com.iksling.blog.constant.RedisConst.*;
 import static com.iksling.blog.enums.FileDirEnum.IMAGE_ARTICLE;
@@ -462,6 +463,21 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             List<ArticlesPreviewDTO> articlesPreviewDTOList = articleMapper.selectArticlesPreviewDTOByTagId(condition);
             return dict.set("name", mapList.get(0).get("tag_name")).set("articlesPreviewDTOList", articlesPreviewDTOList);
         }
+    }
+
+    @Override
+    public PagePojo<ArticlesArchiveDTO> getArticlesArchiveDTO(Condition condition) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        Integer bloggerId = Integer.valueOf(request.getHeader("Blogger-Id"));
+        Page<Article> page = new Page<>(condition.getCurrent(), condition.getSize());
+        Page<Article> articlePage = articleMapper.selectPage(page, new LambdaQueryWrapper<Article>()
+                .select(Article::getId, Article::getUserId, Article::getArticleTitle, Article::getPublicFlag, Article::getHiddenFlag, Article::getPublishTime)
+                .orderByDesc(Article::getId)
+                .eq(Article::getUserId, bloggerId)
+                .eq(Article::getDraftFlag, false)
+                .and(loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(bloggerId), e -> e.eq(Article::getPublicFlag, true).eq(Article::getHiddenFlag, false)));
+        List<ArticlesArchiveDTO> articlesArchiveDTOList = BeanCopyUtil.copyList(articlePage.getRecords(), ArticlesArchiveDTO.class);
+        return new PagePojo<>((int) articlePage.getTotal(), articlesArchiveDTOList);
     }
 
     private void updateArticleImageBy(Integer loginUserId, Integer articleId, String fileFullPath, Date updateTime) {

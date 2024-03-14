@@ -1,26 +1,21 @@
 <template>
   <div>
-    <!-- banner -->
     <div class="archive-banner banner" :style="cover">
       <h1 class="banner-title">归档</h1>
     </div>
-    <!-- 归档列表 -->
     <v-card class="blog-container">
       <timeline>
         <timeline-title> 目前共计{{ count }}篇文章，继续加油 </timeline-title>
         <timeline-item v-for="item of archiveList" :key="item.id">
-          <!-- 日期 -->
-          <span class="time">{{ item.createTime | date }}</span>
-          <!-- 文章标题 -->
+          <span class="time">{{ item.publicTime | date }}</span>
           <router-link
-            :to="'/articles/' + item.id"
+            :to="'/article/' + item.id"
             style="color:#666;text-decoration: none"
           >
             {{ item.articleTitle }}
           </router-link>
         </timeline-item>
       </timeline>
-      <!-- 分页按钮 -->
       <v-pagination
         color="#00C4B6"
         v-model="current"
@@ -35,7 +30,7 @@
 import { Timeline, TimelineItem, TimelineTitle } from "vue-cute-timeline";
 export default {
   created() {
-    this.listArchives();
+    this.getArchives();
   },
   components: {
     Timeline,
@@ -50,13 +45,13 @@ export default {
     };
   },
   methods: {
-    listArchives() {
+    getArchives() {
       this.axios
-        .get("/api/articles/archives", {
+        .get("/api/articles/archive", {
           params: { current: this.current }
         })
         .then(({ data }) => {
-          this.archiveList = data.data.recordList;
+          this.archiveList = data.data.pageList;
           this.count = data.data.count;
         });
     }
@@ -65,7 +60,7 @@ export default {
     cover() {
       return (
         "background: url(" +
-        this.$store.state.baseInfo.archive +
+        this.$store.state.blogConfig.archive_banner_cover +
         ") center center / cover no-repeat"
       );
     }
@@ -73,11 +68,11 @@ export default {
   watch: {
     current(value) {
       this.axios
-        .get("/api/articles/archives", {
+        .get("/api/articles/archive", {
           params: { current: value }
         })
         .then(({ data }) => {
-          this.archiveList = data.data.recordList;
+          this.archiveList = data.data.pageList;
           this.count = data.data.count;
         });
     }

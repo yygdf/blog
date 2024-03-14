@@ -1,10 +1,8 @@
 <template>
   <div>
-    <!-- banner -->
     <div class="link-banner banner" :style="cover">
       <h1 class="banner-title">友情链接</h1>
     </div>
-    <!-- 链接列表 -->
     <v-card class="blog-container">
       <div class="link-title mb-1">
         <v-icon color="blue">mdi-link-variant</v-icon> 大佬链接
@@ -17,37 +15,36 @@
           v-for="item of friendLinkList"
           :key="item.id"
         >
-          <a :href="item.linkAddress" target="_blank">
+          <a :href="item.linkUrl" target="_blank">
             <v-avatar size="65" class="link-avatar">
-              <img :src="item.linkAvatar" />
+              <img :src="item.linkLogo" alt="" />
             </v-avatar>
             <div style="width:100%;z-index:10;">
               <div class="link-name">{{ item.linkName }}</div>
-              <div class="link-intro">{{ item.linkIntro }}</div>
+              <div class="link-intro">{{ item.linkDesc }}</div>
             </div>
           </a>
         </v-col>
       </v-row>
-      <!-- 说明 -->
       <div class="link-title mt-4 mb-4">
         <v-icon color="blue">mdi-dots-horizontal-circle</v-icon> 添加友链
       </div>
       <blockquote>
         <div>名称：有一个地方, 只有你知道</div>
-        <div>简介：溺水三千, 只救一个</div>
-        <div>头像：https://ksling.cn/static/img/avatar/master.jpg</div>
+        <div>描述：溺水三千, 只救一个</div>
+        <div>图标：https://iksling.com/static/img/logo.png</div>
+        <div>链接：https://iksling.com</div>
       </blockquote>
       <div class="mt-5 mb-5">
         需要交换友链的可在下方留言💖
       </div>
       <blockquote class="mb-10">
-        友链信息展示需要，你的信息格式要包含：名称、介绍、链接、头像
+        友链信息展示需要，你的信息格式要包含：名称、描述、图标、链接
       </blockquote>
-      <!-- 评论 -->
       <Comment
         :commentList="commentList"
         :count="count"
-        @reloadComment="listComments"
+        @reloadComment="getComments"
       />
     </v-card>
   </div>
@@ -60,8 +57,8 @@ export default {
     Comment
   },
   created() {
-    this.listFriendLink();
-    this.listComments();
+    this.getFriendLinks();
+    this.getComments();
   },
   data: function() {
     return {
@@ -71,18 +68,18 @@ export default {
     };
   },
   methods: {
-    listFriendLink() {
-      this.axios.get("/api/links").then(({ data }) => {
+    getFriendLinks() {
+      this.axios.get("/api/friendLinks").then(({ data }) => {
         this.friendLinkList = data.data;
       });
     },
-    listComments() {
+    getComments() {
       this.axios
         .get("/api/comments", {
           params: { current: 1 }
         })
         .then(({ data }) => {
-          this.commentList = data.data.recordList;
+          this.commentList = data.data.pageList;
           this.count = data.data.count;
         });
     }
@@ -91,7 +88,7 @@ export default {
     cover() {
       return (
         "background: url(" +
-        this.$store.state.baseInfo.link +
+        this.$store.state.blogConfig.link_banner_cover +
         ") center center / cover no-repeat"
       );
     }

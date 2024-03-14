@@ -2,6 +2,7 @@ package com.iksling.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.iksling.blog.dto.FriendLinksBackDTO;
+import com.iksling.blog.dto.FriendLinksDTO;
 import com.iksling.blog.entity.FriendLink;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.pojo.Condition;
@@ -22,4 +23,6 @@ public interface FriendLinkService extends IService<FriendLink> {
     void updateFriendLinksStatusBackVO(StatusBackVO statusBackVO);
 
     PagePojo<FriendLinksBackDTO> getFriendLinksBackDTO(Condition condition);
+
+    List<FriendLinksDTO> getFriendLinksDTO();
 }

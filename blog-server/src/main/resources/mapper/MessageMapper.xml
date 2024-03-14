@@ -7,8 +7,6 @@
     <resultMap id="BaseResultMap" type="com.iksling.blog.entity.Message">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="userId" column="user_id" jdbcType="INTEGER"/>
-            <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
-            <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
             <result property="messageSpeed" column="message_speed" jdbcType="INTEGER"/>
             <result property="messageContent" column="message_content" jdbcType="VARCHAR"/>
             <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
@@ -16,15 +14,73 @@
             <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
-        <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
-        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,user_id,avatar,
-        nickname,message_speed,message_content,
-        deleted_flag,ip_source,ip_address,
-        create_user,create_time,update_user,
-        update_time
+        id,user_id,,message_speed,
+        message_content,deleted_flag,ip_source,
+        ip_address,create_user,create_time,
+        update_user,update_time
     </sql>
+
+    <select id="selectMessagesBackDTOCount" resultType="java.lang.Integer">
+        SELECT
+            COUNT(1)
+        FROM
+            tb_message m
+        LEFT JOIN tb_user u ON m.user_id = u.id
+        <where>
+            <choose>
+                <when test="condition.type == 7">
+                    m.deleted_flag = true
+                </when>
+                <otherwise>
+                    m.deleted_flag = false
+                </otherwise>
+            </choose>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND u.nickname LIKE concat('%', #{condition.keywords}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectMessagesBackDTO" resultType="com.iksling.blog.dto.MessagesBackDTO">
+        SELECT
+            m.id,m.user_id,u.avatar,
+            u.nickname,m.message_content,m.ip_source,
+            m.ip_address,m.create_time
+        FROM
+            tb_message m
+        LEFT JOIN tb_user u ON m.user_id = u.id
+        <where>
+            <choose>
+                <when test="condition.type == 7">
+                    m.deleted_flag = true
+                </when>
+                <otherwise>
+                    m.deleted_flag = false
+                </otherwise>
+            </choose>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND u.nickname LIKE concat('%', #{condition.keywords}, '%')
+            </if>
+        </where>
+        ORDER BY
+            m.id DESC
+        LIMIT
+            #{condition.current}, #{condition.size}
+    </select>
+
+    <select id="selectMessagesDTO" resultType="com.iksling.blog.dto.MessagesDTO">
+        SELECT
+            m.id,m.user_id,u.avatar,
+            u.nickname,m.message_speed `time`,m.message_content
+        FROM
+            tb_message m
+        LEFT JOIN tb_user u ON m.user_id = u.id
+        WHERE
+            m.deleted_flag = false
+    </select>
 </mapper>

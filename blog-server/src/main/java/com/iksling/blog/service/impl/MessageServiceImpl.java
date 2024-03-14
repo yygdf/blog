@@ -1,26 +1,28 @@
 package com.iksling.blog.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.MessagesBackDTO;
+import com.iksling.blog.dto.MessagesDTO;
 import com.iksling.blog.entity.Message;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.MessageMapper;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.MessageService;
-import com.iksling.blog.util.BeanCopyUtil;
-import com.iksling.blog.util.CommonUtil;
+import com.iksling.blog.util.IpUtil;
+import com.iksling.blog.util.RegexUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.pojo.Condition;
+import com.iksling.blog.vo.MessageVO;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
@@ -34,6 +36,9 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     implements MessageService{
     @Autowired
     private MessageMapper messageMapper;
+
+    @Resource
+    private HttpServletRequest request;
 
     @Override
     @Transactional
@@ -69,21 +74,37 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
 
     @Override
     public PagePojo<MessagesBackDTO> getMessagesBackDTO(Condition condition) {
-        LambdaQueryWrapper<Message> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        if (DELETED.equals(condition.getType())) {
-            if (UserUtil.getLoginUser().getRoleWeight() > 100)
+        LoginUser loginUser = UserUtil.getLoginUser();
+        if (DELETED.equals(condition.getType()) && loginUser.getRoleWeight() > 100)
                 return new PagePojo<>();
-            lambdaQueryWrapper.eq(Message::getDeletedFlag, true);
-        } else
-            lambdaQueryWrapper.eq(Message::getDeletedFlag, false);
-        Page<Message> page = new Page<>(condition.getCurrent(), condition.getSize());
-        Page<Message> messagePage = messageMapper.selectPage(page, lambdaQueryWrapper
-                .select(Message::getId, Message::getUserId, Message::getAvatar, Message::getNickname, Message::getMessageContent, Message::getIpSource, Message::getIpAddress, Message::getCreateTime)
-                .like(CommonUtil.isNotEmpty(condition.getKeywords()), Message::getNickname, condition.getKeywords())
-                .orderByDesc(Message::getId));
-        if (messagePage.getTotal() == 0)
+        Integer count = messageMapper.selectMessagesBackDTOCount(condition);
+        if (count == 0)
             return new PagePojo<>();
-        return new PagePojo<>((int) messagePage.getTotal(), BeanCopyUtil.copyList(messagePage.getRecords(), MessagesBackDTO.class));
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
+        List<MessagesBackDTO> messagesBackDTOList = messageMapper.selectMessagesBackDTO(condition);
+        return new PagePojo<>(count, messagesBackDTOList);
+    }
+
+    @Override
+    @Transactional
+    public void saveMessageVO(MessageVO messageVO) {
+        Message message = new Message();
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
+        if (loginUserId != -1) {
+            message.setUserId(loginUserId);
+            message.setCreateUser(loginUserId);
+        }
+        message.setMessageSpeed(messageVO.getMessageSpeed());
+        message.setMessageContent(RegexUtil.deleteHTMLTag(messageVO.getMessageContent()));
+        message.setIpAddress(IpUtil.getIpAddress(request));
+        message.setIpSource(message.getIpAddress());
+        message.setCreateTime(new Date());
+        messageMapper.insert(message);
+    }
+
+    @Override
+    public List<MessagesDTO> getMessagesDTO() {
+        return messageMapper.selectMessagesDTO();
     }
 }
 

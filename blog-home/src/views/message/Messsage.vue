@@ -1,17 +1,18 @@
 <template>
   <div>
-    <!-- banner -->
     <div class="message-banner" :style="cover">
-      <!-- 弹幕输入框 -->
       <div class="message-container">
         <h1 class="message-title">留言板</h1>
         <div class="animated fadeInUp message-input-wrapper">
-          <input
-            v-model="messageContent"
-            @click="show = true"
-            @keyup.enter="addToList"
-            placeholder="说点什么吧"
-          />
+          <label>
+            <input
+              v-model="messageContent"
+              @click="show = true"
+              @keyup.enter="addToList"
+              maxlength="100"
+              placeholder="说点什么吧"
+            />
+          </label>
           <button
             class="ml-3 animated bounceInLeft"
             @click="addToList"
@@ -21,16 +22,18 @@
           </button>
         </div>
       </div>
-      <!-- 弹幕列表 -->
       <div class="barrage-container">
         <vue-baberrage :barrageList="barrageList">
           <template v-slot:default="slotProps">
             <span class="barrage-items">
               <img
-                :src="slotProps.item.avatar"
+                :src="
+                  slotProps.item.avatar ? slotProps.item.avatar : defaultAvatar
+                "
                 width="30"
                 height="30"
                 style="border-radius:50%"
+                alt=""
               />
               <span class="ml-2">{{ slotProps.item.nickname }} :</span>
               <span class="ml-2">{{ slotProps.item.messageContent }}</span>
@@ -45,38 +48,37 @@
 <script>
 export default {
   mounted() {
-    this.listMessage();
+    this.getMessages();
   },
   data() {
     return {
       show: false,
       messageContent: "",
-      barrageList: []
+      barrageList: [],
+      defaultAvatar: require("../../assets/img/default/avatar.png")
     };
   },
   methods: {
     addToList() {
-      if (this.messageContent.trim() == "") {
+      if (this.messageContent.trim() === "") {
         this.$toast({ type: "error", message: "留言不能为空" });
         return false;
       }
-      const userAvatar = this.$store.state.avatar
-        ? this.$store.state.avatar
-        : this.$store.state.baseInfo.default_avatar;
-      const userNickname = this.$store.state.nickname
-        ? this.$store.state.nickname
-        : "游客";
-      var message = {
-        avatar: userAvatar,
-        nickname: userNickname,
-        messageContent: this.messageContent,
-        time: Math.floor(Math.random() * (10 - 7)) + 7
+      let message = {
+        messageSpeed:
+          this.messageContent.trim().length > 50
+            ? Math.floor(Math.random() * 5) + 6
+            : Math.floor(Math.random() * 10) + 1,
+        messageContent: this.messageContent
       };
-      this.barrageList.push(message);
-      this.messageContent = "";
-      this.axios.post("/api/messages", message);
+      this.axios.post("/api/message", message).then(({ data }) => {
+        if (data.flag) {
+          this.messageContent = "";
+          this.barrageList.push(message);
+        }
+      });
     },
-    listMessage() {
+    getMessages() {
       this.axios.get("/api/messages").then(({ data }) => {
         if (data.flag) {
           this.barrageList = data.data;
@@ -88,7 +90,7 @@ export default {
     cover() {
       return (
         "background: url(" +
-        this.$store.state.baseInfo.message +
+        this.$store.state.blogConfig.message_banner_cover +
         ") center center / cover no-repeat"
       );
     }

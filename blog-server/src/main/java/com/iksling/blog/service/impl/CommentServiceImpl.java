@@ -51,6 +51,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
 
     @Autowired
     private RedisTemplate redisTemplate;
+
     @Resource
     private HttpServletRequest request;
 

@@ -79,6 +79,10 @@ export async function getBlogInfo() {
         data.data.blogConfig.link_banner_cover =
           "../../assets/img/banner/link.jpg";
       }
+      if (!data.data.blogConfig.message_banner_cover) {
+        data.data.blogConfig.message_banner_cover =
+          "../../assets/img/banner/message.jpg";
+      }
       store.commit("saveBlogConfig", data.data.blogConfig);
       if (!data.data.bloggerInfo.avatar) {
         data.data.bloggerInfo.avatar = "../../assets/img/default/avatar.png";

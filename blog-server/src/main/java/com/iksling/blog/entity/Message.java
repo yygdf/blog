@@ -23,19 +23,9 @@ public class Message implements Serializable {
     private Integer id;
 
     /**
-     * 用户id
+     * 用户id, 默认-1
      */
     private Integer userId;
-
-    /**
-     * 用户头像
-     */
-    private String avatar;
-
-    /**
-     * 用户昵称
-     */
-    private String nickname;
 
     /**
      * 留言速度
@@ -63,7 +53,7 @@ public class Message implements Serializable {
     private String ipAddress;
 
     /**
-     * 创建人
+     * 创建人, 默认-1
      */
     private Integer createUser;
 

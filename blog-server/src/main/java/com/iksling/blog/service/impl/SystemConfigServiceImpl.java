@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Service
 public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, SystemConfig>
     implements SystemConfigService{
-    private HashMap<String, String> systemConfigMap;
+    private static HashMap<String, String> systemConfigMap;
 
     @Autowired
     private SystemConfigMapper systemConfigMapper;

@@ -18,7 +18,7 @@ import java.util.List;
 @Component
 public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocationSecurityMetadataSource {
 
-    private List<ResourceRole> resourceRoleList;
+    private static List<ResourceRole> resourceRoleList;
 
     @Autowired
     private ResourceMapper resourceMapper;

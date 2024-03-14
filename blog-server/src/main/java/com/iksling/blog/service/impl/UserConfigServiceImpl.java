@@ -35,7 +35,7 @@ import static com.iksling.blog.constant.FlagConst.DELETED;
 @Service
 public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserConfig>
     implements UserConfigService{
-    private HashMap<String, String> userConfigMap;
+    private static HashMap<String, String> userConfigMap;
 
     @Autowired
     private UserConfigMapper userConfigMapper;

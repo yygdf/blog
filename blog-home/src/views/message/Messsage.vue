@@ -3,21 +3,15 @@
     <div class="message-banner" :style="cover">
       <div class="message-container">
         <h1 class="message-title">留言板</h1>
-        <div class="animated fadeInUp message-input-wrapper">
-          <label>
-            <input
-              v-model="messageContent"
-              @click="show = true"
-              @keyup.enter="addToList"
-              maxlength="100"
-              placeholder="说点什么吧"
-            />
-          </label>
-          <button
-            class="ml-3 animated bounceInLeft"
-            @click="addToList"
-            v-show="show"
-          >
+        <div class="message-input-wrapper">
+          <input
+            v-model="messageContent"
+            @click="show = true"
+            @keyup.enter="addToList"
+            maxlength="100"
+            placeholder="说点什么吧"
+          />
+          <button @click="addToList" v-show="show">
             发送
           </button>
         </div>
@@ -35,7 +29,12 @@
                 style="border-radius:50%"
                 alt=""
               />
-              <span class="ml-2">{{ slotProps.item.nickname }} :</span>
+              <span class="ml-2"
+                >{{
+                  slotProps.item.nickname ? slotProps.item.nickname : "游客"
+                }}
+                :</span
+              >
               <span class="ml-2">{{ slotProps.item.messageContent }}</span>
             </span>
           </template>
@@ -68,13 +67,18 @@ export default {
         messageSpeed:
           this.messageContent.trim().length > 50
             ? Math.floor(Math.random() * 5) + 6
-            : Math.floor(Math.random() * 10) + 1,
+            : Math.floor(Math.random() * 8) + 3,
         messageContent: this.messageContent
       };
       this.axios.post("/api/message", message).then(({ data }) => {
         if (data.flag) {
           this.messageContent = "";
-          this.barrageList.push(message);
+          this.barrageList.push({
+            avatar: this.$store.state.avatar,
+            nickname: this.$store.state.nickname,
+            time: message.messageSpeed,
+            messageContent: message.messageContent
+          });
         }
       });
     },

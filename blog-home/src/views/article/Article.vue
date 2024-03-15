@@ -313,7 +313,7 @@ export default {
       readTime: "",
       articleHref: location.href,
       clipboard: null,
-      defaultArticleCover: require("../../assets/img/default/article.jpg")
+      defaultArticleCover: this.$store.state.blogConfig.article_default_cover
     };
   },
   methods: {
@@ -477,7 +477,7 @@ export default {
     articleCover() {
       let cover =
         this.article.articleCover === ""
-          ? this.blogConfig.article_banner_cover
+          ? this.blogConfig.article_default_cover
           : this.article.articleCover;
       return "background: url(" + cover + ") center center / cover no-repeat";
     },

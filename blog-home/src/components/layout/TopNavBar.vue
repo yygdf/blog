@@ -68,7 +68,7 @@
             />
             <ul class="user-submenu">
               <li>
-                <router-link to="/user">
+                <router-link to="/personal">
                   <i class="iconfont my-icon-personal" /> 个人中心
                 </router-link>
               </li>
@@ -92,7 +92,6 @@
 
 <script>
 import logoPic from "../../assets/img/logo.png";
-
 export default {
   mounted() {
     window.addEventListener("scroll", this.scroll);

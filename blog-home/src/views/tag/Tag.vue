@@ -42,7 +42,7 @@ export default {
     cover() {
       return (
         "background: url(" +
-        this.$store.state.bloggerInfo.tag_banner_cover +
+        this.$store.state.blogConfig.tag_banner_cover +
         ") center center / cover no-repeat"
       );
     }

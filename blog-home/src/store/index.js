@@ -8,7 +8,6 @@ export default new Vuex.Store({
   state: {
     loginUrl: "",
     rootUri: "",
-    drawer: false,
     loginFlag: false,
     emailFlag: false,
     resetFlag: false,
@@ -60,7 +59,7 @@ export default new Vuex.Store({
     saveEmail(state, email) {
       state.email = email;
     },
-    updateLoginInfo(state, userInfo) {
+    updateUserInfo(state, userInfo) {
       state.intro = userInfo.intro;
       state.website = userInfo.website;
       state.nickname = userInfo.nickname;

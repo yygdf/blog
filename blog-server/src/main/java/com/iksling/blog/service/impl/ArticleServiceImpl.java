@@ -442,26 +442,26 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         condition.setFlag(loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(condition.getUserId()));
         Dict dict = Dict.create();
         if (condition.getType() != null) {
-            List<Map<String, Object>> mapList = categoryMapper.selectMaps(new LambdaQueryWrapper<Category>()
+            List<Object> objectList = categoryMapper.selectObjs(new LambdaQueryWrapper<Category>()
                     .select(Category::getCategoryName)
                     .eq(Category::getId, condition.getCategoryId())
                     .eq(Category::getUserId, Integer.valueOf(request.getHeader("Blogger-Id")))
                     .eq(Category::getDeletedFlag, false)
                     .and(condition.getFlag(), e -> e.eq(Category::getPublicFlag, true).eq(Category::getHiddenFlag, false)));
-            if (mapList.isEmpty())
+            if (objectList.isEmpty())
                 return dict.set("articlesPreviewDTOList", new ArrayList<>());
             List<ArticlesPreviewDTO> articlesPreviewDTOList = articleMapper.selectArticlesPreviewDTOByCategoryId(condition);
-            return dict.set("name", mapList.get(0).get("category_name")).set("articlesPreviewDTOList", articlesPreviewDTOList);
+            return dict.set("name", objectList.get(0)).set("articlesPreviewDTOList", articlesPreviewDTOList);
         } else {
-            List<Map<String, Object>> mapList = tagMapper.selectMaps(new LambdaQueryWrapper<Tag>()
+            List<Object> objectList = tagMapper.selectObjs(new LambdaQueryWrapper<Tag>()
                     .select(Tag::getTagName)
                     .eq(Tag::getId, condition.getCategoryId())
                     .eq(Tag::getDeletedFlag, false)
                     .eq(Tag::getUserId, Integer.valueOf(request.getHeader("Blogger-Id"))));
-            if (mapList.isEmpty())
+            if (objectList.isEmpty())
                 return dict.set("articlesPreviewDTOList", new ArrayList<>());
             List<ArticlesPreviewDTO> articlesPreviewDTOList = articleMapper.selectArticlesPreviewDTOByTagId(condition);
-            return dict.set("name", mapList.get(0).get("tag_name")).set("articlesPreviewDTOList", articlesPreviewDTOList);
+            return dict.set("name", objectList.get(0)).set("articlesPreviewDTOList", articlesPreviewDTOList);
         }
     }
 

@@ -283,36 +283,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         userAvatarVO.setFile(null);
         MultiFileUtil.checkValidFile(file, IMAGE_AVATAR, true);
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
-        List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
-                .select(MultiFile::getFileFullPath)
+        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId, MultiFile::getFileFullPath)
                 .eq(MultiFile::getUserId, loginUserId)
-                .eq(MultiFile::getFileMark, IMAGE_AVATAR.getCurrentPath())
-                .eq(MultiFile::getDeletedCount, 0));
-        if (objectList.isEmpty())
+                .and(e -> e.eq(MultiFile::getFileName, IMAGE_AVATAR.getCurrentPath()).or().eq(MultiFile::getFileMark, IMAGE_AVATAR.getCurrentPath()))
+                .eq(MultiFile::getDeletedCount, 0)
+                .orderByAsc(MultiFile::getId));
+        if (mapList.isEmpty())
             throw new OperationStatusException();
         String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
         long fileName = IdWorker.getId();
-        String targetAddr = objectList.get(0).toString();
+        String targetAddr = mapList.get(0).get("file_full_path").toString();
         String fullFileName = fileName + "." + originalFilenameArr[1];
         if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
             throw new FileStatusException("文件上传失败!");
         Date dateTime = new Date();
         String url = STATIC_RESOURCE_URL + loginUserId + "/" + IMAGE_AVATAR.getPath() + "/" + fullFileName;
-        if (!objectList.isEmpty())
-            updateUserAvatarBy(loginUserId, targetAddr, dateTime);
+        if (mapList.size() > 1)
+            updateUserAvatarBy(loginUserId, mapList.get(1).get("file_full_path").toString(), dateTime);
         userMapper.update(null, new LambdaUpdateWrapper<User>()
                 .set(User::getAvatar, url)
                 .set(User::getUpdateUser, loginUserId)
                 .set(User::getUpdateTime, dateTime)
                 .eq(User::getId, loginUserId));
-        objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
-                .select(MultiFile::getId)
-                .eq(MultiFile::getUserId, loginUserId)
-                .eq(MultiFile::getFileName, IMAGE_AVATAR.getCurrentPath()));
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(loginUserId)
-                .parentId((Integer) objectList.get(0))
+                .parentId((Integer) mapList.get(0).get("id"))
                 .fileDesc("{'userId':"+loginUserId+"}")
                 .fileMark(IMAGE_AVATAR.getCurrentPath().intValue())
                 .fileName(fileName)

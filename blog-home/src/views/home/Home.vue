@@ -227,7 +227,7 @@ export default {
       },
       articleList: [],
       current: 1,
-      defaultArticleCover: require("../../assets/img/default/article.jpg")
+      defaultArticleCover: this.$store.state.blogConfig.article_default_cover
     };
   },
   methods: {

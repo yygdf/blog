@@ -9,7 +9,7 @@ import FriendLink from "../views/link/FriendLink.vue";
 import About from "../views/about/About.vue";
 import Message from "../views/message/Messsage.vue";
 import ArticleList from "../components/ArticleList.vue";
-import User from "../views/user/User.vue";
+import Personal from "../views/personal/Personal.vue";
 import OauthLogin from "../components/OauthLogin.vue";
 
 Vue.use(VueRouter);
@@ -86,8 +86,8 @@ const routes = [
     }
   },
   {
-    path: "/:userId(\\d+)?/user",
-    component: User,
+    path: "/:userId(\\d+)?/personal",
+    component: Personal,
     meta: {
       title: "个人中心"
     }

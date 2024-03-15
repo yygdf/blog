@@ -80,7 +80,7 @@
       </div>
       <div v-else>
         <div class="menus-item">
-          <router-link to="/user">
+          <router-link to="/personal">
             <i class="iconfont my-icon-personal" /> 个人中心
           </router-link>
         </div>

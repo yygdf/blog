@@ -183,7 +183,9 @@ import AvatarCropper from "vue-avatar-cropper";
 export default {
   components: { AvatarCropper },
   created() {
-    this.getAbout();
+    if (this.$store.state.weight <= 400) {
+      this.getAbout();
+    }
   },
   data: function() {
     return {

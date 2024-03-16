@@ -10,11 +10,6 @@ public class CommonConst {
     public static final String ADMIN_CONTACT = "QQ:294513634";
 
     /**
-     * 网站管理员邮箱
-     */
-    public static final String ADMIN_EMAIL = "294513634@qq.com";
-
-    /**
      * 默认用户密码
      */
     public static final String DEFAULT_PASSWORD = "$2a$10$4DSTSm0GlWleNGt.eQ4mCuq6m4FiiNx9JJp0hl2SdEP5J5JtEjrHC";

@@ -55,7 +55,7 @@
           </router-link>
         </div>
         <div class="user-btn">
-          <a v-if="!this.$store.state.avatar" @click="openLogin">
+          <a v-if="this.$store.state.userId == null" @click="openLogin">
             <i class="iconfont my-icon-login" /> 登录
           </a>
           <template v-else>

@@ -125,4 +125,24 @@ public class UserController {
                 .set("rootUserIdList", ROOT_USER_ID_LIST)
                 .set("pagePojo", userService.getUserOnlinesBackDTO(condition)));
     }
+
+    /****************************************************************************************************/
+
+    @OptLog(optType = SAVE)
+    @ApiOperation(value = "发送邮箱注册验证码")
+    @ApiImplicitParam(name = "email", value = "邮箱号", required = true, dataType = "String")
+    @PostMapping("/user/register/email")
+    public Result saveUserRegisterEmail(@RequestBody String email) {
+        userService.saveUserRegisterEmail(email);
+        return Result.success().message("发送成功");
+    }
+
+    @OptLog(optType = SAVE)
+    @ApiOperation(value = "用户注册")
+    @ApiImplicitParam(name = "userRegisterVO", value = "用户注册VO", required = true, dataType = "UserRegisterVO")
+    @PostMapping("/user/register")
+    public Result saveUserRegister(@Valid @RequestBody UserRegisterVO userRegisterVO) {
+        userService.saveUserRegisterVO(userRegisterVO);
+        return Result.success().message("注册成功");
+    }
 }

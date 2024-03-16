@@ -1,5 +1,6 @@
 package com.iksling.blog.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
@@ -18,15 +19,21 @@ import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.mapper.UserRoleMapper;
 import com.iksling.blog.pojo.Condition;
+import com.iksling.blog.pojo.Email;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.service.UserService;
 import com.iksling.blog.util.*;
 import com.iksling.blog.vo.*;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,10 +41,15 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.*;
-import static com.iksling.blog.constant.FlagConst.*;
+import static com.iksling.blog.constant.FlagConst.DELETED;
+import static com.iksling.blog.constant.FlagConst.HISTORY;
+import static com.iksling.blog.constant.MQConst.EMAIL_EXCHANGE;
+import static com.iksling.blog.constant.RedisConst.CODE_EXPIRE_TIME;
+import static com.iksling.blog.constant.RedisConst.EMAIL_REGISTER_CODE;
 import static com.iksling.blog.enums.FileDirEnum.*;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
 
@@ -64,6 +76,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private SessionRegistry sessionRegistry;
     @Resource
     private HttpServletRequest request;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     @Transactional
@@ -73,7 +92,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = BeanCopyUtil.copyObject(userBackVO, User.class);
         Integer userId = user.getId();
         if (userId == null) {
-            if (userBackVO.getUsername() == null || user.getNickname() == null || !RegexUtil.checkEmail(user.getEmail()))
+            if (userBackVO.getUsername() == null || user.getNickname() == null || user.getEmail() == null || !RegexUtil.checkEmail(user.getEmail()))
                 throw new OperationStatusException();
             if (userMapper.selectBackUserAvatarById(user.getEmail(), userBackVO.getUsername(), null) != null)
                 throw new OperationStatusException("用户已存在!");
@@ -341,7 +360,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public boolean getBackUserExistFlag(String email, String username) {
-        if (CommonUtil.isEmpty(email) && CommonUtil.isEmpty(username))
+        if (email != null && !RegexUtil.checkEmail(email))
             return false;
         return userMapper.selectBackUserAvatarById(email, username, null) != null;
     }
@@ -366,6 +385,107 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<Integer> idList = onlineUserIdList.subList(current, size);
         List<UserOnlinesBackDTO> userOnlinesBackDTOList = userMapper.selectUserOnlinesBackDTO(idList);
         return new PagePojo<>(count, userOnlinesBackDTOList);
+    }
+
+    @Override
+    @Transactional
+    public void saveUserRegisterEmail(String email) {
+        Object o = JSON.parseObject(email, Map.class).get("email");
+        if (o == null)
+            throw new OperationStatusException();
+        email = o.toString();
+        if (!RegexUtil.checkEmail(email))
+            throw new OperationStatusException();
+        if (userMapper.selectBackUserAvatarById(email, null, null) != null)
+            throw new OperationStatusException("该邮箱号已被注册!");
+        StringBuilder code = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 6; i++)
+            code.append(random.nextInt(10));
+        Email e = Email.builder()
+                .email(email)
+                .subject("邮箱注册验证码")
+                .content("您的验证码为 " + code.toString() + " 有效期15分钟,请不要告诉他人哦!")
+                .build();
+        rabbitTemplate.convertAndSend(EMAIL_EXCHANGE, "*", new Message(JSON.toJSONBytes(e), new MessageProperties()));
+        redisTemplate.boundValueOps(EMAIL_REGISTER_CODE + email).set(code);
+        redisTemplate.expire(EMAIL_REGISTER_CODE + email, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    @Transactional
+    public void saveUserRegisterVO(UserRegisterVO userRegisterVO) {
+        String email = userRegisterVO.getEmail();
+        if (!RegexUtil.checkEmail(email))
+            throw new OperationStatusException();
+        if (userMapper.selectBackUserAvatarById(email, userRegisterVO.getUsername(), null) != null)
+            throw new OperationStatusException("用户名或邮箱已注册!");
+        Object code = redisTemplate.boundValueOps(EMAIL_REGISTER_CODE + email).get();
+        if (code == null)
+            throw new OperationStatusException("验证码不存在或已过期!");
+        if (!userRegisterVO.getCode().equals(code.toString()))
+            throw new OperationStatusException("验证码错误!");
+        Date createTime = new Date();
+        User user = User.builder()
+                .email(userRegisterVO.getEmail())
+                .nickname("用户" + IdWorker.getId())
+                .createTime(createTime).build();
+        userMapper.insert(user);
+        Integer userId = user.getId();
+        userAuthMapper.insert(UserAuth.builder()
+                .userId(userId)
+                .username(userRegisterVO.getUsername())
+                .password(passwordEncoder.encode(userRegisterVO.getPassword()))
+                .createUser(userId)
+                .createTime(createTime)
+                .build());
+        userRoleMapper.insert(UserRole.builder()
+                .userId(userId)
+                .roleId(DEFAULT_ROLE_ID)
+                .build());
+        List<MultiFile> multiFileList = new ArrayList<>();
+        multiFileList.add(MultiFile.builder()
+                .userId(userId)
+                .fileName(IMAGE.getCurrentPath())
+                .fileFullPath(userId + "/" + IMAGE.getPath())
+                .fileNameOrigin(IMAGE.getName())
+                .deletableFlag(false)
+                .createUser(userId)
+                .createTime(createTime)
+                .build());
+        multiFileList.add(MultiFile.builder()
+                .userId(userId)
+                .fileName(AUDIO.getCurrentPath())
+                .fileFullPath(userId + "/" + AUDIO.getPath())
+                .fileNameOrigin(AUDIO.getName())
+                .deletableFlag(false)
+                .createUser(userId)
+                .createTime(createTime)
+                .build());
+        multiFileService.saveBatch(multiFileList);
+        multiFileList.add(MultiFile.builder()
+                .userId(userId)
+                .parentId(multiFileList.get(0).getId())
+                .fileName(IMAGE_AVATAR.getCurrentPath())
+                .fileFullPath(userId + "/" + IMAGE_AVATAR.getPath())
+                .fileNameOrigin(IMAGE_AVATAR.getName())
+                .deletableFlag(false)
+                .createUser(userId)
+                .createTime(createTime)
+                .build());
+        multiFileList.add(MultiFile.builder()
+                .userId(userId)
+                .parentId(multiFileList.get(1).getId())
+                .fileName(AUDIO_CHAT.getCurrentPath())
+                .fileFullPath(userId + "/" + AUDIO_CHAT.getPath())
+                .fileNameOrigin(AUDIO_CHAT.getName())
+                .deletableFlag(false)
+                .createUser(userId)
+                .createTime(createTime)
+                .build());
+        multiFileList.remove(0);
+        multiFileList.remove(0);
+        multiFileService.saveBatch(multiFileList);
     }
 
     private void updateUserAvatarBy(Integer loginUserId, String fileFullPath, Date updateTime) {

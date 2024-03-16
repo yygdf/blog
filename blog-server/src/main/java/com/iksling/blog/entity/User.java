@@ -44,7 +44,7 @@ public class User implements Serializable {
     private String avatar;
 
     /**
-     * 用户性别
+     * 用户性别, 默认-1
      */
     private Integer gender;
 
@@ -59,7 +59,7 @@ public class User implements Serializable {
     private String nickname;
 
     /**
-     * 创建人
+     * 创建人, 默认null
      */
     private Integer createUser;
 

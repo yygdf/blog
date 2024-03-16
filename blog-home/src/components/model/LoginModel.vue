@@ -107,7 +107,7 @@ export default {
         });
         captcha.show();
       } else {
-        this.login(this);
+        this.login();
       }
     },
     login() {
@@ -118,6 +118,9 @@ export default {
         if (data.flag) {
           localStorage.setItem("username", this.username);
           this.password = "";
+          if (!data.data.avatar) {
+            data.data.avatar = require("../../assets/img/default/avatar.png");
+          }
           this.$store.commit("login", data.data);
           this.$store.commit("closeModel");
           this.$toast({ type: "success", message: data.message });

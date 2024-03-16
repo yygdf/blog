@@ -36,4 +36,8 @@ public interface UserService extends IService<User> {
     boolean getBackUserExistFlag(String email, String username);
 
     PagePojo<UserOnlinesBackDTO> getUserOnlinesBackDTO(Condition condition);
+
+    void saveUserRegisterEmail(String email);
+
+    void saveUserRegisterVO(UserRegisterVO userRegisterVO);
 }

@@ -23,6 +23,7 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,13 +35,15 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.Date;
 
-import static com.iksling.blog.constant.CommonConst.ADMIN_EMAIL;
-import static com.iksling.blog.constant.MQConst.EMAIL_EXCHANGE;
 import static com.iksling.blog.constant.LogConst.QUERY;
+import static com.iksling.blog.constant.MQConst.EMAIL_EXCHANGE;
 
 @Aspect
 @Component
 public class LogAspect {
+    @Value("${spring.mail.username}")
+    private String ADMIN_EMAIL;
+
     @Autowired
     private OperationLogMapper operationLogMapper;
     @Autowired

@@ -45,4 +45,14 @@ public class RedisConst {
      * 关于我
      */
     public static final String BLOG_ABOUT_ME = "blog_about_me";
+
+    /**
+     * 邮箱注册验证码前缀
+     */
+    public static final String EMAIL_REGISTER_CODE = "email_register_code";
+
+    /**
+     * 邮箱验证码过期时间
+     */
+    public static final Integer CODE_EXPIRE_TIME = 15 * 60 * 1000;
 }

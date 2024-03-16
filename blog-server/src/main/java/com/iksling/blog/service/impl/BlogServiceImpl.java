@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.iksling.blog.entity.*;
 import com.iksling.blog.mapper.*;
-import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.BlogService;
 import com.iksling.blog.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,12 +52,9 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Transactional
     public void updateBackAbout(String aboutContent) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        if (loginUser.getRoleWeight() <= 400) {
-            Object o = JSON.parseObject(aboutContent, Map.class).get("aboutContent");
-            if (o != null)
-                redisTemplate.boundHashOps(BLOG_ABOUT_ME).put(loginUser.getUserId().toString(), o);
-        }
+        Object o = JSON.parseObject(aboutContent, Map.class).get("aboutContent");
+        if (o != null)
+            redisTemplate.boundHashOps(BLOG_ABOUT_ME).put(UserUtil.getLoginUser().getUserId().toString(), o);
     }
 
     @Override

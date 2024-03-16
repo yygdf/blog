@@ -109,6 +109,7 @@ new Vue({
   vuetify,
   render: h => h(App),
   created() {
+    store.commit("closeModel");
     getBloggerId();
     getBlogInfo().then();
   }

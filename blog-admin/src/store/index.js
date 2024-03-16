@@ -11,7 +11,7 @@ export default new Vuex.Store({
     userId: null,
     email: "",
     intro: "",
-    avatar: "",
+    avatar: null,
     gender: null,
     weight: 1000,
     website: "",

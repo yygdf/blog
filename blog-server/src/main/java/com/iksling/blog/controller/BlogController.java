@@ -28,7 +28,7 @@ public class BlogController {
 
     @ApiOperation(value = "查看后台首页信息")
     @GetMapping("/back/blog/home")
-    public Result getBack() {
+    public Result getBackBlogHome() {
         return Result.success().message("查询成功");
     }
 

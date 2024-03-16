@@ -137,6 +137,9 @@ export default {
         })
         .then(({ data }) => {
           if (data.flag) {
+            if (!data.data.avatar) {
+              data.data.avatar = require("../../assets/img/default/avatar.png");
+            }
             this.$store.commit("login", data.data);
             generateMenu().then(() => {
               localStorage.setItem("username", this.loginForm.username);

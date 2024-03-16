@@ -5,8 +5,6 @@ import java.util.regex.Pattern;
 
 public class RegexUtil {
     public static boolean checkEmail(String email) {
-        if (CommonUtil.isEmpty(email))
-            return false;
         String rule = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$";
         Pattern p = Pattern.compile(rule);
         Matcher m = p.matcher(email);

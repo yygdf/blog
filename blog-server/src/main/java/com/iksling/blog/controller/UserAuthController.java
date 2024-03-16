@@ -1,10 +1,11 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserAuthService;
-import com.iksling.blog.pojo.Condition;
+import com.iksling.blog.vo.PasswordForgetVO;
 import com.iksling.blog.vo.PasswordVO;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.UserAuthBackVO;
@@ -71,5 +72,16 @@ public class UserAuthController {
     @GetMapping("/back/userAuth/usernames")
     public Result getBackUsernames(String keywords) {
         return Result.success().message("查询成功").data(userAuthService.getBackUsernames(keywords));
+    }
+
+    /****************************************************************************************************/
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "忘记密码")
+    @ApiImplicitParam(name = "passwordForgetVO", value = "忘记密码VO", required = true, dataType = "PasswordForgetVO")
+    @PutMapping("/userAuth/forget")
+    public Result updateUserForgetPassword(@Valid @RequestBody PasswordForgetVO passwordForgetVO) {
+        userAuthService.updateUserForgetPasswordVO(passwordForgetVO);
+        return Result.success().message("重设成功");
     }
 }

@@ -5,6 +5,7 @@ import com.iksling.blog.dto.LabelBackDTO;
 import com.iksling.blog.dto.UserAuthsBackDTO;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.pojo.PagePojo;
+import com.iksling.blog.vo.PasswordForgetVO;
 import com.iksling.blog.vo.PasswordVO;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.pojo.Condition;
@@ -26,4 +27,6 @@ public interface UserAuthService extends IService<UserAuth> {
     PagePojo<UserAuthsBackDTO> getUserAuthsBackDTO(Condition condition);
 
     List<LabelBackDTO> getBackUsernames(String keywords);
+
+    void updateUserForgetPasswordVO(PasswordForgetVO passwordForgetVO);
 }

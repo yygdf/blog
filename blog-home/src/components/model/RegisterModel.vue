@@ -127,7 +127,7 @@ export default {
     sendCode() {
       this.countDown();
       this.axios
-        .post("/api/user/register/email", {
+        .post("/api/user/email/code", {
           email: this.email
         })
         .then(({ data }) => {
@@ -175,16 +175,16 @@ export default {
       };
       this.axios.post("/api/user/register", user).then(({ data }) => {
         if (data.flag) {
+          this.code = "";
+          this.email = "";
+          this.username = "";
+          this.password = "";
           let param = new URLSearchParams();
           param.append("username", user.username);
           param.append("password", user.password);
           this.axios.post("/api/login", param).then(({ data }) => {
             if (data.flag) {
-              localStorage.setItem("username", this.username);
-              this.code = "";
-              this.email = "";
-              this.username = "";
-              this.password = "";
+              localStorage.setItem("username", user.username);
               if (!data.data.avatar) {
                 data.data.avatar = require("../../assets/img/default/avatar.png");
               }

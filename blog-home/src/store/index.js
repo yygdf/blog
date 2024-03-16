@@ -81,6 +81,8 @@ export default new Vuex.Store({
     closeModel(state) {
       state.loginFlag = false;
       state.emailFlag = false;
+      state.resetFlag = false;
+      state.forgetFlag = false;
       state.searchFlag = false;
       state.registerFlag = false;
     },

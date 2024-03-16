@@ -9,6 +9,7 @@ import com.iksling.blog.entity.*;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.*;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.MultiFileService;
@@ -17,12 +18,14 @@ import com.iksling.blog.service.UserConfigService;
 import com.iksling.blog.service.UserRoleService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.CommonUtil;
+import com.iksling.blog.util.RegexUtil;
 import com.iksling.blog.util.UserUtil;
-import com.iksling.blog.pojo.Condition;
+import com.iksling.blog.vo.PasswordForgetVO;
 import com.iksling.blog.vo.PasswordVO;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.UserAuthBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,11 +33,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.LOCKED;
+import static com.iksling.blog.constant.RedisConst.EMAIL_FORGET_CODE;
 import static com.iksling.blog.enums.FileDirEnum.*;
 
 /**
@@ -48,6 +53,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
 
     @Autowired
     private RoleMapper roleMapper;
+    @Autowired
+    private UserMapper userMapper;
     @Autowired
     private UserRoleMapper userRoleMapper;
     @Autowired
@@ -64,6 +71,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     private SessionRegistry sessionRegistry;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     @Transactional
@@ -197,7 +206,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
             userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                     .set(UserAuth::getPassword, passwordEncoder.encode(passwordVO.getNewPassword()))
                     .set(UserAuth::getUpdateUser, loginUserId)
-                    .set(UserAuth::getUpdateTime, new Date()));
+                    .set(UserAuth::getUpdateTime, new Date())
+                    .eq(UserAuth::getUserId, loginUserId));
             passwordVO.setOldPassword(null);
             passwordVO.setNewPassword(null);
         } else {
@@ -229,6 +239,31 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                         .id((Integer)e.get("user_id"))
                         .label(e.get("username").toString())
                         .build()).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void updateUserForgetPasswordVO(PasswordForgetVO passwordForgetVO) {
+        String email = passwordForgetVO.getEmail();
+        if (!RegexUtil.checkEmail(email))
+            throw new OperationStatusException();
+        List<Object> objectList = userMapper.selectObjs(new LambdaQueryWrapper<User>()
+                .select(User::getId)
+                .eq(User::getEmail, email)
+                .exists("select id from tb_user_auth where user_id=id and deleted_flag=false"));
+        if (objectList.isEmpty())
+            throw new OperationStatusException("该邮箱号不存在!");
+        Object code = redisTemplate.boundValueOps(EMAIL_FORGET_CODE + "_" + email).get();
+        if (code == null)
+            throw new OperationStatusException("验证码不存在或已失效!");
+        if (!passwordForgetVO.getCode().equals(code.toString()))
+            throw new OperationStatusException("验证码错误!");
+        userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
+                        .set(UserAuth::getPassword, passwordEncoder.encode(passwordForgetVO.getPassword()))
+                        .set(UserAuth::getUpdateUser, objectList.get(0))
+                        .set(UserAuth::getUpdateTime, new Date())
+                        .eq(UserAuth::getUserId, objectList.get(0)));
+        redisTemplate.expire(EMAIL_FORGET_CODE + "_" + email, 0, TimeUnit.MILLISECONDS);
     }
 
     private void offlineByUserId(Integer userId) {

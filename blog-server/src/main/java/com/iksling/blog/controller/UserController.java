@@ -129,11 +129,11 @@ public class UserController {
     /****************************************************************************************************/
 
     @OptLog(optType = SAVE)
-    @ApiOperation(value = "发送邮箱注册验证码")
-    @ApiImplicitParam(name = "email", value = "邮箱号", required = true, dataType = "String")
-    @PostMapping("/user/register/email")
-    public Result saveUserRegisterEmail(@RequestBody String email) {
-        userService.saveUserRegisterEmail(email);
+    @ApiOperation(value = "发送邮箱验证码")
+    @ApiImplicitParam(name = "emailCodeVO", value = "邮箱验证码VO", required = true, dataType = "EmailCodeVO")
+    @PostMapping("/user/email/code")
+    public Result saveUserEmailCode(@Valid @RequestBody EmailCodeVO emailCodeVO) {
+        userService.saveUserEmailCode(emailCodeVO);
         return Result.success().message("发送成功");
     }
 

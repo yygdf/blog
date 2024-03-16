@@ -48,8 +48,7 @@ import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.HISTORY;
 import static com.iksling.blog.constant.MQConst.EMAIL_EXCHANGE;
-import static com.iksling.blog.constant.RedisConst.CODE_EXPIRE_TIME;
-import static com.iksling.blog.constant.RedisConst.EMAIL_REGISTER_CODE;
+import static com.iksling.blog.constant.RedisConst.*;
 import static com.iksling.blog.enums.FileDirEnum.*;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
 
@@ -389,27 +388,37 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     @Transactional
-    public void saveUserRegisterEmail(String email) {
-        Object o = JSON.parseObject(email, Map.class).get("email");
-        if (o == null)
-            throw new OperationStatusException();
-        email = o.toString();
+    public void saveUserEmailCode(EmailCodeVO emailCodeVO) {
+        String email = emailCodeVO.getEmail();
         if (!RegexUtil.checkEmail(email))
             throw new OperationStatusException();
-        if (userMapper.selectBackUserAvatarById(email, null, null) != null)
-            throw new OperationStatusException("该邮箱号已被注册!");
+        Email e;
         StringBuilder code = new StringBuilder();
         Random random = new Random();
         for (int i = 0; i < 6; i++)
             code.append(random.nextInt(10));
-        Email e = Email.builder()
-                .email(email)
-                .subject("邮箱注册验证码")
-                .content("您的验证码为 " + code.toString() + " 有效期15分钟,请不要告诉他人哦!")
-                .build();
+        if (emailCodeVO.getType() == null) {
+            if (userMapper.selectBackUserAvatarById(email, null, null) != null)
+                throw new OperationStatusException("该邮箱号已被注册!");
+            e = Email.builder()
+                    .email(email)
+                    .subject("邮箱注册验证码")
+                    .content("您的验证码为 " + code.toString() + " 有效期15分钟,请不要告诉他人哦!")
+                    .build();
+            redisTemplate.boundValueOps(EMAIL_REGISTER_CODE + "_" + email).set(code);
+            redisTemplate.expire(EMAIL_REGISTER_CODE + "_" + email, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+        } else {
+            if (userMapper.selectBackUserAvatarById(email, null, null) == null)
+                throw new OperationStatusException("该邮箱号不存在!");
+            e = Email.builder()
+                    .email(email)
+                    .subject("重设密码验证码")
+                    .content("您的验证码为 " + code.toString() + " 有效期15分钟,如果非本人操作请忽略!")
+                    .build();
+            redisTemplate.boundValueOps(EMAIL_FORGET_CODE + "_" + email).set(code);
+            redisTemplate.expire(EMAIL_FORGET_CODE + "_" + email, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+        }
         rabbitTemplate.convertAndSend(EMAIL_EXCHANGE, "*", new Message(JSON.toJSONBytes(e), new MessageProperties()));
-        redisTemplate.boundValueOps(EMAIL_REGISTER_CODE + email).set(code);
-        redisTemplate.expire(EMAIL_REGISTER_CODE + email, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -420,9 +429,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new OperationStatusException();
         if (userMapper.selectBackUserAvatarById(email, userRegisterVO.getUsername(), null) != null)
             throw new OperationStatusException("用户名或邮箱已注册!");
-        Object code = redisTemplate.boundValueOps(EMAIL_REGISTER_CODE + email).get();
+        Object code = redisTemplate.boundValueOps(EMAIL_REGISTER_CODE + "_" + email).get();
         if (code == null)
-            throw new OperationStatusException("验证码不存在或已过期!");
+            throw new OperationStatusException("验证码不存在或已失效!");
         if (!userRegisterVO.getCode().equals(code.toString()))
             throw new OperationStatusException("验证码错误!");
         Date createTime = new Date();
@@ -486,6 +495,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         multiFileList.remove(0);
         multiFileList.remove(0);
         multiFileService.saveBatch(multiFileList);
+        redisTemplate.expire(EMAIL_REGISTER_CODE + "_" + email, 0, TimeUnit.MILLISECONDS);
     }
 
     private void updateUserAvatarBy(Integer loginUserId, String fileFullPath, Date updateTime) {

@@ -1,44 +1,47 @@
 <template>
-  <v-dialog v-model="forgetFlag" :fullscreen="isMobile" max-width="460">
+  <v-dialog
+    v-model="forgetFlag"
+    :fullscreen="this.$store.state.mobileFlag"
+    max-width="460"
+  >
     <v-card class="login-container" style="border-radius:4px">
       <v-icon class="float-right" @click="forgetFlag = false">
         mdi-close
       </v-icon>
       <div class="login-wrapper">
-        <!-- 用户名 -->
         <v-text-field
-          v-model="username"
-          label="邮箱号"
-          placeholder="请输入您的邮箱号"
-          clearable
-          @keyup.enter="forget"
+          v-model="email"
+          :rules="[rules.email]"
+          label="邮箱"
           autofocus="autofocus"
+          maxlength="50"
+          placeholder="请输入您的邮箱"
+          @keyup.enter="forget"
+          clearable
         />
-        <!-- 验证码 -->
+        <v-text-field
+          v-model="password"
+          :rules="[rules.required]"
+          :type="show ? 'text' : 'password'"
+          :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+          class="mt-7"
+          label="新密码"
+          placeholder="请输入您的新密码"
+          @keyup.enter="forget"
+          @click:append="show = !show"
+        />
         <div class="mt-7 send-wrapper">
           <v-text-field
-            maxlength="6"
             v-model="code"
             label="验证码"
+            maxlength="6"
             placeholder="请输入6位验证码"
             @keyup.enter="forget"
           />
-          <v-btn :disabled="flag" text small @click="sendCode">
+          <v-btn :disabled="flag || status" text small @click="sendEmailCode">
             {{ codeMsg }}
           </v-btn>
         </div>
-        <!-- 密码 -->
-        <v-text-field
-          v-model="password"
-          class="mt-7"
-          label="密码"
-          placeholder="请输入您的密码"
-          @keyup.enter="forget"
-          :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-          :type="show ? 'text' : 'password'"
-          @click:append="show = !show"
-        />
-        <!-- 按钮 -->
         <v-btn
           class="mt-7"
           block
@@ -48,7 +51,6 @@
         >
           确定
         </v-btn>
-        <!-- 登录 -->
         <div class="mt-10 login-tip">
           已有账号？<span @click="openLogin">登录</span>
         </div>
@@ -62,13 +64,26 @@ import md5 from "js-md5";
 export default {
   data: function() {
     return {
-      username: "",
       code: "",
+      email: "",
       password: "",
       flag: true,
+      show: false,
+      status: false,
       codeMsg: "发送",
       time: 60,
-      show: false
+      rules: {
+        required: value => value.length >= 6 || "至少6个字符!",
+        email: value => {
+          const pattern = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+          if (pattern.test(value)) {
+            this.flag = false;
+            return true;
+          }
+          this.flag = true;
+          return "邮箱格式不正确!";
+        }
+      }
     };
   },
   methods: {
@@ -76,31 +91,37 @@ export default {
       this.$store.state.forgetFlag = false;
       this.$store.state.loginFlag = true;
     },
-    sendCode() {
+    sendEmailCode() {
       const that = this;
-      // eslint-disable-next-line no-undef
-      var captcha = new TencentCaptcha(this.config.TENCENT_CAPTCHA, function(
-        res
-      ) {
-        if (res.ret === 0) {
-          //发送邮件
-          that.countDown();
-          that.axios
-            .get("/api/users/code", {
-              params: { username: that.username }
-            })
-            .then(({ data }) => {
-              if (data.flag) {
-                that.$toast({ type: "success", message: data.message });
-              }
-            });
-        }
-      });
-      // 显示验证码
-      captcha.show();
+      if (this.config.TENCENT_CAPTCHA) {
+        // eslint-disable-next-line no-undef
+        let captcha = new TencentCaptcha(this.config.TENCENT_CAPTCHA, function(
+          res
+        ) {
+          if (res.ret === 0) {
+            that.sendCode();
+          }
+        });
+        captcha.show();
+      } else {
+        this.sendCode();
+      }
+    },
+    sendCode() {
+      this.countDown();
+      this.axios
+        .post("/api/user/email/code", {
+          email: this.email,
+          type: 2
+        })
+        .then(({ data }) => {
+          if (data.flag) {
+            this.$toast({ type: "success", message: data.message });
+          }
+        });
     },
     countDown() {
-      this.flag = true;
+      this.status = true;
       this.timer = setInterval(() => {
         this.time--;
         this.codeMsg = this.time + "s";
@@ -108,31 +129,35 @@ export default {
           clearInterval(this.timer);
           this.codeMsg = "发送";
           this.time = 60;
-          this.flag = false;
+          this.status = false;
         }
       }, 1000);
     },
     forget() {
-      var reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-      if (!reg.test(this.username)) {
+      const pattern = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+      if (!pattern.test(this.email)) {
         this.$toast({ type: "error", message: "邮箱格式不正确" });
-        return false;
-      }
-      if (this.code.trim().length != 6) {
-        this.$toast({ type: "error", message: "请输入6位验证码" });
         return false;
       }
       if (this.password.trim().length < 6) {
         this.$toast({ type: "error", message: "密码不能少于6位" });
         return false;
       }
+      if (this.code.trim().length !== 6) {
+        this.$toast({ type: "error", message: "请输入6位验证码" });
+        return false;
+      }
       const user = {
-        username: this.username,
-        password: md5(this.password),
-        code: this.code
+        code: this.code,
+        email: this.email,
+        password: md5(this.password)
       };
-      this.axios.put("/api/users/password", user).then(({ data }) => {
+      this.axios.put("/api/userAuth/forget", user).then(({ data }) => {
         if (data.flag) {
+          this.code = "";
+          this.email = "";
+          this.password = "";
+          this.$store.commit("closeModel");
           this.$toast({ type: "success", message: data.message });
         }
       });
@@ -145,23 +170,6 @@ export default {
       },
       get() {
         return this.$store.state.forgetFlag;
-      }
-    },
-    isMobile() {
-      const clientWidth = document.documentElement.clientWidth;
-      if (clientWidth > 960) {
-        return false;
-      }
-      return true;
-    }
-  },
-  watch: {
-    username(value) {
-      var reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-      if (reg.test(value)) {
-        this.flag = false;
-      } else {
-        this.flag = true;
       }
     }
   }

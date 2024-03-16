@@ -37,7 +37,7 @@ public interface UserService extends IService<User> {
 
     PagePojo<UserOnlinesBackDTO> getUserOnlinesBackDTO(Condition condition);
 
-    void saveUserRegisterEmail(String email);
+    void saveUserEmailCode(EmailCodeVO emailCodeVO);
 
     void saveUserRegisterVO(UserRegisterVO userRegisterVO);
 }

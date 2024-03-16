@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer
     app
-    v-model="drawer"
+    v-model="drawerFlag"
     width="250"
     disable-resize-watcher
     right
@@ -100,12 +100,12 @@
 <script>
 export default {
   computed: {
-    drawer: {
+    drawerFlag: {
       set(value) {
-        this.$store.state.drawer = value;
+        this.$store.state.drawerFlag = value;
       },
       get() {
-        return this.$store.state.drawer;
+        return this.$store.state.drawerFlag;
       }
     },
     bloggerInfo() {
@@ -123,15 +123,13 @@ export default {
       this.$store.state.resetFlag = true;
     },
     logout() {
-      if (this.$route.path === this.rootUri + "/user") {
+      if (this.$route.path === this.rootUri + "/personal") {
         this.$router.go(-1);
       }
-      this.axios.get("/api/logout").then(({ data }) => {
+      this.axios.post("/api/logout").then(({ data }) => {
         if (data.flag) {
           this.$store.commit("logout");
           this.$toast({ type: "success", message: data.message });
-        } else {
-          this.$toast({ type: "error", message: data.message });
         }
       });
     }

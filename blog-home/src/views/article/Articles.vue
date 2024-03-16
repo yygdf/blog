@@ -94,7 +94,7 @@ export default {
       categoryOrTag: "",
       cover: "",
       type: null,
-      defaultArticleCover: require("../assets/img/default/article.jpg")
+      defaultArticleCover: require("../../assets/img/default/article.jpg")
     };
   },
   methods: {

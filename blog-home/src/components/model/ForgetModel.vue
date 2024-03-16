@@ -92,8 +92,6 @@ export default {
             .then(({ data }) => {
               if (data.flag) {
                 that.$toast({ type: "success", message: data.message });
-              } else {
-                that.$toast({ type: "error", message: data.message });
               }
             });
         }
@@ -136,8 +134,6 @@ export default {
       this.axios.put("/api/users/password", user).then(({ data }) => {
         if (data.flag) {
           this.$toast({ type: "success", message: data.message });
-        } else {
-          this.$toast({ type: "error", message: data.message });
         }
       });
     }

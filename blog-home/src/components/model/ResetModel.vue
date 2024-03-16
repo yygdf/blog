@@ -97,8 +97,6 @@ export default {
           this.passwordForm.confirmPassword = "";
           this.resetFlag = false;
           this.$toast({ type: "success", message: data.message });
-        } else {
-          this.$toast({ type: "error", message: data.message });
         }
       });
     }

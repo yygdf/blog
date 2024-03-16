@@ -80,8 +80,21 @@ axios.interceptors.request.use(
 
 axios.interceptors.response.use(
   function(response) {
-    if (response.data.code === 20001) {
-      Vue.prototype.$toast({ type: "error", message: response.data.message });
+    switch (response.data.code) {
+      case 20001:
+      case 40001:
+        Vue.prototype.$toast({ type: "error", message: response.data.message });
+        break;
+      case 40002:
+      case 40003:
+      case 40004:
+      case 40005:
+      case 50001:
+      case 50002:
+      case 50003:
+        Vue.prototype.$toast({ type: "error", message: response.data.message });
+        store.commit("logout");
+        break;
     }
     return response;
   },

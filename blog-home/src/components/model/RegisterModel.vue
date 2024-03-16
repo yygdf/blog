@@ -5,21 +5,36 @@
         mdi-close
       </v-icon>
       <div class="login-wrapper">
-        <!-- 用户名 -->
         <v-text-field
           v-model="username"
-          label="邮箱号"
-          placeholder="请输入您的邮箱号"
-          clearable
-          @keyup.enter="register"
+          label="用户名"
           autofocus="autofocus"
+          maxlength="50"
+          placeholder="请输入您的用户名"
+          @keyup.enter="register"
+          clearable
         />
-        <!-- 验证码 -->
+        <v-text-field
+          v-model="email"
+          label="昵称"
+          maxlength="50"
+          placeholder="请输入您的昵称"
+          @keyup.enter="register"
+          clearable
+        />
+        <v-text-field
+          v-model="email"
+          label="邮箱"
+          maxlength="50"
+          placeholder="请输入您的邮箱"
+          @keyup.enter="register"
+          clearable
+        />
         <div class="mt-7 send-wrapper">
           <v-text-field
-            maxlength="6"
             v-model="code"
             label="验证码"
+            maxlength="6"
             placeholder="请输入6位验证码"
             @keyup.enter="register"
           />
@@ -27,28 +42,25 @@
             {{ codeMsg }}
           </v-btn>
         </div>
-        <!-- 密码 -->
         <v-text-field
           v-model="password"
+          :type="show ? 'text' : 'password'"
+          :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
           class="mt-7"
           label="密码"
           placeholder="请输入您的密码"
           @keyup.enter="register"
-          :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-          :type="show ? 'text' : 'password'"
           @click:append="show = !show"
         />
-        <!-- 注册按钮 -->
         <v-btn
           class="mt-7"
-          block
           color="red"
           style="color:#fff"
           @click="register"
+          block
         >
           注册
         </v-btn>
-        <!-- 登录 -->
         <div class="mt-10 login-tip">
           已有账号？<span @click="openLogin">登录</span>
         </div>
@@ -62,13 +74,14 @@ import md5 from "js-md5";
 export default {
   data: function() {
     return {
-      username: "",
       code: "",
+      email: "",
+      username: "",
       password: "",
       flag: true,
-      codeMsg: "发送",
+      show: false,
       time: 60,
-      show: false
+      codeMsg: "发送"
     };
   },
   methods: {
@@ -92,8 +105,6 @@ export default {
             .then(({ data }) => {
               if (data.flag) {
                 that.$toast({ type: "success", message: data.message });
-              } else {
-                that.$toast({ type: "error", message: data.message });
               }
             });
         }
@@ -145,8 +156,6 @@ export default {
             this.$store.commit("closeModel");
           });
           this.$toast({ type: "success", message: data.message });
-        } else {
-          this.$toast({ type: "error", message: data.message });
         }
       });
     }

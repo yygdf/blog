@@ -72,9 +72,7 @@ export default {
   components: { AvatarCropper },
   created() {
     if (this.$store.state.userId == null) {
-      this.$router.push({
-        path: this.$store.state.rootUri + "/"
-      });
+      this.$router.go(-1);
     }
   },
   data: function() {
@@ -107,8 +105,6 @@ export default {
         if (data.flag) {
           this.$store.commit("updateUserInfo", this.userForm);
           this.$toast({ type: "success", message: data.message });
-        } else {
-          this.$toast({ type: "error", message: data.message });
         }
       });
     },

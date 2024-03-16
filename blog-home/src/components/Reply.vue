@@ -82,8 +82,6 @@ export default {
         if (data.flag) {
           this.$emit("reloadCommentsReply", this.index);
           this.$toast({ type: "success", message: "回复成功" });
-        } else {
-          this.$toast({ type: "error", message: data.message });
         }
       });
     },

@@ -117,7 +117,7 @@ export default {
       this.$store.state.searchFlag = true;
     },
     openDrawer() {
-      this.$store.state.drawer = true;
+      this.$store.state.drawerFlag = true;
     },
     openLogin() {
       this.$store.state.loginFlag = true;
@@ -126,15 +126,13 @@ export default {
       this.$store.state.resetFlag = true;
     },
     logout() {
-      if (this.$route.path === this.$store.state.rootUri + "/user") {
+      if (this.$route.path === this.$store.state.rootUri + "/personal") {
         this.$router.go(-1);
       }
-      this.axios.get("/api/logout").then(({ data }) => {
+      this.axios.post("/api/logout").then(({ data }) => {
         if (data.flag) {
           this.$store.commit("logout");
           this.$toast({ type: "success", message: data.message });
-        } else {
-          this.$toast({ type: "error", message: data.message });
         }
       });
     }

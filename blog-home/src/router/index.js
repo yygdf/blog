@@ -8,7 +8,7 @@ import Category from "../views/category/Category.vue";
 import FriendLink from "../views/link/FriendLink.vue";
 import About from "../views/about/About.vue";
 import Message from "../views/message/Messsage.vue";
-import ArticleList from "../components/ArticleList.vue";
+import Articles from "../views/article/Articles.vue";
 import Personal from "../views/personal/Personal.vue";
 import OauthLogin from "../components/OauthLogin.vue";
 
@@ -52,7 +52,7 @@ const routes = [
   },
   {
     path: "/:userId(\\d+)?/category/:categoryId(\\d+)",
-    component: ArticleList,
+    component: Articles,
     meta: {
       title: "文章"
     }
@@ -80,7 +80,7 @@ const routes = [
   },
   {
     path: "/:userId(\\d+)?/tag/:tagId(\\d+)",
-    component: ArticleList,
+    component: Articles,
     meta: {
       title: "文章"
     }

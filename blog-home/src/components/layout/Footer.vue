@@ -1,5 +1,5 @@
 <template>
-  <v-footer app padless absolute v-if="!this.isMessages">
+  <v-footer app padless absolute v-if="!this.messageFlag">
     <div class="footer-wrap">
       <div>©{{ 2022 + " - " + new Date().getFullYear() + " by KS" }}</div>
       <a href="https://beian.miit.gov.cn/" target="_blank">
@@ -12,7 +12,7 @@
 <script>
 export default {
   computed: {
-    isMessages() {
+    messageFlag() {
       return this.$route.path === this.$store.state.rootUri + "/messages";
     }
   }

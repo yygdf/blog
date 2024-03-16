@@ -71,8 +71,6 @@ export default {
             .then(({ data }) => {
               if (data.flag) {
                 that.$toast({ type: "success", message: data.message });
-              } else {
-                that.$toast({ type: "error", message: data.message });
               }
             });
         }
@@ -114,8 +112,6 @@ export default {
           this.code = "";
           this.$store.commit("closeModel");
           this.$toast({ type: "success", message: data.message });
-        } else {
-          this.$toast({ type: "error", message: data.message });
         }
       });
     }

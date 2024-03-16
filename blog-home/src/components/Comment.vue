@@ -290,8 +290,6 @@ export default {
           this.$emit("reloadComment");
           this.commentContent = "";
           this.$toast({ type: "success", message: "评论成功" });
-        } else {
-          this.$toast({ type: "error", message: data.message });
         }
       });
     },

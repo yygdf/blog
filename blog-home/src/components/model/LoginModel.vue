@@ -1,5 +1,9 @@
 <template>
-  <v-dialog v-model="loginFlag" :fullscreen="isMobile" max-width="460">
+  <v-dialog
+    v-model="loginFlag"
+    :fullscreen="this.$store.state.mobileFlag"
+    max-width="460"
+  >
     <v-card class="login-container" style="border-radius:4px">
       <v-icon class="float-right" @click="loginFlag = false">
         mdi-close
@@ -7,20 +11,23 @@
       <div class="login-wrapper">
         <v-text-field
           v-model="username"
+          :autofocus="username === ''"
           label="用户名"
+          maxlength="50"
           placeholder="请输入您的用户名"
-          clearable
           @keyup.enter="validLogin"
-          autofocus="autofocus"
+          clearable
         />
         <v-text-field
           v-model="password"
+          :type="show ? 'text' : 'password'"
+          :autofocus="username !== ''"
+          :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
           class="mt-7"
           label="密码"
+          maxlength="50"
           placeholder="请输入您的密码"
           @keyup.enter="validLogin"
-          :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-          :type="show ? 'text' : 'password'"
           @click:append="show = !show"
         />
         <v-btn
@@ -54,7 +61,7 @@ import md5 from "js-md5";
 export default {
   data: function() {
     return {
-      username: "",
+      username: localStorage.getItem("username"),
       password: "",
       show: false
     };
@@ -63,14 +70,11 @@ export default {
     loginFlag: {
       set(value) {
         this.$store.state.loginFlag = value;
+        this.password = "";
       },
       get() {
         return this.$store.state.loginFlag;
       }
-    },
-    isMobile() {
-      const clientWidth = document.documentElement.clientWidth;
-      return clientWidth <= 960;
     }
   },
   methods: {
@@ -112,13 +116,11 @@ export default {
       param.append("password", md5(this.password));
       this.axios.post("/api/login", param).then(({ data }) => {
         if (data.flag) {
-          this.username = "";
+          localStorage.setItem("username", this.username);
           this.password = "";
           this.$store.commit("login", data.data);
           this.$store.commit("closeModel");
           this.$toast({ type: "success", message: data.message });
-        } else {
-          this.$toast({ type: "error", message: data.message });
         }
       });
     },

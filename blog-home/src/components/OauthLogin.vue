@@ -37,8 +37,6 @@ export default {
               } else {
                 that.$toast({ type: "success", message: data.message });
               }
-            } else {
-              that.$toast({ type: "error", message: data.message });
             }
           });
         });

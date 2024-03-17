@@ -57,6 +57,11 @@ public class RedisConst {
     public static final String EMAIL_FORGET_CODE = "email_forget_code";
 
     /**
+     * 邮箱换绑验证码前缀
+     */
+    public static final String EMAIL_MODIFY_CODE = "email_modify_code";
+
+    /**
      * 邮箱验证码过期时间
      */
     public static final Integer CODE_EXPIRE_TIME = 15 * 60 * 1000;

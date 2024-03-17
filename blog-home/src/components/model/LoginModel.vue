@@ -11,7 +11,7 @@
       <div class="login-wrapper">
         <v-text-field
           v-model="username"
-          :autofocus="username === ''"
+          :autofocus="username == null"
           label="用户名"
           maxlength="50"
           placeholder="请输入您的用户名"
@@ -21,7 +21,7 @@
         <v-text-field
           v-model="password"
           :type="show ? 'text' : 'password'"
-          :autofocus="username !== ''"
+          :autofocus="username != null"
           :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
           class="mt-7"
           label="密码"
@@ -69,8 +69,8 @@ export default {
   computed: {
     loginFlag: {
       set(value) {
-        this.$store.state.loginFlag = value;
         this.password = "";
+        this.$store.commit("updateLoginFlag", value);
       },
       get() {
         return this.$store.state.loginFlag;
@@ -79,12 +79,12 @@ export default {
   },
   methods: {
     openRegister() {
-      this.$store.state.loginFlag = false;
-      this.$store.state.registerFlag = true;
+      this.$store.commit("updateLoginFlag", false);
+      this.$store.commit("updateRegisterFlag", true);
     },
     openForget() {
-      this.$store.state.loginFlag = false;
-      this.$store.state.forgetFlag = true;
+      this.$store.commit("updateLoginFlag", false);
+      this.$store.commit("updateForgetFlag", true);
     },
     validLogin() {
       if (this.username.trim().length === 0) {
@@ -122,7 +122,7 @@ export default {
             data.data.avatar = require("../../assets/img/default/avatar.png");
           }
           this.$store.commit("login", data.data);
-          this.$store.commit("closeModel");
+          this.$store.commit("updateLoginFlag", false);
           this.$toast({ type: "success", message: data.message });
         }
       });

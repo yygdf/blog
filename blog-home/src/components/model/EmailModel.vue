@@ -1,39 +1,59 @@
 <template>
-  <v-dialog v-model="emailFlag" :fullscreen="isMobile" max-width="460">
+  <v-dialog
+    v-model="emailFlag"
+    :fullscreen="this.$store.state.mobileFlag"
+    max-width="460"
+  >
     <v-card class="login-container" style="border-radius:4px">
       <v-icon class="float-right" @click="emailFlag = false">
         mdi-close
       </v-icon>
       <div class="login-wrapper">
-        <!-- 用户名 -->
+        <v-text-field v-model="username" label="用户名" disabled />
         <v-text-field
           v-model="email"
-          label="邮箱号"
-          placeholder="请输入您的邮箱号"
+          :rules="[rules.email]"
+          label="邮箱"
+          maxlength="50"
+          placeholder="请输入您的新邮箱"
+          @keyup.enter="modifyUserEmail"
           clearable
-          @keyup.enter="register"
-          autofocus="autofocus"
         />
-        <!-- 验证码 -->
+        <v-text-field
+          v-model="password"
+          :rules="[rules.required]"
+          :type="show ? 'text' : 'password'"
+          :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+          class="mt-7"
+          label="密码"
+          placeholder="请输入您的密码"
+          @keyup.enter="modifyUserEmail"
+          @click:append="show = !show"
+        />
         <div class="mt-7 send-wrapper">
           <v-text-field
-            maxlength="6"
             v-model="code"
             label="验证码"
+            maxlength="6"
             placeholder="请输入6位验证码"
-            @keyup.enter="register"
+            @keyup.enter="modifyUserEmail"
           />
-          <v-btn text small :disabled="flag" @click="sendCode">
+          <v-btn
+            text
+            small
+            rounded
+            :disabled="flag || status"
+            @click="sendEmailCode"
+          >
             {{ codeMsg }}
           </v-btn>
         </div>
-        <!-- 按钮 -->
         <v-btn
           class="mt-7"
-          block
           color="blue"
           style="color:#fff"
-          @click="saveUserEmail"
+          @click="modifyUserEmail"
+          block
         >
           绑定
         </v-btn>
@@ -43,43 +63,75 @@
 </template>
 
 <script>
+import md5 from "js-md5";
 export default {
   data: function() {
     return {
-      email: this.$store.state.email,
       code: "",
+      email: "",
+      username: localStorage.getItem("username"),
+      password: "",
       flag: true,
-      codeMsg: "发送",
+      show: false,
+      status: false,
       time: 60,
-      show: false
+      codeMsg: "发送",
+      rules: {
+        required: value => value.length >= 6 || "至少6个字符!",
+        email: value => {
+          const pattern = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+          if (pattern.test(value)) {
+            this.flag = false;
+            return true;
+          }
+          this.flag = true;
+          return "邮箱格式不正确!";
+        }
+      }
     };
   },
+  computed: {
+    emailFlag: {
+      set(value) {
+        this.$store.commit("updateEmailFlag", value);
+      },
+      get() {
+        return this.$store.state.emailFlag;
+      }
+    }
+  },
   methods: {
-    sendCode() {
+    sendEmailCode() {
       const that = this;
-      // eslint-disable-next-line no-undef
-      var captcha = new TencentCaptcha(this.config.TENCENT_CAPTCHA, function(
-        res
-      ) {
-        if (res.ret === 0) {
-          //发送邮件
-          that.countDown();
-          that.axios
-            .get("/api/users/code", {
-              params: { username: that.email }
-            })
-            .then(({ data }) => {
-              if (data.flag) {
-                that.$toast({ type: "success", message: data.message });
-              }
-            });
-        }
-      });
-      // 显示验证码
-      captcha.show();
+      if (this.config.TENCENT_CAPTCHA) {
+        // eslint-disable-next-line no-undef
+        let captcha = new TencentCaptcha(this.config.TENCENT_CAPTCHA, function(
+          res
+        ) {
+          if (res.ret === 0) {
+            that.sendCode();
+          }
+        });
+        captcha.show();
+      } else {
+        this.sendCode();
+      }
+    },
+    sendCode() {
+      this.countDown();
+      this.axios
+        .post("/api/user/email/code", {
+          email: this.email,
+          type: 3
+        })
+        .then(({ data }) => {
+          if (data.flag) {
+            this.$toast({ type: "success", message: data.message });
+          }
+        });
     },
     countDown() {
-      this.flag = true;
+      this.status = true;
       this.timer = setInterval(() => {
         this.time--;
         this.codeMsg = this.time + "s";
@@ -87,60 +139,38 @@ export default {
           clearInterval(this.timer);
           this.codeMsg = "发送";
           this.time = 60;
-          this.flag = false;
+          this.status = false;
         }
       }, 1000);
     },
-    saveUserEmail() {
-      var reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-      if (!reg.test(this.email)) {
+    modifyUserEmail() {
+      const pattern = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+      if (!pattern.test(this.email)) {
         this.$toast({ type: "error", message: "邮箱格式不正确" });
         return false;
       }
-      if (this.code.trim().length != 6) {
+      if (this.password.trim().length < 6) {
+        this.$toast({ type: "error", message: "密码不能少于6位" });
+        return false;
+      }
+      if (this.code.trim().length !== 6) {
         this.$toast({ type: "error", message: "请输入6位验证码" });
         return false;
       }
-      const user = {
+      let user = {
+        code: this.code,
         email: this.email,
-        code: this.code
+        password: md5(this.password)
       };
-      this.axios.post("/api/users/email", user).then(({ data }) => {
+      this.axios.put("/api/user/email", user).then(({ data }) => {
         if (data.flag) {
-          this.$store.commit("saveEmail", this.email);
-          this.email = "";
           this.code = "";
-          this.$store.commit("closeModel");
+          this.email = "";
+          this.password = "";
+          this.$store.commit("updateEmailFlag", false);
           this.$toast({ type: "success", message: data.message });
         }
       });
-    }
-  },
-  computed: {
-    emailFlag: {
-      set(value) {
-        this.$store.state.emailFlag = value;
-      },
-      get() {
-        return this.$store.state.emailFlag;
-      }
-    },
-    isMobile() {
-      const clientWidth = document.documentElement.clientWidth;
-      if (clientWidth > 960) {
-        return false;
-      }
-      return true;
-    }
-  },
-  watch: {
-    email(value) {
-      var reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-      if (reg.test(value)) {
-        this.flag = false;
-      } else {
-        this.flag = true;
-      }
     }
   }
 };

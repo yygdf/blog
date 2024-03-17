@@ -78,6 +78,27 @@ export default new Vuex.Store({
     saveBloggerId(state, bloggerId) {
       state.bloggerId = bloggerId;
     },
+    updateDrawerFlag(state, drawerFlag) {
+      state.drawerFlag = drawerFlag;
+    },
+    updateLoginFlag(state, loginFlag) {
+      state.loginFlag = loginFlag;
+    },
+    updateEmailFlag(state, emailFlag) {
+      state.emailFlag = emailFlag;
+    },
+    updateResetFlag(state, resetFlag) {
+      state.resetFlag = resetFlag;
+    },
+    updateForgetFlag(state, forgetFlag) {
+      state.forgetFlag = forgetFlag;
+    },
+    updateSearchFlag(state, searchFlag) {
+      state.searchFlag = searchFlag;
+    },
+    updateRegisterFlag(state, registerFlag) {
+      state.registerFlag = registerFlag;
+    },
     closeModel(state) {
       state.loginFlag = false;
       state.emailFlag = false;

@@ -114,16 +114,16 @@ export default {
       }
     },
     openSearch() {
-      this.$store.state.searchFlag = true;
+      this.$store.commit("updateSearchFlag", true);
     },
     openDrawer() {
-      this.$store.state.drawerFlag = true;
+      this.$store.commit("updateDrawerFlag", true);
     },
     openLogin() {
-      this.$store.state.loginFlag = true;
+      this.$store.commit("updateLoginFlag", true);
     },
     openResetPassword() {
-      this.$store.state.resetFlag = true;
+      this.$store.commit("updateResetFlag", true);
     },
     logout() {
       if (this.$route.path === this.$store.state.rootUri + "/personal") {

@@ -47,10 +47,10 @@
           />
           <div v-if="!email" class="mt-7 binding">
             <v-text-field
-              disabled
               v-model="email"
               label="邮箱号"
               placeholder="请绑定邮箱"
+              disabled
             />
             <v-btn v-if="email" text small @click="openEmailModel">
               修改绑定
@@ -138,7 +138,7 @@ export default {
       return true;
     },
     openEmailModel() {
-      this.$store.state.emailFlag = true;
+      this.$store.commit("updateEmailFlag", true);
     }
   },
   computed: {

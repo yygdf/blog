@@ -102,7 +102,7 @@ export default {
   computed: {
     drawerFlag: {
       set(value) {
-        this.$store.state.drawerFlag = value;
+        this.$store.commit("updateDrawerFlag", value);
       },
       get() {
         return this.$store.state.drawerFlag;
@@ -117,10 +117,10 @@ export default {
   },
   methods: {
     openLogin() {
-      this.$store.state.loginFlag = true;
+      this.$store.commit("updateLoginFlag", true);
     },
     openResetPassword() {
-      this.$store.state.resetFlag = true;
+      this.$store.commit("updateResetFlag", true);
     },
     logout() {
       if (this.$route.path === this.rootUri + "/personal") {

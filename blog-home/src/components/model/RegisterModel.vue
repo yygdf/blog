@@ -49,8 +49,8 @@
           />
           <v-btn
             text
-            rounded
             small
+            rounded
             :disabled="flag || status"
             @click="sendEmailCode"
           >
@@ -83,7 +83,6 @@ export default {
       email: "",
       username: "",
       password: "",
-      nickname: "",
       flag: true,
       show: false,
       status: false,
@@ -103,10 +102,20 @@ export default {
       }
     };
   },
+  computed: {
+    registerFlag: {
+      set(value) {
+        this.$store.commit("updateRegisterFlag", value);
+      },
+      get() {
+        return this.$store.state.registerFlag;
+      }
+    }
+  },
   methods: {
     openLogin() {
-      this.$store.state.registerFlag = false;
-      this.$store.state.loginFlag = true;
+      this.$store.commit("updateRegisterFlag", false);
+      this.$store.commit("updateLoginFlag", true);
     },
     sendEmailCode() {
       const that = this;
@@ -179,6 +188,7 @@ export default {
           this.email = "";
           this.username = "";
           this.password = "";
+          this.$store.commit("updateRegisterFlag", false);
           let param = new URLSearchParams();
           param.append("username", user.username);
           param.append("password", user.password);
@@ -189,22 +199,11 @@ export default {
                 data.data.avatar = require("../../assets/img/default/avatar.png");
               }
               this.$store.commit("login", data.data);
-              this.$store.commit("closeModel");
             }
           });
           this.$toast({ type: "success", message: data.message });
         }
       });
-    }
-  },
-  computed: {
-    registerFlag: {
-      set(value) {
-        this.$store.state.registerFlag = value;
-      },
-      get() {
-        return this.$store.state.registerFlag;
-      }
     }
   }
 };

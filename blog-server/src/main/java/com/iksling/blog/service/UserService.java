@@ -40,4 +40,6 @@ public interface UserService extends IService<User> {
     void saveUserEmailCode(EmailCodeVO emailCodeVO);
 
     void saveUserRegisterVO(UserRegisterVO userRegisterVO);
+
+    void updateUserEmailVO(EmailVO emailVO);
 }

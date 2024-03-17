@@ -81,7 +81,7 @@ public class UserController {
     @ApiOperation(value = "修改用户头像")
     @ApiImplicitParam(name = "userAvatarVO", value = "用户头像VO", required = true, dataType = "UserAvatarVO")
     @PostMapping("/user/avatar")
-    public Result updateUserAvatarVO(@Valid UserAvatarVO userAvatarVO) {
+    public Result updateUserAvatar(@Valid UserAvatarVO userAvatarVO) {
         return Result.success().message("操作成功").data(userService.updateUserAvatarVO(userAvatarVO));
     }
 
@@ -144,5 +144,14 @@ public class UserController {
     public Result saveUserRegister(@Valid @RequestBody UserRegisterVO userRegisterVO) {
         userService.saveUserRegisterVO(userRegisterVO);
         return Result.success().message("注册成功");
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "邮箱换绑")
+    @ApiImplicitParam(name = "emailVO", value = "邮箱VO", required = true, dataType = "EmailVO")
+    @PutMapping("/user/email")
+    public Result updateUserEmail(@Valid @RequestBody EmailVO emailVO) {
+        userService.updateUserEmailVO(emailVO);
+        return Result.success().message("操作成功");
     }
 }

@@ -407,7 +407,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .build();
             redisTemplate.boundValueOps(EMAIL_REGISTER_CODE + "_" + email).set(code);
             redisTemplate.expire(EMAIL_REGISTER_CODE + "_" + email, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
-        } else {
+        } else if (emailCodeVO.getType() == 2) {
             if (userMapper.selectBackUserAvatarById(email, null, null) == null)
                 throw new OperationStatusException("该邮箱号不存在!");
             e = Email.builder()
@@ -417,6 +417,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .build();
             redisTemplate.boundValueOps(EMAIL_FORGET_CODE + "_" + email).set(code);
             redisTemplate.expire(EMAIL_FORGET_CODE + "_" + email, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+        } else {
+            if (userMapper.selectBackUserAvatarById(email, null, null) != null)
+                throw new OperationStatusException("该邮箱号已被注册!");
+            e = Email.builder()
+                    .email(email)
+                    .subject("邮箱换绑验证码")
+                    .content("您的验证码为 " + code.toString() + " 有效期15分钟,请不要告诉他人哦!")
+                    .build();
+            redisTemplate.boundValueOps(EMAIL_MODIFY_CODE + "_" + email).set(code);
+            redisTemplate.expire(EMAIL_MODIFY_CODE + "_" + email, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
         }
         rabbitTemplate.convertAndSend(EMAIL_EXCHANGE, "*", new Message(JSON.toJSONBytes(e), new MessageProperties()));
     }
@@ -496,6 +506,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         multiFileList.remove(0);
         multiFileService.saveBatch(multiFileList);
         redisTemplate.expire(EMAIL_REGISTER_CODE + "_" + email, 0, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    @Transactional
+    public void updateUserEmailVO(EmailVO emailVO) {
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
+        List<Object> objectList = userAuthMapper.selectObjs(new LambdaQueryWrapper<UserAuth>()
+                .select(UserAuth::getPassword)
+                .eq(UserAuth::getUserId, loginUserId));
+        if (!passwordEncoder.matches(emailVO.getPassword(), objectList.get(0).toString()))
+            throw new OperationStatusException("密码错误!");
+        String email = emailVO.getEmail();
+        if (!RegexUtil.checkEmail(email))
+            throw new OperationStatusException();
+        if (userMapper.selectBackUserAvatarById(email, null, null) != null)
+            throw new OperationStatusException("邮箱已注册!");
+        Object code = redisTemplate.boundValueOps(EMAIL_MODIFY_CODE + "_" + email).get();
+        if (code == null)
+            throw new OperationStatusException("验证码不存在或已失效!");
+        if (!emailVO.getCode().equals(code.toString()))
+            throw new OperationStatusException("验证码错误!");
+        userMapper.update(null, new LambdaUpdateWrapper<User>()
+                .set(User::getEmail, emailVO.getEmail())
+                .set(User::getUpdateUser, loginUserId)
+                .set(User::getUpdateTime, new Date())
+                .eq(User::getId, loginUserId));
+        redisTemplate.expire(EMAIL_MODIFY_CODE + "_" + email, 0, TimeUnit.MILLISECONDS);
     }
 
     private void updateUserAvatarBy(Integer loginUserId, String fileFullPath, Date updateTime) {

@@ -26,6 +26,7 @@
           :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
           class="mt-7"
           label="新密码"
+          maxlength="50"
           placeholder="请输入您的新密码"
           @keyup.enter="forget"
           @click:append="show = !show"
@@ -86,10 +87,20 @@ export default {
       }
     };
   },
+  computed: {
+    forgetFlag: {
+      set(value) {
+        this.$store.commit("updateForgetFlag", value);
+      },
+      get() {
+        return this.$store.state.forgetFlag;
+      }
+    }
+  },
   methods: {
     openLogin() {
-      this.$store.state.forgetFlag = false;
-      this.$store.state.loginFlag = true;
+      this.$store.commit("updateForgetFlag", false);
+      this.$store.commit("updateLoginFlag", true);
     },
     sendEmailCode() {
       const that = this;
@@ -157,20 +168,10 @@ export default {
           this.code = "";
           this.email = "";
           this.password = "";
-          this.$store.commit("closeModel");
+          this.$store.commit("updateForgetFlag", false);
           this.$toast({ type: "success", message: data.message });
         }
       });
-    }
-  },
-  computed: {
-    forgetFlag: {
-      set(value) {
-        this.$store.state.forgetFlag = value;
-      },
-      get() {
-        return this.$store.state.forgetFlag;
-      }
     }
   }
 };

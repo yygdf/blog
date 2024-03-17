@@ -73,8 +73,13 @@
                 </router-link>
               </li>
               <li>
-                <a @click="openResetPassword">
+                <a @click="openReset">
                   <i class="iconfont my-icon-success" /> 修改密码
+                </a>
+              </li>
+              <li>
+                <a @click="openEmailModel">
+                  <i class="iconfont my-icon-success" /> 换绑邮箱
                 </a>
               </li>
               <li>
@@ -122,8 +127,11 @@ export default {
     openLogin() {
       this.$store.commit("updateLoginFlag", true);
     },
-    openResetPassword() {
+    openReset() {
       this.$store.commit("updateResetFlag", true);
+    },
+    openEmailModel() {
+      this.$store.commit("updateEmailFlag", true);
     },
     logout() {
       if (this.$route.path === this.$store.state.rootUri + "/personal") {

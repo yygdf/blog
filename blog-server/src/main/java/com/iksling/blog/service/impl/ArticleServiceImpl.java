@@ -10,6 +10,7 @@ import com.iksling.blog.entity.*;
 import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
+import com.iksling.blog.exception.ServerStatusException;
 import com.iksling.blog.mapper.*;
 import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Dict;
@@ -21,7 +22,13 @@ import com.iksling.blog.util.*;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleImageBackVO;
 import com.iksling.blog.vo.StatusBackVO;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -65,6 +72,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     private RedisTemplate redisTemplate;
     @Resource
     private HttpServletRequest request;
+    @Autowired
+    private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -478,6 +487,47 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .and(loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(bloggerId), e -> e.eq(Article::getPublicFlag, true).eq(Article::getHiddenFlag, false)));
         List<ArticlesArchiveDTO> articlesArchiveDTOList = BeanCopyUtil.copyList(articlePage.getRecords(), ArticlesArchiveDTO.class);
         return new PagePojo<>((int) articlePage.getTotal(), articlesArchiveDTOList);
+    }
+
+    @Override
+    public List<ArticlesSearchDTO> getArticlesSearchDTO(Condition condition) {
+        if (CommonUtil.isEmpty(condition.getKeywords()))
+            return new ArrayList<>();
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must(QueryBuilders.boolQuery()
+                .should(QueryBuilders.matchQuery("articleTitle", condition.getKeywords()))
+                .should(QueryBuilders.matchQuery("articleContent", condition.getKeywords())))
+                .must(QueryBuilders.termQuery("draftFlag", false))
+                .must(QueryBuilders.termQuery("publicFlag", true))
+                .must(QueryBuilders.termQuery("hiddenFlag", false));
+        if (condition.getFlag() == null)
+            boolQueryBuilder.must(QueryBuilders.termQuery("userId", request.getHeader("Blogger-Id")));
+        nativeSearchQueryBuilder.withQuery(boolQueryBuilder);
+        HighlightBuilder.Field titleField = new HighlightBuilder.Field("articleTitle");
+        titleField.preTags("<span style='color:#f47466'>");
+        titleField.postTags("</span>");
+        HighlightBuilder.Field contentField = new HighlightBuilder.Field("articleContent");
+        contentField.preTags("<span style='color:#f47466'>");
+        contentField.postTags("</span>");
+        contentField.fragmentSize(200);
+        nativeSearchQueryBuilder.withHighlightFields(titleField, contentField);
+        SearchHits<ArticlesSearchDTO> search;
+        try {
+            search = elasticsearchRestTemplate.search(nativeSearchQueryBuilder.build(), ArticlesSearchDTO.class);
+            return search.getSearchHits().stream().map(hit -> {
+                ArticlesSearchDTO article = hit.getContent();
+                List<String> titleHighLightList = hit.getHighlightFields().get("articleTitle");
+                if (CommonUtil.isNotEmpty(titleHighLightList))
+                    article.setArticleTitle(titleHighLightList.get(0));
+                List<String> contentHighLightList = hit.getHighlightFields().get("articleContent");
+                if (CommonUtil.isNotEmpty(contentHighLightList))
+                    article.setArticleContent(contentHighLightList.get(0));
+                return article;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new ServerStatusException("查询超时!");
+        }
     }
 
     private void updateArticleImageBy(Integer loginUserId, Integer articleId, String fileFullPath, Date updateTime) {

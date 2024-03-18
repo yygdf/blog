@@ -144,4 +144,11 @@ public class ArticleController {
     public Result getArticlesArchive(@Valid Condition condition) {
         return Result.success().message("查询成功").data(articleService.getArticlesArchiveDTO(condition));
     }
+
+    @ApiOperation(value = "搜索文章列表")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
+    @GetMapping("/articles/search")
+    public Result getArticlesSearch(@Valid Condition condition) {
+        return Result.success().message("查询成功").data(articleService.getArticlesSearchDTO(condition));
+    }
 }

@@ -46,4 +46,6 @@ public interface ArticleService extends IService<Article> {
     Dict getArticlesPreviewDTO(Condition condition);
 
     PagePojo<ArticlesArchiveDTO> getArticlesArchiveDTO(Condition condition);
+
+    List<ArticlesSearchDTO> getArticlesSearchDTO(Condition condition);
 }

@@ -1,36 +1,39 @@
 <template>
-  <!-- 搜索框 -->
-  <v-dialog v-model="searchFlag" max-width="600" :fullscreen="isMobile">
+  <v-dialog
+    v-model="searchFlag"
+    max-width="600"
+    :fullscreen="this.$store.state.mobileFlag"
+  >
     <v-card class="search-wrapper" style="border-radius:4px">
       <div class="mb-3">
-        <span class="search-title">本地搜索</span>
-        <!-- 关闭按钮 -->
+        <span class="search-title">本站搜索</span>
         <v-icon class="float-right" @click="searchFlag = false">
           mdi-close
         </v-icon>
       </div>
-      <!-- 输入框 -->
       <div class="search-input-wrapper">
         <v-icon>mdi-magnify</v-icon>
-        <input v-model="keywords" ref="inputRef" autofocus="autofocus" placeholder="输入文章标题或内容..." />
+        <input
+          v-model="keywords"
+          ref="inputRef"
+          placeholder="输入文章标题或内容..."
+          @keyup.native="keywordsInputChange($event)"
+          @keyup.enter.native="getArticles"
+        />
       </div>
-      <!-- 搜索结果 -->
       <div class="search-result-wrapper">
         <hr class="divider" />
         <ul>
           <li class="search-result" v-for="item of articleList" :key="item.id">
-            <!-- 文章标题 -->
             <a @click="goTo(item.id)" v-html="item.articleTitle" />
-            <!-- 文章内容 -->
             <p
               class="search-result-content text-justify"
               v-html="item.articleContent"
             />
           </li>
         </ul>
-        <!-- 搜索结果不存在提示 -->
         <div
-          v-show="flag && articleList.length == 0"
+          v-show="flag && articleList.length === 0"
           style="font-size:0.875rem"
         >
           找不到您查询的内容：{{ keywords }}
@@ -46,7 +49,8 @@ export default {
     return {
       keywords: "",
       articleList: [],
-      flag: false
+      flag: false,
+      lastTimeStamp: 0
     };
   },
   updated() {
@@ -54,38 +58,48 @@ export default {
       this.$refs.inputRef.focus();
     });
   },
-  methods: {
-    goTo(articleId) {
-      this.$store.state.searchFlag = false;
-      this.$router.push({ path: "/articles/" + articleId });
-    }
-  },
   computed: {
     searchFlag: {
       set(value) {
-        this.$store.state.searchFlag = value;
+        this.$store.commit("searchFlag", value);
       },
       get() {
         return this.$store.state.searchFlag;
       }
-    },
-    isMobile() {
-      const clientWidth = document.documentElement.clientWidth;
-      if (clientWidth > 960) {
-        return false;
-      }
-      return true;
     }
   },
-  watch: {
-    keywords(value) {
-      this.flag = value.trim() != "" ? true : false;
+  methods: {
+    goTo(articleId) {
+      this.$store.commit("searchFlag", false);
+      this.$router.push({
+        path: this.$store.state.rootUri + "/article/" + articleId
+      });
+    },
+    keywordsInputChange(event) {
+      if (event.key !== "Enter") {
+        this.lastTimeStamp = event.timeStamp;
+        setTimeout(() => {
+          if (this.lastTimeStamp === event.timeStamp) {
+            this.getArticles();
+          }
+        }, 1000);
+      } else {
+        this.lastTimeStamp = 0;
+      }
+    },
+    getArticles() {
+      const keywords = this.keywords.trim();
+      if (keywords === "") {
+        this.flag = false;
+        return;
+      }
+      this.flag = true;
       this.axios
-        .get("/api/articles/search", {
-          params: { current: 1, keywords: value }
-        })
+        .get("/api/articles/search", { params: { keywords } })
         .then(({ data }) => {
-          this.articleList = data.data;
+          if (data.data) {
+            this.articleList = data.data;
+          }
         });
     }
   }

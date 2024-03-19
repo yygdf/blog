@@ -100,6 +100,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             user.setCreateUser(loginUserId);
             user.setCreateTime(createTime);
             userMapper.insert(user);
+            userId = user.getId();
             userAuthMapper.insert(UserAuth.builder()
                     .userId(userId)
                     .username(userBackVO.getUsername())

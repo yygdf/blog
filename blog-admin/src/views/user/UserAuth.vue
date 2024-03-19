@@ -100,7 +100,11 @@
             :key="item"
             style="margin-right:4px;margin-top:4px"
           >
-            {{ roleNameList.filter(e => e.id === Number(item))[0].label }}
+            {{
+              roleNameList.length > 0
+                ? roleNameList.filter(e => e.id === Number(item))[0].label
+                : ""
+            }}
           </el-tag>
         </template>
       </el-table-column>

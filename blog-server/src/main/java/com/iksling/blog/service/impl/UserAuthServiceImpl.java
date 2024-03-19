@@ -86,7 +86,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         if (mapList.isEmpty())
             throw new IllegalRequestException();
         Integer userId = (Integer) mapList.get(0).get("user_id");
-        if (ROOT_USER_ID_LIST.contains(userId))
+        if (ROOT_USER_ID_LIST.contains(userId) && !loginUser.getUserId().equals(ROOT_USER_ID))
             throw new IllegalRequestException();
         if (userAuth.getPassword() != null) {
             userAuth.setPassword(passwordEncoder.encode(userAuth.getPassword()));
@@ -121,8 +121,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
             }
             else if (count > 0) {
                 List<UserConfig> userConfigList = userConfigMapper.selectList(new LambdaQueryWrapper<UserConfig>()
-                        .select(UserConfig::getConfigDesc, UserConfig::getConfigName, UserConfig::getConfigValue)
-                        .eq(UserConfig::getUserId, ROOT_ROLE_ID));
+                        .select(UserConfig::getConfigDesc, UserConfig::getConfigName, UserConfig::getConfigValue, UserConfig::getDeletedFlag)
+                        .eq(UserConfig::getUserId, ROOT_USER_ID));
                 userConfigService.saveBatch(userConfigList.stream()
                         .peek(e -> {
                             e.setUserId(userId);
@@ -137,9 +137,9 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 List<Object> objectList = multiFileService.listObjs(new LambdaQueryWrapper<MultiFile>()
                         .select(MultiFile::getId)
                         .eq(MultiFile::getUserId, userId)
-                        .eq(MultiFile::getFileName, IMAGE.getCurrentPath())
-                        .or()
-                        .eq(MultiFile::getFileName, AUDIO.getCurrentPath())
+                        .and(e -> e.eq(MultiFile::getFileName, IMAGE.getCurrentPath())
+                                .or()
+                                .eq(MultiFile::getFileName, AUDIO.getCurrentPath()))
                         .orderByDesc(MultiFile::getFileName));
                 List<MultiFile> multiFileList = new ArrayList<>();
                 multiFileList.add(MultiFile.builder()

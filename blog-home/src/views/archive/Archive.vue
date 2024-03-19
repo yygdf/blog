@@ -9,7 +9,7 @@
         <timeline-item v-for="item of archiveList" :key="item.id">
           <span class="time">{{ item.publicTime | date }}</span>
           <router-link
-            :to="'/article/' + item.id"
+            :to="rootUri + '/article/' + item.id"
             style="color:#666;text-decoration: none"
           >
             {{ item.articleTitle }}
@@ -63,6 +63,9 @@ export default {
         this.$store.state.blogConfig.archive_banner_cover +
         ") center center / cover no-repeat"
       );
+    },
+    rootUri() {
+      return this.$store.state.rootUri;
     }
   },
   watch: {

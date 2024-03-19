@@ -41,7 +41,7 @@
           :key="item.id"
         >
           <div :class="isRight(index)">
-            <router-link :to="'/article/' + item.id">
+            <router-link :to="rootUri + '/article/' + item.id">
               <v-img
                 class="on-hover"
                 width="100%"
@@ -54,7 +54,7 @@
           </div>
           <div class="article-wrapper">
             <div style="line-height:1.4">
-              <router-link :to="'/article/' + item.id">
+              <router-link :to="rootUri + '/article/' + item.id">
                 {{ item.articleTitle }}
               </router-link>
             </div>
@@ -80,14 +80,14 @@
               <v-icon size="14">mdi-calendar-month-outline</v-icon>
               {{ item.publishTime | date }}
               <span class="separator">|</span>
-              <router-link :to="'/category/' + item.categoryId">
+              <router-link :to="rootUri + '/category/' + item.categoryId">
                 <v-icon size="14">mdi-inbox-full</v-icon>
                 {{ item.categoryName }}
               </router-link>
               <span v-if="item.tagList != null" class="separator">|</span>
               <router-link
                 style="display:inline-block"
-                :to="'/tag/' + tag.id"
+                :to="rootUri + '/tag/' + tag.id"
                 class="mr-1"
                 v-for="tag of item.tagList == null
                   ? []
@@ -124,7 +124,7 @@
             </div>
             <div class="blog-info-wrapper">
               <div class="blog-info-data">
-                <router-link to="/archives">
+                <router-link :to="rootUri + '/archives'">
                   <div style="font-size: 0.875rem">文章</div>
                   <div style="font-size: 1.25rem">
                     {{ bloggerInfo.articleCount }}
@@ -132,7 +132,7 @@
                 </router-link>
               </div>
               <div class="blog-info-data">
-                <router-link to="/categories">
+                <router-link :to="rootUri + '/categories'">
                   <div style="font-size: 0.875rem">分类</div>
                   <div style="font-size: 1.25rem">
                     {{ bloggerInfo.categoryCount }}
@@ -140,7 +140,7 @@
                 </router-link>
               </div>
               <div class="blog-info-data">
-                <router-link to="/tags">
+                <router-link :to="rootUri + '/tags'">
                   <div style="font-size: 0.875rem">标签</div>
                   <div style="font-size: 1.25rem">
                     {{ bloggerInfo.tagCount }}
@@ -312,6 +312,9 @@ export default {
     },
     bloggerInfo() {
       return this.$store.state.bloggerInfo;
+    },
+    rootUri() {
+      return this.$store.state.rootUri;
     }
   }
 };

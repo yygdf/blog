@@ -71,7 +71,7 @@ export default {
       const arr = path.split("/");
       let comment = {
         parentId: this.parentId,
-        articleId: arr[2],
+        articleId: arr[arr.length - 1],
         commentContent: content
       };
       if (!this.layer) {

@@ -10,7 +10,7 @@
           :style="{ 'font-size': Math.floor(Math.random() * 10) + 18 + 'px' }"
           v-for="item of tagList"
           :key="item.id"
-          :to="'/tag/' + item.id"
+          :to="rootUri + '/tag/' + item.id"
         >
           {{ item.tagName }}
         </router-link>
@@ -45,6 +45,9 @@ export default {
         this.$store.state.blogConfig.tag_banner_cover +
         ") center center / cover no-repeat"
       );
+    },
+    rootUri() {
+      return this.$store.state.rootUri;
     }
   }
 };

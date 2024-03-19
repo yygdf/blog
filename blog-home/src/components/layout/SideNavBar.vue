@@ -14,7 +14,7 @@
     </div>
     <div class="blog-info-wrapper">
       <div class="blog-info-data">
-        <router-link to="/archives">
+        <router-link :to="rootUri + '/archives'">
           <div style="font-size: 0.875rem">文章</div>
           <div style="font-size: 1.125rem;">
             {{ bloggerInfo.articleCount }}
@@ -22,7 +22,7 @@
         </router-link>
       </div>
       <div class="blog-info-data">
-        <router-link to="/categories">
+        <router-link :to="rootUri + '/categories'">
           <div style="font-size: 0.875rem">分类</div>
           <div style="font-size: 1.125rem">
             {{ bloggerInfo.categoryCount }}
@@ -30,7 +30,7 @@
         </router-link>
       </div>
       <div class="blog-info-data">
-        <router-link to="/tags">
+        <router-link :to="rootUri + '/tags'">
           <div style="font-size: 0.875rem">标签</div>
           <div style="font-size: 1.125rem">
             {{ bloggerInfo.tagCount }}
@@ -41,37 +41,37 @@
     <hr />
     <div class="menu-container">
       <div class="menus-item">
-        <router-link to="/">
+        <router-link :to="rootUri">
           <i class="iconfont my-icon-home" /> 首页
         </router-link>
       </div>
       <div class="menus-item">
-        <router-link to="/archives">
+        <router-link :to="rootUri + '/archives'">
           <i class="iconfont my-icon-archives" /> 归档
         </router-link>
       </div>
       <div class="menus-item">
-        <router-link to="/categories">
+        <router-link :to="rootUri + '/categories'">
           <i class="iconfont my-icon-sort" /> 分类
         </router-link>
       </div>
       <div class="menus-item">
-        <router-link to="/tags">
+        <router-link :to="rootUri + '/tags'">
           <i class="iconfont my-icon-label" /> 标签
         </router-link>
       </div>
       <div class="menus-item">
-        <router-link to="/friendLinks">
+        <router-link :to="rootUri + '/friendLinks'">
           <i class="iconfont my-icon-link" /> 友链
         </router-link>
       </div>
       <div class="menus-item">
-        <router-link to="/about">
+        <router-link :to="rootUri + '/about'">
           <i class="iconfont my-icon-paper-plane" /> 关于
         </router-link>
       </div>
       <div class="menus-item">
-        <router-link to="/messages">
+        <router-link :to="rootUri + '/messages'">
           <i class="iconfont my-icon-comment-group" /> 留言
         </router-link>
       </div>
@@ -80,7 +80,7 @@
       </div>
       <div v-else>
         <div class="menus-item">
-          <router-link to="/personal">
+          <router-link :to="rootUri + '/personal'">
             <i class="iconfont my-icon-personal" /> 个人中心
           </router-link>
         </div>

@@ -3,7 +3,7 @@
     <TopNavBar></TopNavBar>
     <SideNavBar></SideNavBar>
     <v-main>
-      <router-view :key="$route.fullPath" :base="$store.state.rootUri" />
+      <router-view :key="this.$route.fullPath" />
     </v-main>
     <Footer></Footer>
     <BackTop></BackTop>

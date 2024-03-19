@@ -11,7 +11,7 @@
           v-for="item of categoryList"
           :key="item.id"
         >
-          <router-link :to="'/category/' + item.id">
+          <router-link :to="rootUri + '/category/' + item.id">
             {{ item.categoryName }}
             <span class="category-count">({{ item.articleCount }})</span>
           </router-link>
@@ -47,6 +47,9 @@ export default {
         this.$store.state.blogConfig.category_banner_cover +
         ") center center / cover no-repeat"
       );
+    },
+    rootUri() {
+      return this.$store.state.rootUri;
     }
   }
 };

@@ -8,7 +8,7 @@
         <v-col md="4" cols="12" v-for="item of articleList" :key="item.id">
           <v-card class="animated zoomIn article-item-card">
             <div class="article-item-cover">
-              <router-link :to="'/article/' + item.id">
+              <router-link :to="rootUri + '/article/' + item.id">
                 <v-img
                   class="on-hover"
                   width="100%"
@@ -21,7 +21,7 @@
             </div>
             <div class="article-item-info">
               <div>
-                <router-link :to="'/article/' + item.id">
+                <router-link :to="rootUri + '/article/' + item.id">
                   {{ item.articleTitle }}
                 </router-link>
               </div>
@@ -29,7 +29,7 @@
                 <v-icon size="20">mdi-clock-outline</v-icon>
                 {{ item.publicTime | date }}
                 <router-link
-                  :to="'/category/' + item.categoryId"
+                  :to="rootUri + '/category/' + item.categoryId"
                   class="float-right"
                 >
                   <v-icon>mdi-bookmark</v-icon>{{ item.categoryName }}
@@ -39,7 +39,7 @@
             <v-divider></v-divider>
             <div class="tag-wrapper">
               <router-link
-                :to="'/tag/' + tag.id"
+                :to="rootUri + '/tag/' + tag.id"
                 class="tag-btn"
                 v-for="tag of item.tagList == null
                   ? []
@@ -96,6 +96,11 @@ export default {
       type: null,
       defaultArticleCover: require("../../assets/img/default/article.jpg")
     };
+  },
+  computed: {
+    rootUri() {
+      return this.$store.state.rootUri;
+    }
   },
   methods: {
     infiniteHandler($state) {

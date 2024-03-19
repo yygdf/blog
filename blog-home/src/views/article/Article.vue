@@ -23,7 +23,7 @@
             <span class="separator">|</span>
             <span class="article-category">
               <i class="iconfont my-icon-sort-1" />
-              <router-link :to="'/category/' + article.categoryId">
+              <router-link :to="rootUri + '/category/' + article.categoryId">
                 {{ article.categoryName }}
               </router-link>
             </span>
@@ -99,7 +99,7 @@
                       };
                     })"
                 :key="tag.id"
-                :to="'/tag/' + tag.id"
+                :to="rootUri + '/tag/' + tag.id"
               >
                 {{ tag.tagName }}
               </router-link>
@@ -142,7 +142,7 @@
               :class="isFull(article.lastArticle.id)"
               v-if="article.lastArticle"
             >
-              <router-link :to="'/article/' + article.lastArticle.id">
+              <router-link :to="rootUri + '/article/' + article.lastArticle.id">
                 <img
                   class="post-cover"
                   :src="
@@ -164,7 +164,7 @@
               :class="isFull(article.nextArticle.id)"
               v-if="article.nextArticle"
             >
-              <router-link :to="'/article/' + article.nextArticle.id">
+              <router-link :to="rootUri + '/article/' + article.nextArticle.id">
                 <img
                   class="post-cover"
                   :src="
@@ -196,7 +196,7 @@
                 v-for="item of article.articlesRecommendDTOList"
                 :key="item.id"
               >
-                <router-link :to="'/article/' + item.id">
+                <router-link :to="rootUri + '/article/' + item.id">
                   <img
                     class="recommend-cover"
                     :src="
@@ -245,7 +245,10 @@
                 v-for="item of articleNewestList"
                 :key="item.id"
               >
-                <router-link :to="'/article/' + item.id" class="content-cover">
+                <router-link
+                  :to="rootUri + '/article/' + item.id"
+                  class="content-cover"
+                >
                   <img
                     :src="
                       item.articleCover
@@ -257,7 +260,7 @@
                 </router-link>
                 <div class="content">
                   <div class="content-title">
-                    <router-link :to="'/article/' + item.id">
+                    <router-link :to="rootUri + '/article/' + item.id">
                       {{ item.articleTitle }}
                     </router-link>
                   </div>

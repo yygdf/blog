@@ -67,9 +67,9 @@
           <div class="article-copyright">
             <div>
               <span>文章作者：</span>
-              <a :href="bloggerHref" target="_blank">
-                {{ bloggerInfo.nickname }}
-              </a>
+              <a :href="bloggerHref" target="_blank">{{
+                bloggerInfo.nickname
+              }}</a>
             </div>
             <div>
               <span>文章链接：</span>

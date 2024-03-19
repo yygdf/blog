@@ -5,6 +5,7 @@ import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
+import com.iksling.blog.exception.ServerStatusException;
 import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.Result;
@@ -69,6 +70,12 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(value = OperationStatusException.class)
     public Result exceptionAdvice(OperationStatusException e) {
         return Result.failure().code(FAILURE).message(e.getMessage());
+    }
+
+    /********** 服务状态异常 **********/
+    @ExceptionHandler(value = ServerStatusException.class)
+    public Result exceptionAdvice(ServerStatusException e) {
+        return Result.failure().code(SERVER_STATUS).message(e.getMessage());
     }
 
     /********** 未知异常 **********/

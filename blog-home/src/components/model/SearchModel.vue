@@ -6,7 +6,13 @@
   >
     <v-card class="search-wrapper" style="border-radius:4px">
       <div class="mb-3">
-        <span class="search-title">本站搜索</span>
+        <span class="search-title"
+          >{{ status ? "全站搜索" : "本站搜索" }}
+          <v-switch
+            v-model="status"
+            style="display: inline-block;margin: -2rem 0;padding-left: 1rem"
+          ></v-switch
+        ></span>
         <v-icon class="float-right" @click="searchFlag = false">
           mdi-close
         </v-icon>
@@ -17,15 +23,20 @@
           v-model="keywords"
           ref="inputRef"
           placeholder="输入文章标题或内容..."
-          @keyup.native="keywordsInputChange($event)"
-          @keyup.enter.native="getArticles"
+          @keyup="keywordsInputChange($event)"
+          @keyup.enter="getArticles"
         />
       </div>
       <div class="search-result-wrapper">
         <hr class="divider" />
         <ul>
           <li class="search-result" v-for="item of articleList" :key="item.id">
-            <a @click="goTo(item.id)" v-html="item.articleTitle" />
+            <a @click="goTo(item.id, item.userId)" v-html="item.articleTitle" />
+            <a
+              @click="goTo(null, item.userId)"
+              style="float: right"
+              v-html="item.username"
+            />
             <p
               class="search-result-content text-justify"
               v-html="item.articleContent"
@@ -50,6 +61,7 @@ export default {
       keywords: "",
       articleList: [],
       flag: false,
+      status: false,
       lastTimeStamp: 0
     };
   },
@@ -61,7 +73,7 @@ export default {
   computed: {
     searchFlag: {
       set(value) {
-        this.$store.commit("searchFlag", value);
+        this.$store.commit("updateSearchFlag", value);
       },
       get() {
         return this.$store.state.searchFlag;
@@ -69,11 +81,24 @@ export default {
     }
   },
   methods: {
-    goTo(articleId) {
-      this.$store.commit("searchFlag", false);
-      this.$router.push({
-        path: this.$store.state.rootUri + "/article/" + articleId
-      });
+    goTo(id, userId) {
+      this.$store.commit("updateSearchFlag", false);
+      if (id == null) {
+        if (userId !== this.$store.state.bloggerId) {
+          window.open(this.$store.state.rootUrl + "/" + userId, "_blank");
+        }
+      } else {
+        if (userId !== this.$store.state.bloggerId) {
+          window.open(
+            this.$store.state.rootUrl + "/" + userId + "/article/" + id,
+            "_blank"
+          );
+        } else {
+          this.$router.push({
+            path: this.$store.state.rootUri + "/article/" + id
+          });
+        }
+      }
     },
     keywordsInputChange(event) {
       if (event.key !== "Enter") {
@@ -94,13 +119,17 @@ export default {
         return;
       }
       this.flag = true;
-      this.axios
-        .get("/api/articles/search", { params: { keywords } })
-        .then(({ data }) => {
-          if (data.data) {
-            this.articleList = data.data;
-          }
-        });
+      let params = {
+        keywords: keywords
+      };
+      if (this.status) {
+        params.status = true;
+      }
+      this.axios.get("/api/articles/search", { params }).then(({ data }) => {
+        if (data.data) {
+          this.articleList = data.data;
+        }
+      });
     }
   }
 };

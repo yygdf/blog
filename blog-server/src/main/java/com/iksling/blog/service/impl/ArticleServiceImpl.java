@@ -501,7 +501,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .must(QueryBuilders.termQuery("draftFlag", false))
                 .must(QueryBuilders.termQuery("publicFlag", true))
                 .must(QueryBuilders.termQuery("hiddenFlag", false));
-        if (condition.getFlag() == null)
+        if (condition.getStatus() == null)
             boolQueryBuilder.must(QueryBuilders.termQuery("userId", request.getHeader("Blogger-Id")));
         nativeSearchQueryBuilder.withQuery(boolQueryBuilder);
         HighlightBuilder.Field titleField = new HighlightBuilder.Field("articleTitle");
@@ -515,19 +515,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         SearchHits<ArticlesSearchDTO> search;
         try {
             search = elasticsearchRestTemplate.search(nativeSearchQueryBuilder.build(), ArticlesSearchDTO.class);
-            return search.getSearchHits().stream().map(hit -> {
-                ArticlesSearchDTO article = hit.getContent();
-                List<String> titleHighLightList = hit.getHighlightFields().get("articleTitle");
-                if (CommonUtil.isNotEmpty(titleHighLightList))
-                    article.setArticleTitle(titleHighLightList.get(0));
-                List<String> contentHighLightList = hit.getHighlightFields().get("articleContent");
-                if (CommonUtil.isNotEmpty(contentHighLightList))
-                    article.setArticleContent(contentHighLightList.get(0));
-                return article;
-            }).collect(Collectors.toList());
         } catch (Exception e) {
             throw new ServerStatusException("查询超时!");
         }
+        return search.getSearchHits().stream().map(hit -> {
+            ArticlesSearchDTO article = hit.getContent();
+            List<String> titleHighLightList = hit.getHighlightFields().get("articleTitle");
+            if (CommonUtil.isNotEmpty(titleHighLightList))
+                article.setArticleTitle(titleHighLightList.get(0));
+            List<String> contentHighLightList = hit.getHighlightFields().get("articleContent");
+            if (CommonUtil.isNotEmpty(contentHighLightList))
+                article.setArticleContent(contentHighLightList.get(0));
+            return article;
+        }).collect(Collectors.toList());
     }
 
     private void updateArticleImageBy(Integer loginUserId, Integer articleId, String fileFullPath, Date updateTime) {

@@ -27,7 +27,8 @@ export default new Vuex.Store({
     articleLikeSet: [],
     commentLikeSet: [],
     blogConfig: {},
-    bloggerInfo: {}
+    bloggerInfo: {},
+    rootUrl: location.protocol + "//" + location.host
   },
   mutations: {
     login(state, user) {

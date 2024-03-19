@@ -83,6 +83,8 @@ axios.interceptors.response.use(
     switch (response.data.code) {
       case 20001:
       case 40001:
+      case 60001:
+      case 60002:
         Vue.prototype.$toast({ type: "error", message: response.data.message });
         break;
       case 40002:

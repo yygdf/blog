@@ -56,4 +56,9 @@ public class StatusConst {
      * 文件状态异常
      */
     public static final int FILE_STATUS = 60001;
+
+    /**
+     * 服务状态异常
+     */
+    public static final int SERVER_STATUS = 60002;
 }

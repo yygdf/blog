@@ -312,6 +312,7 @@ export default {
       wordNum: "",
       readTime: "",
       articleHref: location.href,
+      bloggerHref: this.$store.state.rootUrl + this.$store.state.rootUri,
       clipboard: null,
       defaultArticleCover: this.$store.state.blogConfig.article_default_cover
     };
@@ -500,11 +501,6 @@ export default {
     },
     rootUri() {
       return this.$store.state.rootUri;
-    },
-    bloggerHref() {
-      let currentHref = location.href;
-      let lastHref = currentHref.substring(0, currentHref.lastIndexOf("/"));
-      return lastHref.substring(0, lastHref.lastIndexOf("/"));
     }
   }
 };

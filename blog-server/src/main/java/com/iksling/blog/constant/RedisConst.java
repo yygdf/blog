@@ -65,4 +65,14 @@ public class RedisConst {
      * 邮箱验证码过期时间
      */
     public static final Integer CODE_EXPIRE_TIME = 15 * 60 * 1000;
+
+    /**
+     * 文章令牌前缀
+     */
+    public static final String ARTICLE_TOKEN = "article_token";
+
+    /**
+     * 分类令牌前缀
+     */
+    public static final String CATEGORY_TOKEN = "category_token";
 }

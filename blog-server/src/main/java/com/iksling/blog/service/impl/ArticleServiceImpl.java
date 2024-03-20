@@ -396,10 +396,51 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public List<ArticlesDTO> getArticlesDTO(Condition condition) {
         LoginUser loginUser = UserUtil.getLoginUser();
+        Integer loginUserId = loginUser.getUserId();
         condition.setUserId(Integer.valueOf(request.getHeader("Blogger-Id")));
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        condition.setFlag(loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(condition.getUserId()));
-        return articleMapper.selectArticlesDTO(condition);
+        boolean loginFlag = loginUserId == -1;
+        if (!loginFlag)
+            condition.setFlag(loginUser.getRoleWeight() > 300 && !loginUserId.equals(condition.getUserId()));
+        List<ArticlesDTO> articlesDTOList = articleMapper.selectArticlesDTO(condition, loginFlag);
+        if (loginFlag || !condition.getFlag())
+            return articlesDTOList;
+        boolean publicFlag = articlesDTOList.stream().anyMatch(e -> !e.getPublicFlag());
+        boolean categoryPublicFlag = articlesDTOList.stream().anyMatch(e -> !e.getCategoryPublicFlag());
+        if (publicFlag) {
+            HashSet<Integer> articleTokenSet = (HashSet<Integer>) redisTemplate.boundHashOps(ARTICLE_TOKEN).get(loginUserId.toString());
+            if (articleTokenSet == null)
+                return articlesDTOList.stream().peek(e -> e.setArticleContent("")).collect(Collectors.toList());
+            if (categoryPublicFlag) {
+                HashSet<Integer> categoryTokenSet = (HashSet<Integer>) redisTemplate.boundHashOps(CATEGORY_TOKEN).get(loginUserId.toString());
+                if (categoryTokenSet == null)
+                    return articlesDTOList.stream().peek(e -> e.setArticleContent("")).collect(Collectors.toList());
+                return articlesDTOList.stream().peek(e -> {
+                    if (articleTokenSet.contains(e.getId()) && categoryTokenSet.contains(e.getCategoryId()))
+                        e.setPermitFlag(true);
+                    else
+                        e.setArticleContent("");
+                }).collect(Collectors.toList());
+            } else
+                return articlesDTOList.stream().peek(e -> {
+                    if (articleTokenSet.contains(e.getId()))
+                        e.setPermitFlag(true);
+                    else
+                        e.setArticleContent("");
+                }).collect(Collectors.toList());
+        } else if (categoryPublicFlag) {
+            HashSet<Integer> categoryTokenSet = (HashSet<Integer>) redisTemplate.boundHashOps(CATEGORY_TOKEN).get(loginUserId.toString());
+            if (categoryTokenSet == null)
+                return articlesDTOList.stream().peek(e -> e.setArticleContent("")).collect(Collectors.toList());
+            return articlesDTOList.stream().peek(e -> {
+                if (categoryTokenSet.contains(e.getCategoryId()))
+                    e.setPermitFlag(true);
+                else
+                    e.setArticleContent("");
+            }).collect(Collectors.toList());
+        }
+        else
+            return articlesDTOList;
     }
 
     @Override

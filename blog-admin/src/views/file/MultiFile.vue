@@ -672,16 +672,16 @@ export default {
         } else {
           this.multiFileToken = {
             id: multiFile.id,
+            expireTime: null,
+            accessToken: "",
+            effectiveCount: -1,
             fileNameOrigin: multiFile.fileNameOrigin
           };
+          this.tokenValidStatus = 0;
           this.axios
             .get("/api/back/multiFile/" + multiFile.id)
             .then(({ data }) => {
-              if (data.data.accessToken == null) {
-                this.multiFileToken.accessToken = "";
-                this.multiFileToken.effectiveCount = -1;
-                this.tokenValidStatus = 0;
-              } else {
+              if (data.data.accessToken != null) {
                 this.multiFileToken = { ...this.multiFileToken, ...data.data };
                 this.tokenMap.set(multiFile.id, this.multiFileToken);
                 this.tokenValidStatus = 2;
@@ -689,10 +689,10 @@ export default {
               this.multiFileTokenOrigin = JSON.parse(
                 JSON.stringify(this.multiFileToken)
               );
+              this.multiFileTokenFlag = true;
               this.$nextTick(() => {
                 this.$refs.input.focus();
               });
-              this.multiFileTokenFlag = true;
             });
         }
       }

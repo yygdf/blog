@@ -21,12 +21,30 @@ export default new Vuex.Store({
     email: null,
     avatar: null,
     gender: null,
+    weight: 1000,
     website: null,
     nickname: null,
     bloggerId: null,
     articleLikeSet: [],
     commentLikeSet: [],
-    blogConfig: {},
+    blogConfig: {
+      home_banner_title: "",
+      home_contact_qq: "#",
+      home_github: "#",
+      home_gitee: "#",
+      home_notice: "暂无内容~~~",
+      wx_pay_code: require("../assets/img/wxPay.png"),
+      ali_pay_code: require("../assets/img/aliPay.png"),
+      article_default_cover: require("../assets/img/default/article.jpg"),
+      tag_banner_cover: require("../assets/img/banner/tag.jpg"),
+      home_banner_cover: require("../assets/img/banner/home.jpg"),
+      link_banner_cover: require("../assets/img/banner/link.jpg"),
+      about_banner_cover: require("../assets/img/banner/about.jpg"),
+      archive_banner_cover: require("../assets/img/banner/archive.jpg"),
+      message_banner_cover: require("../assets/img/banner/message.jpg"),
+      category_banner_cover: require("../assets/img/banner/category.jpg"),
+      personal_banner_cover: require("../assets/img/banner/personal.jpg")
+    },
     bloggerInfo: {},
     rootUrl: location.protocol + "//" + location.host
   },
@@ -37,6 +55,7 @@ export default new Vuex.Store({
       state.email = user.email;
       state.avatar = user.avatar;
       state.gender = user.gender;
+      state.weight = user.weight;
       state.website = user.website;
       state.nickname = user.nickname;
       state.articleLikeSet = user.articleLikeSet ? user.articleLikeSet : [];
@@ -71,7 +90,60 @@ export default new Vuex.Store({
       state.avatar = avatar;
     },
     saveBlogConfig(state, blogConfig) {
-      state.blogConfig = blogConfig;
+      if (blogConfig.home_banner_title) {
+        state.blogConfig.home_banner_title = blogConfig.home_banner_title;
+      }
+      if (blogConfig.home_contact_qq) {
+        state.blogConfig.home_contact_qq =
+          "https://wpa.qq.com/msgrd?v=3&uin=" +
+          blogConfig.home_contact_qq +
+          "&site=qq&menu=yes";
+      }
+      if (blogConfig.home_github) {
+        state.blogConfig.home_github = blogConfig.home_github;
+      }
+      if (blogConfig.home_gitee) {
+        state.blogConfig.home_gitee = blogConfig.home_gitee;
+      }
+      if (blogConfig.home_notice) {
+        state.blogConfig.home_notice = blogConfig.home_notice;
+      }
+      if (blogConfig.wx_pay_code) {
+        state.blogConfig.wx_pay_code = blogConfig.wx_pay_code;
+      }
+      if (blogConfig.ali_pay_code) {
+        state.blogConfig.ali_pay_code = blogConfig.ali_pay_code;
+      }
+      if (blogConfig.article_default_cover) {
+        state.blogConfig.article_default_cover =
+          blogConfig.article_default_cover;
+      }
+      if (blogConfig.tag_banner_cover) {
+        state.blogConfig.tag_banner_cover = blogConfig.tag_banner_cover;
+      }
+      if (blogConfig.home_banner_cover) {
+        state.blogConfig.home_banner_cover = blogConfig.home_banner_cover;
+      }
+      if (blogConfig.link_banner_cover) {
+        state.blogConfig.link_banner_cover = blogConfig.link_banner_cover;
+      }
+      if (blogConfig.about_banner_cover) {
+        state.blogConfig.about_banner_cover = blogConfig.about_banner_cover;
+      }
+      if (blogConfig.archive_banner_cover) {
+        state.blogConfig.archive_banner_cover = blogConfig.archive_banner_cover;
+      }
+      if (blogConfig.message_banner_cover) {
+        state.blogConfig.message_banner_cover = blogConfig.message_banner_cover;
+      }
+      if (blogConfig.category_banner_cover) {
+        state.blogConfig.category_banner_cover =
+          blogConfig.category_banner_cover;
+      }
+      if (blogConfig.personal_banner_cover) {
+        state.blogConfig.personal_banner_cover =
+          blogConfig.personal_banner_cover;
+      }
     },
     saveBloggerInfo(state, bloggerInfo) {
       state.bloggerInfo = bloggerInfo;

@@ -41,7 +41,7 @@
     <hr />
     <div class="menu-container">
       <div class="menus-item">
-        <router-link :to="rootUri">
+        <router-link :to="rootUri === '' ? '/' : rootUri">
           <i class="iconfont my-icon-home" /> 首页
         </router-link>
       </div>

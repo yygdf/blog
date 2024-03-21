@@ -373,7 +373,7 @@ export default {
             });
           } else {
             this.$router.push({
-              path: this.rootUri + "/"
+              path: this.rootUri === "" ? "/" : this.rootUri
             });
           }
         });

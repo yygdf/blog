@@ -2,7 +2,10 @@
   <v-app-bar app :class="navClass" hide-on-scroll flat height="60">
     <div class="d-md-none nav-mobile-container">
       <div style="font-size:18px;font-weight:bold">
-        <router-link :to="rootUri" v-html="logo"></router-link>
+        <router-link
+          :to="rootUri === '' ? '/' : rootUri"
+          v-html="logo"
+        ></router-link>
       </div>
       <div style="margin-left:auto">
         <a @click="openSearch"><i class="iconfont my-icon-search"/></a>
@@ -13,14 +16,17 @@
     </div>
     <div class="d-md-block d-none nav-container">
       <div class="float-left blog-title">
-        <router-link :to="rootUri" v-html="logo"></router-link>
+        <router-link
+          :to="rootUri === '' ? '/' : rootUri"
+          v-html="logo"
+        ></router-link>
       </div>
       <div class="float-right nav-title">
         <div class="menus-btn">
           <a @click="openSearch"><i class="iconfont my-icon-search" /> 搜索</a>
         </div>
         <div class="menus-item">
-          <router-link :to="rootUri">
+          <router-link :to="rootUri === '' ? '/' : rootUri">
             <i class="iconfont my-icon-home" /> 首页
           </router-link>
         </div>

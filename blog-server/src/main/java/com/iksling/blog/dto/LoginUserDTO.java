@@ -38,6 +38,11 @@ public class LoginUserDTO {
     private Integer gender;
 
     /**
+     * 权重
+     */
+    private Integer weight;
+
+    /**
      * 用户网站
      */
     private String website;

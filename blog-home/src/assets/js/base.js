@@ -25,59 +25,6 @@ export function getBloggerId() {
 export async function getBlogInfo() {
   await axios.get("/api/blog/info").then(({ data }) => {
     if (data.flag) {
-      if (!data.data.blogConfig.home_banner_cover) {
-        data.data.blogConfig.home_banner_cover = require("../../assets/img/banner/home.jpg");
-      }
-      if (!data.data.blogConfig.home_banner_title) {
-        data.data.blogConfig.home_banner_title = "";
-      }
-      if (!data.data.blogConfig.home_contact_qq) {
-        data.data.blogConfig.home_contact_qq = "#";
-      } else {
-        data.data.blogConfig.home_contact_qq =
-          "https://wpa.qq.com/msgrd?v=3&uin=" +
-          data.data.blogConfig.home_contact_qq +
-          "&site=qq&menu=yes";
-      }
-      if (!data.data.blogConfig.home_github) {
-        data.data.blogConfig.home_github = "#";
-      }
-      if (!data.data.blogConfig.home_gitee) {
-        data.data.blogConfig.home_gitee = "#";
-      }
-      if (!data.data.blogConfig.home_notice) {
-        data.data.blogConfig.home_notice = "暂无内容~~~";
-      }
-      if (!data.data.blogConfig.article_default_cover) {
-        data.data.blogConfig.article_default_cover = require("../../assets/img/default/article.jpg");
-      }
-      if (!data.data.blogConfig.wx_pay_code) {
-        data.data.blogConfig.wx_pay_code = require("../../assets/img/wxPay.png");
-      }
-      if (!data.data.blogConfig.ali_pay_code) {
-        data.data.blogConfig.ali_pay_code = require("../../assets/img/aliPay.png");
-      }
-      if (!data.data.blogConfig.category_banner_cover) {
-        data.data.blogConfig.category_banner_cover = require("../../assets/img/banner/category.jpg");
-      }
-      if (!data.data.blogConfig.tag_banner_cover) {
-        data.data.blogConfig.tag_banner_cover = require("../../assets/img/banner/tag.jpg");
-      }
-      if (!data.data.blogConfig.about_banner_cover) {
-        data.data.blogConfig.about_banner_cover = require("../../assets/img/banner/about.jpg");
-      }
-      if (!data.data.blogConfig.archive_banner_cover) {
-        data.data.blogConfig.archive_banner_cover = require("../../assets/img/banner/archive.jpg");
-      }
-      if (!data.data.blogConfig.link_banner_cover) {
-        data.data.blogConfig.link_banner_cover = require("../../assets/img/banner/link.jpg");
-      }
-      if (!data.data.blogConfig.message_banner_cover) {
-        data.data.blogConfig.message_banner_cover = require("../../assets/img/banner/message.jpg");
-      }
-      if (!data.data.blogConfig.personal_banner_cover) {
-        data.data.blogConfig.personal_banner_cover = require("../../assets/img/banner/personal.jpg");
-      }
       store.commit("saveBlogConfig", data.data.blogConfig);
       if (!data.data.bloggerInfo.avatar) {
         data.data.bloggerInfo.avatar = require("../../assets/img/default/avatar.png");

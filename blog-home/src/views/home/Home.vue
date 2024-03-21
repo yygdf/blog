@@ -10,8 +10,8 @@
         </div>
         <div class="blog-contact">
           <a
-            class="iconfont my-icon-qq"
             target="_blank"
+            class="iconfont my-icon-qq"
             :href="blogConfig.home_contact_qq"
           />
           <a
@@ -49,6 +49,7 @@
                 :src="
                   item.articleCover ? item.articleCover : defaultArticleCover
                 "
+                @click.native="customNavigate($event, item)"
               />
             </router-link>
           </div>
@@ -71,11 +72,19 @@
                 </span>
                 <span class="separator">|</span>
               </span>
-              <span v-else-if="!item.publicFlag">
-                <span style="color:#555555">
-                  <i class="iconfont my-icon-open-eye" /> 未公开
+              <span v-else>
+                <span v-if="item.permitFlag">
+                  <span style="color:#444444">
+                    <i class="iconfont my-icon-open-eye" /> 已解锁
+                  </span>
+                  <span class="separator">|</span>
                 </span>
-                <span class="separator">|</span>
+                <span v-else-if="!item.publicFlag">
+                  <span style="color:#555555">
+                    <i class="iconfont my-icon-open-eye" /> 未公开
+                  </span>
+                  <span class="separator">|</span>
+                </span>
               </span>
               <v-icon size="14">mdi-calendar-month-outline</v-icon>
               {{ item.publishTime | date }}
@@ -289,6 +298,16 @@ export default {
             $state.complete();
           }
         });
+    },
+    customNavigate(event, article) {
+      if (
+        !article.publicFlag &&
+        !this.checkWeight &&
+        !this.checkUserId &&
+        article.permitFlag !== true
+      ) {
+        event.preventDefault();
+      }
     }
   },
   computed: {
@@ -315,6 +334,12 @@ export default {
     },
     rootUri() {
       return this.$store.state.rootUri;
+    },
+    checkWeight() {
+      return this.$store.state.weight <= 300;
+    },
+    checkUserId() {
+      return this.$store.state.userId === this.$store.state.bloggerId;
     }
   }
 };

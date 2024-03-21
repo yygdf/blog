@@ -24,8 +24,10 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { getBloggerId, getBlogInfo } from "./assets/js/base";
 import "./assets/js/ribbon";
+import confirm from "./plugins/confirm";
 
 Vue.prototype.config = config;
+Vue.prototype.$confirm = confirm;
 Vue.config.productionTip = false;
 Vue.use(animated);
 Vue.use(Share);

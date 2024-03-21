@@ -304,9 +304,15 @@ export default {
         !article.publicFlag &&
         !this.checkWeight &&
         !this.checkUserId &&
-        article.permitFlag !== true
+        !article.permitFlag
       ) {
-        event.preventDefault();
+        this.$confirm({})
+          .then(data => {
+            console.log(data);
+          })
+          .catch(() => {
+            event.preventDefault();
+          });
       }
     }
   },

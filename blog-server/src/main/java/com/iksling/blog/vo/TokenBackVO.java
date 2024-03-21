@@ -5,11 +5,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @ApiModel(description = "令牌后台VO")
@@ -36,7 +34,7 @@ public class TokenBackVO {
     /**
      * 访问密令
      */
-    @Size(min = 6, max = 6, message = "'accessToken':{'length':6}")
+    @Size(min = 1, max = 100, message = "'accessToken':{'minlength':1,'maxlength':100}")
     @ApiModelProperty(name = "accessToken", value = "访问密令", dataType = "String")
     private String accessToken;
 

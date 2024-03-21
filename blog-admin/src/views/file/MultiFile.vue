@@ -404,7 +404,8 @@
             v-model="multiFileToken.accessToken"
             ref="input"
             style="width: 200px"
-            placeholder="请输入6位访问密令"
+            maxlength="100"
+            placeholder="请输入访问密令"
             @keyup.native="tokenInputChange"
           />&nbsp;
           <span
@@ -718,7 +719,7 @@ export default {
       return this.$confirm(`确定移除 ${file.name} ?`);
     },
     tokenInputChange() {
-      if (this.multiFileToken.accessToken.trim().length === 6) {
+      if (this.multiFileToken.accessToken.trim() !== "") {
         this.tokenValidStatus = 2;
       } else {
         this.tokenValidStatus = -1;

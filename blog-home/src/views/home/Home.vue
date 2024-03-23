@@ -41,23 +41,23 @@
           :key="item.id"
         >
           <div :class="isRight(index)">
-            <router-link :to="rootUri + '/article/' + item.id">
+            <a>
               <v-img
                 class="on-hover"
                 width="100%"
                 height="100%"
                 :src="
-                  item.articleCover ? item.articleCover : defaultArticleCover
+                item.articleCover ? item.articleCover : defaultArticleCover
                 "
-                @click.native="customNavigate($event, item)"
+                @click="customNavigate($event, item)"
               />
-            </router-link>
+            </a>
           </div>
           <div class="article-wrapper">
             <div style="line-height:1.4">
-              <router-link :to="rootUri + '/article/' + item.id">
+              <a @click="customNavigate($event, item)">
                 {{ item.articleTitle }}
-              </router-link>
+              </a>
             </div>
             <div class="article-info">
               <span v-if="item.topFlag">
@@ -74,7 +74,7 @@
               </span>
               <span v-else>
                 <span v-if="item.permitFlag">
-                  <span style="color:#444444">
+                  <span style="color:#22863a">
                     <i class="iconfont my-icon-open-eye" /> 已解锁
                   </span>
                   <span class="separator">|</span>
@@ -315,12 +315,20 @@ export default {
             this.axios.post("/api/blog/token", param).then(({ data }) => {
               if (!data.flag) {
                 event.preventDefault();
+              } else {
+                this.$router.push({
+                  path: this.rootUri + "/article/" + article.id
+                });
               }
             });
           })
           .catch(() => {
             event.preventDefault();
           });
+      } else {
+        this.$router.push({
+          path: this.rootUri + "/article/" + article.id
+        });
       }
     }
   },

@@ -83,6 +83,11 @@ public class ArticleDTO {
     private Integer viewCount;
 
     /**
+     * 0未允许, 1已允许
+     */
+    private Boolean permitFlag;
+
+    /**
      * 上一篇文章
      */
     private ArticlesPaginationDTO lastArticle;

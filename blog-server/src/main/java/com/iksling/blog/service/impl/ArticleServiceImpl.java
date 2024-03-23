@@ -454,7 +454,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (!loginFlag)
             condition.setFlag(loginUser.getRoleWeight() > 300 && !loginUserId.equals(condition.getUserId()));
         List<ArticlesDTO> articlesDTOList = articleMapper.selectArticlesDTO(condition, loginFlag);
-        if (loginFlag || !condition.getFlag())
+        if (loginFlag || !condition.getFlag() || articlesDTOList.isEmpty())
             return articlesDTOList;
         boolean publicFlag = articlesDTOList.stream().anyMatch(e -> !e.getPublicFlag());
         if (publicFlag) {
@@ -474,11 +474,22 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public ArticleDTO getArticleDTOById(Integer id) {
         LoginUser loginUser = UserUtil.getLoginUser();
+        Integer loginUserId = loginUser.getUserId();
         Integer bloggerId = Integer.valueOf(request.getHeader("Blogger-Id"));
-        boolean flag = loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(bloggerId);
-        ArticleDTO articleDTO = articleMapper.selectArticleDTOById(id, bloggerId, flag);
+        boolean flag = false;
+        boolean loginFlag = loginUserId == -1;
+        if (!loginFlag)
+            flag = loginUser.getRoleWeight() > 300 && !loginUserId.equals(bloggerId);
+        ArticleDTO articleDTO = articleMapper.selectArticleDTOById(id, bloggerId, flag, loginFlag);
         if (articleDTO == null)
             return null;
+        if (!loginFlag && flag && !articleDTO.getPublicFlag()) {
+            HashSet<Integer> articleTokenSet = (HashSet<Integer>) redisTemplate.boundHashOps(ARTICLE_TOKEN).get(loginUserId.toString());
+            if (articleTokenSet == null || !articleTokenSet.contains(id))
+                articleDTO.setArticleContent("");
+            else
+                articleDTO.setPermitFlag(true);
+        }
         updateArticleViewCount(id.toString());
         List<ArticlesPaginationDTO> articlesPaginationDTOList = articleMapper.selectArticlesPaginationDTOById(id, bloggerId, flag);
         List<ArticlesRecommendDTO> articlesRecommendDTOList = articleMapper.selectArticlesRecommendDTOById(id, bloggerId, flag);

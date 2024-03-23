@@ -185,7 +185,7 @@
           </div>
           <div
             class="recommend-container"
-            v-if="article.articlesRecommendDTOList.length"
+            v-if="article.articlesRecommendDTOList"
           >
             <div class="recommend-title">
               <v-icon size="20" color="#4c4948">mdi-thumb-up</v-icon> 相关推荐
@@ -298,17 +298,7 @@ export default {
         sites: ["qzone", "wechat", "qq"]
       },
       imgList: [],
-      article: {
-        nextArticle: {
-          id: 0,
-          articleCover: ""
-        },
-        lastArticle: {
-          id: 0,
-          articleCover: ""
-        },
-        articlesRecommendDTOList: []
-      },
+      article: {},
       articleNewestList: [],
       commentList: [],
       count: 0,

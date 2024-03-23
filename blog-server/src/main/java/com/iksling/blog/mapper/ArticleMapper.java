@@ -21,7 +21,7 @@ public interface ArticleMapper extends BaseMapper<Article> {
 
     List<ArticlesDTO> selectArticlesDTO(@Param("condition") Condition condition, boolean loginFlag);
 
-    ArticleDTO selectArticleDTOById(Integer id, Integer bloggerId, boolean flag);
+    ArticleDTO selectArticleDTOById(Integer id, Integer bloggerId, boolean flag, boolean loginFlag);
 
     List<ArticlesPaginationDTO> selectArticlesPaginationDTOById(Integer id, Integer bloggerId, boolean flag);
 

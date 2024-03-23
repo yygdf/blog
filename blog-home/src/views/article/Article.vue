@@ -523,11 +523,12 @@ export default {
       };
       this.axios.post("/api/blog/token", param).then(({ data }) => {
         if (data.flag) {
-          this.article.articleContent = data.data;
+          this.article.articleContent = data.data.toString();
           this.markdownToHtml();
           this.articleRender();
           this.$toast({ type: "success", message: "解锁成功" });
           this.unlockModelFlag = false;
+          this.article.permitFlag = true;
         }
       });
     }

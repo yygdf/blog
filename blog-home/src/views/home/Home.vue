@@ -73,7 +73,7 @@
               </span>
               <span v-else-if="!item.publicFlag">
                 <span style="color:#555555">
-                  <i class="iconfont my-icon-open-eye" /> 未公开
+                  <i class="iconfont my-icon-open-eye" /> 已锁定
                 </span>
                 <span class="separator">|</span>
               </span>

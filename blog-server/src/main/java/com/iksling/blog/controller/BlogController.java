@@ -38,7 +38,6 @@ public class BlogController {
 
     /****************************************************************************************************/
 
-    @OptLog(optType = SAVE)
     @ApiOperation(value = "校验访问令牌")
     @ApiImplicitParam(name = "tokenVO", value = "令牌VO", required = true, dataType = "TokenVO")
     @PostMapping("/blog/token")

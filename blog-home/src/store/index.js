@@ -21,7 +21,6 @@ export default new Vuex.Store({
     email: null,
     avatar: null,
     gender: null,
-    weight: 1000,
     website: null,
     nickname: null,
     bloggerId: null,
@@ -55,7 +54,6 @@ export default new Vuex.Store({
       state.email = user.email;
       state.avatar = user.avatar;
       state.gender = user.gender;
-      state.weight = user.weight;
       state.website = user.website;
       state.nickname = user.nickname;
       state.articleLikeSet = user.articleLikeSet ? user.articleLikeSet : [];

@@ -3,12 +3,16 @@ package com.iksling.blog.controller;
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.BlogService;
+import com.iksling.blog.vo.TokenVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
+import static com.iksling.blog.constant.LogConst.SAVE;
 import static com.iksling.blog.constant.LogConst.UPDATE;
 
 @RestController
@@ -33,6 +37,15 @@ public class BlogController {
     }
 
     /****************************************************************************************************/
+
+    @OptLog(optType = SAVE)
+    @ApiOperation(value = "校验访问令牌")
+    @ApiImplicitParam(name = "tokenVO", value = "令牌VO", required = true, dataType = "TokenVO")
+    @PostMapping("/blog/token")
+    public Result saveBlogTokenVO(@Valid @RequestBody TokenVO tokenVO) {
+        blogService.saveTokenVO(tokenVO);
+        return Result.success().message("操作成功");
+    }
 
     @ApiOperation(value = "查看博主id")
     @ApiImplicitParam(name = "bloggerId", value = "博主id", dataType = "Integer")

@@ -159,26 +159,22 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         LoginUser loginUser = UserUtil.getLoginUser();
         BoundHashOperations boundHashOperations = redisTemplate.boundHashOps(MULTI_FILE_TOKEN + "_" + tokenBackVO.getId());
         Map<String, Object> map = boundHashOperations.entries();
-        if (map == null) {
-            if (tokenBackVO.getAccessToken() == null || tokenBackVO.getEffectiveCount() == null)
+        if (map.isEmpty()) {
+            if (tokenBackVO.getAccessToken() == null)
                 throw new OperationStatusException();
-            Integer multiFileUserId = tokenBackVO.getUserId();
-            if (multiFileUserId == null)
-                multiFileUserId = loginUser.getUserId();
-            else if (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(multiFileUserId))
-                throw new OperationStatusException();
-            Integer count = multiFileMapper.selectCount(new LambdaQueryWrapper<MultiFile>()
+            List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                    .select(MultiFile::getUserId)
                     .eq(MultiFile::getId, tokenBackVO.getId())
-                    .eq(MultiFile::getUserId, multiFileUserId)
                     .eq(MultiFile::getPublicFlag, false)
                     .eq(MultiFile::getDeletableFlag, true)
-                    .eq(MultiFile::getDeletedCount, 0));
-            if (count != 1)
+                    .eq(MultiFile::getDeletedCount, 0)
+                    .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUser.getUserId()));
+            if (objectList.isEmpty())
                 throw new OperationStatusException();
             map = new HashMap<>();
             map.put("accessToken", tokenBackVO.getAccessToken());
-            map.put("effectiveCount", tokenBackVO.getAccessToken());
-            map.put("userId", multiFileUserId);
+            map.put("effectiveCount", tokenBackVO.getEffectiveCount() == null ? -1 : tokenBackVO.getEffectiveCount());
+            map.put("userId", objectList.get(0));
         } else {
             if (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(map.get("userId")))
                 throw new OperationStatusException();

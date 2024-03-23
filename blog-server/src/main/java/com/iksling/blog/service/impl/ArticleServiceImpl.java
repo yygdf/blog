@@ -22,6 +22,7 @@ import com.iksling.blog.util.*;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleImageBackVO;
 import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.TokenBackVO;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
@@ -29,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -209,6 +211,45 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     @Transactional
+    public void saveOrUpdateArticleTokenBackVO(TokenBackVO tokenBackVO) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        BoundHashOperations boundHashOperations = redisTemplate.boundHashOps(ARTICLE_TOKEN + "_" + tokenBackVO.getId());
+        Map<String, Object> map = boundHashOperations.entries();
+        if (map.isEmpty()) {
+            if (tokenBackVO.getAccessToken() == null)
+                throw new OperationStatusException();
+            List<Object> objectList = articleMapper.selectObjs(new LambdaQueryWrapper<Article>()
+                    .select(Article::getUserId)
+                    .eq(Article::getId, tokenBackVO.getId())
+                    .eq(Article::getPublicFlag, false)
+                    .eq(Article::getDraftFlag, false)
+                    .eq(loginUser.getRoleWeight() > 300, Article::getUserId, loginUser.getUserId()));
+            if (objectList.isEmpty())
+                throw new OperationStatusException();
+            map = new HashMap<>();
+            map.put("accessToken", tokenBackVO.getAccessToken());
+            map.put("effectiveCount", tokenBackVO.getEffectiveCount() == null ? -1 : tokenBackVO.getEffectiveCount());
+            map.put("userId", objectList.get(0));
+        } else {
+            if (loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(map.get("userId")))
+                throw new OperationStatusException();
+            if (tokenBackVO.getAccessToken() != null)
+                map.put("accessToken", tokenBackVO.getAccessToken());
+            if (tokenBackVO.getEffectiveCount() != null)
+                map.put("effectiveCount", tokenBackVO.getEffectiveCount());
+        }
+        if (tokenBackVO.getExpireTime() == null) {
+            boundHashOperations.persist();
+            map.put("expireTime", null);
+        } else {
+            boundHashOperations.expireAt(tokenBackVO.getExpireTime());
+            map.put("expireTime", tokenBackVO.getExpireTime());
+        }
+        boundHashOperations.putAll(map);
+    }
+
+    @Override
+    @Transactional
     public void deleteBackArticlesByIdList(List<Integer> idList) {
         if (idList.isEmpty())
             throw new IllegalRequestException();
@@ -370,6 +411,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     @Override
+    public Dict getArticleTokenById(Integer id) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        BoundHashOperations boundHashOperations = redisTemplate.boundHashOps(ARTICLE_TOKEN + "_" + id);
+        Map<String, Object> map = boundHashOperations.entries();
+        if (map.isEmpty() || (loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(map.get("userId"))))
+            return Dict.create();
+        return Dict.create().putAll(new HashMap<>(map));
+    }
+
+    @Override
     @Transactional
     public void saveArticleLike(Integer id) {
         LoginUser loginUser = UserUtil.getLoginUser();
@@ -406,40 +457,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (loginFlag || !condition.getFlag())
             return articlesDTOList;
         boolean publicFlag = articlesDTOList.stream().anyMatch(e -> !e.getPublicFlag());
-        boolean categoryPublicFlag = articlesDTOList.stream().anyMatch(e -> !e.getCategoryPublicFlag());
         if (publicFlag) {
             HashSet<Integer> articleTokenSet = (HashSet<Integer>) redisTemplate.boundHashOps(ARTICLE_TOKEN).get(loginUserId.toString());
             if (articleTokenSet == null)
                 return articlesDTOList.stream().peek(e -> e.setArticleContent("")).collect(Collectors.toList());
-            if (categoryPublicFlag) {
-                HashSet<Integer> categoryTokenSet = (HashSet<Integer>) redisTemplate.boundHashOps(CATEGORY_TOKEN).get(loginUserId.toString());
-                if (categoryTokenSet == null)
-                    return articlesDTOList.stream().peek(e -> e.setArticleContent("")).collect(Collectors.toList());
-                return articlesDTOList.stream().peek(e -> {
-                    if (articleTokenSet.contains(e.getId()) && categoryTokenSet.contains(e.getCategoryId()))
-                        e.setPermitFlag(true);
-                    else
-                        e.setArticleContent("");
-                }).collect(Collectors.toList());
-            } else
-                return articlesDTOList.stream().peek(e -> {
-                    if (articleTokenSet.contains(e.getId()))
-                        e.setPermitFlag(true);
-                    else
-                        e.setArticleContent("");
-                }).collect(Collectors.toList());
-        } else if (categoryPublicFlag) {
-            HashSet<Integer> categoryTokenSet = (HashSet<Integer>) redisTemplate.boundHashOps(CATEGORY_TOKEN).get(loginUserId.toString());
-            if (categoryTokenSet == null)
-                return articlesDTOList.stream().peek(e -> e.setArticleContent("")).collect(Collectors.toList());
             return articlesDTOList.stream().peek(e -> {
-                if (categoryTokenSet.contains(e.getCategoryId()))
+                if (articleTokenSet.contains(e.getId()))
                     e.setPermitFlag(true);
                 else
                     e.setArticleContent("");
             }).collect(Collectors.toList());
-        }
-        else
+        }  else
             return articlesDTOList;
     }
 

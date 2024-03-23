@@ -90,7 +90,7 @@ public class MultiFileController {
 
     @ApiOperation(value = "根据文件id查找文件令牌")
     @ApiImplicitParam(name = "id", value = "文件id", required = true, dataType = "Integer")
-    @GetMapping("/back/multiFile/{id}")
+    @GetMapping("/back/multiFile/token/{id}")
     public Result getBackMultiFileTokenById(@PathVariable Integer id) {
         return Result.success().message("操作成功").data(multiFileService.getMultiFileTokenById(id));
     }

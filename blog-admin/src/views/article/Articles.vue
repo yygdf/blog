@@ -258,7 +258,7 @@
           />
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="160">
+      <el-table-column label="操作" align="center" width="200">
         <template slot-scope="scope">
           <el-button
             v-if="type == null || type === 5"
@@ -313,6 +313,16 @@
               <i class="el-icon-delete" /> 删除
             </el-button>
           </el-popconfirm>
+          <el-button
+            :disabled="type != null || scope.row.publicFlag"
+            type="primary"
+            size="mini"
+            class="smaller-btn"
+            style="margin-left:10px"
+            @click="openOperateModel(scope.row)"
+          >
+            <i class="el-icon-lock" /> 密令
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -350,6 +360,74 @@
           确 定
         </el-button>
       </div>
+    </el-dialog>
+    <el-dialog
+      :visible.sync="articleTokenFlag"
+      width="30%"
+      @close="cancelAddOrEditArticleToken"
+    >
+      <div class="dialog-title-container" slot="title">
+        密令设置
+      </div>
+      <el-form :model="articleToken" size="medium" label-width="80">
+        <el-form-item label="文章标题">
+          <el-input
+            v-model="articleToken.articleTitle"
+            style="width: 200px"
+            disabled
+          />
+        </el-form-item>
+        <el-form-item label="访问密令">
+          <el-input
+            v-model="articleToken.accessToken"
+            ref="input"
+            style="width: 200px"
+            maxlength="100"
+            placeholder="请输入访问密令"
+            @keyup.native="tokenInputChange"
+          />&nbsp;
+          <span
+            v-if="tokenValidStatus === 2"
+            class="el-icon-success"
+            style="color: green;"
+          ></span>
+          <span
+            v-if="tokenValidStatus === -1"
+            class="el-icon-error"
+            style="color: red;"
+          >
+            该密令不合法!</span
+          >
+        </el-form-item>
+        <el-form-item label="有效次数">
+          <el-input-number
+            v-model="articleToken.effectiveCount"
+            :min="-1"
+            :max="2147483647"
+            value="-1"
+            controls-position="right"
+          />
+        </el-form-item>
+        <el-form-item label="过期时间">
+          <el-date-picker
+            v-model="articleToken.expireTime"
+            type="datetime"
+            style="width: 200px"
+            placeholder="选择过期时间"
+          >
+          </el-date-picker>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="articleTokenFlag = false">取 消</el-button>
+        <el-button
+          :disabled="tokenValidStatus !== 2"
+          type="primary"
+          @click="addOrEditArticleToken"
+        >
+          确 定
+        </el-button>
+      </span>
     </el-dialog>
   </el-card>
 </template>
@@ -392,6 +470,8 @@ export default {
       usernameList: [],
       categoryList: [],
       articleIdList: [],
+      articleToken: {},
+      articleTokenOrigin: {},
       type: null,
       userId: null,
       keywords: null,
@@ -400,12 +480,51 @@ export default {
       loading: true,
       editStatus: false,
       removeStatus: false,
+      articleTokenFlag: false,
       size: 10,
       count: 0,
-      current: 1
+      current: 1,
+      tokenValidStatus: 0,
+      tokenMap: new Map()
     };
   },
   methods: {
+    openOperateModel(article) {
+      if (this.tokenMap.get(article.id)) {
+        this.tokenValidStatus = 2;
+        this.articleToken = this.tokenMap.get(article.id);
+        this.articleTokenOrigin = JSON.parse(JSON.stringify(this.articleToken));
+        this.$nextTick(() => {
+          this.$refs.input.focus();
+        });
+        this.articleTokenFlag = true;
+      } else {
+        this.articleToken = {
+          id: article.id,
+          articleTitle: article.articleTitle,
+          expireTime: null,
+          accessToken: "",
+          effectiveCount: -1
+        };
+        this.tokenValidStatus = 0;
+        this.axios
+          .get("/api/back/article/token/" + article.id)
+          .then(({ data }) => {
+            if (data.data.accessToken != null) {
+              this.articleToken = { ...this.articleToken, ...data.data };
+              this.tokenMap.set(article.id, this.articleToken);
+              this.tokenValidStatus = 2;
+            }
+            this.articleTokenOrigin = JSON.parse(
+              JSON.stringify(this.articleToken)
+            );
+            this.articleTokenFlag = true;
+            this.$nextTick(() => {
+              this.$refs.input.focus();
+            });
+          });
+      }
+    },
     addArticle() {
       this.$router.push({ path: "/article" });
     },
@@ -428,6 +547,16 @@ export default {
       selection.forEach(item => {
         this.articleIdList.push(item.id);
       });
+    },
+    tokenInputChange() {
+      if (this.articleToken.accessToken.trim() !== "") {
+        this.tokenValidStatus = 2;
+      } else {
+        this.tokenValidStatus = -1;
+      }
+    },
+    cancelAddOrEditArticleToken() {
+      this.tokenMap.set(this.articleTokenOrigin.id, this.articleTokenOrigin);
     },
     getArticles(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {
@@ -563,6 +692,40 @@ export default {
         }
       });
       this.editStatus = false;
+    },
+    addOrEditArticleToken() {
+      let param = {
+        id: this.articleToken.id
+      };
+      if (this.articleToken.expireTime != null) {
+        param.expireTime = this.articleToken.expireTime;
+      }
+      if (
+        this.articleToken.accessToken !== this.articleTokenOrigin.accessToken
+      ) {
+        param.accessToken = this.articleToken.accessToken;
+      }
+      if (
+        this.articleToken.effectiveCount !==
+        this.articleTokenOrigin.effectiveCount
+      ) {
+        param.effectiveCount = this.articleToken.effectiveCount;
+      }
+      this.axios.post("/api/back/article/token", param).then(({ data }) => {
+        if (data.flag) {
+          this.tokenMap.set(this.articleToken.id, this.articleToken);
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+      });
+      this.articleTokenFlag = false;
     }
   },
   watch: {

@@ -308,7 +308,15 @@ export default {
       ) {
         this.$confirm({})
           .then(data => {
-            console.log(data);
+            let param = {
+              id: article.id,
+              accessToken: data
+            };
+            this.axios.post("/api/blog/token", param).then(({ data }) => {
+              if (!data.flag) {
+                event.preventDefault();
+              }
+            });
           })
           .catch(() => {
             event.preventDefault();

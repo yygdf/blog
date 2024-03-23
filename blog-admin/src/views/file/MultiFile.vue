@@ -680,7 +680,7 @@ export default {
           };
           this.tokenValidStatus = 0;
           this.axios
-            .get("/api/back/multiFile/" + multiFile.id)
+            .get("/api/back/multiFile/token/" + multiFile.id)
             .then(({ data }) => {
               if (data.data.accessToken != null) {
                 this.multiFileToken = { ...this.multiFileToken, ...data.data };
@@ -925,9 +925,6 @@ export default {
       };
       if (this.multiFileToken.expireTime != null) {
         param.expireTime = this.multiFileToken.expireTime;
-      }
-      if (this.userId != null) {
-        param.userId = this.userId;
       }
       if (
         this.multiFileToken.accessToken !==

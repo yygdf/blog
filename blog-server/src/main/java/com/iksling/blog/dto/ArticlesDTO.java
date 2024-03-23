@@ -70,9 +70,4 @@ public class ArticlesDTO {
      * 0未允许, 1已允许
      */
     private Boolean permitFlag;
-
-    /**
-     * 0未公开, 1已公开, 分类
-     */
-    private Boolean categoryPublicFlag;
 }

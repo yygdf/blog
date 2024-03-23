@@ -9,6 +9,7 @@ import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleImageBackVO;
 import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.TokenBackVO;
 
 import java.util.List;
 
@@ -20,6 +21,8 @@ public interface ArticleService extends IService<Article> {
     Integer saveOrUpdateArticleBackVO(ArticleBackVO articleBackVO);
 
     String saveArticleImageBackVO(ArticleImageBackVO articleImageBackVO);
+
+    void saveOrUpdateArticleTokenBackVO(TokenBackVO tokenBackVO);
 
     void deleteBackArticlesByIdList(List<Integer> idList);
 
@@ -34,6 +37,8 @@ public interface ArticleService extends IService<Article> {
     ArticleOptionBackDTO getArticleOptionBackDTO(Integer userId);
 
     PagePojo<ArticlesBackDTO> getArticlesBackDTO(Condition condition);
+
+    Dict getArticleTokenById(Integer id);
 
     void saveArticleLike(Integer id);
 

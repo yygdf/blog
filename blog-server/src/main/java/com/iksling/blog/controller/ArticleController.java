@@ -8,6 +8,7 @@ import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleImageBackVO;
 import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.TokenBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -40,6 +41,15 @@ public class ArticleController {
     @PostMapping("/back/article/image")
     public Result saveBackArticleImage(@Valid ArticleImageBackVO articleImageBackVO) {
         return Result.success().message("上传成功").data(articleService.saveArticleImageBackVO(articleImageBackVO));
+    }
+
+    @OptLog(optType = SAVE_OR_UPDATE)
+    @ApiOperation(value = "添加或修改文章令牌")
+    @ApiImplicitParam(name = "tokenBackVO", value = "令牌后台VO", required = true, dataType = "TokenBackVO")
+    @PostMapping("/back/article/token")
+    public Result saveOrUpdateBackArticleToken(@Valid @RequestBody TokenBackVO tokenBackVO) {
+        articleService.saveOrUpdateArticleTokenBackVO(tokenBackVO);
+        return Result.success().message("操作成功");
     }
 
     @OptLog(optType = REMOVE)
@@ -99,6 +109,13 @@ public class ArticleController {
     @GetMapping("/back/articles")
     public Result getBackArticles(@Valid Condition condition) {
         return Result.success().message("查询成功").data(articleService.getArticlesBackDTO(condition));
+    }
+
+    @ApiOperation(value = "根据文章id查找文章令牌")
+    @ApiImplicitParam(name = "id", value = "文章id", required = true, dataType = "Integer")
+    @GetMapping("/back/article/token/{id}")
+    public Result getBackArticleTokenById(@PathVariable Integer id) {
+        return Result.success().message("操作成功").data(articleService.getArticleTokenById(id));
     }
 
     /****************************************************************************************************/

@@ -41,23 +41,22 @@
           :key="item.id"
         >
           <div :class="isRight(index)">
-            <a>
+            <router-link :to="rootUri + '/article/' + item.id">
               <v-img
                 class="on-hover"
                 width="100%"
                 height="100%"
                 :src="
-                item.articleCover ? item.articleCover : defaultArticleCover
+                  item.articleCover ? item.articleCover : defaultArticleCover
                 "
-                @click="customNavigate($event, item)"
               />
-            </a>
+            </router-link>
           </div>
           <div class="article-wrapper">
             <div style="line-height:1.4">
-              <a @click="customNavigate($event, item)">
+              <router-link :to="rootUri + '/article/' + item.id">
                 {{ item.articleTitle }}
-              </a>
+              </router-link>
             </div>
             <div class="article-info">
               <span v-if="item.topFlag">
@@ -72,19 +71,11 @@
                 </span>
                 <span class="separator">|</span>
               </span>
-              <span v-else>
-                <span v-if="item.permitFlag">
-                  <span style="color:#22863a">
-                    <i class="iconfont my-icon-open-eye" /> 已解锁
-                  </span>
-                  <span class="separator">|</span>
+              <span v-else-if="!item.publicFlag">
+                <span style="color:#555555">
+                  <i class="iconfont my-icon-open-eye" /> 未公开
                 </span>
-                <span v-else-if="!item.publicFlag">
-                  <span style="color:#555555">
-                    <i class="iconfont my-icon-open-eye" /> 未公开
-                  </span>
-                  <span class="separator">|</span>
-                </span>
+                <span class="separator">|</span>
               </span>
               <v-icon size="14">mdi-calendar-month-outline</v-icon>
               {{ item.publishTime | date }}
@@ -298,38 +289,6 @@ export default {
             $state.complete();
           }
         });
-    },
-    customNavigate(event, article) {
-      if (
-        !article.publicFlag &&
-        !this.checkWeight &&
-        !this.checkUserId &&
-        !article.permitFlag
-      ) {
-        this.$confirm({})
-          .then(data => {
-            let param = {
-              id: article.id,
-              accessToken: data
-            };
-            this.axios.post("/api/blog/token", param).then(({ data }) => {
-              if (!data.flag) {
-                event.preventDefault();
-              } else {
-                this.$router.push({
-                  path: this.rootUri + "/article/" + article.id
-                });
-              }
-            });
-          })
-          .catch(() => {
-            event.preventDefault();
-          });
-      } else {
-        this.$router.push({
-          path: this.rootUri + "/article/" + article.id
-        });
-      }
     }
   },
   computed: {
@@ -356,12 +315,6 @@ export default {
     },
     rootUri() {
       return this.$store.state.rootUri;
-    },
-    checkWeight() {
-      return this.$store.state.weight <= 300;
-    },
-    checkUserId() {
-      return this.$store.state.userId === this.$store.state.bloggerId;
     }
   }
 };

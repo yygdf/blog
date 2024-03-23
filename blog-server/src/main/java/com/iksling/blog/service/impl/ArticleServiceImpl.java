@@ -450,25 +450,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         Integer loginUserId = loginUser.getUserId();
         condition.setUserId(Integer.valueOf(request.getHeader("Blogger-Id")));
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        boolean loginFlag = loginUserId == -1;
-        if (!loginFlag)
-            condition.setFlag(loginUser.getRoleWeight() > 300 && !loginUserId.equals(condition.getUserId()));
-        List<ArticlesDTO> articlesDTOList = articleMapper.selectArticlesDTO(condition, loginFlag);
-        if (loginFlag || !condition.getFlag() || articlesDTOList.isEmpty())
-            return articlesDTOList;
-        boolean publicFlag = articlesDTOList.stream().anyMatch(e -> !e.getPublicFlag());
-        if (publicFlag) {
-            HashSet<Integer> articleTokenSet = (HashSet<Integer>) redisTemplate.boundHashOps(ARTICLE_TOKEN).get(loginUserId.toString());
-            if (articleTokenSet == null)
-                return articlesDTOList.stream().peek(e -> e.setArticleContent("")).collect(Collectors.toList());
-            return articlesDTOList.stream().peek(e -> {
-                if (articleTokenSet.contains(e.getId()))
-                    e.setPermitFlag(true);
-                else
-                    e.setArticleContent("");
-            }).collect(Collectors.toList());
-        }  else
-            return articlesDTOList;
+        condition.setFlag(loginUser.getRoleWeight() > 300 && !loginUserId.equals(condition.getUserId()));
+        return articleMapper.selectArticlesDTO(condition);
     }
 
     @Override
@@ -483,12 +466,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         ArticleDTO articleDTO = articleMapper.selectArticleDTOById(id, bloggerId, flag, loginFlag);
         if (articleDTO == null)
             return null;
-        if (!loginFlag && flag && !articleDTO.getPublicFlag()) {
-            HashSet<Integer> articleTokenSet = (HashSet<Integer>) redisTemplate.boundHashOps(ARTICLE_TOKEN).get(loginUserId.toString());
-            if (articleTokenSet == null || !articleTokenSet.contains(id))
-                articleDTO.setArticleContent("");
-            else
-                articleDTO.setPermitFlag(true);
+        if (!articleDTO.getPublicFlag()) {
+            if (loginFlag)
+                articleDTO.setPermitFlag(false);
+            else if (flag) {
+                HashSet<Integer> articleTokenSet = (HashSet<Integer>) redisTemplate.boundHashOps(ARTICLE_TOKEN).get(loginUserId.toString());
+                if (articleTokenSet == null || !articleTokenSet.contains(id)) {
+                    articleDTO.setPermitFlag(false);
+                    articleDTO.setArticleContent("");
+                }
+            }
         }
         updateArticleViewCount(id.toString());
         List<ArticlesPaginationDTO> articlesPaginationDTOList = articleMapper.selectArticlesPaginationDTOById(id, bloggerId, flag);

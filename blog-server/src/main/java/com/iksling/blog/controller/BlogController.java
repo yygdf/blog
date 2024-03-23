@@ -43,8 +43,7 @@ public class BlogController {
     @ApiImplicitParam(name = "tokenVO", value = "令牌VO", required = true, dataType = "TokenVO")
     @PostMapping("/blog/token")
     public Result saveBlogTokenVO(@Valid @RequestBody TokenVO tokenVO) {
-        blogService.saveTokenVO(tokenVO);
-        return Result.success().message("操作成功");
+        return Result.success().message("操作成功").data(blogService.saveTokenVO(tokenVO));
     }
 
     @ApiOperation(value = "查看博主id")

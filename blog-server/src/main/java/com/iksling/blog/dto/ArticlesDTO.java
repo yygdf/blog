@@ -65,9 +65,4 @@ public class ArticlesDTO {
      * 标签list字符串
      */
     private String tagList;
-
-    /**
-     * 0未允许, 1已允许
-     */
-    private Boolean permitFlag;
 }

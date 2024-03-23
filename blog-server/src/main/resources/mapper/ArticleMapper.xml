@@ -174,7 +174,7 @@
     <select id="selectArticlesDTO" resultType="com.iksling.blog.dto.ArticlesDTO">
         SELECT
             a.id,a.user_id,a.category_id,
-            a.article_title,a.article_cover,CASE WHEN a.public_flag = false AND #{loginFlag} THEN "" ELSE a.article_content END AS article_content,
+            a.article_title,a.article_cover,CASE WHEN a.public_flag = false AND #{condition.flag} THEN "" ELSE a.article_content END AS article_content,
             a.top_flag,a.public_flag,a.hidden_flag,
             a.publish_time,c.category_name,ata.tag tagList,
             c.public_flag categoryPublicFlag
@@ -184,7 +184,7 @@
         LEFT JOIN (SELECT article_id, GROUP_CONCAT(CONCAT(t.id, "=", t.tag_name)) tag FROM tb_article_tag ata LEFT JOIN tb_tag t ON ata.tag_id = t.id WHERE ata.deleted_flag = FALSE AND t.deleted_flag = FALSE GROUP BY article_id) ata ON a.id = ata.article_id
         <where>
             a.draft_flag = false AND a.user_id = #{condition.userId}
-            <if test="loginFlag || condition.flag">
+            <if test="condition.flag">
                 AND a.hidden_flag = false
             </if>
         </where>

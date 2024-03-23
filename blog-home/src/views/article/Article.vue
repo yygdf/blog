@@ -136,6 +136,13 @@
                 </ul>
               </div>
             </a>
+            <a
+              v-if="article.permitFlag === false"
+              class="unlock-btn"
+              @click="openUnlockModel"
+            >
+              <v-icon size="16" color="#fff">mdi-archive-lock-open</v-icon> 解锁
+            </a>
           </div>
           <div class="pagination-post">
             <div
@@ -272,6 +279,36 @@
         </div>
       </v-col>
     </v-row>
+    <v-dialog
+      v-model="unlockModelFlag"
+      :fullscreen="this.$store.state.mobileFlag"
+      max-width="460"
+    >
+      <v-card class="login-container" style="border-radius:4px">
+        <v-icon class="float-right" @click="unlockModelFlag = false">
+          mdi-close
+        </v-icon>
+        <div class="login-wrapper">
+          <v-text-field
+            v-model="token"
+            label="密令"
+            autofocus="autofocus"
+            placeholder="请输入密令"
+            @keyup.enter="unlockArticle"
+            clearable
+          />
+          <v-btn
+            class="mt-7"
+            color="red"
+            style="color:#fff"
+            @click="unlockArticle"
+            block
+          >
+            解锁
+          </v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -307,60 +344,32 @@ export default {
       articleHref: location.href,
       bloggerHref: this.$store.state.rootUrl + this.$store.state.rootUri,
       clipboard: null,
-      defaultArticleCover: this.$store.state.blogConfig.article_default_cover
+      defaultArticleCover: this.$store.state.blogConfig.article_default_cover,
+      unlockModelFlag: false,
+      token: ""
     };
   },
   methods: {
+    openUnlockModel() {
+      if (this.$store.state.userId == null) {
+        this.$store.state.loginFlag = true;
+        return false;
+      }
+      this.token = "";
+      this.unlockModelFlag = true;
+    },
     getArticle() {
       let pathArr = this.$route.path.split("/");
       this.axios
         .get("/api/article/" + pathArr[pathArr.length - 1])
         .then(({ data }) => {
           if (data.data) {
-            document.title = data.data.articleTitle;
-            this.markdownToHtml(data.data);
-            this.$nextTick(() => {
-              this.wordNum = this.deleteHTMLTag(
-                this.article.articleContent
-              ).length;
-              this.readTime = Math.round(this.wordNum / 400) + "分钟";
-              this.clipboard = new Clipboard(".copy-btn");
-              this.clipboard.on("success", () => {
-                this.$toast({ type: "success", message: "复制成功" });
-              });
-              this.clipboard.on("error", () => {
-                this.$toast({
-                  type: "error",
-                  message: "该浏览器不支持自动复制"
-                });
-              });
-              let nodes = this.$refs.article.children;
-              if (nodes.length) {
-                for (let i = 0; i < nodes.length; i++) {
-                  let node = nodes[i];
-                  let reg = /^H[1-4]$/;
-                  if (reg.exec(node.tagName)) {
-                    node.id = i;
-                  }
-                }
-              }
-              tocbot.init({
-                tocSelector: "#toc",
-                contentSelector: ".article-content",
-                headingSelector: "h1, h2, h3",
-                hasInnerContainers: true,
-                onClick: function(e) {
-                  e.preventDefault();
-                }
-              });
-              const imgList = this.$refs.article.getElementsByTagName("img");
-              for (let i = 0; i < imgList.length; i++) {
-                this.imgList.push(imgList[i].src);
-                imgList[i].addEventListener("click", function(e) {
-                  this.previewImg(e.target.currentSrc);
-                });
-              }
-            });
+            this.article = data.data;
+            document.title = this.article.articleTitle;
+            if (this.article.permitFlag !== false && data.data.articleContent) {
+              this.markdownToHtml();
+              this.articleRender();
+            }
           } else {
             this.$router.push({
               path: this.rootUri === "" ? "/" : this.rootUri
@@ -408,7 +417,7 @@ export default {
           }
         });
     },
-    markdownToHtml(article) {
+    markdownToHtml() {
       const MarkdownIt = require("markdown-it");
       const hljs = require("highlight.js");
       const md = new MarkdownIt({
@@ -451,8 +460,49 @@ export default {
           }
         }
       });
-      article.articleContent = md.render(article.articleContent);
-      this.article = article;
+      this.article.articleContent = md.render(this.article.articleContent);
+    },
+    articleRender() {
+      this.$nextTick(() => {
+        this.wordNum = this.deleteHTMLTag(this.article.articleContent).length;
+        this.readTime = Math.round(this.wordNum / 400) + "分钟";
+        this.clipboard = new Clipboard(".copy-btn");
+        this.clipboard.on("success", () => {
+          this.$toast({ type: "success", message: "复制成功" });
+        });
+        this.clipboard.on("error", () => {
+          this.$toast({
+            type: "error",
+            message: "该浏览器不支持自动复制"
+          });
+        });
+        let nodes = this.$refs.article.children;
+        if (nodes.length) {
+          for (let i = 0; i < nodes.length; i++) {
+            let node = nodes[i];
+            let reg = /^H[1-4]$/;
+            if (reg.exec(node.tagName)) {
+              node.id = i;
+            }
+          }
+        }
+        tocbot.init({
+          tocSelector: "#toc",
+          contentSelector: ".article-content",
+          headingSelector: "h1, h2, h3",
+          hasInnerContainers: true,
+          onClick: function(e) {
+            e.preventDefault();
+          }
+        });
+        const imgList = this.$refs.article.getElementsByTagName("img");
+        for (let i = 0; i < imgList.length; i++) {
+          this.imgList.push(imgList[i].src);
+          imgList[i].addEventListener("click", function(e) {
+            this.previewImg(e.target.currentSrc);
+          });
+        }
+      });
     },
     previewImg(img) {
       this.$imagePreview({
@@ -465,6 +515,21 @@ export default {
         .replace(/<\/?[^>]*>/g, "")
         .replace(/[|]*\n/, "")
         .replace(/&npsp;/gi, "");
+    },
+    unlockArticle() {
+      let param = {
+        id: this.article.id,
+        accessToken: this.token
+      };
+      this.axios.post("/api/blog/token", param).then(({ data }) => {
+        if (data.flag) {
+          this.article.articleContent = data.data;
+          this.markdownToHtml();
+          this.articleRender();
+          this.$toast({ type: "success", message: "解锁成功" });
+          this.unlockModelFlag = false;
+        }
+      });
     }
   },
   computed: {
@@ -665,7 +730,7 @@ export default {
   content: "";
 }
 .article-reward {
-  margin-top: 5rem;
+  margin-top: 2rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -760,6 +825,15 @@ export default {
   display: inline-block;
   width: 100px;
   background: #ec7259;
+  color: #fff !important;
+  text-align: center;
+  line-height: 36px;
+  font-size: 0.875rem;
+}
+.unlock-btn {
+  display: inline-block;
+  width: 100px;
+  background: #ff5555;
   color: #fff !important;
   text-align: center;
   line-height: 36px;

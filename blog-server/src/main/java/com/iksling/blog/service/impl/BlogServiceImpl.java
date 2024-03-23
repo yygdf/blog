@@ -63,7 +63,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     @Transactional
-    public void saveTokenVO(TokenVO tokenVO) {
+    public Object saveTokenVO(TokenVO tokenVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer loginUserId = loginUser.getUserId();
         Integer id = tokenVO.getId();
@@ -81,12 +81,14 @@ public class BlogServiceImpl implements BlogService {
             if (articleTokenSet == null)
                 articleTokenSet = new HashSet<>();
             if (articleTokenSet.contains(id))
-                return;
+                return null;
             articleTokenSet.add(id);
             redisTemplate.boundHashOps(ARTICLE_TOKEN).put(loginUserId.toString(), articleTokenSet);
             if (count != -1)
                 redisTemplate.boundHashOps(ARTICLE_TOKEN + "_" + id).increment("effectiveCount", -1);
+            return articleMapper.selectObjs(new LambdaQueryWrapper<Article>().select(Article::getArticleContent).eq(Article::getId, id)).get(0);
         }
+        return null;
     }
 
     @Override

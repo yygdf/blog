@@ -10,7 +10,7 @@ import java.util.HashMap;
 public interface BlogService {
     void updateBackAbout(String aboutContent);
 
-    void saveTokenVO(TokenVO tokenVO);
+    Object saveTokenVO(TokenVO tokenVO);
 
     String getAbout();
 

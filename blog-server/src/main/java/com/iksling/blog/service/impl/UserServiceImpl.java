@@ -5,28 +5,26 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.iksling.blog.dto.LoginUserBackDTO;
+import com.iksling.blog.dto.LoginUserDTO;
 import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.*;
 import com.iksling.blog.exception.*;
-import com.iksling.blog.handler.AuthenticationSuccessHandlerImpl;
 import com.iksling.blog.mapper.*;
-import com.iksling.blog.pojo.Condition;
-import com.iksling.blog.pojo.Email;
-import com.iksling.blog.pojo.LoginUser;
-import com.iksling.blog.pojo.PagePojo;
+import com.iksling.blog.pojo.*;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.service.UserService;
 import com.iksling.blog.util.*;
 import com.iksling.blog.vo.*;
+import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.LockedException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
@@ -40,7 +38,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -72,11 +69,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private QQAuthMapper qqAuthMapper;
     @Autowired
     private RoleMapper roleMapper;
+    @Autowired
+    private LoginLogMapper loginLogMapper;
 
     @Autowired
     private MultiFileService multiFileService;
-    @Autowired
-    private AuthenticationSuccessHandlerImpl authenticationSuccessHandlerImpl;
 
     @Autowired
     private SessionRegistry sessionRegistry;
@@ -426,44 +423,47 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     @Transactional
-    public void qqLogin(QQOauthVO qqOauthVO) {
+    public Object qqLogin(QQOauthVO qqOauthVO) {
         QQAuth qqAuth = qqAuthMapper.selectOne(new LambdaQueryWrapper<QQAuth>()
                 .select(QQAuth::getUserId, QQAuth::getAccessToken, QQAuth::getLockedFlag, QQAuth::getDisabledFlag)
                 .eq(QQAuth::getOpenid, qqOauthVO.getOpenid())
                 .eq(QQAuth::getDeletedFlag, false));
-        Date dateTime = new Date();
         Integer loginUserId;
+        Date dateTime = new Date();
+        Map<String, String> formData = new HashMap<>();
+        formData.put("openid", qqOauthVO.getOpenid());
+        formData.put("access_token", qqOauthVO.getAccessToken());
+        formData.put("oauth_consumer_key", QQ_APP_ID);
         if (qqAuth == null) {
-            Map<String, String> formData = new HashMap<>();
-            formData.put("openid", qqOauthVO.getOpenid());
-            formData.put("access_token", qqOauthVO.getAccessToken());
-            formData.put("oauth_consumer_key", QQ_APP_ID);
-            Map<String, String> map = JSON.parseObject(restTemplate.getForObject(QQ_USER_INFO_URL, String.class, formData), Map.class);
+            Map map = JSON.parseObject(restTemplate.getForObject(QQ_USER_INFO_URL, String.class, formData), Map.class);
             if (map == null || !map.get("ret").equals("0"))
                 throw new AuthenticationStatusException();
-            String avatar = map.get("figureurl_qq_2");
+            Object avatar = map.get("figureurl_qq_2");
             if (avatar.equals(""))
                 avatar = map.get("figureurl_qq_1");
             User user = User.builder()
                     .email("")
-                    .avatar(avatar)
+                    .avatar(avatar.toString())
                     .gender(map.get("gender").equals("男") ? 1 : 0)
-                    .nickname(map.get("nickname"))
+                    .nickname(map.get("nickname").toString())
                     .createTime(dateTime).build();
             userMapper.insert(user);
             loginUserId = user.getId();
-            registerUser(loginUserId, loginUserId, "用户" + IdWorker.getId(), DEFAULT_PASSWORD, dateTime, true);
+            qqAuth = QQAuth.builder().openid(qqOauthVO.getOpenid()).accessToken(qqOauthVO.getAccessToken()).build();
+            qqAuthMapper.insert(QQAuth.builder()
+                    .userId(loginUserId)
+                    .openid(qqOauthVO.getOpenid())
+                    .accessToken(qqOauthVO.getAccessToken())
+                    .createUser(loginUserId)
+                    .createTime(dateTime).build());
+            registerUser(loginUserId, loginUserId, String.valueOf(IdWorker.getId()), DEFAULT_PASSWORD, dateTime, true);
         } else {
             if (qqAuth.getLockedFlag())
                 throw new LockedStatusException("您的账号已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
-            if (qqAuth.getDeletedFlag())
+            if (qqAuth.getDisabledFlag())
                 throw new LockedStatusException("您的账号已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
             loginUserId = qqAuth.getUserId();
             if (!qqOauthVO.getAccessToken().equals(qqAuth.getAccessToken())) {
-                Map<String, String> formData = new HashMap<>();
-                formData.put("openid", qqOauthVO.getOpenid());
-                formData.put("access_token", qqOauthVO.getAccessToken());
-                formData.put("oauth_consumer_key", QQ_APP_ID);
                 Map map = JSON.parseObject(restTemplate.getForObject(QQ_USER_INFO_URL, String.class, formData), Map.class);
                 if (map == null || !map.get("ret").equals(0))
                     throw new AuthenticationStatusException();
@@ -473,27 +473,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                         .set(QQAuth::getUpdateTime, dateTime));
             }
         }
-        UserAuth userAuth = userAuthMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
-                .select(UserAuth::getUsername, UserAuth::getPassword, UserAuth::getLockedFlag, UserAuth::getDisabledFlag)
-                .eq(UserAuth::getUserId, loginUserId));
-        if (userAuth.getLockedFlag())
-            throw new LockedException("您的账号已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
-        if (userAuth.getDisabledFlag())
-            throw new DisabledException("您的账号已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
-        List<Map<String, Object>> mapList = roleMapper.selectLoginRoleByUserId(userAuth.getUserId());
+        List<Map<String, Object>> mapList = roleMapper.selectLoginRoleByUserId(loginUserId);
         LoginUser loginUser = LoginUser.builder()
-                .userId(userAuth.getUserId())
-                .username(userAuth.getUsername())
-                .password(userAuth.getPassword())
+                .userId(loginUserId)
+                .username(qqAuth.getOpenid())
+                .password(qqAuth.getAccessToken())
                 .roleWeight((Integer) mapList.get(0).get("role_weight"))
                 .roleIdList(mapList.stream().map(ml -> ml.get("id").toString()).collect(Collectors.toList()))
                 .build();
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
-        try {
-            authenticationSuccessHandlerImpl.onAuthenticationSuccess(request, response, null);
-        } catch (IOException e) {
-            throw new AuthenticationStatusException();
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
+                .select(User::getIntro, User::getEmail, User::getAvatar, User::getGender, User::getWebsite, User::getNickname)
+                .eq(User::getId, loginUserId));
+        Boolean loginPlatform = Boolean.parseBoolean(request.getHeader("Login-Platform"));
+        loginUser.setLoginTime(dateTime);
+        loginUser.setLoginPlatform(loginPlatform);
+        insertLoginLog(loginUserId, dateTime, loginPlatform, request);
+        if (loginPlatform) {
+            return LoginUserBackDTO.builder()
+                    .userId(loginUserId)
+                    .intro(user.getIntro())
+                    .email(user.getEmail())
+                    .avatar(user.getAvatar())
+                    .gender(user.getGender())
+                    .weight(loginUser.getRoleWeight())
+                    .website(user.getWebsite())
+                    .nickname(user.getNickname())
+                    .build();
+        } else {
+            Set<Integer> articleLikeSet = (Set<Integer>) redisTemplate.boundHashOps(ARTICLE_USER_LIKE).get(loginUserId.toString());
+            Set<Integer> commentLikeSet = (Set<Integer>) redisTemplate.boundHashOps(COMMENT_USER_LIKE).get(loginUserId.toString());
+            return LoginUserDTO.builder()
+                    .userId(loginUserId)
+                    .intro(user.getIntro())
+                    .email(user.getEmail())
+                    .avatar(user.getAvatar())
+                    .gender(user.getGender())
+                    .website(user.getWebsite())
+                    .nickname(user.getNickname())
+                    .articleLikeSet(articleLikeSet)
+                    .commentLikeSet(commentLikeSet)
+                    .build();
         }
     }
 
@@ -545,7 +566,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .username(username)
                 .password(password)
                 .loginMethod(lockedFlag ? 11 : null)
-                .lockedFlag(lockedFlag)
+                .lockedFlag(lockedFlag ? true : null)
                 .createUser(loginUserId)
                 .createTime(createTime)
                 .build());
@@ -596,6 +617,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         multiFileList.remove(0);
         multiFileList.remove(0);
         multiFileService.saveBatch(multiFileList);
+    }
+
+    @Async
+    public void insertLoginLog(Integer userId, Date loginTime, Boolean loginPlatform, HttpServletRequest httpServletRequest) {
+        UserAgent userAgent = UserAgent.parseUserAgentString(httpServletRequest.getHeader("User-Agent"));
+        String ipAddress = IpUtil.getIpAddress(httpServletRequest);
+        String ipSource = IpUtil.getIpSource(ipAddress);
+        LoginLog loginLog = LoginLog.builder()
+                .userId(userId)
+                .loginTime(loginTime)
+                .loginMethod(2)
+                .loginDevice(userAgent.getOperatingSystem().getDeviceType().getName())
+                .loginPlatform(loginPlatform)
+                .loginSystem(userAgent.getOperatingSystem().getName())
+                .loginBrowser(userAgent.getBrowser().getName())
+                .ipSource(ipSource)
+                .ipAddress(ipAddress)
+                .build();
+        loginLogMapper.insert(loginLog);
+        userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
+                .set(UserAuth::getLoginLogId, loginLog.getId())
+                .eq(UserAuth::getUserId, userId));
     }
 }
 

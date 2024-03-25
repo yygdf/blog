@@ -163,7 +163,6 @@ public class UserController {
     })
     @PostMapping("/user/oauth/qq")
     public Result qqLogin(@Valid @RequestBody QQOauthVO qqOauthVO) {
-        userService.qqLogin(qqOauthVO);
-        return Result.success().message("发送成功");
+        return Result.success().message("登录成功").data(userService.qqLogin(qqOauthVO));
     }
 }

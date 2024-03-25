@@ -41,7 +41,7 @@ public interface UserService extends IService<User> {
 
     void saveUserRegisterVO(UserRegisterVO userRegisterVO);
 
-    void qqLogin(QQOauthVO qqOauthVO);
+    Object qqLogin(QQOauthVO qqOauthVO);
 
     void updateUserEmailVO(EmailVO emailVO);
 }

@@ -55,7 +55,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         Date loginTime = new Date();
         loginUser.setLoginTime(loginTime);
         loginUser.setLoginPlatform(loginPlatform);
-        insertLoginLog(userId, loginTime, loginPlatform, httpServletRequest, authentication == null);
+        insertLoginLog(userId, loginTime, loginPlatform, httpServletRequest);
         if (loginPlatform) {
             LoginUserBackDTO loginUserBackDTO = LoginUserBackDTO.builder()
                     .userId(userId)
@@ -89,14 +89,13 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
     }
 
     @Async
-    public void insertLoginLog(Integer userId, Date loginTime, Boolean loginPlatform, HttpServletRequest httpServletRequest, Boolean loginMethod) {
+    public void insertLoginLog(Integer userId, Date loginTime, Boolean loginPlatform, HttpServletRequest httpServletRequest) {
         UserAgent userAgent = UserAgent.parseUserAgentString(httpServletRequest.getHeader("User-Agent"));
         String ipAddress = IpUtil.getIpAddress(httpServletRequest);
         String ipSource = IpUtil.getIpSource(ipAddress);
         LoginLog loginLog = LoginLog.builder()
                 .userId(userId)
                 .loginTime(loginTime)
-                .loginMethod(loginMethod ? 2 : null)
                 .loginDevice(userAgent.getOperatingSystem().getDeviceType().getName())
                 .loginPlatform(loginPlatform)
                 .loginSystem(userAgent.getOperatingSystem().getName())

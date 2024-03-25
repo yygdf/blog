@@ -63,7 +63,9 @@
               >
                 <div
                   class="this_music_shelter"
-                  v-if="(thisListPage - 1) * pageSize + index === thisMusicIndex"
+                  v-if="
+                    (thisListPage - 1) * pageSize + index === thisMusicIndex
+                  "
                 ></div>
                 <span>{{ item.name }}</span
                 ><span>{{ item.ar[0].name }}</span
@@ -98,9 +100,7 @@
               >
                 上一页&lt;
               </div>
-              <div class="page_middle">
-                第 {{thisListPage}} 页
-              </div>
+              <div class="page_middle">第 {{ thisListPage }} 页</div>
               <div
                 class="page_next"
                 v-if="thisListPage < Math.ceil(musicList.length / pageSize)"
@@ -111,7 +111,7 @@
             </div>
           </div>
           <div class="list_r">
-            <img class="music_list_bg" :src="musicImg" />
+            <img class="music_list_bg" :src="musicImg" alt="" />
             <div
               class="music_list_shelter"
               :style="{ backgroundImage: 'url(' + shelter + ')' }"
@@ -127,9 +127,9 @@
                   <span class="talk_head_name">{{ item.user.nickname }}</span>
                 </div>
                 <p class="talk_content">
-                  <img class="talk_icon_l" :src="talkicon1" />
+                  <img class="talk_icon_l" :src="talkicon1" alt="" />
                   {{ item.content.trim() }}
-                  <img class="talk_icon_r" :src="talkicon2" />
+                  <img class="talk_icon_r" :src="talkicon2" alt="" />
                 </p>
               </li>
             </ul>
@@ -200,7 +200,13 @@
           </div>
         </div>
       </div>
-      <video id="music" autoplay="autoplay" muted :src="musicUrl" name="media"></video>
+      <video
+        id="music"
+        autoplay="autoplay"
+        muted
+        :src="musicUrl"
+        name="media"
+      ></video>
     </div>
   </div>
 </template>
@@ -260,7 +266,7 @@ export default {
       wordIndex: 0,
       currentProgress: "0%",
       musicList: [],
-      myMusicList: [], //存储在本地   可以开始判断有没有 让用户一开始就听这个列表
+      myMusicList: [],
       thisMusicIndex: -1,
       disActive: false,
       listIsDis: false,
@@ -275,14 +281,13 @@ export default {
       ],
       thisMusicType: -1,
       notPlay: [],
-      musicState: 0, //0列表循环  1单曲循环  2随机播放
+      musicState: 0,
       musicStateButton: state0,
       musicSearchVal: "",
       musicSearchList: [],
       musicAlertVal: "",
       musicAlertState: false,
       musicAlertTimer: "",
-      //新增歌词评论
       hotTalkList: [],
       switchList: false
     };
@@ -294,11 +299,14 @@ export default {
     this._getMusicType(0);
     this.thisMusicIndex = 0;
     this._getLocalInfo();
-    this.DisAuthorInfo(); //禁删~感谢配合
+    this.DisAuthorInfo();
   },
   computed: {
     thisMusicList() {
-      return [...this.musicList].splice((this.thisListPage - 1) * this.pageSize, this.pageSize); //分页
+      return [...this.musicList].splice(
+        (this.thisListPage - 1) * this.pageSize,
+        this.pageSize
+      ); //分页
     },
     pageSize() {
       const clientWidth = document.documentElement.clientWidth;
@@ -324,14 +332,9 @@ export default {
     }
   },
   methods: {
-    //禁删~感谢配合
     DisAuthorInfo() {
       console.log(
-        "%c音乐播放器作者----仲威，博客地址：https://blogme.top",
-        "background-color:rgb(30,30,30);border-radius:4px;font-size:12px;padding:4px;color:rgb(220,208,129);"
-      );
-      console.log(
-        "%c音乐播放器plus---KS，博客地址: https://iksling.com",
+        "%c音乐播放器PLUS---KS，博客地址: https://iksling.com",
         "background-color:rgb(225,225,225);border-radius:4px;font-size:12px;padding:4px;color:rgb(30,30,30);"
       );
     },
@@ -353,10 +356,8 @@ export default {
           this._getMusicType(0);
           this.thisMusicIndex = 0;
           this._getInfo();
-          //第一次搜索直接播放
         } else {
           this.myMusicList.push(res.data.songs[0]);
-          //提示已经添加进去
         }
         this.MusicAlert("添加成功");
       });
@@ -398,7 +399,7 @@ export default {
       }
     },
     ListPlay(id) {
-      this.thisMusicIndex = (id > this.musicList.length - 1 || id < 0) ? 0 : id;
+      this.thisMusicIndex = id > this.musicList.length - 1 || id < 0 ? 0 : id;
       this._getInfo();
       this.top = 0;
       this.o = 0;
@@ -459,11 +460,8 @@ export default {
                   this.musicList[this.thisMusicIndex].name
                 }因为一些原因不能播放`
               );
-              this.ListPlay(nextIndex); //寻找下一首歌  直到找到
-
-              //提示这首歌不能放
+              this.ListPlay(nextIndex);
             } else {
-              //遍历完没有找到
               this.MusicAlert("此列表所有歌都不能播放");
             }
           } else {
@@ -517,7 +515,6 @@ export default {
     Rtrim(s) {
       return s.replace(/(\s*$)/g, "");
     },
-    //歌词截取函数
     Cut(str) {
       let timeArr = [];
       let wordArr = [];
@@ -535,9 +532,7 @@ export default {
     Player() {
       let self = this;
       let player = $("#music")[0];
-      //定时器函数
       let playerTimer = setInterval(timer, 1000);
-      //播放暂停按钮控制
       $(".control_button").on("click", () => {
         if (this.playState) {
           player.pause();
@@ -561,7 +556,6 @@ export default {
       function timer() {
         self.currentProgress = `${(player.currentTime / player.duration) *
           100}%`;
-        //接着这里写歌词滚动
         if (player.currentTime >= self.wordsTime[self.o + 1]) {
           self.top += Number.parseInt(
             $(".music_word")
@@ -574,7 +568,6 @@ export default {
               )
           );
           if (self.top >= $(".music_words").height() / 2 - 11) {
-            //开始滚动的高度
             self.wordsTop += -Number.parseInt(
               $(".music_word")
                 .eq(self.o)
@@ -589,11 +582,8 @@ export default {
           self.wordIndex = self.o + 1;
           self.o++;
         }
-        //切歌
         if (player.currentTime >= player.duration) {
-          //只有一首歌  重复播放
           if (self.musicList.length !== 1) {
-            //列表循环
             if (self.musicState === 0) {
               self.thisMusicIndex =
                 self.thisMusicIndex >= self.musicList.length - 1
@@ -603,17 +593,17 @@ export default {
                 self.thisMusicIndex = 0;
               }
             }
-            //随机播放
             if (self.musicState === 2) {
               self.thisMusicIndex = Math.floor(
                 Math.random() * self.musicList.length
               );
             }
-            //单曲循环
             if (self.musicState === 1) {
               self.thisMusicIndex = 0;
             }
-            self.thisListPage = Math.ceil((self.thisMusicIndex + 1) / self.pageSize);
+            self.thisListPage = Math.ceil(
+              (self.thisMusicIndex + 1) / self.pageSize
+            );
             self.switchList = false;
             self._getInfo();
           }
@@ -625,8 +615,6 @@ export default {
           self.currentProgress = "0%";
         }
       }
-
-      //进度条控制
       $(".progress").on("mousedown", ev => {
         let e = ev || event;
         let pro =
@@ -693,12 +681,11 @@ export default {
           $(document).unbind("mouseup");
         });
       });
-
     }
   }
 };
 </script>
 <style scoped>
-@import url("./player.css");
-@import url("./playermobile.css");
+@import url("./css/player.css");
+@import url("./css/playermobile.css");
 </style>

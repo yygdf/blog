@@ -7,17 +7,10 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
-import com.iksling.blog.entity.MultiFile;
-import com.iksling.blog.entity.User;
-import com.iksling.blog.entity.UserAuth;
-import com.iksling.blog.entity.UserRole;
-import com.iksling.blog.exception.FileStatusException;
-import com.iksling.blog.exception.IllegalRequestException;
-import com.iksling.blog.exception.OperationStatusException;
-import com.iksling.blog.mapper.MultiFileMapper;
-import com.iksling.blog.mapper.UserAuthMapper;
-import com.iksling.blog.mapper.UserMapper;
-import com.iksling.blog.mapper.UserRoleMapper;
+import com.iksling.blog.entity.*;
+import com.iksling.blog.exception.*;
+import com.iksling.blog.handler.AuthenticationSuccessHandlerImpl;
+import com.iksling.blog.mapper.*;
 import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Email;
 import com.iksling.blog.pojo.LoginUser;
@@ -30,16 +23,24 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -67,14 +68,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private UserRoleMapper userRoleMapper;
     @Autowired
     private MultiFileMapper multiFileMapper;
+    @Autowired
+    private QQAuthMapper qqAuthMapper;
+    @Autowired
+    private RoleMapper roleMapper;
 
     @Autowired
     private MultiFileService multiFileService;
+    @Autowired
+    private AuthenticationSuccessHandlerImpl authenticationSuccessHandlerImpl;
 
     @Autowired
     private SessionRegistry sessionRegistry;
     @Resource
     private HttpServletRequest request;
+    @Resource
+    private HttpServletResponse response;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -82,6 +91,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private RestTemplate restTemplate;
+
+    /**
+     * qq app-id
+     */
+    @Value("${qq.app-id}")
+    private String QQ_APP_ID;
+
+    /**
+     * qq user-info-url
+     */
+    @Value("${qq.user-info-url}")
+    private String QQ_USER_INFO_URL;
 
     @Override
     @Transactional
@@ -100,61 +123,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             user.setCreateUser(loginUserId);
             user.setCreateTime(createTime);
             userMapper.insert(user);
-            userId = user.getId();
-            userAuthMapper.insert(UserAuth.builder()
-                    .userId(userId)
-                    .username(userBackVO.getUsername())
-                    .password(DEFAULT_PASSWORD)
-                    .createUser(loginUserId)
-                    .createTime(createTime)
-                    .build());
-            userRoleMapper.insert(UserRole.builder()
-                    .userId(userId)
-                    .roleId(DEFAULT_ROLE_ID)
-                    .build());
-            List<MultiFile> multiFileList = new ArrayList<>();
-            multiFileList.add(MultiFile.builder()
-                    .userId(userId)
-                    .fileName(IMAGE.getCurrentPath())
-                    .fileFullPath(userId + "/" + IMAGE.getPath())
-                    .fileNameOrigin(IMAGE.getName())
-                    .deletableFlag(false)
-                    .createUser(loginUserId)
-                    .createTime(createTime)
-                    .build());
-            multiFileList.add(MultiFile.builder()
-                    .userId(userId)
-                    .fileName(AUDIO.getCurrentPath())
-                    .fileFullPath(userId + "/" + AUDIO.getPath())
-                    .fileNameOrigin(AUDIO.getName())
-                    .deletableFlag(false)
-                    .createUser(loginUserId)
-                    .createTime(createTime)
-                    .build());
-            multiFileService.saveBatch(multiFileList);
-            multiFileList.add(MultiFile.builder()
-                    .userId(userId)
-                    .parentId(multiFileList.get(0).getId())
-                    .fileName(IMAGE_AVATAR.getCurrentPath())
-                    .fileFullPath(userId + "/" + IMAGE_AVATAR.getPath())
-                    .fileNameOrigin(IMAGE_AVATAR.getName())
-                    .deletableFlag(false)
-                    .createUser(loginUserId)
-                    .createTime(createTime)
-                    .build());
-            multiFileList.add(MultiFile.builder()
-                    .userId(userId)
-                    .parentId(multiFileList.get(1).getId())
-                    .fileName(AUDIO_CHAT.getCurrentPath())
-                    .fileFullPath(userId + "/" + AUDIO_CHAT.getPath())
-                    .fileNameOrigin(AUDIO_CHAT.getName())
-                    .deletableFlag(false)
-                    .createUser(loginUserId)
-                    .createTime(createTime)
-                    .build());
-            multiFileList.remove(0);
-            multiFileList.remove(0);
-            multiFileService.saveBatch(multiFileList);
+            registerUser(user.getId(), loginUserId, userBackVO.getUsername(), DEFAULT_PASSWORD, createTime, false);
         } else {
             if (loginUser.getRoleWeight() > 100 && ROOT_USER_ID_LIST.contains(user.getId()))
                 throw new IllegalRequestException();
@@ -451,62 +420,81 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .nickname("用户" + IdWorker.getId())
                 .createTime(createTime).build();
         userMapper.insert(user);
-        Integer userId = user.getId();
-        userAuthMapper.insert(UserAuth.builder()
-                .userId(userId)
-                .username(userRegisterVO.getUsername())
-                .password(passwordEncoder.encode(userRegisterVO.getPassword()))
-                .createUser(userId)
-                .createTime(createTime)
-                .build());
-        userRoleMapper.insert(UserRole.builder()
-                .userId(userId)
-                .roleId(DEFAULT_ROLE_ID)
-                .build());
-        List<MultiFile> multiFileList = new ArrayList<>();
-        multiFileList.add(MultiFile.builder()
-                .userId(userId)
-                .fileName(IMAGE.getCurrentPath())
-                .fileFullPath(userId + "/" + IMAGE.getPath())
-                .fileNameOrigin(IMAGE.getName())
-                .deletableFlag(false)
-                .createUser(userId)
-                .createTime(createTime)
-                .build());
-        multiFileList.add(MultiFile.builder()
-                .userId(userId)
-                .fileName(AUDIO.getCurrentPath())
-                .fileFullPath(userId + "/" + AUDIO.getPath())
-                .fileNameOrigin(AUDIO.getName())
-                .deletableFlag(false)
-                .createUser(userId)
-                .createTime(createTime)
-                .build());
-        multiFileService.saveBatch(multiFileList);
-        multiFileList.add(MultiFile.builder()
-                .userId(userId)
-                .parentId(multiFileList.get(0).getId())
-                .fileName(IMAGE_AVATAR.getCurrentPath())
-                .fileFullPath(userId + "/" + IMAGE_AVATAR.getPath())
-                .fileNameOrigin(IMAGE_AVATAR.getName())
-                .deletableFlag(false)
-                .createUser(userId)
-                .createTime(createTime)
-                .build());
-        multiFileList.add(MultiFile.builder()
-                .userId(userId)
-                .parentId(multiFileList.get(1).getId())
-                .fileName(AUDIO_CHAT.getCurrentPath())
-                .fileFullPath(userId + "/" + AUDIO_CHAT.getPath())
-                .fileNameOrigin(AUDIO_CHAT.getName())
-                .deletableFlag(false)
-                .createUser(userId)
-                .createTime(createTime)
-                .build());
-        multiFileList.remove(0);
-        multiFileList.remove(0);
-        multiFileService.saveBatch(multiFileList);
+        registerUser(user.getId(), user.getId(), userRegisterVO.getUsername(), passwordEncoder.encode(userRegisterVO.getPassword()), createTime, false);
         redisTemplate.expire(EMAIL_REGISTER_CODE + "_" + email, 0, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    @Transactional
+    public void qqLogin(QQOauthVO qqOauthVO) {
+        QQAuth qqAuth = qqAuthMapper.selectOne(new LambdaQueryWrapper<QQAuth>()
+                .select(QQAuth::getUserId, QQAuth::getAccessToken, QQAuth::getLockedFlag, QQAuth::getDisabledFlag)
+                .eq(QQAuth::getOpenid, qqOauthVO.getOpenid())
+                .eq(QQAuth::getDeletedFlag, false));
+        Date dateTime = new Date();
+        Integer loginUserId;
+        if (qqAuth == null) {
+            Map<String, String> formData = new HashMap<>();
+            formData.put("openid", qqOauthVO.getOpenid());
+            formData.put("access_token", qqOauthVO.getAccessToken());
+            formData.put("oauth_consumer_key", QQ_APP_ID);
+            Map<String, String> map = JSON.parseObject(restTemplate.getForObject(QQ_USER_INFO_URL, String.class, formData), Map.class);
+            if (map == null || !map.get("ret").equals("0"))
+                throw new AuthenticationStatusException();
+            String avatar = map.get("figureurl_qq_2");
+            if (avatar.equals(""))
+                avatar = map.get("figureurl_qq_1");
+            User user = User.builder()
+                    .email("")
+                    .avatar(avatar)
+                    .gender(map.get("gender").equals("男") ? 1 : 0)
+                    .nickname(map.get("nickname"))
+                    .createTime(dateTime).build();
+            userMapper.insert(user);
+            loginUserId = user.getId();
+            registerUser(loginUserId, loginUserId, "用户" + IdWorker.getId(), DEFAULT_PASSWORD, dateTime, true);
+        } else {
+            if (qqAuth.getLockedFlag())
+                throw new LockedStatusException("您的账号已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+            if (qqAuth.getDeletedFlag())
+                throw new LockedStatusException("您的账号已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+            loginUserId = qqAuth.getUserId();
+            if (!qqOauthVO.getAccessToken().equals(qqAuth.getAccessToken())) {
+                Map<String, String> formData = new HashMap<>();
+                formData.put("openid", qqOauthVO.getOpenid());
+                formData.put("access_token", qqOauthVO.getAccessToken());
+                formData.put("oauth_consumer_key", QQ_APP_ID);
+                Map map = JSON.parseObject(restTemplate.getForObject(QQ_USER_INFO_URL, String.class, formData), Map.class);
+                if (map == null || !map.get("ret").equals(0))
+                    throw new AuthenticationStatusException();
+                qqAuthMapper.update(null, new LambdaUpdateWrapper<QQAuth>()
+                        .set(QQAuth::getAccessToken, qqOauthVO.getAccessToken())
+                        .set(QQAuth::getUpdateUser, loginUserId)
+                        .set(QQAuth::getUpdateTime, dateTime));
+            }
+        }
+        UserAuth userAuth = userAuthMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
+                .select(UserAuth::getUsername, UserAuth::getPassword, UserAuth::getLockedFlag, UserAuth::getDisabledFlag)
+                .eq(UserAuth::getUserId, loginUserId));
+        if (userAuth.getLockedFlag())
+            throw new LockedException("您的账号已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+        if (userAuth.getDisabledFlag())
+            throw new DisabledException("您的账号已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+        List<Map<String, Object>> mapList = roleMapper.selectLoginRoleByUserId(userAuth.getUserId());
+        LoginUser loginUser = LoginUser.builder()
+                .userId(userAuth.getUserId())
+                .username(userAuth.getUsername())
+                .password(userAuth.getPassword())
+                .roleWeight((Integer) mapList.get(0).get("role_weight"))
+                .roleIdList(mapList.stream().map(ml -> ml.get("id").toString()).collect(Collectors.toList()))
+                .build();
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        try {
+            authenticationSuccessHandlerImpl.onAuthenticationSuccess(request, response, null);
+        } catch (IOException e) {
+            throw new AuthenticationStatusException();
+        }
     }
 
     @Override
@@ -549,6 +537,65 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .set(MultiFile::getUpdateTime, updateTime)
                 .eq(MultiFile::getFileName, getSplitStringByIndex(fileFullPathOld, "/", -1)));
         MultiFileUtil.rename(fileFullPath, fileFullPathNew);
+    }
+
+    private void registerUser(Integer userId, Integer loginUserId, String username, String password, Date createTime, Boolean lockedFlag) {
+        userAuthMapper.insert(UserAuth.builder()
+                .userId(userId)
+                .username(username)
+                .password(password)
+                .loginMethod(lockedFlag ? 11 : null)
+                .lockedFlag(lockedFlag)
+                .createUser(loginUserId)
+                .createTime(createTime)
+                .build());
+        userRoleMapper.insert(UserRole.builder()
+                .userId(userId)
+                .roleId(DEFAULT_ROLE_ID)
+                .build());
+        List<MultiFile> multiFileList = new ArrayList<>();
+        multiFileList.add(MultiFile.builder()
+                .userId(userId)
+                .fileName(IMAGE.getCurrentPath())
+                .fileFullPath(userId + "/" + IMAGE.getPath())
+                .fileNameOrigin(IMAGE.getName())
+                .deletableFlag(false)
+                .createUser(loginUserId)
+                .createTime(createTime)
+                .build());
+        multiFileList.add(MultiFile.builder()
+                .userId(userId)
+                .fileName(AUDIO.getCurrentPath())
+                .fileFullPath(userId + "/" + AUDIO.getPath())
+                .fileNameOrigin(AUDIO.getName())
+                .deletableFlag(false)
+                .createUser(loginUserId)
+                .createTime(createTime)
+                .build());
+        multiFileService.saveBatch(multiFileList);
+        multiFileList.add(MultiFile.builder()
+                .userId(userId)
+                .parentId(multiFileList.get(0).getId())
+                .fileName(IMAGE_AVATAR.getCurrentPath())
+                .fileFullPath(userId + "/" + IMAGE_AVATAR.getPath())
+                .fileNameOrigin(IMAGE_AVATAR.getName())
+                .deletableFlag(false)
+                .createUser(loginUserId)
+                .createTime(createTime)
+                .build());
+        multiFileList.add(MultiFile.builder()
+                .userId(userId)
+                .parentId(multiFileList.get(1).getId())
+                .fileName(AUDIO_CHAT.getCurrentPath())
+                .fileFullPath(userId + "/" + AUDIO_CHAT.getPath())
+                .fileNameOrigin(AUDIO_CHAT.getName())
+                .deletableFlag(false)
+                .createUser(loginUserId)
+                .createTime(createTime)
+                .build());
+        multiFileList.remove(0);
+        multiFileList.remove(0);
+        multiFileService.saveBatch(multiFileList);
     }
 }
 

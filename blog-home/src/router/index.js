@@ -10,8 +10,7 @@ import About from "../views/about/About.vue";
 import Message from "../views/message/Messsage.vue";
 import Articles from "../views/article/Articles.vue";
 import Personal from "../views/personal/Personal.vue";
-import OauthLogin from "../components/OauthLogin.vue";
-
+import QQOauth from "../components/QQOauth.vue";
 Vue.use(VueRouter);
 
 const routes = [
@@ -93,8 +92,8 @@ const routes = [
     }
   },
   {
-    path: "/oauth/login/qq",
-    component: OauthLogin,
+    path: "/oauth/qq",
+    component: QQOauth,
     meta: {
       title: "QQ登录"
     }

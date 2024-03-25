@@ -2,10 +2,7 @@ package com.iksling.blog.advice;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.iksling.blog.entity.UserAuth;
-import com.iksling.blog.exception.FileStatusException;
-import com.iksling.blog.exception.IllegalRequestException;
-import com.iksling.blog.exception.OperationStatusException;
-import com.iksling.blog.exception.ServerStatusException;
+import com.iksling.blog.exception.*;
 import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.Result;
@@ -76,6 +73,24 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(value = ServerStatusException.class)
     public Result exceptionAdvice(ServerStatusException e) {
         return Result.failure().code(SERVER_STATUS).message(e.getMessage());
+    }
+
+    /********** 账号认证状态异常 **********/
+    @ExceptionHandler(value = LockedStatusException.class)
+    public Result exceptionAdvice(LockedStatusException e) {
+        return Result.failure().code(ACCOUNT_LOCKED).message(e.getMessage());
+    }
+
+    /********** 账号认证状态异常 **********/
+    @ExceptionHandler(value = DisabledStatusException.class)
+    public Result exceptionAdvice(DisabledStatusException e) {
+        return Result.failure().code(ACCOUNT_DISABLED).message(e.getMessage());
+    }
+
+    /********** 账号认证状态异常 **********/
+    @ExceptionHandler(value = AuthenticationStatusException.class)
+    public Result exceptionAdvice(AuthenticationStatusException e) {
+        return Result.failure().code(AUTHENTICATION_FAILURE).message(e.getMessage());
     }
 
     /********** 未知异常 **********/

@@ -14,25 +14,22 @@
 /* eslint-disable no-undef */
 export default {
   created() {
+    this.$store.state.commit("updateLoginFlag", false);
     const that = this;
-    //关闭登录框
-    that.$store.state.loginFlag = false;
-    //通过路径判断qq登录
-    if (that.$route.path == "/oauth/login/qq") {
-      // 拿到openId，accessToken传入后台
+    if (this.$route.path === "/oauth/qq") {
       if (QC.Login.check()) {
-        QC.Login.getMe(function(openId, accessToken) {
-          let param = new URLSearchParams();
-          param.append("openId", openId);
-          param.append("accessToken", accessToken);
-          that.axios.post("/api/users/oauth/qq", param).then(({ data }) => {
+        QC.Login.getMe(function(openid, accessToken) {
+          let param = {
+            openid: openid,
+            accessToken: accessToken
+          };
+          that.axios.post("/api/user/oauth/qq", param).then(({ data }) => {
             if (data.flag) {
-              //保存登录状态
               that.$store.commit("login", data.data);
-              if (data.data.email == null) {
+              if (data.data.email === "") {
                 that.$toast({
                   type: "warning",
-                  message: "请绑定邮箱以便及时收到回复"
+                  message: "请绑定邮箱以便及时收到回复!"
                 });
               } else {
                 that.$toast({ type: "success", message: data.message });
@@ -41,11 +38,10 @@ export default {
           });
         });
       } else {
-        that.$toast({ type: "error", message: "登录失败" });
+        this.$toast({ type: "error", message: "登录失败" });
       }
     }
-    //跳转回原页面
-    that.$router.push({ path: that.$store.state.loginUrl });
+    this.$router.push({ path: this.$store.state.loginUrl });
   }
 };
 </script>
@@ -67,7 +63,7 @@ export default {
 }
 #preloader_1 span {
   display: block;
-  bottom: 0px;
+  bottom: 0;
   width: 9px;
   height: 5px;
   background: #9b59b6;

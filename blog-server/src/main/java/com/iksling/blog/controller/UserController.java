@@ -8,6 +8,7 @@ import com.iksling.blog.service.UserService;
 import com.iksling.blog.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -153,5 +154,16 @@ public class UserController {
     public Result updateUserEmail(@Valid @RequestBody EmailVO emailVO) {
         userService.updateUserEmailVO(emailVO);
         return Result.success().message("操作成功");
+    }
+
+    @ApiOperation(value = "qq登录")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "openId", value = "openId", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "accessToken", value = "accessToken", required = true, dataType = "String")
+    })
+    @PostMapping("/user/oauth/qq")
+    public Result qqLogin(@Valid @RequestBody QQOauthVO qqOauthVO) {
+        userService.qqLogin(qqOauthVO);
+        return Result.success().message("发送成功");
     }
 }

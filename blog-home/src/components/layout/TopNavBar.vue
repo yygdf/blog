@@ -67,7 +67,7 @@
           <template v-else>
             <img
               class="user-avatar"
-              :src="this.$store.state.avatar"
+              :src="avatar"
               height="30"
               width="30"
               alt=""
@@ -102,7 +102,6 @@
 </template>
 
 <script>
-import logoPic from "../../assets/img/logo.png";
 export default {
   mounted() {
     window.addEventListener("scroll", this.scroll);
@@ -114,7 +113,9 @@ export default {
   },
   computed: {
     avatar() {
-      return this.$store.state.avatar;
+      return this.$store.state.avatar
+        ? this.$store.state.avatar
+        : require("../../assets/img/default/avatar.png");
     },
     logo() {
       if (this.$store.state.nickname) {
@@ -122,7 +123,7 @@ export default {
       }
       return (
         "<img src='" +
-        logoPic +
+        require("../../assets/img/logo.png") +
         "' style='width: 64px;height: 64px;margin-top: 0.5rem;' alt=''/>"
       );
     },

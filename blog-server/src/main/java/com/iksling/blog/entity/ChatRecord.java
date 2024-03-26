@@ -23,17 +23,17 @@ public class ChatRecord implements Serializable {
     private Integer id;
 
     /**
-     * 用户id
+     * 用户id, 默认-1
      */
     private Integer userId;
 
     /**
-     * 用户头像
+     * 用户头像, 默认空串
      */
     private String avatar;
 
     /**
-     * 用户昵称
+     * 用户昵称, 默认空串
      */
     private String nickname;
 
@@ -63,7 +63,7 @@ public class ChatRecord implements Serializable {
     private String ipAddress;
 
     /**
-     * 创建人
+     * 创建人, 默认-1
      */
     private Integer createUser;
 

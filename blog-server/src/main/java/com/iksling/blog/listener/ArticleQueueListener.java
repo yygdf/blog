@@ -21,7 +21,7 @@ import static com.iksling.blog.constant.MQConst.ARTICLE_QUEUE;
 
 @Component
 @RabbitListener(queues = ARTICLE_QUEUE)
-public class ArticleQueueListenerImpl {
+public class ArticleQueueListener {
     @Autowired
     private UserAuthMapper userAuthMapper;
 

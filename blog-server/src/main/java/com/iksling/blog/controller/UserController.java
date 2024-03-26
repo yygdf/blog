@@ -69,23 +69,6 @@ public class UserController {
         return Result.success().message("操作成功");
     }
 
-    @OptLog(optType = UPDATE)
-    @ApiOperation(value = "修改用户信息")
-    @ApiImplicitParam(name = "userVO", value = "用户VO", required = true, dataType = "UserVO")
-    @PutMapping("/user")
-    public Result updateUser(@Valid @RequestBody UserVO userVO) {
-        userService.updateUserVO(userVO);
-        return Result.success().message("操作成功");
-    }
-
-    @OptLog(optType = UPDATE)
-    @ApiOperation(value = "修改用户头像")
-    @ApiImplicitParam(name = "userAvatarVO", value = "用户头像VO", required = true, dataType = "UserAvatarVO")
-    @PostMapping("/user/avatar")
-    public Result updateUserAvatar(@Valid UserAvatarVO userAvatarVO) {
-        return Result.success().message("操作成功").data(userService.updateUserAvatarVO(userAvatarVO));
-    }
-
     @ApiOperation(value = "查看后台用户列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/users")
@@ -145,6 +128,23 @@ public class UserController {
     public Result saveUserRegister(@Valid @RequestBody UserRegisterVO userRegisterVO) {
         userService.saveUserRegisterVO(userRegisterVO);
         return Result.success().message("注册成功");
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "修改用户信息")
+    @ApiImplicitParam(name = "userVO", value = "用户VO", required = true, dataType = "UserVO")
+    @PutMapping("/user")
+    public Result updateUser(@Valid @RequestBody UserVO userVO) {
+        userService.updateUserVO(userVO);
+        return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "修改用户头像")
+    @ApiImplicitParam(name = "userAvatarVO", value = "用户头像VO", required = true, dataType = "UserAvatarVO")
+    @PostMapping("/user/avatar")
+    public Result updateUserAvatar(@Valid UserAvatarVO userAvatarVO) {
+        return Result.success().message("操作成功").data(userService.updateUserAvatarVO(userAvatarVO));
     }
 
     @OptLog(optType = UPDATE)

@@ -14,7 +14,7 @@ import static com.iksling.blog.constant.MQConst.EMAIL_QUEUE;
 
 @Component
 @RabbitListener(queues = EMAIL_QUEUE)
-public class EmailQueueListenerImpl {
+public class EmailQueueListener {
     @Value("${spring.mail.username}")
     private String ADMIN_EMAIL;
 

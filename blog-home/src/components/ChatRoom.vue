@@ -164,7 +164,7 @@ export default {
       chatRecordList: [],
       voiceList: [],
       rc: null,
-      ipAddr: "",
+      ipAddress: "",
       ipSource: "",
       count: 0,
       unreadCount: 0,
@@ -219,7 +219,7 @@ export default {
                 that.voiceList.push(item.id);
               }
             });
-            that.ipAddr = data.data.ipAddr;
+            that.ipAddress = data.data.ipAddress;
             that.ipSource = data.data.ipSource;
             break;
           case 3:
@@ -270,13 +270,17 @@ export default {
         nickname: this.nickname,
         chatType: 3,
         chatContent: this.chatContent,
-        ipAddr: this.ipAddr,
-        ipSource: this.ipSource,
-        createTime: new Date(),
-        isDelete: 0
+        ipAddress: this.ipAddress,
+        ipSource: this.ipSource
       };
+      let param = {};
+      Object.keys(socketMsg).forEach(key => {
+        if (socketMsg[key] != null && socketMsg[key].length !== 0) {
+          param[key] = socketMsg[key];
+        }
+      });
       this.WebsocketMessage.type = 3;
-      this.WebsocketMessage.data = socketMsg;
+      this.WebsocketMessage.data = param;
       this.websocket.send(JSON.stringify(this.WebsocketMessage));
       this.chatContent = "";
     },
@@ -297,7 +301,9 @@ export default {
     },
     back(item, index) {
       let socketMsg = {
-        id: item.id
+        id: item.id,
+        chatType: item.chatType,
+        chatContent: item.chatContent
       };
       this.WebsocketMessage.type = 4;
       this.WebsocketMessage.data = socketMsg;

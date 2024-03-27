@@ -34,11 +34,6 @@ public class QQAuth implements Serializable {
     private Integer userId;
 
     /**
-     * 登录日志id
-     */
-    private Integer loginLogId;
-
-    /**
      * QQ的openid
      */
     private String openid;

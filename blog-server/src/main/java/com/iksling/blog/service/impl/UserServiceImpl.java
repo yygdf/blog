@@ -560,13 +560,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         MultiFileUtil.rename(fileFullPath, fileFullPathNew);
     }
 
-    private void registerUser(Integer userId, Integer loginUserId, String username, String password, Date createTime, Boolean lockedFlag) {
+    private void registerUser(Integer userId, Integer loginUserId, String username, String password, Date createTime, Boolean disabledFlag) {
         userAuthMapper.insert(UserAuth.builder()
                 .userId(userId)
                 .username(username)
                 .password(password)
-                .loginMethod(lockedFlag ? 11 : null)
-                .lockedFlag(lockedFlag ? true : null)
+                .loginMethod(disabledFlag ? 11 : null)
+                .disabledFlag(disabledFlag ? true : null)
                 .createUser(loginUserId)
                 .createTime(createTime)
                 .build());

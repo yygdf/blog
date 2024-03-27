@@ -48,15 +48,6 @@ public class UserAuthController {
         return Result.success().message("操作成功");
     }
 
-    @OptLog(optType = UPDATE)
-    @ApiOperation(value = "修改用户密码")
-    @ApiImplicitParam(name = "passwordVO", value = "密码VO", required = true, dataType = "PasswordVO")
-    @PutMapping("/userAuth/password")
-    public Result updateUserPassword(@Valid @RequestBody PasswordVO passwordVO) {
-        userAuthService.updateUserPasswordVO(passwordVO);
-        return Result.success().message("操作成功");
-    }
-
     @ApiOperation(value = "查看后台账号列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/userAuths")
@@ -83,5 +74,14 @@ public class UserAuthController {
     public Result updateUserForgetPassword(@Valid @RequestBody PasswordForgetVO passwordForgetVO) {
         userAuthService.updateUserForgetPasswordVO(passwordForgetVO);
         return Result.success().message("重设成功");
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "修改用户密码")
+    @ApiImplicitParam(name = "passwordVO", value = "密码VO", required = true, dataType = "PasswordVO")
+    @PutMapping("/userAuth/password")
+    public Result updateUserPassword(@Valid @RequestBody PasswordVO passwordVO) {
+        userAuthService.updateUserPasswordVO(passwordVO);
+        return Result.success().message("操作成功");
     }
 }

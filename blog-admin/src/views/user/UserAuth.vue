@@ -512,6 +512,9 @@ export default {
           };
           if (flag) {
             param.type = 12;
+            if (userAuth.lockedFlag) {
+              param.status = true;
+            }
           }
           this.axios
             .put("/api/back/userAuth/status", param)

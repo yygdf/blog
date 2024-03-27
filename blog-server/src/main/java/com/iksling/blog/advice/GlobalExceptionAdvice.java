@@ -1,8 +1,10 @@
 package com.iksling.blog.advice;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.iksling.blog.entity.QQAuth;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.exception.*;
+import com.iksling.blog.mapper.QQAuthMapper;
 import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.Result;
@@ -26,8 +28,11 @@ import static com.iksling.blog.constant.StatusConst.*;
 public class GlobalExceptionAdvice {
     @Autowired
     private RedisTemplate redisTemplate;
+
     @Autowired
     private UserAuthMapper userAuthMapper;
+    @Autowired
+    private QQAuthMapper qqAuthMapper;
 
     /********** 非法请求异常 **********/
     @ExceptionHandler(value = IllegalRequestException.class)
@@ -43,6 +48,10 @@ public class GlobalExceptionAdvice {
                     .set(UserAuth::getLockedFlag, true)
                     .set(UserAuth::getDisabledFlag, true)
                     .eq(UserAuth::getUserId, loginUser.getUserId()));
+            qqAuthMapper.update(null, new LambdaUpdateWrapper<QQAuth>()
+                    .set(QQAuth::getLockedFlag, true)
+                    .set(QQAuth::getDisabledFlag, true)
+                    .eq(QQAuth::getUserId, loginUser.getUserId()));
             return Result.failure().code(ACCOUNT_LOCKED).message("账号[" + loginUser.getUsername() + "]已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
         }
         return Result.failure().code(ILLEGAL_REQUEST).message(e.getMessage());

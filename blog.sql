@@ -11,7 +11,7 @@
  Target Server Version : 50731
  File Encoding         : 65001
 
- Date: 27/03/2024 14:16:34
+ Date: 27/03/2024 16:11:58
 */
 
 SET NAMES utf8mb4;
@@ -291,7 +291,6 @@ DROP TABLE IF EXISTS `tb_qq_auth`;
 CREATE TABLE `tb_qq_auth`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `user_id` int(11) NOT NULL COMMENT '用户id',
-  `login_log_id` int(11) NOT NULL COMMENT '登录日志id',
   `openid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'QQ的openid',
   `access_token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '访问QQ的token',
   `locked_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未锁定, 1已锁定, 默认0',

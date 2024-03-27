@@ -59,6 +59,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     private UserRoleMapper userRoleMapper;
     @Autowired
     private UserConfigMapper userConfigMapper;
+    @Autowired
+    private QQAuthMapper qqAuthMapper;
 
     @Autowired
     private UserRoleService userRoleService;
@@ -193,21 +195,37 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         int count = userAuthMapper.update(null, lambdaUpdateWrapper);
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
+        LambdaUpdateWrapper<QQAuth> lambdaUpdateWrapper2 = new LambdaUpdateWrapper<QQAuth>()
+                .in(QQAuth::getUserId, userAuthMapper.selectObjs(new LambdaQueryWrapper<UserAuth>().select(UserAuth::getUserId).in(UserAuth::getId, statusBackVO.getIdList())));
+        if (LOCKED.equals(statusBackVO.getType()))
+            lambdaUpdateWrapper2.setSql("locked_flag = !locked_flag");
+        else {
+            if (statusBackVO.getStatus() == Boolean.TRUE)
+                lambdaUpdateWrapper2.set(QQAuth::getDisabledFlag, false);
+            else
+                lambdaUpdateWrapper2.set(QQAuth::getDisabledFlag, true);
+        }
+        qqAuthMapper.update(null, lambdaUpdateWrapper2);
     }
 
     @Override
     @Transactional
     public void updateUserPasswordVO(PasswordVO passwordVO) {
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
-        List<Object> objectList = userAuthMapper.selectObjs(new LambdaQueryWrapper<UserAuth>()
-                .select(UserAuth::getPassword)
+        UserAuth userAuth = userAuthMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
+                .select(UserAuth::getPassword, UserAuth::getDisabledFlag)
                 .eq(UserAuth::getUserId, loginUserId));
-        if (passwordEncoder.matches(passwordVO.getOldPassword(), objectList.get(0).toString())) {
+        if (passwordEncoder.matches(passwordVO.getOldPassword(), userAuth.getPassword())) {
             userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                     .set(UserAuth::getPassword, passwordEncoder.encode(passwordVO.getNewPassword()))
+                    .set(userAuth.getDisabledFlag(), UserAuth::getDisabledFlag, false)
                     .set(UserAuth::getUpdateUser, loginUserId)
                     .set(UserAuth::getUpdateTime, new Date())
                     .eq(UserAuth::getUserId, loginUserId));
+            if (userAuth.getDisabledFlag())
+                qqAuthMapper.update(null, new LambdaUpdateWrapper<QQAuth>()
+                        .set(QQAuth::getDisabledFlag, false)
+                        .eq(QQAuth::getUserId, loginUserId));
             passwordVO.setOldPassword(null);
             passwordVO.setNewPassword(null);
         } else {

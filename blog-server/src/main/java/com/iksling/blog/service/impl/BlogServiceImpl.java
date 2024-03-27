@@ -2,28 +2,35 @@ package com.iksling.blog.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.iksling.blog.entity.*;
+import com.iksling.blog.exception.FileStatusException;
 import com.iksling.blog.exception.OperationStatusException;
+import com.iksling.blog.listener.WebSocketListener;
 import com.iksling.blog.mapper.*;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.BlogService;
+import com.iksling.blog.util.IpUtil;
+import com.iksling.blog.util.MultiFileUtil;
 import com.iksling.blog.util.UserUtil;
+import com.iksling.blog.vo.MultiFileVO;
 import com.iksling.blog.vo.TokenVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 import static com.iksling.blog.constant.RedisConst.*;
+import static com.iksling.blog.enums.FileDirEnum.AUDIO_CHAT;
 
 /**
  *
@@ -42,6 +49,8 @@ public class BlogServiceImpl implements BlogService {
     private CategoryMapper categoryMapper;
     @Autowired
     private TagMapper tagMapper;
+    @Autowired
+    private MultiFileMapper multiFileMapper;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -53,12 +62,63 @@ public class BlogServiceImpl implements BlogService {
     @Autowired
     private UserConfigServiceImpl userConfigServiceImpl;
 
+    @Autowired
+    private WebSocketListener webSocketListener;
+
     @Override
     @Transactional
     public void updateBackAbout(String aboutContent) {
         Object o = JSON.parseObject(aboutContent, Map.class).get("aboutContent");
         if (o != null)
             redisTemplate.boundHashOps(BLOG_ABOUT_ME).put(UserUtil.getLoginUser().getUserId().toString(), o);
+    }
+
+    @Override
+    @Transactional
+    public void saveBlogChat(MultiFileVO multiFileVO) {
+        MultipartFile file = multiFileVO.getFile();
+        multiFileVO.setFile(null);
+        MultiFileUtil.checkValidFile(file, AUDIO_CHAT, true);
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
+        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+                .select(MultiFile::getId, MultiFile::getFileFullPath)
+                .eq(MultiFile::getUserId, loginUserId)
+                .eq(MultiFile::getFileName, AUDIO_CHAT.getCurrentPath())
+                .eq(MultiFile::getDeletedCount, 0)
+                .orderByAsc(MultiFile::getId));
+        if (mapList.isEmpty())
+            throw new OperationStatusException();
+        String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
+        long fileName = IdWorker.getId();
+        String targetAddr = mapList.get(0).get("file_full_path").toString();
+        String fullFileName = fileName + "." + originalFilenameArr[1];
+        String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
+        if (url == null)
+            throw new FileStatusException("文件上传失败!");
+        String ipAddress = IpUtil.getIpAddress(request);
+        String ipSource = IpUtil.getIpSource(ipAddress);
+        Date createTime = new Date();
+        try {
+            webSocketListener.sendVoice(loginUserId, url, createTime, ipSource, ipAddress);
+        } catch (IOException e) {
+            throw new OperationStatusException("发送语音失败!");
+        }
+        multiFileMapper.insert(MultiFile.builder()
+                .userId(loginUserId)
+                .parentId((Integer) mapList.get(0).get("id"))
+                .fileDesc("{'userId':"+loginUserId+",'info':'聊天室语音文件'}")
+                .fileMark(AUDIO_CHAT.getCurrentPath().intValue())
+                .fileName(fileName)
+                .fileSize(file.getSize())
+                .fileFullPath(targetAddr + "/" + fullFileName)
+                .fileExtension(originalFilenameArr[1])
+                .fileNameOrigin(originalFilenameArr[0])
+                .deletableFlag(false)
+                .ipSource(ipSource)
+                .ipAddress(ipAddress)
+                .createUser(loginUserId)
+                .createTime(createTime)
+                .build());
     }
 
     @Override

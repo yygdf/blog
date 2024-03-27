@@ -8,8 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.NotNull;
 
 @Data
-@ApiModel(description = "用户头像VO")
-public class UserAvatarVO {
+@ApiModel(description = "文件VO")
+public class MultiFileVO {
     /**
      * 文件
      */

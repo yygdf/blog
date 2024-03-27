@@ -1,5 +1,6 @@
 package com.iksling.blog.service;
 
+import com.iksling.blog.vo.MultiFileVO;
 import com.iksling.blog.vo.TokenVO;
 
 import java.util.HashMap;
@@ -9,6 +10,8 @@ import java.util.HashMap;
  */
 public interface BlogService {
     void updateBackAbout(String aboutContent);
+
+    void saveBlogChat(MultiFileVO multiFileVO);
 
     Object saveTokenVO(TokenVO tokenVO);
 

@@ -263,9 +263,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     @Transactional
-    public String updateUserAvatarVO(UserAvatarVO userAvatarVO) {
-        MultipartFile file = userAvatarVO.getFile();
-        userAvatarVO.setFile(null);
+    public String saveUserAvatar(MultiFileVO multiFileVO) {
+        MultipartFile file = multiFileVO.getFile();
+        multiFileVO.setFile(null);
         MultiFileUtil.checkValidFile(file, IMAGE_AVATAR, true);
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
         List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()

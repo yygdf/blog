@@ -320,9 +320,9 @@ export default {
     },
     translationStart() {
       this.voiceActive = true;
+      this.rc = new Recorderx();
       let that = this;
-      that.rc = new Recorderx();
-      that.$nextTick(() => {
+      this.$nextTick(() => {
         that.rc
           .start()
           .then(() => {
@@ -344,17 +344,9 @@ export default {
       let file = new File([wav], "voice.wav", {
         type: wav.type
       });
-      let formData = new window.FormData();
+      let formData = new FormData();
       formData.append("file", file);
-      let options = {
-        url: "/api/voice",
-        data: formData,
-        method: "post",
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      };
-      this.axios(options);
+      this.axios.post("/api/blog/chat", formData);
     },
     translationMove() {},
     playVoice(item) {

@@ -5,12 +5,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.iksling.blog.dto.ChatRecordDTO;
 import com.iksling.blog.entity.ChatRecord;
+import com.iksling.blog.entity.User;
 import com.iksling.blog.mapper.ChatRecordMapper;
 import com.iksling.blog.mapper.MultiFileMapper;
+import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.util.DateUtil;
 import com.iksling.blog.util.IpUtil;
 import com.iksling.blog.util.RegexUtil;
+import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.WebSocketMessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +38,7 @@ public class WebSocketListener {
     private static CopyOnWriteArraySet<WebSocketListener> webSocketSet = new CopyOnWriteArraySet<>();
 
     private static ChatRecordMapper chatRecordMapper;
-    private static MultiFileMapper multiFileMapper;
+    private static UserMapper userMapper;
 
     @Resource
     private HttpServletRequest request;
@@ -46,8 +49,8 @@ public class WebSocketListener {
     }
 
     @Autowired
-    public void setMultiFileMapper(MultiFileMapper multiFileMapper) {
-        WebSocketListener.multiFileMapper = multiFileMapper;
+    public void setUserMapper(UserMapper userMapper) {
+        WebSocketListener.userMapper = userMapper;
     }
 
     @Override
@@ -108,6 +111,30 @@ public class WebSocketListener {
                 break;
         }
 
+    }
+
+    public void sendVoice(Integer userId, String url, Date createTime, String ipSource, String ipAddress) throws IOException {
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
+                .select(User::getAvatar)
+                .select(User::getNickname)
+                .eq(User::getId, loginUserId));
+        ChatRecord chatRecord = ChatRecord.builder()
+                .userId(userId)
+                .avatar(user.getAvatar())
+                .nickname(user.getNickname())
+                .chatContent(url)
+                .ipSource(ipSource)
+                .ipAddress(ipAddress)
+                .chatType(5)
+                .createUser(loginUserId)
+                .createTime(createTime)
+                .build();
+        chatRecordMapper.insert(chatRecord);
+        WebSocketMessageVO webSocketMessageVO = new WebSocketMessageVO()
+        webSocketMessageVO.setType(5);
+        webSocketMessageVO.setData(chatRecord);
+        broadcastMessage(webSocketMessageVO);
     }
 
     private void updateOnlineCount() throws IOException {

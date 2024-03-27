@@ -113,6 +113,14 @@ public class UserController {
     /****************************************************************************************************/
 
     @OptLog(optType = SAVE)
+    @ApiOperation(value = "上传用户头像")
+    @ApiImplicitParam(name = "multiFileVO", value = "文件VO", required = true, dataType = "MultiFileVO")
+    @PostMapping("/user/avatar")
+    public Result saveUserAvatar(@Valid MultiFileVO multiFileVO) {
+        return Result.success().message("操作成功").data(userService.saveUserAvatar(multiFileVO));
+    }
+
+    @OptLog(optType = SAVE)
     @ApiOperation(value = "发送邮箱验证码")
     @ApiImplicitParam(name = "emailCodeVO", value = "邮箱验证码VO", required = true, dataType = "EmailCodeVO")
     @PostMapping("/user/email/code")
@@ -137,14 +145,6 @@ public class UserController {
     public Result updateUser(@Valid @RequestBody UserVO userVO) {
         userService.updateUserVO(userVO);
         return Result.success().message("操作成功");
-    }
-
-    @OptLog(optType = UPDATE)
-    @ApiOperation(value = "修改用户头像")
-    @ApiImplicitParam(name = "userAvatarVO", value = "用户头像VO", required = true, dataType = "UserAvatarVO")
-    @PostMapping("/user/avatar")
-    public Result updateUserAvatar(@Valid UserAvatarVO userAvatarVO) {
-        return Result.success().message("操作成功").data(userService.updateUserAvatarVO(userAvatarVO));
     }
 
     @OptLog(optType = UPDATE)

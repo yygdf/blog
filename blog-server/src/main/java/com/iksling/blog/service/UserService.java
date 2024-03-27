@@ -29,7 +29,7 @@ public interface UserService extends IService<User> {
 
     void updateUserVO(UserVO userVO);
 
-    String updateUserAvatarVO(UserAvatarVO userAvatarVO);
+    String saveUserAvatar(MultiFileVO multiFileVO);
 
     PagePojo<UsersBackDTO> getUsersBackDTO(Condition condition);
 

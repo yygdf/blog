@@ -13,7 +13,6 @@ import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.handler.FilterInvocationSecurityMetadataSourceImpl;
 import com.iksling.blog.mapper.ResourceMapper;
 import com.iksling.blog.mapper.RoleResourceMapper;
-import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.ResourceService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.CommonUtil;
@@ -75,12 +74,12 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
             resource.setCreateTime(new Date());
             resourceMapper.insert(resource);
         } else {
-            List<Map<String, Object>> mapList = resourceMapper.selectMaps(new LambdaQueryWrapper<Resource>()
+            Resource resourceOrigin = resourceMapper.selectOne(new LambdaQueryWrapper<Resource>()
                     .select(Resource::getParentId, Resource::getResourceUri, Resource::getResourceRequestMethod)
                     .eq(Resource::getId, resource.getId()));
-            if (mapList.isEmpty())
+            if (resourceOrigin == null)
                 throw new IllegalRequestException();
-            if ((int) mapList.get(0).get("parent_id") == -1) {
+            if (resourceOrigin.getParentId() == -1) {
                 if (resource.getResourceName() == null)
                     throw new IllegalRequestException();
                 Integer count = resourceMapper.selectCount(new LambdaQueryWrapper<Resource>()
@@ -91,17 +90,17 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
             } else {
                 boolean flag = false;
                 if (resource.getResourceUri() != null) {
-                    mapList.get(0).put("resource_uri", resource.getResourceUri());
+                    resourceOrigin.setResourceUri(resource.getResourceUri());
                     flag = true;
                 }
                 if (resource.getResourceRequestMethod() != null) {
-                    mapList.get(0).put("resource_request_method", resource.getResourceRequestMethod());
+                    resourceOrigin.setResourceRequestMethod(resource.getResourceRequestMethod());
                     flag = true;
                 }
                 if (flag) {
                     Integer count = resourceMapper.selectCount(new LambdaQueryWrapper<Resource>()
-                            .eq(Resource::getResourceUri, mapList.get(0).get("resource_uri"))
-                            .eq(Resource::getResourceRequestMethod, mapList.get(0).get("resource_request_method")));
+                            .eq(Resource::getResourceUri, resourceOrigin.getResourceUri())
+                            .eq(Resource::getResourceRequestMethod, resourceOrigin.getResourceRequestMethod()));
                     if (count > 0)
                         throw new OperationStatusException("该资源已存在!");
                 }

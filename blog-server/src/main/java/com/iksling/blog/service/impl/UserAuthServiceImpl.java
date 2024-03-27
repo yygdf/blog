@@ -79,13 +79,13 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     public void updateUserAuthBackVO(UserAuthBackVO userAuthBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         UserAuth userAuth = BeanCopyUtil.copyObject(userAuthBackVO, UserAuth.class);
-        List<Map<String, Object>> mapList = userAuthMapper.selectMaps(new LambdaQueryWrapper<UserAuth>()
-                .select(UserAuth::getUserId, UserAuth::getAssimilateFlag, UserAuth::getAssimilateNowFlag)
+        UserAuth userAuthOrigin = userAuthMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
+                .select(UserAuth::getUserId, UserAuth::getAssimilateFlag)
                 .eq(UserAuth::getId, userAuth.getId())
                 .eq(UserAuth::getDeletedFlag, false));
-        if (mapList.isEmpty())
+        if (userAuthOrigin == null)
             throw new IllegalRequestException();
-        Integer userId = (Integer) mapList.get(0).get("user_id");
+        Integer userId = userAuthOrigin.getUserId();
         if (ROOT_USER_ID_LIST.contains(userId) && !loginUser.getUserId().equals(ROOT_USER_ID))
             throw new IllegalRequestException();
         if (userAuth.getPassword() != null) {
@@ -109,7 +109,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
             Integer count = roleMapper.selectCount(new LambdaQueryWrapper<Role>()
                     .le(Role::getRoleWeight, 400)
                     .in(Role::getId, userAuthBackVO.getRoleIdList()));
-            if ((Boolean) mapList.get(0).get("assimilate_flag")) {
+            if (userAuthOrigin.getAssimilateFlag()) {
                 if (count == 0) {
                     userConfigMapper.update(null, new LambdaUpdateWrapper<UserConfig>()
                             .set(UserConfig::getDeletedFlag, true)
@@ -231,13 +231,13 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
 
     @Override
     public List<LabelBackDTO> getBackUsernames(String keywords) {
-        List<Map<String, Object>> mapList = userAuthMapper.selectMaps(new LambdaQueryWrapper<UserAuth>()
+        List<UserAuth> userAuthList = userAuthMapper.selectList(new LambdaQueryWrapper<UserAuth>()
                 .select(UserAuth::getUserId, UserAuth::getUsername)
                 .eq(UserUtil.getLoginUser().getRoleWeight() > 100, UserAuth::getDeletedFlag, false)
                 .likeRight(CommonUtil.isNotEmpty(keywords), UserAuth::getUsername, keywords));
-        return mapList.stream().map(e -> LabelBackDTO.builder()
-                        .id((Integer)e.get("user_id"))
-                        .label(e.get("username").toString())
+        return userAuthList.stream().map(e -> LabelBackDTO.builder()
+                        .id(e.getUserId())
+                        .label(e.getUsername())
                         .build()).collect(Collectors.toList());
     }
 

@@ -158,15 +158,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         else if (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(userId))
             throw new OperationStatusException();
         MultiFileUtil.checkValidFile(file, IMAGE_AVATAR, true);
-        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+        MultiFile multiFile = multiFileMapper.selectOne(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileFullPath)
                 .eq(MultiFile::getUserId, userId)
                 .eq(MultiFile::getFileName, IMAGE_AVATAR.getCurrentPath())
                 .eq(MultiFile::getDeletedCount, 0));
-        if (mapList.isEmpty())
+        if (multiFile == null)
             throw new OperationStatusException();
         long fileName = IdWorker.getId();
-        String targetAddr = mapList.get(0).get("file_full_path").toString();
+        String targetAddr = multiFile.getFileFullPath();
         String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
         String fullFileName = fileName + "." + originalFilenameArr[1];
         if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
@@ -174,7 +174,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(userId)
-                .parentId((Integer) mapList.get(0).get("id"))
+                .parentId(multiFile.getId())
                 .fileDesc("{'userId':"+userId+"}")
                 .fileMark(IMAGE_AVATAR.getCurrentPath().intValue())
                 .fileName(fileName)
@@ -223,26 +223,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Transactional
     public void updateBackUserAvatarsByFileNameList(List<Long> fileNameList) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+        List<MultiFile> multiFileList = multiFileMapper.selectList(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileFullPath, MultiFile::getFileExtension)
                 .in(MultiFile::getFileName, fileNameList)
                 .eq(MultiFile::getFileMark, IMAGE_AVATAR.getCurrentPath())
                 .eq(MultiFile::getDeletedCount, 0)
                 .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUser.getUserId()));
-        if (mapList.size() != fileNameList.size())
+        if (multiFileList.size() != fileNameList.size())
             throw new OperationStatusException();
-        mapList.forEach(e -> {
+        multiFileList.forEach(e -> {
             long fileNameNew = IdWorker.getId();
-            String fileFullPath = e.get("file_full_path").toString();
+            String fileFullPath = e.getFileFullPath();
             String fileFullPathOld = getSplitStringByIndex(fileFullPath, "[_.]", 0);
-            String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + DELETED + "." + e.get("file_extension");
+            String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + DELETED + "." + e.getFileExtension();
             multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                     .set(MultiFile::getFileNameNew, fileNameNew)
                     .set(MultiFile::getFileFullPath, fileFullPathNew)
                     .set(MultiFile::getDeletedCount, 1)
                     .set(MultiFile::getUpdateUser, loginUser.getUserId())
                     .set(MultiFile::getUpdateTime, new Date())
-                    .eq(MultiFile::getId, e.get("id")));
+                    .eq(MultiFile::getId, e.getId()));
             MultiFileUtil.rename(fileFullPath, fileFullPathNew);
         });
     }
@@ -268,24 +268,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         multiFileVO.setFile(null);
         MultiFileUtil.checkValidFile(file, IMAGE_AVATAR, true);
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
-        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+        List<MultiFile> multiFileList = multiFileMapper.selectList(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileFullPath)
                 .eq(MultiFile::getUserId, loginUserId)
                 .and(e -> e.eq(MultiFile::getFileName, IMAGE_AVATAR.getCurrentPath()).or().eq(MultiFile::getFileMark, IMAGE_AVATAR.getCurrentPath()))
                 .eq(MultiFile::getDeletedCount, 0)
                 .orderByAsc(MultiFile::getId));
-        if (mapList.isEmpty())
+        if (multiFileList.isEmpty())
             throw new OperationStatusException();
         String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
         long fileName = IdWorker.getId();
-        String targetAddr = mapList.get(0).get("file_full_path").toString();
+        String targetAddr = multiFileList.get(0).getFileFullPath();
         String fullFileName = fileName + "." + originalFilenameArr[1];
         if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
             throw new FileStatusException("文件上传失败!");
         Date dateTime = new Date();
         String url = STATIC_RESOURCE_URL + loginUserId + "/" + IMAGE_AVATAR.getPath() + "/" + fullFileName;
-        if (mapList.size() > 1)
-            updateUserAvatarBy(loginUserId, mapList.get(1).get("file_full_path").toString(), dateTime);
+        if (multiFileList.size() > 1)
+            updateUserAvatarBy(loginUserId, multiFileList.get(1).getFileFullPath(), dateTime);
         userMapper.update(null, new LambdaUpdateWrapper<User>()
                 .set(User::getAvatar, url)
                 .set(User::getUpdateUser, loginUserId)
@@ -294,7 +294,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(loginUserId)
-                .parentId((Integer) mapList.get(0).get("id"))
+                .parentId(multiFileList.get(0).getId())
                 .fileDesc("{'userId':"+loginUserId+"}")
                 .fileMark(IMAGE_AVATAR.getCurrentPath().intValue())
                 .fileName(fileName)
@@ -473,13 +473,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                         .set(QQAuth::getUpdateTime, dateTime));
             }
         }
-        List<Map<String, Object>> mapList = roleMapper.selectLoginRoleByUserId(loginUserId);
+        List<Role> roleList = roleMapper.selectLoginRoleByUserId(loginUserId);
         LoginUser loginUser = LoginUser.builder()
                 .userId(loginUserId)
                 .username(qqAuth.getOpenid())
                 .password(qqAuth.getAccessToken())
-                .roleWeight((Integer) mapList.get(0).get("role_weight"))
-                .roleIdList(mapList.stream().map(ml -> ml.get("id").toString()).collect(Collectors.toList()))
+                .roleWeight(roleList.get(0).getRoleWeight())
+                .roleIdList(roleList.stream().map(e -> e.getId().toString()).collect(Collectors.toList()))
                 .build();
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);

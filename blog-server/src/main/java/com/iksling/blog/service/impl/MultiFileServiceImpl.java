@@ -198,24 +198,23 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     public void deleteBackMultiFilesByIdList(List<Integer> idList) {
         if (idList.isEmpty())
             throw new IllegalRequestException();
-        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+        List<MultiFile> multiFileList = multiFileMapper.selectList(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileFullPath, MultiFile::getFileExtension)
                 .ne(MultiFile::getDeletedCount, 0)
                 .eq(MultiFile::getDeletableFlag, true)
                 .in(MultiFile::getId, idList));
-        if (mapList.size() != idList.size())
+        if (multiFileList.size() != idList.size())
             throw new IllegalRequestException();
         List<Integer> multiFileIdList = new ArrayList<>();
-        mapList.forEach(e -> {
-            String fileFullPath = e.get("file_full_path").toString();
-            if (e.get("file_extension").equals(""))
+        multiFileList.forEach(e -> {
+            if (e.getFileExtension().equals(""))
                 multiFileMapper.delete(new LambdaUpdateWrapper<MultiFile>()
-                        .likeRight(MultiFile::getFileFullPath, fileFullPath));
+                        .likeRight(MultiFile::getFileFullPath, e.getFileFullPath()));
             else
-                multiFileIdList.add((Integer) e.get("id"));
+                multiFileIdList.add(e.getId());
         });
         multiFileMapper.deleteBatchIds(multiFileIdList);
-        mapList.forEach(e -> MultiFileUtil.delete(e.get("file_full_path").toString()));
+        multiFileList.forEach(e -> MultiFileUtil.delete(e.getFileFullPath()));
     }
 
     @Override
@@ -223,28 +222,28 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     public void updateMultiFileStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer loginUserId = loginUser.getUserId();
-        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+        List<MultiFile> multiFileList = multiFileMapper.selectList(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileFullPath, MultiFile::getFileExtension, MultiFile::getPublicFlag, MultiFile::getHiddenFlag)
                 .in(MultiFile::getId, statusBackVO.getIdList())
                 .and(loginUser.getRoleWeight() > 200, e -> e.eq(MultiFile::getUserId, loginUserId).eq(MultiFile::getDeletableFlag, true))
                 .eq(MultiFile::getDeletedCount, 0));
-        if (mapList.size() != statusBackVO.getIdList().size())
+        if (multiFileList.size() != statusBackVO.getIdList().size())
             throw new OperationStatusException();
         if (HIDDEN.equals(statusBackVO.getType())) {
-            mapList.forEach(e -> {
+            multiFileList.forEach(e -> {
                 long fileNameNew = IdWorker.getId();
-                String fileFullPath = e.get("file_full_path").toString();
+                String fileFullPath = e.getFileFullPath();
                 String fileFullName = getSplitStringByIndex(fileFullPath, "/", -1);
                 String fileFullPathOld = fileFullPath.substring(0, fileFullPath.length() - fileFullName.length()) + getSplitStringByIndex(fileFullName, "[_.]", 0);
                 String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_";
-                String fileExtension = e.get("file_extension").toString();
-                if (e.get("hidden_flag").equals(false)) {
+                String fileExtension = e.getFileExtension();
+                if (!e.getHiddenFlag()) {
                     fileFullPathNew += HIDDEN;
                     if (fileExtension.equals("")) {
                         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                 .set(MultiFile::getFileNameNew, fileNameNew)
                                 .set(MultiFile::getHiddenFlag, true)
-                                .eq(MultiFile::getId, e.get("id")));
+                                .eq(MultiFile::getId, e.getId()));
                         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                 .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                                 .likeRight(MultiFile::getFileFullPath, fileFullPath));
@@ -254,15 +253,15 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                                 .set(MultiFile::getFileFullPath, fileFullPathNew)
                                 .set(MultiFile::getFileNameNew, fileNameNew)
                                 .set(MultiFile::getHiddenFlag, true)
-                                .eq(MultiFile::getId, e.get("id")));
+                                .eq(MultiFile::getId, e.getId()));
                     }
-                } else if (e.get("public_flag").equals(false)) {
+                } else if (!e.getPublicFlag()) {
                     fileFullPathNew += PUBLIC;
                     if (fileExtension.equals("")) {
                         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                 .set(MultiFile::getFileNameNew, fileNameNew)
                                 .set(MultiFile::getHiddenFlag, false)
-                                .eq(MultiFile::getId, e.get("id")));
+                                .eq(MultiFile::getId, e.getId()));
                         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                 .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                                 .likeRight(MultiFile::getFileFullPath, fileFullPath));
@@ -272,14 +271,14 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                                 .set(MultiFile::getFileFullPath, fileFullPathNew)
                                 .set(MultiFile::getFileNameNew, fileNameNew)
                                 .set(MultiFile::getHiddenFlag, false)
-                                .eq(MultiFile::getId, e.get("id")));
+                                .eq(MultiFile::getId, e.getId()));
                     }
                 } else {
                     if (fileExtension.equals("")) {
                         fileFullPathNew = fileFullPathOld;
                         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                 .set(MultiFile::getHiddenFlag, false)
-                                .eq(MultiFile::getId, e.get("id")));
+                                .eq(MultiFile::getId, e.getId()));
                         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                 .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                                 .likeRight(MultiFile::getFileFullPath, fileFullPath));
@@ -288,26 +287,26 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                         multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                 .set(MultiFile::getFileFullPath, fileFullPathNew)
                                 .set(MultiFile::getHiddenFlag, false)
-                                .eq(MultiFile::getId, e.get("id")));
+                                .eq(MultiFile::getId, e.getId()));
                     }
                 }
                 MultiFileUtil.rename(fileFullPath, fileFullPathNew);
             });
         } else {
-            mapList.forEach(e -> {
-                if (e.get("hidden_flag").equals(false)) {
+            multiFileList.forEach(e -> {
+                if (!e.getHiddenFlag()) {
                     long fileNameNew = IdWorker.getId();
-                    String fileFullPath = e.get("file_full_path").toString();
+                    String fileFullPath = e.getFileFullPath();
                     String fileFullName = getSplitStringByIndex(fileFullPath, "/", -1);
                     String fileFullPathOld = fileFullPath.substring(0, fileFullPath.length() - fileFullName.length()) + getSplitStringByIndex(fileFullName, "[_.]", 0);
                     String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + PUBLIC;
-                    String fileExtension = e.get("file_extension").toString();
-                    if (e.get("public_flag").equals(true)) {
+                    String fileExtension = e.getFileExtension();
+                    if (e.getPublicFlag()) {
                         if (fileExtension.equals("")) {
                             multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                     .set(MultiFile::getFileNameNew, fileNameNew)
                                     .set(MultiFile::getPublicFlag, false)
-                                    .eq(MultiFile::getId, e.get("id")));
+                                    .eq(MultiFile::getId, e.getId()));
                             multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                     .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                                     .likeRight(MultiFile::getFileFullPath, fileFullPath));
@@ -317,14 +316,14 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                                     .set(MultiFile::getFileFullPath, fileFullPathNew)
                                     .set(MultiFile::getFileNameNew, fileNameNew)
                                     .set(MultiFile::getPublicFlag, false)
-                                    .eq(MultiFile::getId, e.get("id")));
+                                    .eq(MultiFile::getId, e.getId()));
                         }
                     } else {
                         if (fileExtension.equals("")) {
                             fileFullPathNew = fileFullPathOld;
                             multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                     .set(MultiFile::getPublicFlag, true)
-                                    .eq(MultiFile::getId, e.get("id")));
+                                    .eq(MultiFile::getId, e.getId()));
                             multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                     .setSql("file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                                     .likeRight(MultiFile::getFileFullPath, fileFullPath));
@@ -333,14 +332,14 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                             multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                                     .set(MultiFile::getFileFullPath, fileFullPathNew)
                                     .set(MultiFile::getPublicFlag, true)
-                                    .eq(MultiFile::getId, e.get("id")));
+                                    .eq(MultiFile::getId, e.getId()));
                         }
                     }
                     MultiFileUtil.rename(fileFullPath, fileFullPathNew);
                 } else
                     multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                             .setSql("public_flag = !public_flag")
-                            .eq(MultiFile::getId, e.get("id")));
+                            .eq(MultiFile::getId, e.getId()));
             });
         }
     }
@@ -349,28 +348,28 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     @Transactional
     public void updateMultiFilesStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+        List<MultiFile> multiFileList = multiFileMapper.selectList(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileFullPath, MultiFile::getFileExtension)
                 .eq(loginUser.getRoleWeight() > 100, MultiFile::getDeletedCount, 0)
                 .eq(loginUser.getRoleWeight() > 200, MultiFile::getUserId, loginUser.getUserId())
                 .eq(DELETED.equals(statusBackVO.getType()), MultiFile::getDeletedCount, 1)
                 .eq(MultiFile::getDeletableFlag, true)
                 .in(MultiFile::getId, statusBackVO.getIdList()));
-        if (mapList.size() != statusBackVO.getIdList().size())
+        if (multiFileList.size() != statusBackVO.getIdList().size())
             throw new OperationStatusException();
         if (DELETED.equals(statusBackVO.getType()))
-            mapList.forEach(e -> {
+            multiFileList.forEach(e -> {
                 long fileNameNew = IdWorker.getId();
-                String fileFullPath = e.get("file_full_path").toString();
+                String fileFullPath = e.getFileFullPath();
                 String fileFullName = getSplitStringByIndex(fileFullPath, "/", -1);
                 String fileFullPathOld = fileFullPath.substring(0, fileFullPath.length() - fileFullName.length()) + getSplitStringByIndex(fileFullName, "[_.]", 0);
                 String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + HIDDEN;
-                String fileExtension = e.get("file_extension").toString();
+                String fileExtension = e.getFileExtension();
                 if (fileExtension.equals("")) {
                     multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                             .set(MultiFile::getHiddenFlag, true)
                             .set(MultiFile::getFileNameNew, fileNameNew)
-                            .eq(MultiFile::getId, e.get("id")));
+                            .eq(MultiFile::getId, e.getId()));
                     multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                             .setSql("deleted_count=if(deleted_count>0,deleted_count-1,deleted_count+1),file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
                             .likeRight(MultiFile::getFileFullPath, fileFullPath));
@@ -381,27 +380,27 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                             .set(MultiFile::getFileNameNew, fileNameNew)
                             .set(MultiFile::getHiddenFlag, true)
                             .set(MultiFile::getDeletedCount, 0)
-                            .eq(MultiFile::getId, e.get("id")));
+                            .eq(MultiFile::getId, e.getId()));
                 }
                 MultiFileUtil.rename(fileFullPath, fileFullPathNew);
             });
         else
-            mapList.forEach(e -> {
+            multiFileList.forEach(e -> {
                 long fileNameNew = IdWorker.getId();
-                String fileFullPath = e.get("file_full_path").toString();
+                String fileFullPath = e.getFileFullPath();
                 String fileFullName = getSplitStringByIndex(fileFullPath, "/", -1);
                 String fileFullPathOld = fileFullPath.substring(0, fileFullPath.length() - fileFullName.length()) + getSplitStringByIndex(fileFullName, "[_.]", 0);
                 String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + DELETED;
-                String fileExtension = e.get("file_extension").toString();
+                String fileExtension = e.getFileExtension();
                 if (fileExtension.equals("")) {
                     multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                             .set(MultiFile::getFileNameNew, fileNameNew)
                             .set(MultiFile::getFileFullPath, fileFullPathNew)
                             .set(MultiFile::getDeletedCount, 1)
-                            .eq(MultiFile::getId, e.get("id")));
+                            .eq(MultiFile::getId, e.getId()));
                     multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                             .setSql("deleted_count=if(deleted_count>0,deleted_count+1,deleted_count-1),file_full_path=replace(file_full_path,'"+fileFullPath+"','"+fileFullPathNew+"')")
-                            .ne(MultiFile::getId, e.get("id"))
+                            .ne(MultiFile::getId, e.getId())
                             .likeRight(MultiFile::getFileFullPath, fileFullPath));
                 } else {
                     fileFullPathNew += "." + fileExtension;
@@ -409,7 +408,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                             .set(MultiFile::getFileFullPath, fileFullPathNew)
                             .set(MultiFile::getFileNameNew, fileNameNew)
                             .set(MultiFile::getDeletedCount, 1)
-                            .eq(MultiFile::getId, e.get("id")));
+                            .eq(MultiFile::getId, e.getId()));
                 }
                 MultiFileUtil.rename(fileFullPath, fileFullPathNew);
             });

@@ -16,7 +16,6 @@ import com.iksling.blog.handler.FilterInvocationSecurityMetadataSourceImpl;
 import com.iksling.blog.mapper.RoleMapper;
 import com.iksling.blog.mapper.RoleMenuMapper;
 import com.iksling.blog.mapper.RoleResourceMapper;
-import com.iksling.blog.mapper.UserRoleMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.*;
 import com.iksling.blog.util.BeanCopyUtil;
@@ -33,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID;
@@ -166,13 +164,13 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
 
     @Override
     public List<LabelBackDTO> getBackRoleNames() {
-        List<Map<String, Object>> mapList = roleMapper.selectMaps(new LambdaQueryWrapper<Role>()
+        List<Role> roleList = roleMapper.selectList(new LambdaQueryWrapper<Role>()
                 .select(Role::getId, Role::getRoleName, Role::getRoleWeight)
                 .orderByAsc(Role::getRoleWeight));
-        return mapList.stream()
+        return roleList.stream()
                 .map(e -> LabelBackDTO.builder()
-                        .id((Integer) e.get("id"))
-                        .label(e.get("role_name").toString())
+                        .id(e.getId())
+                        .label(e.getRoleName())
                         .build())
                 .collect(Collectors.toList());
     }

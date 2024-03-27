@@ -25,7 +25,7 @@
         update_user,update_time
     </sql>
 
-    <select id="selectLoginRoleByUserId" resultType="map">
+    <select id="selectLoginRoleByUserId" resultMap="BaseResultMap">
         SELECT
             r.id,r.role_weight
         FROM

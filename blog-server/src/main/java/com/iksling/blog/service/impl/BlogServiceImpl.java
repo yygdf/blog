@@ -80,17 +80,16 @@ public class BlogServiceImpl implements BlogService {
         multiFileVO.setFile(null);
         MultiFileUtil.checkValidFile(file, AUDIO_CHAT, true);
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
-        List<Map<String, Object>> mapList = multiFileMapper.selectMaps(new LambdaQueryWrapper<MultiFile>()
+        MultiFile multiFile = multiFileMapper.selectOne(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileFullPath)
                 .eq(MultiFile::getUserId, loginUserId)
                 .eq(MultiFile::getFileName, AUDIO_CHAT.getCurrentPath())
-                .eq(MultiFile::getDeletedCount, 0)
-                .orderByAsc(MultiFile::getId));
-        if (mapList.isEmpty())
+                .eq(MultiFile::getDeletedCount, 0));
+        if (multiFile == null)
             throw new OperationStatusException();
         String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
         long fileName = IdWorker.getId();
-        String targetAddr = mapList.get(0).get("file_full_path").toString();
+        String targetAddr = multiFile.getFileFullPath();
         String fullFileName = fileName + "." + originalFilenameArr[1];
         String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
         if (url == null)
@@ -105,7 +104,7 @@ public class BlogServiceImpl implements BlogService {
         }
         multiFileMapper.insert(MultiFile.builder()
                 .userId(loginUserId)
-                .parentId((Integer) mapList.get(0).get("id"))
+                .parentId(multiFile.getId())
                 .fileDesc("{'userId':"+loginUserId+",'info':'聊天室语音文件'}")
                 .fileMark(AUDIO_CHAT.getCurrentPath().intValue())
                 .fileName(fileName)

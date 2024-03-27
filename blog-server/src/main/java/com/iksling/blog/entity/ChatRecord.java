@@ -78,6 +78,16 @@ public class ChatRecord implements Serializable {
      */
     private Date createTime;
 
+    /**
+     * 更新人, 默认null
+     */
+    private Integer updateUser;
+
+    /**
+     * 更新时间, 默认null
+     */
+    private Date updateTime;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

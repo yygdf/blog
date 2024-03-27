@@ -111,7 +111,7 @@
           style="border-radius: 10px"
           ref="chatInput"
           v-model="chatContent"
-          @keydown.enter="saveMessage($event)"
+          @keydown.enter="saveChatRecord($event)"
           placeholder="请输入内容"
         />
         <button
@@ -130,7 +130,7 @@
           :style="isEmoji ? 'color:#FFC83D' : ''"
           @click.prevent.stop="openEmoji"
         />
-        <i :class="isInput" @click="saveMessage" style="font-size: 1.5rem" />
+        <i :class="isInput" @click="saveChatRecord" style="font-size: 1.5rem" />
       </div>
     </div>
     <div class="chat-btn" @click="open">
@@ -164,8 +164,9 @@ export default {
       chatRecordList: [],
       voiceList: [],
       rc: null,
-      ipAddress: "",
       ipSource: "",
+      ipAddress: "",
+      permitFlag: false,
       count: 0,
       unreadCount: 0,
       isVoice: false,
@@ -193,15 +194,14 @@ export default {
     },
     connect() {
       this.websocket = new WebSocket("ws://localhost:8080/websocket");
-      this.websocket.onerror = function(event) {
-        console.log(event);
-      };
+      this.websocket.onerror = function() {};
       const that = this;
       this.websocket.onopen = function() {
+        that.getChatRecords();
         that.heartBeat = setInterval(function() {
           let beatMessage = {
-            type: 6,
-            data: "ping"
+            type: 9,
+            data: "Ping"
           };
           that.websocket.send(JSON.stringify(beatMessage));
         }, 30 * 1000);
@@ -212,16 +212,6 @@ export default {
           case 1:
             that.count = data.data;
             break;
-          case 2:
-            that.chatRecordList = data.data.chatRecordList;
-            that.chatRecordList.forEach(item => {
-              if (item.chatType === 5) {
-                that.voiceList.push(item.id);
-              }
-            });
-            that.ipAddress = data.data.ipAddress;
-            that.ipSource = data.data.ipSource;
-            break;
           case 3:
             that.chatRecordList.push(data.data);
             if (!that.isShow) {
@@ -229,7 +219,14 @@ export default {
             }
             break;
           case 4:
-            if (data.data.chatType === 5) {
+            that.voiceList.push(data.data.id);
+            that.chatRecordList.push(data.data);
+            if (!that.isShow) {
+              that.unreadCount++;
+            }
+            break;
+          case 5:
+            if (data.data.chatType === 4) {
               that.voiceList.splice(that.voiceList.indexOf(data.data.id), 1);
             }
             for (let i = 0; i < that.chatRecordList.length; i++) {
@@ -239,18 +236,29 @@ export default {
               }
             }
             break;
-          case 5:
-            that.voiceList.push(data.data.id);
-            that.chatRecordList.push(data.data);
-            if (!that.isShow) {
-              that.unreadCount++;
-            }
+          case 9:
+            console.log(data.data);
             break;
         }
       };
       this.websocket.onclose = function() {};
     },
-    saveMessage(e) {
+    getChatRecords() {
+      this.axios.get("/api/chatRecords").then(({ data }) => {
+        if (data.flag) {
+          this.ipSource = data.data.ipSource;
+          this.ipAddress = data.data.ipAddress;
+          this.permitFlag = data.data.permitFlag;
+          this.chatRecordList = data.data.chatRecordsDTOList;
+          this.chatRecordList.forEach(item => {
+            if (item.chatType === 4) {
+              this.voiceList.push(item.id);
+            }
+          });
+        }
+      });
+    },
+    saveChatRecord(e) {
       e.preventDefault();
       if (this.chatContent.trim() === "") {
         this.$toast({ type: "error", message: "内容不能为空" });
@@ -264,25 +272,13 @@ export default {
           "' width='20' height='20' style='padding: 0 1px' alt=''/>"
         );
       });
-      let socketMsg = {
-        userId: this.userId,
-        avatar: this.avatar,
-        nickname: this.nickname,
-        chatType: 3,
-        chatContent: this.chatContent,
-        ipAddress: this.ipAddress,
-        ipSource: this.ipSource
-      };
-      let param = {};
-      Object.keys(socketMsg).forEach(key => {
-        if (socketMsg[key] != null && socketMsg[key].length !== 0) {
-          param[key] = socketMsg[key];
-        }
-      });
-      this.WebsocketMessage.type = 3;
-      this.WebsocketMessage.data = param;
-      this.websocket.send(JSON.stringify(this.WebsocketMessage));
-      this.chatContent = "";
+      this.axios
+        .put("/api/chatRecord/about", { chatContent: this.chatContent })
+        .then(({ data }) => {
+          if (data.flag) {
+            this.chatContent = "";
+          }
+        });
     },
     addEmoji(key) {
       this.isEmoji = false;
@@ -293,22 +289,18 @@ export default {
       this.$refs.backBtn.forEach(item => {
         item.style.display = "none";
       });
-      if (this.isSelf(item)) {
+      if (this.isSelf(item) || this.permitFlag) {
         this.$refs.backBtn[index].style.left = e.offsetX + "px";
         this.$refs.backBtn[index].style.bottom = e.offsetY + "px";
         this.$refs.backBtn[index].style.display = "block";
       }
     },
     back(item, index) {
-      let socketMsg = {
-        id: item.id,
-        chatType: item.chatType,
-        chatContent: item.chatContent
-      };
-      this.WebsocketMessage.type = 4;
-      this.WebsocketMessage.data = socketMsg;
-      this.websocket.send(JSON.stringify(this.WebsocketMessage));
-      this.$refs.backBtn[index].style.display = "none";
+      this.axios.put("/api/charRecord/" + item.id).then(({ data }) => {
+        if (data.flag) {
+          this.$refs.backBtn[index].style.display = "none";
+        }
+      });
     },
     closeAll() {
       this.isEmoji = false;
@@ -346,7 +338,7 @@ export default {
       });
       let formData = new FormData();
       formData.append("file", file);
-      this.axios.post("/api/blog/chat", formData);
+      this.axios.post("/api/charRecord/voice", formData);
     },
     translationMove() {},
     playVoice(item) {

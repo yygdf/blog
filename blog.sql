@@ -11,7 +11,7 @@
  Target Server Version : 50731
  File Encoding         : 65001
 
- Date: 26/03/2024 16:08:52
+ Date: 27/03/2024 14:16:34
 */
 
 SET NAMES utf8mb4;
@@ -92,6 +92,8 @@ CREATE TABLE `tb_chat_record`  (
   `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip地址, 默认空串',
   `create_user` int(11) NOT NULL DEFAULT -1 COMMENT '创建人, 默认-1',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
+  `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 

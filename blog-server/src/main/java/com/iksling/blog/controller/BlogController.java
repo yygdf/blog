@@ -3,7 +3,6 @@ package com.iksling.blog.controller;
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.BlogService;
-import com.iksling.blog.vo.MultiFileVO;
 import com.iksling.blog.vo.TokenVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static com.iksling.blog.constant.LogConst.SAVE;
 import static com.iksling.blog.constant.LogConst.UPDATE;
 
 @RestController
@@ -44,15 +42,6 @@ public class BlogController {
     @PostMapping("/blog/token")
     public Result saveBlogTokenVO(@Valid @RequestBody TokenVO tokenVO) {
         return Result.success().message("操作成功").data(blogService.saveTokenVO(tokenVO));
-    }
-
-    @OptLog(optType = SAVE)
-    @ApiOperation(value = "上传用户语音")
-    @ApiImplicitParam(name = "multiFileVO", value = "文件VO", required = true, dataType = "MultiFileVO")
-    @PostMapping("/blog/chat")
-    public Result saveBlogChat(@Valid MultiFileVO multiFileVO) {
-        blogService.saveBlogChat(multiFileVO);
-        return Result.success().message("发送成功");
     }
 
     @ApiOperation(value = "查看博主id")

@@ -1,66 +1,31 @@
 package com.iksling.blog.listener;
 
 import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.iksling.blog.dto.ChatRecordDTO;
-import com.iksling.blog.entity.ChatRecord;
-import com.iksling.blog.entity.User;
-import com.iksling.blog.mapper.ChatRecordMapper;
-import com.iksling.blog.mapper.MultiFileMapper;
-import com.iksling.blog.mapper.UserMapper;
-import com.iksling.blog.pojo.Result;
-import com.iksling.blog.util.DateUtil;
-import com.iksling.blog.util.IpUtil;
-import com.iksling.blog.util.RegexUtil;
-import com.iksling.blog.util.UserUtil;
+import com.iksling.blog.dto.ChatRecordsDTO;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.vo.WebSocketMessageVO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.websocket.*;
-import javax.websocket.server.HandshakeRequest;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
-import javax.websocket.server.ServerEndpointConfig;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-@ServerEndpoint(value = "/websocket", configurator = WebSocketListener.ChatConfigurator.class)
+@ServerEndpoint(value = "/websocket")
 @Service
 public class WebSocketListener {
     private Session session;
     private static CopyOnWriteArraySet<WebSocketListener> webSocketSet = new CopyOnWriteArraySet<>();
 
-    private static ChatRecordMapper chatRecordMapper;
-    private static UserMapper userMapper;
-
-    @Resource
-    private HttpServletRequest request;
-
-    @Autowired
-    public void setChatRecordMapper(ChatRecordMapper chatRecordMapper) {
-        WebSocketListener.chatRecordMapper = chatRecordMapper;
-    }
-
-    @Autowired
-    public void setUserMapper(UserMapper userMapper) {
-        WebSocketListener.userMapper = userMapper;
-    }
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
+        if (this == o)
             return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null || getClass() != o.getClass())
             return false;
-        }
         WebSocketListener that = (WebSocketListener) o;
         return Objects.equals(session, that.session);
     }
@@ -71,87 +36,47 @@ public class WebSocketListener {
     }
 
     @OnOpen
-    public void onOpen(Session session, EndpointConfig endpointConfig) throws IOException {
+    public void onOpen(Session session) throws IOException {
         this.session = session;
         webSocketSet.add(this);
         updateOnlineCount();
-        ChatRecordDTO chatRecordDTO = getChatRecordDTO(endpointConfig);
-        synchronized (session) {
-            session.getBasicRemote().sendText(JSON.toJSONString(Result.success().code(2).data(chatRecordDTO)));
-        }
     }
 
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
         WebSocketMessageVO webSocketMessageVO = JSON.parseObject(message, WebSocketMessageVO.class);
-        switch (webSocketMessageVO.getType()) {
-            case 3:
-                ChatRecord chatRecord = JSON.parseObject(JSON.toJSONString(webSocketMessageVO.getData()), ChatRecord.class);
-                chatRecord.setChatContent(RegexUtil.deleteHTMLTag(chatRecord.getChatContent()));
-                chatRecord.setCreateUser(chatRecord.getUserId());
-                chatRecord.setCreateTime(new Date());
-                chatRecordMapper.insert(chatRecord);
-                webSocketMessageVO.setData(chatRecord);
-                broadcastMessage(webSocketMessageVO);
-                break;
-            case 4:
-                Map map = JSON.parseObject(JSON.toJSONString(webSocketMessageVO.getData()), Map.class);
-                chatRecordMapper.update(null, new LambdaUpdateWrapper<ChatRecord>()
-                        .set(ChatRecord::getRecalledFlag, true)
-                        .eq(ChatRecord::getId, map.get("id")));
-                if (map.get("chatType").equals(5)) {
-                    //TODO: 删除语音文件
-                }
-                broadcastMessage(webSocketMessageVO);
-                break;
-            case 6:
-                webSocketMessageVO.setData("pong");
-                session.getBasicRemote().sendText(JSON.toJSONString(JSON.toJSONString(webSocketMessageVO)));
-            default:
-                break;
+        if (webSocketMessageVO.getType() == 9) {
+            webSocketMessageVO.setData("pong");
+            session.getBasicRemote().sendText(JSON.toJSONString(JSON.toJSONString(webSocketMessageVO)));
         }
-
-    }
-
-    public void sendVoice(Integer userId, String url, Date createTime, String ipSource, String ipAddress) throws IOException {
-        Integer loginUserId = UserUtil.getLoginUser().getUserId();
-        User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .select(User::getAvatar)
-                .select(User::getNickname)
-                .eq(User::getId, loginUserId));
-        ChatRecord chatRecord = ChatRecord.builder()
-                .userId(userId)
-                .avatar(user.getAvatar())
-                .nickname(user.getNickname())
-                .chatContent(url)
-                .ipSource(ipSource)
-                .ipAddress(ipAddress)
-                .chatType(5)
-                .createUser(loginUserId)
-                .createTime(createTime)
-                .build();
-        chatRecordMapper.insert(chatRecord);
-        WebSocketMessageVO webSocketMessageVO = new WebSocketMessageVO()
-        webSocketMessageVO.setType(5);
-        webSocketMessageVO.setData(chatRecord);
-        broadcastMessage(webSocketMessageVO);
     }
 
     private void updateOnlineCount() throws IOException {
-        broadcastMessage(Result.success().code(1).data(webSocketSet.size()));
+        WebSocketMessageVO webSocketMessageVO = new WebSocketMessageVO();
+        webSocketMessageVO.setType(1);
+        webSocketMessageVO.setData(webSocketSet.size());
+        broadcastMessage(webSocketMessageVO);
     }
 
-    private ChatRecordDTO getChatRecordDTO(EndpointConfig endpointConfig) {
-        List<ChatRecord> chatRecordList = chatRecordMapper.selectList(new LambdaQueryWrapper<ChatRecord>()
-                .select(ChatRecord::getId, ChatRecord::getUserId, ChatRecord::getAvatar, ChatRecord::getNickname, ChatRecord::getChatType, ChatRecord::getChatContent, ChatRecord::getIpSource, ChatRecord::getIpAddress, ChatRecord::getCreateTime)
-                .ge(ChatRecord::getCreateTime, DateUtil.getSomeDay(new Date(), -1))
-                .eq(ChatRecord::getRecalledFlag, 0));
-        String ipAddress = endpointConfig.getUserProperties().get(ChatConfigurator.CLIENT_IP).toString();
-        return ChatRecordDTO.builder()
-                .chatRecordList(chatRecordList)
-                .ipSource(IpUtil.getIpSource(ipAddress))
-                .ipAddress(ipAddress)
-                .build();
+    public void sendChatRecord(ChatRecordsDTO chatRecordsDTO) throws IOException {
+        WebSocketMessageVO webSocketMessageVO = new WebSocketMessageVO();
+        webSocketMessageVO.setType(3);
+        webSocketMessageVO.setData(chatRecordsDTO);
+        broadcastMessage(webSocketMessageVO);
+    }
+
+    public void sendChatRecordVoice(ChatRecordsDTO chatRecordsDTO) throws IOException {
+        WebSocketMessageVO webSocketMessageVO = new WebSocketMessageVO();
+        webSocketMessageVO.setType(4);
+        webSocketMessageVO.setData(chatRecordsDTO);
+        broadcastMessage(webSocketMessageVO);
+    }
+
+    public void sendChatRecordBack(Integer id, Integer chatType) throws IOException {
+        WebSocketMessageVO webSocketMessageVO = new WebSocketMessageVO();
+        webSocketMessageVO.setType(5);
+        webSocketMessageVO.setData(Dict.create().set("id", id).set("chatType", chatType));
+        broadcastMessage(webSocketMessageVO);
     }
 
     private void broadcastMessage(Object o) throws IOException {
@@ -159,24 +84,6 @@ public class WebSocketListener {
             synchronized (webSocketListener.session) {
                 webSocketListener.session.getBasicRemote().sendText(JSON.toJSONString(o));
             }
-        }
-    }
-
-    public static class ChatConfigurator extends ServerEndpointConfig.Configurator {
-        public static final String CLIENT_IP = "CLIENT_IP";
-
-        @Override
-        public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
-            Map<String, List<String>> headers = request.getHeaders();
-            List<String> list;
-            String client_ip = "";
-            if ((list = headers.get("x-real-ip")) != null && list.size() != 0)
-                client_ip = list.get(0);
-            if (client_ip.length() == 0 && (list = headers.get("x-forwarded-for")) != null && list.size() != 0)
-                client_ip = list.get(0);
-            if (client_ip.length() == 0 && (list = headers.get("forwarded")) != null && list.size() != 0)
-                client_ip = list.get(0);
-            sec.getUserProperties().put(CLIENT_IP, client_ip);
         }
     }
 }

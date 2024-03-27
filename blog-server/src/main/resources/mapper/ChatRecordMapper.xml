@@ -16,12 +16,15 @@
             <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,user_id,avatar,
         nickname,chat_type,chat_content,
         recalled_flag,ip_source,ip_address,
-        create_user,create_time
+        create_user,create_time,update_user,
+        update_time
     </sql>
 </mapper>

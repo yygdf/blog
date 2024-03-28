@@ -64,5 +64,5 @@ public class FlagConst {
     /**
      * 历史
      */
-    public static final Integer HISTORY = 12;
+    public static final Integer HISTORY = 13;
 }

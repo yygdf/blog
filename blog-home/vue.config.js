@@ -19,7 +19,7 @@ module.exports = {
     index: {
       entry: "./src/main.js",
       template: "./public/index.html",
-      title: "洧①個哋汸, 呮洧妳倁檤"
+      title: "有一个地方, 只有你知道"
     }
   }
 };

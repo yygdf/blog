@@ -306,7 +306,7 @@ export default {
       return [...this.musicList].splice(
         (this.thisListPage - 1) * this.pageSize,
         this.pageSize
-      ); //分页
+      );
     },
     pageSize() {
       const clientWidth = document.documentElement.clientWidth;
@@ -524,7 +524,7 @@ export default {
         let cut = timeArr[i].split("]");
         let time = cut[0].split(".")[0].split(":");
         timeArr[i] = Number.parseInt(time[0]) * 60 + Number.parseInt(time[1]);
-        timeArr[i] = isNaN(timeArr[i]) ? 0 : timeArr[i]; //处理NaN
+        timeArr[i] = isNaN(timeArr[i]) ? 0 : timeArr[i];
         wordArr[i] = this.Rtrim(this.Ltrim(cut[1]));
       }
       return { timeArr: timeArr, wordArr: wordArr };

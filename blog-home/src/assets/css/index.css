@@ -1,9 +1,9 @@
 
 body {
-  cursor: url(https://ksling.cn/static/img/base/cur/default.cur),default;
+  cursor: url(/default.cur),default;
 }
 a, button, img {
-  cursor: url(https://ksling.cn/static/img/base/cur/pointer.cur),default;
+  cursor: url(/pointer.cur),default;
 }
 ul{
   padding:0 !important; 

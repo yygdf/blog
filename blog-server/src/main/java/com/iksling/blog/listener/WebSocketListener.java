@@ -4,8 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.iksling.blog.dto.ChatRecordsDTO;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.vo.WebSocketMessageVO;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
+import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -14,8 +15,8 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+@Component
 @ServerEndpoint(value = "/websocket")
-@Service
 public class WebSocketListener {
     private Session session;
     private static CopyOnWriteArraySet<WebSocketListener> webSocketSet = new CopyOnWriteArraySet<>();
@@ -49,6 +50,12 @@ public class WebSocketListener {
             webSocketMessageVO.setData("pong");
             session.getBasicRemote().sendText(JSON.toJSONString(JSON.toJSONString(webSocketMessageVO)));
         }
+    }
+
+    @OnClose
+    public void onClose() throws IOException {
+        webSocketSet.remove(this);
+        updateOnlineCount();
     }
 
     private void updateOnlineCount() throws IOException {

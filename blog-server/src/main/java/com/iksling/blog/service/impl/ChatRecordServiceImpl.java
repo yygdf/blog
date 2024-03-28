@@ -188,7 +188,7 @@ public class ChatRecordServiceImpl extends ServiceImpl<ChatRecordMapper, ChatRec
                 .set("ipAddress", ipAddress)
                 .set("ipSource", ipSource)
                 .set("permitFlag", UserUtil.getLoginUser().getRoleWeight() <= 200)
-                .set("chatRecordsDTO", BeanCopyUtil.copyList(chatRecordMapper.selectList(new LambdaQueryWrapper<ChatRecord>()
+                .set("chatRecordsDTOList", BeanCopyUtil.copyList(chatRecordMapper.selectList(new LambdaQueryWrapper<ChatRecord>()
                     .select(ChatRecord::getId, ChatRecord::getUserId, ChatRecord::getAvatar, ChatRecord::getNickname, ChatRecord::getChatType, ChatRecord::getChatContent, ChatRecord::getIpSource, ChatRecord::getIpAddress, ChatRecord::getCreateTime)
                     .ge(ChatRecord::getCreateTime, DateUtil.getSomeDay(new Date(), -1))
                     .eq(ChatRecord::getRecalledFlag, 0)), ChatRecordsDTO.class));

@@ -44,8 +44,10 @@
           <div>
             <div class="nickname" v-if="!isSelf(item)">
               {{ item.nickname ? item.nickname : "游客" }}
-              <span v-if="item.ipSource" style="margin-left: 12px">{{ipCity(item.ipSource)}}</span>
-              <span style="margin-left:12px">{{ item.createTime | time }}</span>
+              <span v-if="item.ipSource" style="margin-left: 12px">{{
+                ipCity(item.ipSource)
+              }}</span>
+              <span style="margin-left:10px">{{ item.createTime | time }}</span>
             </div>
             <div
               ref="content"
@@ -80,7 +82,7 @@
                 </v-icon>
                 <span ref="voiceTimes" />
               </div>
-              <div class="back-menu" ref="backBtn" @click="back(item, index)">
+              <div class="back-menu" ref="backBtn" @click="back(item)">
                 撤回
               </div>
             </div>
@@ -94,6 +96,7 @@
         <div class="emoji-border" v-show="isEmoji" />
         <v-icon
           v-show="!isVoice"
+          :disabled="userId == null"
           @click="isVoice = !isVoice"
           style="margin-right: 8px"
         >
@@ -265,7 +268,8 @@ export default {
         return false;
       }
       const reg = /\[.+?\]/g;
-      this.chatContent = this.chatContent.replace(reg, function(str) {
+      let chatRecord = this.chatContent;
+      chatRecord = chatRecord.replace(reg, function(str) {
         return (
           "<img style='vertical-align: middle' src= '" +
           EmojiList[str] +
@@ -273,7 +277,7 @@ export default {
         );
       });
       this.axios
-        .put("/api/chatRecord/about", { chatContent: this.chatContent })
+        .post("/api/chatRecord", { chatContent: chatRecord })
         .then(({ data }) => {
           if (data.flag) {
             this.chatContent = "";
@@ -295,12 +299,8 @@ export default {
         this.$refs.backBtn[index].style.display = "block";
       }
     },
-    back(item, index) {
-      this.axios.put("/api/charRecord/" + item.id).then(({ data }) => {
-        if (data.flag) {
-          this.$refs.backBtn[index].style.display = "none";
-        }
-      });
+    back(item) {
+      this.axios.put("/api/chatRecord/" + item.id).then();
     },
     closeAll() {
       this.isEmoji = false;
@@ -338,7 +338,7 @@ export default {
       });
       let formData = new FormData();
       formData.append("file", file);
-      this.axios.post("/api/charRecord/voice", formData);
+      this.axios.post("/api/chatRecord/voice", formData);
     },
     translationMove() {},
     playVoice(item) {

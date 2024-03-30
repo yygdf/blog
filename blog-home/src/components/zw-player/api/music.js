@@ -36,8 +36,8 @@ export const getLocalMusic = () => {
     music: [
       {
         id: "1",
-        musicImg: "https://ksling.cn/static/mp3/rxts.jpg",
-        musicUrl: "https://ksling.cn/static/mp3/rxts.mp3",
+        musicImg: "https://iksling.com/static/mp3/rxts/rxts.jpg",
+        musicUrl: "https://iksling.com/static/mp3/rxts/rxts.mp3",
         ar: [{ name: "马旭东" }],
         al: { name: "苍白" },
         name: "入戏太深",

@@ -21,7 +21,7 @@ module.exports = {
     index: {
       entry: "./src/main.js",
       template: "./public/index.html",
-      title: "后台管理系统"
+      title: "只有你知道"
     }
   }
 };

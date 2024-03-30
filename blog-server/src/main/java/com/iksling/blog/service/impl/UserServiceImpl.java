@@ -224,13 +224,44 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             lambdaUpdateWrapper.set(UserAuth::getDeletedFlag, false);
         } else
             lambdaUpdateWrapper.set(UserAuth::getDeletedFlag, true);
+        Date updateTime = new Date();
         int count = userAuthMapper.update(null, lambdaUpdateWrapper
                 .eq(loginUser.getRoleWeight() > 100, UserAuth::getDeletedFlag, false)
                 .in(UserAuth::getUserId, statusBackVO.getIdList())
                 .set(UserAuth::getUpdateUser, loginUser.getUserId())
-                .set(UserAuth::getUpdateTime, new Date()));
+                .set(UserAuth::getUpdateTime, updateTime));
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
+        if (DELETED.equals(statusBackVO.getType())) {
+            statusBackVO.getIdList().forEach(e -> {
+                List<Object> objectList = multiFileMapper.selectObjs(new LambdaQueryWrapper<MultiFile>()
+                        .select(MultiFile::getFileFullPath)
+                        .eq(MultiFile::getUserId, e)
+                        .eq(MultiFile::getFileName, IMAGE.getCurrentPath()));
+                String fileFullPath = e.toString();
+                String fileFullPathOld = CommonUtil.getSplitStringByIndex(objectList.get(0).toString(), "/", 0);
+                multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+                        .setSql("file_full_path=concat('"+fileFullPath+"',substring(file_full_path,"+(fileFullPathOld.length() + 1)+"))")
+                        .eq(MultiFile::getUserId, e));
+                MultiFileUtil.rename(fileFullPathOld, fileFullPath);
+            });
+        } else {
+            userMapper.update(null, new LambdaUpdateWrapper<User>()
+                    .set(User::getAvatar, "")
+                    .set(User::getNickname, "该用户已注销")
+                    .set(User::getUpdateUser, loginUser.getUserId())
+                    .set(User::getUpdateTime, updateTime)
+                    .in(User::getId, statusBackVO.getIdList()));
+            statusBackVO.getIdList().forEach(e -> {
+                long fileNameNew = IdWorker.getId();
+                String fileFullPath = e.toString();
+                String fileFullPathNew = e + "_" + fileNameNew + "_" + DELETED;
+                multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+                        .setSql("file_full_path=concat('"+fileFullPathNew+"',substring(file_full_path,"+(fileFullPath.length() + 1)+"))")
+                        .eq(MultiFile::getUserId, e));
+                MultiFileUtil.rename(fileFullPath, fileFullPathNew);
+            });
+        }
     }
 
     @Override

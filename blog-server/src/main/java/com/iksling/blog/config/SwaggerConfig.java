@@ -18,7 +18,7 @@ public class SwaggerConfig {
     @Bean
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .protocols(Collections.singleton("http"))
+                .protocols(Collections.singleton("https"))
                 .host("https://iksling.com")
                 .apiInfo(apiInfo())
                 .select()

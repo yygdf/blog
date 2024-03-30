@@ -216,7 +216,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     @Transactional
     public void updateUsersStatusBackVO(StatusBackVO statusBackVO) {
-        // TODO: 删除用户牵扯太多数据, 延后处理
+        LoginUser loginUser = UserUtil.getLoginUser();
+        LambdaUpdateWrapper<UserAuth> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        if (DELETED.equals(statusBackVO.getType())) {
+            if (loginUser.getRoleWeight() > 100)
+                throw new IllegalRequestException();
+            lambdaUpdateWrapper.set(UserAuth::getDeletedFlag, false);
+        } else
+            lambdaUpdateWrapper.set(UserAuth::getDeletedFlag, true);
+        int count = userAuthMapper.update(null, lambdaUpdateWrapper
+                .eq(loginUser.getRoleWeight() > 100, UserAuth::getDeletedFlag, false)
+                .in(UserAuth::getUserId, statusBackVO.getIdList())
+                .set(UserAuth::getUpdateUser, loginUser.getUserId())
+                .set(UserAuth::getUpdateTime, new Date()));
+        if (count != statusBackVO.getIdList().size())
+            throw new OperationStatusException();
     }
 
     @Override

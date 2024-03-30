@@ -243,7 +243,7 @@ export default {
       options2: [
         {
           value: 1,
-          label: "上传"
+          label: "新增"
         },
         {
           value: 2,
@@ -378,7 +378,7 @@ export default {
       return function(type) {
         switch (type) {
           case 1:
-            return "上传";
+            return "新增";
           case 2:
             return "删除";
           case 3:

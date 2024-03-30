@@ -39,7 +39,7 @@ public class OperationLog implements Serializable {
     private String optUri;
 
     /**
-     * 操作类型, 1上传, 2删除, 3修改, 5新增或修改
+     * 操作类型, 1新增, 2删除, 3修改, 5新增或修改
      */
     private Integer optType;
 

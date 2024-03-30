@@ -108,6 +108,7 @@ public class BlogServiceImpl implements BlogService {
             return ROOT_USER_ID;
         Integer count = userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
                 .eq(UserAuth::getUserId, bloggerId)
+                .eq(UserAuth::getDeletedFlag, false)
                 .eq(UserAuth::getAssimilateNowFlag, true));
         if (count == 0)
             return ROOT_USER_ID;

@@ -180,7 +180,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         MultiFile multiFile = multiFileMapper.selectOne(new LambdaQueryWrapper<MultiFile>()
                 .select(MultiFile::getId, MultiFile::getFileFullPath)
                 .eq(MultiFile::getFileName, articleId)
-                .exists("select id from tb_article where id="+articleId+" and user_id="+articleUserId+" and deleted_flag=false and recycle_flag=false"));
+                .eq(MultiFile::getUserId, articleUserId)
+                .eq(MultiFile::getDeletedCount, 0));
         if (multiFile == null)
             throw new OperationStatusException();
         long fileName = IdWorker.getId();

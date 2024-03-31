@@ -196,7 +196,7 @@ export default {
       this.isVoice = false;
     },
     connect() {
-      this.websocket = new WebSocket("ws://localhost:8080/websocket");
+      this.websocket = new WebSocket("wss://iksling.com/websocket");
       this.websocket.onerror = function() {};
       const that = this;
       this.websocket.onopen = function() {

@@ -65,6 +65,13 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
             lambdaUpdateWrapper.inSql(UserConfig::getConfigName, "select config_name from tb_system_config where id = " + userConfigBackVO.getId());
         } else
             lambdaUpdateWrapper.eq(UserConfig::getId, userConfigBackVO.getId());
+        if (loginUserId.equals(ROOT_USER_ID)) {
+            Integer count = userConfigMapper.selectCount(new LambdaQueryWrapper<UserConfig>()
+                    .eq(UserConfig::getId, userConfigBackVO.getId())
+                    .eq(UserConfig::getUserId, ROOT_USER_ID));
+            if (count == 1)
+                this.loadUserConfigMap();
+        }
         userConfigMapper.update(null, lambdaUpdateWrapper
                 .set(userConfigBackVO.getConfigDesc() != null, UserConfig::getConfigDesc, userConfigBackVO.getConfigDesc())
                 .set(userConfigBackVO.getConfigValue() != null, UserConfig::getConfigValue, RegexUtil.deleteHTMLTag(userConfigBackVO.getConfigValue()))

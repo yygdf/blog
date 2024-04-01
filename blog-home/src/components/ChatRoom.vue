@@ -56,7 +56,7 @@
             >
               <div v-if="item.chatType === 3" v-html="item.chatContent" />
               <div
-                v-if="item.chatType === 5"
+                v-if="item.chatType === 4"
                 @click.prevent.stop="playVoice(item)"
               >
                 <audio

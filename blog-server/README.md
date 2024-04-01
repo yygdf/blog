@@ -2,7 +2,7 @@
 > https://iksling.com
 
 ~~~
-/usr/local/mysql-5.7.31/bin/mysqld_safe &
+/usr/work/mysql/bin/mysqld_safe &
 ~~~
 
 ~~~
@@ -14,18 +14,18 @@ service vsftpd start
 ~~~
 
 ~~~
-/usr/local/redis/bin/redis-server /usr/local/redis/redis.conf &
+/usr/work/redis/bin/redis-server /usr/work/redis/conf/redis.conf &
 ~~~
 
 ~~~
-/usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf
+/usr/work/nginx/sbin/nginx -c /usr/work/nginx/conf/nginx.conf
 ~~~
 
 
 ~~~
-/usr/local/elasticsearch/bin/elasticsearch -d
+/usr/work/elasticsearch/bin/elasticsearch -d
 ~~~
 
 ~~~
-/usr/local/maxwell/bin/maxwell --config=/usr/local/maxwell/config.properties &
+/usr/work/maxwell/bin/maxwell --config=/usr/work/maxwell/config.properties &
 ~~~

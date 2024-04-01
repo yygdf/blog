@@ -68,6 +68,7 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
             systemConfig.setUpdateUser(loginUserId);
             systemConfig.setUpdateTime(new Date());
             systemConfigMapper.updateById(systemConfig);
+            this.loadSystemConfigMap();
         }
     }
 

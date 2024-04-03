@@ -23,7 +23,6 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,14 +34,13 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.Date;
 
+import static com.iksling.blog.constant.CommonConst.ADMIN_CONTACT_EMAIL;
 import static com.iksling.blog.constant.LogConst.QUERY;
 import static com.iksling.blog.constant.MQConst.EMAIL_EXCHANGE;
 
 @Aspect
 @Component
 public class LogAspect {
-    @Value("${spring.mail.username}")
-    private String ADMIN_EMAIL;
 
     @Autowired
     private OperationLogMapper operationLogMapper;
@@ -123,8 +121,8 @@ public class LogAspect {
             exceptionLogMapper.insert(exceptionLog);
             exceptionLog.setExceptionStackTrace(null);
             Email email = Email.builder()
-                    .email(ADMIN_EMAIL)
-                    .subject("用户[" + loginUser.getUsername() + "]的非法操作已成功拦截")
+                    .email(ADMIN_CONTACT_EMAIL)
+                    .subject("用户[" + loginUser.getUsername() + "]的非法操作已被拦截")
                     .content(JSON.toJSONString(exceptionLog))
                     .build();
             rabbitTemplate.convertAndSend(EMAIL_EXCHANGE, "*", new Message(JSON.toJSONBytes(email), new MessageProperties()));

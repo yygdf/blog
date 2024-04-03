@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.ADMIN_CONTACT;
+import static com.iksling.blog.constant.CommonConst.ADMIN_CONTACT_QQ;
 import static com.iksling.blog.constant.RedisConst.USER_ILLEGAL_OPERATION;
 import static com.iksling.blog.constant.StatusConst.*;
 
@@ -52,7 +52,7 @@ public class GlobalExceptionAdvice {
                     .set(QQAuth::getLockedFlag, true)
                     .set(QQAuth::getDisabledFlag, true)
                     .eq(QQAuth::getUserId, loginUser.getUserId()));
-            return Result.failure().code(ACCOUNT_LOCKED).message("账号[" + loginUser.getUsername() + "]已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+            return Result.failure().code(ACCOUNT_LOCKED).message("账号[" + loginUser.getUsername() + "]已被锁定, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
         }
         return Result.failure().code(ILLEGAL_REQUEST).message(e.getMessage());
     }
@@ -104,7 +104,7 @@ public class GlobalExceptionAdvice {
 
     /********** 未知异常 **********/
     @ExceptionHandler(value = Exception.class)
-    public Result exceptionAdvice(Exception e) {
-        return Result.failure().code(FAILURE).message("服务器繁忙, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+    public Result exceptionAdvice() {
+        return Result.failure().code(FAILURE).message("服务器繁忙, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
     }
 }

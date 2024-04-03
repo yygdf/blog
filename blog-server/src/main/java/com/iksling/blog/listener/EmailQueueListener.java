@@ -16,7 +16,7 @@ import static com.iksling.blog.constant.MQConst.EMAIL_QUEUE;
 @RabbitListener(queues = EMAIL_QUEUE)
 public class EmailQueueListener {
     @Value("${spring.mail.username}")
-    private String ADMIN_EMAIL;
+    private String EMAIL_FROM;
 
     @Autowired
     private JavaMailSender javaMailSender;
@@ -25,7 +25,7 @@ public class EmailQueueListener {
     public void process(byte[] data) {
         Email email = JSON.parseObject(new String(data), Email.class);
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(ADMIN_EMAIL);
+        message.setFrom(EMAIL_FROM);
         message.setTo(email.getEmail());
         message.setSubject(email.getSubject());
         message.setText(email.getContent());

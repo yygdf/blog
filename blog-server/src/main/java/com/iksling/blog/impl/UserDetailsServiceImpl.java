@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.ADMIN_CONTACT;
+import static com.iksling.blog.constant.CommonConst.ADMIN_CONTACT_QQ;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -38,12 +38,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (userAuth == null)
             throw new UsernameNotFoundException("用户名不存在!");
         if (userAuth.getLockedFlag())
-            throw new LockedException("您的账号已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+            throw new LockedException("您的账号已被锁定, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
         if (userAuth.getDisabledFlag())
-            throw new DisabledException("您的账号已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+            throw new DisabledException("您的账号已被禁用, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
         List<Role> roleList = roleMapper.selectLoginRoleByUserId(userAuth.getUserId());
         if (roleList.isEmpty())
-            throw new DisabledException("您的角色已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+            throw new DisabledException("您的角色已被禁用, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
         return LoginUser.builder()
                 .userId(userAuth.getUserId())
                 .username(userAuth.getUsername())

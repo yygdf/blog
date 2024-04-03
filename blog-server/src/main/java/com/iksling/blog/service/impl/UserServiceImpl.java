@@ -12,7 +12,10 @@ import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.*;
 import com.iksling.blog.exception.*;
 import com.iksling.blog.mapper.*;
-import com.iksling.blog.pojo.*;
+import com.iksling.blog.pojo.Condition;
+import com.iksling.blog.pojo.Email;
+import com.iksling.blog.pojo.LoginUser;
+import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.service.UserService;
 import com.iksling.blog.util.*;
@@ -504,9 +507,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             registerUser(loginUserId, loginUserId, String.valueOf(IdWorker.getId()), DEFAULT_PASSWORD, dateTime, true);
         } else {
             if (qqAuth.getLockedFlag())
-                throw new LockedStatusException("您的账号已被锁定, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+                throw new LockedStatusException("您的账号已被锁定, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
             if (qqAuth.getDisabledFlag())
-                throw new LockedStatusException("您的账号已被禁用, 如有疑问请联系管理员[" + ADMIN_CONTACT + "]");
+                throw new DisabledStatusException("您的账号已被禁用, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
             loginUserId = qqAuth.getUserId();
             if (!qqOauthVO.getAccessToken().equals(qqAuth.getAccessToken())) {
                 Map map = JSON.parseObject(restTemplate.getForObject(QQ_USER_INFO_URL, String.class, formData), Map.class);
@@ -519,6 +522,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             }
         }
         List<Role> roleList = roleMapper.selectLoginRoleByUserId(loginUserId);
+        if (roleList.isEmpty())
+            throw new DisabledStatusException("您的角色已被禁用, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
         LoginUser loginUser = LoginUser.builder()
                 .userId(loginUserId)
                 .username(qqAuth.getOpenid())

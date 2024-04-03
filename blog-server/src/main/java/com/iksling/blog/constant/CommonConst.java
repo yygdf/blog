@@ -5,9 +5,14 @@ import java.util.List;
 
 public class CommonConst {
     /**
-     * 网站管理员联系方式
+     * 网站管理员联系QQ
      */
-    public static final String ADMIN_CONTACT = "QQ:294513634";
+    public static final String ADMIN_CONTACT_QQ = "294513634";
+
+    /**
+     * 网站管理员联系邮箱
+     */
+    public static final String ADMIN_CONTACT_EMAIL = "294513634@qq.com";
 
     /**
      * 默认用户密码

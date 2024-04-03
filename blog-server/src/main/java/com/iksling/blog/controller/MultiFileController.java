@@ -5,7 +5,11 @@ import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MultiFileService;
-import com.iksling.blog.vo.*;
+import com.iksling.blog.util.FtpUtil;
+import com.iksling.blog.vo.MultiFileBackVO;
+import com.iksling.blog.vo.MultiFilesBackVO;
+import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.TokenBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -13,10 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-
 import java.util.List;
 
-import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.LogConst.*;
 
 @RestController
@@ -85,7 +87,7 @@ public class MultiFileController {
     public Result getBackMultiFiles(@Valid Condition condition) {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("dataList", multiFileService.getMultiFilesBackDTO(condition))
-                .set("staticResourceUrl", STATIC_RESOURCE_URL));
+                .set("staticResourceUrl", FtpUtil.address));
     }
 
     @ApiOperation(value = "根据文件id查找文件令牌")

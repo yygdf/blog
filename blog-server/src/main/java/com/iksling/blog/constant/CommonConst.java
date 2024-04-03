@@ -20,11 +20,6 @@ public class CommonConst {
     public static final Integer DEFAULT_ROLE_ID = 5;
 
     /**
-     * 静态资源根路径
-     */
-    public static final String STATIC_RESOURCE_URL = "http://127.0.0.1/static/";
-
-    /**
      * 核心用户id
      */
     public static final Integer ROOT_USER_ID = 2;

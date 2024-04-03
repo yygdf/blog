@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
-import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.enums.FileDirEnum.AUDIO_CHAT;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
@@ -172,7 +171,7 @@ public class ChatRecordServiceImpl extends ServiceImpl<ChatRecordMapper, ChatRec
                 .set(ChatRecord::getUpdateTime, updateTime)
                 .eq(ChatRecord::getId, id));
         if (chatRecord.getChatType() == 4)
-            updateChatRecordBy(loginUser.getUserId(), chatRecord.getChatContent().split(STATIC_RESOURCE_URL)[1], updateTime);
+            updateChatRecordBy(loginUser.getUserId(), chatRecord.getChatContent().split(FtpUtil.address)[1], updateTime);
         try {
             webSocketListener.sendChatRecordBack(id, chatRecord.getChatType());
         } catch (IOException e) {

@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "test": "vue-cli-service serve --mode test",
+    "serve": "vue-cli-service serve --mode development",
+    "build": "vue-cli-service build --mode production"
   },
   "dependencies": {
     "animate.css": "^3.7.2",

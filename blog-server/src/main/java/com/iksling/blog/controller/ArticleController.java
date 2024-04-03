@@ -1,12 +1,13 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ArticleService;
+import com.iksling.blog.util.FtpUtil;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleImageBackVO;
-import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.TokenBackVO;
 import io.swagger.annotations.Api;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.LogConst.*;
 
 @RestController
@@ -101,7 +101,7 @@ public class ArticleController {
     public Result getBackArticleOption(Integer userId) {
         return Result.success().message("查询成功").data(Dict.create()
                 .set("option", articleService.getArticleOptionBackDTO(userId))
-                .set("staticResourceUrl", STATIC_RESOURCE_URL));
+                .set("staticResourceUrl", FtpUtil.address));
     }
 
     @ApiOperation(value = "查看后台文章列表")

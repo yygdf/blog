@@ -43,7 +43,6 @@ import javax.servlet.http.HttpSession;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.FlagConst.*;
 import static com.iksling.blog.constant.RedisConst.*;
 import static com.iksling.blog.enums.FileDirEnum.IMAGE_ARTICLE;
@@ -106,7 +105,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             article.setIpSource(IpUtil.getIpSource(article.getIpAddress()));
             article.setCreateUser(loginUserId);
             article.setCreateTime(dateTime);
-            if (CommonUtil.isNotEmpty(article.getArticleCover()) && !article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
+            if (CommonUtil.isNotEmpty(article.getArticleCover()) && !article.getArticleCover().startsWith(FtpUtil.address))
                 article.setArticleCover(null);
             articleMapper.insert(article);
             saveArticleDirById(article.getId(), loginUserId, dateTime);
@@ -128,10 +127,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                     throw new IllegalRequestException();
             }
             if (article.getArticleCover() != null) {
-                if (!article.getArticleCover().startsWith(STATIC_RESOURCE_URL))
+                if (!article.getArticleCover().startsWith(FtpUtil.address))
                     article.setArticleCover("");
                 if (!articleOrigin.getArticleCover().equals(""))
-                    updateArticleImageBy(loginUserId, article.getId(), articleOrigin.getArticleCover().split(STATIC_RESOURCE_URL)[1], dateTime);
+                    updateArticleImageBy(loginUserId, article.getId(), articleOrigin.getArticleCover().split(FtpUtil.address)[1], dateTime);
             }
             if (articleBackVO.getTagIdList() != null) {
                 articleTagMapper.update(null, new LambdaUpdateWrapper<ArticleTag>()
@@ -207,7 +206,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .createUser(loginUser.getUserId())
                 .createTime(new Date())
                 .build());
-        return STATIC_RESOURCE_URL + articleUserId + "/" + IMAGE_ARTICLE.getPath() + "/" + articleId + "/" + fullFileName;
+        return FtpUtil.address + articleUserId + "/" + IMAGE_ARTICLE.getPath() + "/" + articleId + "/" + fullFileName;
     }
 
     @Override

@@ -105,10 +105,10 @@ export default {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
           const that = this;
-          if (this.$config.TENCENT_CAPTCHA) {
+          if (process.env.TENCENT_CAPTCHA) {
             // eslint-disable-next-line no-undef
             let captcha = new TencentCaptcha(
-              this.$config.TENCENT_CAPTCHA,
+              process.env.TENCENT_CAPTCHA,
               function(res) {
                 if (res.ret === 0) {
                   that.login();

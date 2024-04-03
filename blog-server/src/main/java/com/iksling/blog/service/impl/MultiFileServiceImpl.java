@@ -15,7 +15,10 @@ import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.util.*;
-import com.iksling.blog.vo.*;
+import com.iksling.blog.vo.MultiFileBackVO;
+import com.iksling.blog.vo.MultiFilesBackVO;
+import com.iksling.blog.vo.StatusBackVO;
+import com.iksling.blog.vo.TokenBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,9 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.STATIC_RESOURCE_URL;
 import static com.iksling.blog.constant.FlagConst.*;
-import static com.iksling.blog.constant.RedisConst.*;
+import static com.iksling.blog.constant.RedisConst.MULTI_FILE_TOKEN;
 import static com.iksling.blog.enums.FileDirEnum.OTHER;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
 
@@ -127,7 +129,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                     throw new OperationStatusException();
                 multiFile.setFileFullPath(objectList.get(0) + "/" + fileName);
             }
-            if (CommonUtil.isNotEmpty(multiFile.getFileCover()) && !multiFile.getFileCover().startsWith(STATIC_RESOURCE_URL))
+            if (CommonUtil.isNotEmpty(multiFile.getFileCover()) && !multiFile.getFileCover().startsWith(FtpUtil.address))
                 multiFile.setFileCover(null);
             String iPAddress = IpUtil.getIpAddress(request);
             multiFile.setUserId(loginUserId);
@@ -145,7 +147,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                     .eq(MultiFile::getDeletableFlag, true));
             if (count != 1)
                 throw new OperationStatusException();
-            if (CommonUtil.isNotEmpty(multiFile.getFileCover()) && !multiFile.getFileCover().startsWith(STATIC_RESOURCE_URL))
+            if (CommonUtil.isNotEmpty(multiFile.getFileCover()) && !multiFile.getFileCover().startsWith(FtpUtil.address))
                 multiFile.setFileCover("");
             multiFile.setUpdateUser(loginUserId);
             multiFile.setUpdateTime(new Date());

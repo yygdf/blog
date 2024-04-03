@@ -104,9 +104,9 @@ export default {
     },
     sendEmailCode() {
       const that = this;
-      if (this.config.TENCENT_CAPTCHA) {
+      if (process.env.TENCENT_CAPTCHA) {
         // eslint-disable-next-line no-undef
-        let captcha = new TencentCaptcha(this.config.TENCENT_CAPTCHA, function(
+        let captcha = new TencentCaptcha(process.env.TENCENT_CAPTCHA, function(
           res
         ) {
           if (res.ret === 0) {

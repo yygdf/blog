@@ -5,7 +5,6 @@ import store from "./store";
 import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import "./assets/css/index.css";
-import config from "./assets/js/config";
 import axios from "axios";
 import VueAxios from "vue-axios";
 import ECharts from "vue-echarts";
@@ -30,7 +29,6 @@ Vue.use(ElementUI);
 Vue.config.productionTip = false;
 Vue.prototype.$moment = moment;
 Vue.prototype.$commonMethod = commonMethod;
-Vue.prototype.$config = config;
 
 Vue.filter("date", function(value, formatStr = "yyyy-MM-DD") {
   return moment(value).format(formatStr);

@@ -14,7 +14,7 @@ public class FtpUtil {
 
     private static int port;
 
-    private static String address;
+    public static String address;
 
     private static String username;
 

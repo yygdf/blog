@@ -96,9 +96,9 @@ export default {
         return false;
       }
       const that = this;
-      if (this.config.TENCENT_CAPTCHA) {
+      if (process.env.TENCENT_CAPTCHA) {
         // eslint-disable-next-line no-undef
-        let captcha = new TencentCaptcha(this.config.TENCENT_CAPTCHA, function(
+        let captcha = new TencentCaptcha(process.env.TENCENT_CAPTCHA, function(
           res
         ) {
           if (res.ret === 0) {
@@ -136,15 +136,15 @@ export default {
       ) {
         // eslint-disable-next-line no-undef
         QC.Login.showPopup({
-          appId: this.config.QQ_APP_ID,
-          redirectURI: this.config.QQ_REDIRECT_URI
+          appId: process.env.VUE_APP_QQ_APP_ID,
+          redirectURI: process.env.VUE_APP_QQ_REDIRECT_URI
         });
       } else {
         window.open(
           "https://graph.qq.com/oauth2.0/show?which=Login&display=pc&client_id=" +
-            +this.config.QQ_APP_ID +
+            +process.env.VUE_APP_QQ_APP_ID +
             "&response_type=token&scope=all&redirect_uri=" +
-            this.config.QQ_REDIRECT_URI,
+            process.env.VUE_APP_QQ_REDIRECT_URI,
           "_self"
         );
       }

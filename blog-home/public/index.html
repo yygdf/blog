@@ -10,7 +10,7 @@
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= htmlWebpackPlugin.options.title %></title>
     <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
-    <script type="text/javascript" src="https://connect.qq.com/qc_jssdk.js"  data-appid="23333333" data-redirecturi="https://127.0.0.1/oauth/qq" charset="utf-8"></script>
+    <script type="text/javascript" src="https://connect.qq.com/qc_jssdk.js"  data-appid="<%= process.env.VUE_APP_QQ_APP_ID %>" data-redirecturi="<%= process.env.VUE_APP_QQ_REDIRECT_URI %>" charset="utf-8"></script>
   </head>
   <body>
     <div id="app"></div>

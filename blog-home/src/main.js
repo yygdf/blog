@@ -8,7 +8,6 @@ import animated from "animate.css";
 import "./assets/css/index.css";
 import "./assets/icon/iconfont.css";
 import "./assets/css/markdown.css";
-import config from "./assets/js/config";
 import Share from "vue-social-share";
 import "./assets/vue-social-share/client.css";
 import { vueBaberrage } from "vue-baberrage";
@@ -26,7 +25,6 @@ import { getBloggerId, getBlogInfo } from "./assets/js/base";
 import "./assets/js/ribbon";
 import confirm from "./plugins/confirm";
 
-Vue.prototype.config = config;
 Vue.prototype.$confirm = confirm;
 Vue.config.productionTip = false;
 Vue.use(animated);

@@ -135,10 +135,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             }
             Date updateTime = new Date();
             if (user.getAvatar() != null) {
-                if (!user.getAvatar().startsWith(STATIC_RESOURCE_URL))
+                if (!user.getAvatar().startsWith(FtpUtil.address))
                     user.setAvatar("");
                 if (!avatar.equals(""))
-                    updateUserAvatarBy(loginUserId, avatar.split(STATIC_RESOURCE_URL)[1], updateTime);
+                    updateUserAvatarBy(loginUserId, avatar.split(FtpUtil.address)[1], updateTime);
             }
             user.setUpdateUser(loginUserId);
             user.setUpdateTime(updateTime);
@@ -188,7 +188,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .createUser(loginUser.getUserId())
                 .createTime(new Date())
                 .build());
-        return STATIC_RESOURCE_URL + userId + "/" + IMAGE_AVATAR.getPath() + "/" + fullFileName;
+        return FtpUtil.address + userId + "/" + IMAGE_AVATAR.getPath() + "/" + fullFileName;
     }
 
     @Override
@@ -328,7 +328,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
             throw new FileStatusException("文件上传失败!");
         Date dateTime = new Date();
-        String url = STATIC_RESOURCE_URL + loginUserId + "/" + IMAGE_AVATAR.getPath() + "/" + fullFileName;
+        String url = FtpUtil.address + loginUserId + "/" + IMAGE_AVATAR.getPath() + "/" + fullFileName;
         if (multiFileList.size() > 1)
             updateUserAvatarBy(loginUserId, multiFileList.get(1).getFileFullPath(), dateTime);
         userMapper.update(null, new LambdaUpdateWrapper<User>()

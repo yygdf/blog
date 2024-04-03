@@ -43,8 +43,8 @@ spring:
   mail:
     protocol: smtp
     host: smtp.qq.com
-    username: 294513634@qq.com
-    password: xnqbmdsjahdmbjgb
+    username: 23333333
+    password: 23333333
     default-encoding: UTF-8
     port: 587
     properties:
@@ -86,19 +86,19 @@ mybatis-plus:
 
 # ftp
 ftp:
-  hostname: "115.29.197.145"
+  hostname: "127.0.0.1"
   port: 21
-  address: "http://115.29.197.145/static/"
+  address: "http://127.0.0.1/static/"
   username: "blog"
   password: "123123"
 
 # baidu map
 baidu:
   url: "http://api.map.baidu.com/location/ip"
-  ak: "GOjZ5XCCyOFhPd7SZL3Y67PfGoxTbxU3"
-  coor: "bd09ll"
+  ak: "23333333"
+  coor: "23333333"
 
 # qq
 qq:
-  app-id: "102044036"
+  app-id: "23333333"
   user-info-url: "https://graph.qq.com/user/get_user_info?openid={openid}&access_token={access_token}&oauth_consumer_key={oauth_consumer_key}"

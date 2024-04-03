@@ -22,7 +22,7 @@ public class CommonConst {
     /**
      * 静态资源根路径
      */
-    public static final String STATIC_RESOURCE_URL = "http://192.168.203.130/static/";
+    public static final String STATIC_RESOURCE_URL = "http://127.0.0.1/static/";
 
     /**
      * 核心用户id

@@ -43,7 +43,7 @@
             <span class="separator">|</span>
             <span>
               <i class="iconfont my-icon-open-eye" /> 阅读量:
-              {{ article.viewsCount }}
+              {{ article.viewCount }}
             </span>
             <span class="separator">|</span>
             <span>

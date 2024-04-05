@@ -1,6 +1,8 @@
 HELP.md
 target/
 test/
+/src/main/resources/application-dev.yml
+/src/main/resources/application-prod.yml
 
 ### STS ###
 .apt_generated

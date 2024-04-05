@@ -14,7 +14,7 @@
 /* eslint-disable no-undef */
 export default {
   created() {
-    this.$store.state.commit("updateLoginFlag", false);
+    this.$store.state.loginFlag = false;
     const that = this;
     if (this.$route.path === "/oauth/qq") {
       if (QC.Login.check()) {

@@ -45,7 +45,7 @@
             placeholder="https://你的网址"
             clearable
           />
-          <div v-if="!email" class="mt-7 binding">
+          <div class="mt-7 binding">
             <v-text-field
               v-model="email"
               label="邮箱号"

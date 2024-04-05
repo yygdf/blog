@@ -167,6 +167,7 @@ export default {
           this.code = "";
           this.email = "";
           this.password = "";
+          this.$store.commit("saveEmail", user.email);
           this.$store.commit("updateEmailFlag", false);
           this.$toast({ type: "success", message: data.message });
         }

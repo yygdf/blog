@@ -68,7 +68,7 @@ router.afterEach(() => {
 
 axios.interceptors.request.use(
   function(request) {
-    if (store.state.bloggerId) {
+    if (store.state.bloggerId != null) {
       request.headers["Blogger-Id"] = store.state.bloggerId;
     }
     return request;

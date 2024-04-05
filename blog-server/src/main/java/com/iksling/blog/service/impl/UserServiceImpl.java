@@ -484,7 +484,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         formData.put("oauth_consumer_key", QQ_APP_ID);
         if (qqAuth == null) {
             Map map = JSON.parseObject(restTemplate.getForObject(QQ_USER_INFO_URL, String.class, formData), Map.class);
-            if (map == null || !map.get("ret").equals("0"))
+            if (map == null || !map.get("ret").equals(0))
                 throw new AuthenticationStatusException();
             Object avatar = map.get("figureurl_qq_2");
             if (avatar.equals(""))

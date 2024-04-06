@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : 121.40.78.131
+ Source Server         : 192.168.247.129-root
  Source Server Type    : MySQL
  Source Server Version : 50731
- Source Host           : 121.40.78.131:13306
+ Source Host           : 192.168.247.129:3306
  Source Schema         : blog
 
  Target Server Type    : MySQL
  Target Server Version : 50731
  File Encoding         : 65001
 
- Date: 01/04/2024 09:35:46
+ Date: 06/04/2024 22:52:05
 */
 
 SET NAMES utf8mb4;
@@ -462,7 +462,7 @@ CREATE TABLE `tb_resource`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 221 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 222 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_resource
@@ -486,7 +486,7 @@ INSERT INTO `tb_resource` VALUES (16, 2, -1, '', '异常日志模块', '', 0, 0,
 INSERT INTO `tb_resource` VALUES (17, 2, -1, '', '登录日志模块', '', 0, 0, 0, 2, '2023-09-20 07:39:40', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (18, 2, -1, '', '操作日志模块', '', 0, 0, 0, 2, '2023-09-20 07:39:48', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (19, 2, -1, '', '博客模块', '', 0, 0, 0, 2, '2024-02-27 14:42:00', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (20, 2, -1, '', '聊天室模块', '', 0, 1, 0, 2, '2024-03-31 17:32:18', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (20, 2, -1, '', '聊天室模块', '', 0, 0, 0, 2, '2024-03-31 17:32:18', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (101, 2, 1, '/back/menus/user', '查看用户菜单', 'GET', 0, 0, 0, 2, '2023-04-26 21:33:02', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (102, 2, 1, '/back/menus', '查看后台菜单列表', 'GET', 0, 0, 0, 2, '2023-08-06 14:41:08', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (103, 2, 1, '/back/menu/status', '修改菜单状态', 'PUT', 0, 0, 0, 2, '2023-08-06 14:41:46', NULL, NULL);
@@ -596,15 +596,16 @@ INSERT INTO `tb_resource` VALUES (207, 2, 19, '/blog/info', '查看博客信息'
 INSERT INTO `tb_resource` VALUES (208, 2, 19, '/blog/id', '查看博主id', 'GET', 0, 0, 1, 2, '2024-03-06 16:29:43', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (209, 2, 19, '/back/about', '修改关于我', 'PUT', 0, 0, 0, 2, '2024-03-14 07:19:09', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (210, 2, 19, '/about', '查看关于我', 'GET', 0, 0, 1, 2, '2024-03-14 07:19:30', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (211, 2, 8, '/websocket', 'websocket后台接口', 'GET', 0, 1, 1, 2, '2024-03-31 17:29:59', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (213, 2, 20, '/chatRecord', '发送文本消息', 'POST', 0, 1, 1, 2, '2024-03-31 17:32:39', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (214, 2, 20, '/chatRecord/voice', '发送语音消息', 'POST', 0, 1, 0, 2, '2024-03-31 17:33:04', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (215, 2, 20, '/chatRecord/*', '撤回聊天记录', 'PUT', 0, 1, 0, 2, '2024-03-31 17:33:33', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (216, 2, 20, '/chatRecords', '查看聊天记录', 'GET', 0, 1, 1, 2, '2024-03-31 17:33:53', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (217, 2, 19, '/blog/token', '校验访问令牌', 'POST', 0, 1, 0, 2, '2024-04-01 06:37:55', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (218, 2, 5, '/user/oauth/qq', 'qq登录', 'POST', 0, 1, 1, 2, '2024-04-01 06:40:28', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (219, 2, 2, '/back/article/token', '添加或修改文件令牌', 'POST', 0, 1, 0, 2, '2024-04-01 06:41:41', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (220, 2, 2, '/back/article/token/*', '根据文章id查找文章令牌', 'GET', 0, 1, 0, 2, '2024-04-01 06:42:06', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (211, 2, 8, '/websocket', 'websocket后台接口', 'GET', 0, 0, 1, 2, '2024-03-31 17:29:59', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (213, 2, 20, '/chatRecord', '发送文本消息', 'POST', 0, 0, 1, 2, '2024-03-31 17:32:39', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (214, 2, 20, '/chatRecord/voice', '发送语音消息', 'POST', 0, 0, 0, 2, '2024-03-31 17:33:04', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (215, 2, 20, '/chatRecord/*', '撤回聊天记录', 'PUT', 0, 0, 0, 2, '2024-03-31 17:33:33', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (216, 2, 20, '/chatRecords', '查看聊天记录', 'GET', 0, 0, 1, 2, '2024-03-31 17:33:53', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (217, 2, 19, '/blog/token', '校验访问令牌', 'POST', 0, 0, 0, 2, '2024-04-01 06:37:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (218, 2, 5, '/user/oauth/qq', 'qq登录', 'POST', 0, 0, 1, 2, '2024-04-01 06:40:28', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (219, 2, 2, '/back/article/token', '添加或修改文件令牌', 'POST', 0, 0, 0, 2, '2024-04-01 06:41:41', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (220, 2, 2, '/back/article/token/*', '根据文章id查找文章令牌', 'GET', 0, 0, 0, 2, '2024-04-01 06:42:06', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (221, 2, 13, '/back/userAuth/username', '修改用户名', 'PUT', 0, 0, 0, 2, '2024-04-06 22:48:10', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_role
@@ -759,7 +760,7 @@ CREATE TABLE `tb_role_resource`  (
   `role_id` int(11) NOT NULL COMMENT '角色id',
   `resource_id` int(11) NOT NULL COMMENT '资源id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1100 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1105 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_role_resource
@@ -1088,6 +1089,11 @@ INSERT INTO `tb_role_resource` VALUES (1096, 2, 10);
 INSERT INTO `tb_role_resource` VALUES (1097, 2, 13);
 INSERT INTO `tb_role_resource` VALUES (1098, 2, 19);
 INSERT INTO `tb_role_resource` VALUES (1099, 2, 20);
+INSERT INTO `tb_role_resource` VALUES (1100, 1, 221);
+INSERT INTO `tb_role_resource` VALUES (1101, 2, 221);
+INSERT INTO `tb_role_resource` VALUES (1102, 3, 221);
+INSERT INTO `tb_role_resource` VALUES (1103, 4, 221);
+INSERT INTO `tb_role_resource` VALUES (1104, 5, 221);
 
 -- ----------------------------
 -- Table structure for tb_system_config
@@ -1144,24 +1150,25 @@ CREATE TABLE `tb_user`  (
   `gender` int(11) NOT NULL DEFAULT -1 COMMENT '用户性别, 默认-1',
   `website` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户网站, 默认空串',
   `nickname` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户昵称',
+  `modified_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未修改，1已修改，默认0',
   `create_user` int(11) NULL DEFAULT NULL COMMENT '创建人, 默认null',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_user
 -- ----------------------------
-INSERT INTO `tb_user` VALUES (0, '', 'ling@qq.com', '', 2, '', 'ling', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (1, '', 'ks@qq.com', '', 1, '', 'ks', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (2, '', 'root@qq.com', '', 1, '', 'root', NULL, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (3, '', 'admin@qq.com', '', 1, '', 'admin', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (4, '', 'editor@qq.com', '', 1, '', 'editor', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (5, '', 'author@qq.com', '', 1, '', 'author', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (6, '', 'user@qq.com', '', 1, '', 'user', 2, '2023-04-25 08:46:25', NULL, NULL);
-INSERT INTO `tb_user` VALUES (7, '', 'test@qq.com', '', -1, '', 'test', 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (1, '', 'ks@qq.com', '', 1, '', 'ks', 0, 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (2, '', 'root@qq.com', '', 1, '', 'root', 0, NULL, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (3, '', 'admin@qq.com', '', 1, '', 'admin', 0, 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (4, '', 'editor@qq.com', '', 1, '', 'editor', 0, 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (5, '', 'author@qq.com', '', 1, '', 'author', 0, 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (6, '', 'user@qq.com', '', 1, '', 'user', 0, 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (7, '', 'test@qq.com', '', -1, '', 'test', 0, 2, '2023-04-25 08:46:25', NULL, NULL);
+INSERT INTO `tb_user` VALUES (9, '', 'ling@qq.com', '', 2, '', 'ling', 0, 2, '2023-04-25 08:46:25', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_user_auth
@@ -1184,12 +1191,11 @@ CREATE TABLE `tb_user_auth`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_user_auth
 -- ----------------------------
-INSERT INTO `tb_user_auth` VALUES (0, 0, -1, 'ling@qq.com', '$2a$10$jCk/zLpw/bs6x22.J2VSEuOAGAw4YiXK48RvRyTh7E0V70OFmAxAC', 1, 0, 0, 0, 1, 1, 2, '2024-03-31 14:46:03', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (1, 1, -1, 'ks@qq.com', '$2a$10$jCk/zLpw/bs6x22.J2VSEuOAGAw4YiXK48RvRyTh7E0V70OFmAxAC', 1, 0, 0, 0, 1, 1, 2, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (2, 2, 7, 'root@qq.com', '$2a$10$jCk/zLpw/bs6x22.J2VSEuOAGAw4YiXK48RvRyTh7E0V70OFmAxAC', 1, 0, 0, 0, 1, 1, 2, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (3, 3, -1, 'admin@qq.com', '$2a$10$jCk/zLpw/bs6x22.J2VSEuOAGAw4YiXK48RvRyTh7E0V70OFmAxAC', 1, 0, 0, 0, 1, 1, 2, '2023-04-26 21:44:26', NULL, NULL);
@@ -1197,6 +1203,7 @@ INSERT INTO `tb_user_auth` VALUES (4, 4, -1, 'editor@qq.com', '$2a$10$jCk/zLpw/b
 INSERT INTO `tb_user_auth` VALUES (5, 5, -1, 'author@qq.com', '$2a$10$jCk/zLpw/bs6x22.J2VSEuOAGAw4YiXK48RvRyTh7E0V70OFmAxAC', 1, 0, 0, 0, 1, 1, 2, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (6, 6, -1, 'user@qq.com', '$2a$10$jCk/zLpw/bs6x22.J2VSEuOAGAw4YiXK48RvRyTh7E0V70OFmAxAC', 1, 0, 0, 0, 0, 0, 2, '2023-04-26 21:44:26', NULL, NULL);
 INSERT INTO `tb_user_auth` VALUES (7, 7, -1, 'test@qq.com', '$2a$10$jCk/zLpw/bs6x22.J2VSEuOAGAw4YiXK48RvRyTh7E0V70OFmAxAC', 1, 0, 0, 0, 0, 0, 2, '2023-04-26 21:44:26', NULL, NULL);
+INSERT INTO `tb_user_auth` VALUES (9, 0, -1, 'ling@qq.com', '$2a$10$jCk/zLpw/bs6x22.J2VSEuOAGAw4YiXK48RvRyTh7E0V70OFmAxAC', 1, 0, 0, 0, 1, 1, 2, '2024-03-31 14:46:03', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_user_config

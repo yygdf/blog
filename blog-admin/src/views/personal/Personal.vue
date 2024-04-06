@@ -77,14 +77,14 @@
               class="word-limit-input"
               style="width: 200px"
               maxlength="50"
-              placeholder="请注意!每位用户仅可修改一次!"
+              placeholder="每位用户仅可修改一次!"
               show-word-limit
             />
           </el-form-item>
           <el-button
             type="danger"
             size="medium"
-            class="edit-btn"
+            style="margin-left:8rem"
             @click="updateUsername"
           >
             修改
@@ -163,7 +163,7 @@
                 newPasswordStatus !== 2 ||
                 confirmPasswordStatus !== 2
             "
-            type="primary"
+            type="danger"
             size="medium"
             style="margin-left:8rem"
             @click="updatePassword"
@@ -201,7 +201,7 @@
           style="height:calc(100vh - 300px);"
         />
         <el-button
-          type="danger"
+          type="primary"
           size="medium"
           class="edit-btn"
           @click="updateAbout"

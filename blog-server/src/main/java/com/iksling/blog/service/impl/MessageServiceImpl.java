@@ -97,7 +97,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
         message.setMessageSpeed(messageVO.getMessageSpeed());
         message.setMessageContent(RegexUtil.deleteHTMLTag(messageVO.getMessageContent()));
         message.setIpAddress(IpUtil.getIpAddress(request));
-        message.setIpSource(message.getIpAddress());
+        message.setIpSource(IpUtil.getIpSource(message.getIpAddress()));
         message.setCreateTime(new Date());
         messageMapper.insert(message);
     }

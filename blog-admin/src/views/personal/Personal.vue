@@ -55,6 +55,42 @@
           </el-button>
         </el-form>
       </el-tab-pane>
+      <el-tab-pane
+        label="修改用户名"
+        name="username"
+        v-if="!this.$store.state.modifiedFlag"
+      >
+        <el-form label-width="80px" :model="usernameForm">
+          <el-form-item label="旧用户名">
+            <el-input
+              v-model="usernameForm.usernameOrigin"
+              size="small"
+              style="width: 200px"
+              disabled
+            />
+          </el-form-item>
+          <el-form-item label="新用户名">
+            <el-input
+              v-model="usernameForm.username"
+              ref="input"
+              size="small"
+              class="word-limit-input"
+              style="width: 200px"
+              maxlength="50"
+              placeholder="请注意!每位用户仅可修改一次!"
+              show-word-limit
+            />
+          </el-form-item>
+          <el-button
+            type="danger"
+            size="medium"
+            class="edit-btn"
+            @click="updateUsername"
+          >
+            修改
+          </el-button>
+        </el-form>
+      </el-tab-pane>
       <el-tab-pane label="修改密码" name="password">
         <el-form label-width="80px" :model="passwordForm">
           <el-form-item label="旧密码">
@@ -180,6 +216,7 @@
 <script>
 import md5 from "js-md5";
 import AvatarCropper from "vue-avatar-cropper";
+import { resetRouter } from "../../router";
 export default {
   components: { AvatarCropper },
   created() {
@@ -212,6 +249,10 @@ export default {
         oldPassword: "",
         newPassword: "",
         confirmPassword: ""
+      },
+      usernameForm: {
+        username: "",
+        usernameOrigin: localStorage.getItem("username")
       },
       aboutContent: "",
       aboutContentOrigin: "",
@@ -373,6 +414,37 @@ export default {
         .then(({ data }) => {
           if (data.flag) {
             this.aboutContentOrigin = this.aboutContent;
+            this.$notify.success({
+              title: "成功",
+              message: data.message
+            });
+          } else {
+            this.$notify.error({
+              title: "失败",
+              message: data.message
+            });
+          }
+        });
+    },
+    updateUsername() {
+      if (
+        this.usernameForm.username.trim() === "" ||
+        this.usernameForm.username.trim() ===
+          this.usernameForm.usernameOrigin.trim()
+      ) {
+        return;
+      }
+      this.axios
+        .put("/api/back/userAuth/username", {
+          username: this.usernameForm.username
+        })
+        .then(({ data }) => {
+          if (data.flag) {
+            this.axios.post("/api/logout");
+            this.$store.commit("logout");
+            this.$store.commit("resetTab");
+            resetRouter();
+            this.$router.push({ path: "/login" });
             this.$notify.success({
               title: "成功",
               message: data.message

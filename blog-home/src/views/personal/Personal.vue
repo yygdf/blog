@@ -22,6 +22,7 @@
           />
         </v-col>
         <v-col md="7" cols="12">
+          <v-text-field v-model="username" label="用户名" disabled />
           <v-text-field
             v-model="userForm.nickname"
             label="昵称"
@@ -83,7 +84,8 @@ export default {
         nickname: this.$store.state.nickname
       },
       avatar: this.$store.state.avatar,
-      email: this.$store.state.email
+      email: this.$store.state.email,
+      username: localStorage.getItem("username")
     };
   },
   methods: {

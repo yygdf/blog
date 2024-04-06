@@ -15,6 +15,16 @@ public class CommonConst {
     public static final String ADMIN_CONTACT_EMAIL = "294513634@qq.com";
 
     /**
+     * 网站前台地址
+     */
+    public static final String WEBSITE_URL = "https://iksling.com";
+
+    /**
+     * 网站后台地址
+     */
+    public static final String WEBSITE_URL_BACK = "https://www.iksling.com";
+
+    /**
      * 默认用户密码
      */
     public static final String DEFAULT_PASSWORD = "$2a$10$4DSTSm0GlWleNGt.eQ4mCuq6m4FiiNx9JJp0hl2SdEP5J5JtEjrHC";

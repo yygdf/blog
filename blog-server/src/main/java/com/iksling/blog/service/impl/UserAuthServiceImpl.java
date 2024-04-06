@@ -1,5 +1,6 @@
 package com.iksling.blog.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,10 +17,7 @@ import com.iksling.blog.service.MultiFileService;
 import com.iksling.blog.service.UserAuthService;
 import com.iksling.blog.service.UserConfigService;
 import com.iksling.blog.service.UserRoleService;
-import com.iksling.blog.util.BeanCopyUtil;
-import com.iksling.blog.util.CommonUtil;
-import com.iksling.blog.util.RegexUtil;
-import com.iksling.blog.util.UserUtil;
+import com.iksling.blog.util.*;
 import com.iksling.blog.vo.PasswordForgetVO;
 import com.iksling.blog.vo.PasswordVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -175,6 +173,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                         .createTime(createTime)
                         .build());
                 multiFileService.saveBatch(multiFileList);
+                objectList = userMapper.selectObjs(new LambdaQueryWrapper<User>()
+                        .select(User::getEmail)
+                        .eq(User::getId, userId));
+                String email = objectList.get(0).toString();
+                if (!email.equals(""))
+                    EmailUtil.sendEmail(email, "用户等级提升", "快来<a href='" + WEBSITE_URL_BACK + "'>点击登录后台</a>发布您的第一篇文章吧!您的前台地址为: <a href='" + WEBSITE_URL + "/" + userId + "'>点击跳转前台</a>");
             }
             offlineByUserId(userId);
         }
@@ -206,6 +210,26 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 lambdaUpdateWrapper2.set(QQAuth::getDisabledFlag, true);
         }
         qqAuthMapper.update(null, lambdaUpdateWrapper2);
+    }
+
+    @Override
+    @Transactional
+    public void updateBackUsername(String username) {
+        Object o = JSON.parseObject(username, Map.class).get("username");
+        if (o == null)
+            throw new OperationStatusException();
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
+        int count = userMapper.update(null, new LambdaUpdateWrapper<User>()
+                .set(User::getModifiedFlag, true)
+                .eq(User::getId, loginUserId)
+                .eq(User::getModifiedFlag, false));
+        if (count == 0)
+            throw new OperationStatusException();
+        userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
+                .set(UserAuth::getUsername, o.toString())
+                .set(UserAuth::getUpdateUser, loginUserId)
+                .set(UserAuth::getUpdateTime, new Date())
+                .eq(UserAuth::getUserId, loginUserId));
     }
 
     @Override

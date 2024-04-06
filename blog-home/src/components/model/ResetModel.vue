@@ -118,11 +118,6 @@ export default {
           if (this.$route.path === this.rootUri + "/personal") {
             this.$router.go(-1);
           }
-          this.axios.post("/api/logout").then(({ data }) => {
-            if (data.flag) {
-              this.$store.commit("logout");
-            }
-          });
           this.$toast({ type: "success", message: data.message });
         }
       });

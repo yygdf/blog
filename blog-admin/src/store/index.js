@@ -16,6 +16,7 @@ export default new Vuex.Store({
     weight: 1000,
     website: "",
     nickname: "",
+    modifiedFlag: null,
     userMenuList: [],
     currentRoutePath: "/",
     currentTab: { name: "首页", path: "/" }
@@ -48,6 +49,7 @@ export default new Vuex.Store({
       state.weight = user.weight;
       state.website = user.website;
       state.nickname = user.nickname;
+      state.modifiedFlag = user.modifiedFlag;
     },
     saveUserMenuList(state, userMenuList) {
       state.userMenuList = userMenuList;
@@ -61,6 +63,7 @@ export default new Vuex.Store({
       state.weight = 1000;
       state.website = "";
       state.nickname = "";
+      state.modifiedFlag = null;
       state.userMenuList = [];
     },
     updateAvatar(state, avatar) {

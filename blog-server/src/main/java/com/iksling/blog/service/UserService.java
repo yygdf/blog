@@ -5,6 +5,7 @@ import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
 import com.iksling.blog.entity.User;
 import com.iksling.blog.pojo.Condition;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.vo.*;
 
@@ -41,7 +42,7 @@ public interface UserService extends IService<User> {
 
     void saveUserRegisterVO(UserRegisterVO userRegisterVO);
 
-    Object qqLogin(QQOauthVO qqOauthVO);
+    Dict qqLogin(QQOauthVO qqOauthVO);
 
     void updateUserEmailVO(EmailVO emailVO);
 }

@@ -48,6 +48,15 @@ public class UserAuthController {
         return Result.success().message("操作成功");
     }
 
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "修改用户名")
+    @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
+    @PutMapping("/back/userAuth/username")
+    public Result updateBackUsername(@RequestBody String username) {
+        userAuthService.updateBackUsername(username);
+        return Result.success().message("操作成功");
+    }
+
     @ApiOperation(value = "查看后台账号列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/userAuths")

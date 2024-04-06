@@ -562,9 +562,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             return new ArrayList<>();
         NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must(QueryBuilders.boolQuery()
-                .should(QueryBuilders.matchQuery("articleTitle", condition.getKeywords()))
-                .should(QueryBuilders.matchQuery("articleContent", condition.getKeywords())))
+        boolQueryBuilder
+                .must(QueryBuilders.boolQuery()
+                    .should(QueryBuilders.matchQuery("articleTitle", condition.getKeywords()))
+                    .should(QueryBuilders.matchQuery("articleContent", condition.getKeywords())))
                 .must(QueryBuilders.termQuery("draftFlag", false))
                 .must(QueryBuilders.termQuery("publicFlag", true))
                 .must(QueryBuilders.termQuery("hiddenFlag", false));

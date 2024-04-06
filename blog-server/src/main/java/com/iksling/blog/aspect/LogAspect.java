@@ -7,8 +7,8 @@ import com.iksling.blog.entity.OperationLog;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.ExceptionLogMapper;
 import com.iksling.blog.mapper.OperationLogMapper;
-import com.iksling.blog.pojo.Email;
 import com.iksling.blog.pojo.LoginUser;
+import com.iksling.blog.util.EmailUtil;
 import com.iksling.blog.util.IpUtil;
 import com.iksling.blog.util.UserUtil;
 import io.swagger.annotations.Api;
@@ -19,9 +19,6 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageProperties;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -36,7 +33,6 @@ import java.util.Date;
 
 import static com.iksling.blog.constant.CommonConst.ADMIN_CONTACT_EMAIL;
 import static com.iksling.blog.constant.LogConst.QUERY;
-import static com.iksling.blog.constant.MQConst.EMAIL_EXCHANGE;
 
 @Aspect
 @Component
@@ -49,9 +45,6 @@ public class LogAspect {
 
     @Resource
     private HttpServletRequest request;
-
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
 
     @Pointcut("@annotation(com.iksling.blog.annotation.OptLog)")
     public void optLogPointCut() {}
@@ -120,12 +113,7 @@ public class LogAspect {
             exceptionLog.setIllegalFlag(true);
             exceptionLogMapper.insert(exceptionLog);
             exceptionLog.setExceptionStackTrace(null);
-            Email email = Email.builder()
-                    .email(ADMIN_CONTACT_EMAIL)
-                    .subject("用户[" + loginUser.getUsername() + "]的非法操作已被拦截")
-                    .content(JSON.toJSONString(exceptionLog))
-                    .build();
-            rabbitTemplate.convertAndSend(EMAIL_EXCHANGE, "*", new Message(JSON.toJSONBytes(email), new MessageProperties()));
+            EmailUtil.sendEmail(ADMIN_CONTACT_EMAIL, "用户[" + loginUser.getUsername() + "]的非法操作已被拦截,请登录后台查看更多信息!", JSON.toJSONString(exceptionLog));
         } else
             exceptionLogMapper.insert(exceptionLog);
     }

@@ -22,6 +22,8 @@ public interface UserAuthService extends IService<UserAuth> {
 
     void updateUserAuthStatusBackVO(StatusBackVO statusBackVO);
 
+    void updateBackUsername(String username);
+
     void updateUserPasswordVO(PasswordVO passwordVO);
 
     PagePojo<UserAuthsBackDTO> getUserAuthsBackDTO(Condition condition);

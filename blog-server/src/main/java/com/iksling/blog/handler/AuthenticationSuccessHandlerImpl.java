@@ -49,7 +49,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer userId = loginUser.getUserId();
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .select(User::getIntro, User::getEmail, User::getAvatar, User::getGender, User::getWebsite, User::getNickname)
+                .select(User::getIntro, User::getEmail, User::getAvatar, User::getGender, User::getWebsite, User::getNickname, User::getModifiedFlag)
                 .eq(User::getId, userId));
         Boolean loginPlatform = Boolean.parseBoolean(httpServletRequest.getHeader("Login-Platform"));
         Date loginTime = new Date();
@@ -66,6 +66,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
                     .weight(loginUser.getRoleWeight())
                     .website(user.getWebsite())
                     .nickname(user.getNickname())
+                    .modifiedFlag(user.getModifiedFlag())
                     .build();
             httpServletResponse.setContentType("application/json;charset=UTF-8");
             httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message("登录成功!").data(loginUserBackDTO)));

@@ -49,4 +49,9 @@ public class LoginUserBackDTO {
      * 用户昵称
      */
     private String nickname;
+
+    /**
+     * 修改标志
+     */
+    private Boolean modifiedFlag;
 }

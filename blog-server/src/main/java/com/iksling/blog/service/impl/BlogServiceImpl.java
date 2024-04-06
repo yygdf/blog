@@ -137,11 +137,14 @@ public class BlogServiceImpl implements BlogService {
         Integer articleCount = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
                 .eq(Article::getDraftFlag, false)
                 .eq(Article::getRecycleFlag, false)
-                .eq(Article::getDeletedFlag, false));
+                .eq(Article::getDeletedFlag, false)
+                .eq(Article::getUserId, bloggerId));
         Integer categoryCount = categoryMapper.selectCount(new LambdaQueryWrapper<Category>()
-                .eq(Category::getDeletedFlag, false));
+                .eq(Category::getDeletedFlag, false)
+                .eq(Category::getUserId, bloggerId));
         Integer tagCount = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
-                .eq(Tag::getDeletedFlag, false));
+                .eq(Tag::getDeletedFlag, false)
+                .eq(Tag::getUserId, bloggerId));
         Object viewCount = redisTemplate.boundHashOps(BLOG_VIEW_COUNT).get(bloggerId.toString());
         bloggerInfoMap.put("avatar", blogger.getAvatar());
         bloggerInfoMap.put("nickname", blogger.getNickname());

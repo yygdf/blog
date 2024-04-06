@@ -12,6 +12,7 @@
             <result property="gender" column="gender" jdbcType="INTEGER"/>
             <result property="website" column="website" jdbcType="VARCHAR"/>
             <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+            <result property="modifiedFlag" column="modified_flag" jdbcType="BOOLEAN"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
@@ -21,8 +22,8 @@
     <sql id="Base_Column_List">
         id,intro,email,
         avatar,gender,website,
-        nickname,create_user,create_time,
-        update_user,update_time
+        nickname,modified_flag,create_user,
+        create_time,update_user,update_time
     </sql>
 
     <select id="selectUsersBackDTOCount" resultType="java.lang.Integer">

@@ -59,6 +59,11 @@ public class User implements Serializable {
     private String nickname;
 
     /**
+     * 0未修改，1已修改，默认0
+     */
+    private Boolean modifiedFlag;
+
+    /**
      * 创建人, 默认null
      */
     private Integer createUser;

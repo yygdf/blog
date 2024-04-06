@@ -13,7 +13,7 @@ import com.iksling.blog.entity.*;
 import com.iksling.blog.exception.*;
 import com.iksling.blog.mapper.*;
 import com.iksling.blog.pojo.Condition;
-import com.iksling.blog.pojo.Email;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.MultiFileService;
@@ -21,9 +21,6 @@ import com.iksling.blog.service.UserService;
 import com.iksling.blog.util.*;
 import com.iksling.blog.vo.*;
 import eu.bitwalker.useragentutils.UserAgent;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageProperties;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -40,7 +37,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -48,7 +44,6 @@ import java.util.stream.Collectors;
 import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.HISTORY;
-import static com.iksling.blog.constant.MQConst.EMAIL_EXCHANGE;
 import static com.iksling.blog.constant.RedisConst.*;
 import static com.iksling.blog.enums.FileDirEnum.*;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
@@ -82,13 +77,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private SessionRegistry sessionRegistry;
     @Resource
     private HttpServletRequest request;
-    @Resource
-    private HttpServletResponse response;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
     @Autowired
     private RedisTemplate redisTemplate;
     @Autowired
@@ -407,7 +398,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String email = emailCodeVO.getEmail();
         if (!RegexUtil.checkEmail(email))
             throw new OperationStatusException();
-        Email e;
         StringBuilder code = new StringBuilder();
         Random random = new Random();
         for (int i = 0; i < 6; i++)
@@ -415,35 +405,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (emailCodeVO.getType() == null) {
             if (userMapper.selectBackUserAvatarById(email, null, null) != null)
                 throw new OperationStatusException("该邮箱号已被注册!");
-            e = Email.builder()
-                    .email(email)
-                    .subject("邮箱注册验证码")
-                    .content("您的验证码为 " + code.toString() + " 有效期15分钟,请不要告诉他人哦!")
-                    .build();
             redisTemplate.boundValueOps(EMAIL_REGISTER_CODE + "_" + email).set(code);
             redisTemplate.expire(EMAIL_REGISTER_CODE + "_" + email, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+            EmailUtil.sendEmail(email, "邮箱注册验证码", "您的验证码为 " + code.toString() + " 有效期15分钟,请不要告诉他人哦!");
         } else if (emailCodeVO.getType() == 2) {
             if (userMapper.selectBackUserAvatarById(email, null, null) == null)
                 throw new OperationStatusException("该邮箱号不存在!");
-            e = Email.builder()
-                    .email(email)
-                    .subject("重设密码验证码")
-                    .content("您的验证码为 " + code.toString() + " 有效期15分钟,如果非本人操作请忽略!")
-                    .build();
             redisTemplate.boundValueOps(EMAIL_FORGET_CODE + "_" + email).set(code);
             redisTemplate.expire(EMAIL_FORGET_CODE + "_" + email, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+            EmailUtil.sendEmail(email, "重设密码验证码", "您的验证码为 " + code.toString() + " 有效期15分钟,如果非本人操作请忽略!");
         } else {
             if (userMapper.selectBackUserAvatarById(email, null, null) != null)
                 throw new OperationStatusException("该邮箱号已被注册!");
-            e = Email.builder()
-                    .email(email)
-                    .subject("邮箱换绑验证码")
-                    .content("您的验证码为 " + code.toString() + " 有效期15分钟,请不要告诉他人哦!")
-                    .build();
             redisTemplate.boundValueOps(EMAIL_MODIFY_CODE + "_" + email).set(code);
             redisTemplate.expire(EMAIL_MODIFY_CODE + "_" + email, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+            EmailUtil.sendEmail(email, "邮箱换绑验证码", "您的验证码为 " + code.toString() + " 有效期15分钟,请不要告诉他人哦!");
         }
-        rabbitTemplate.convertAndSend(EMAIL_EXCHANGE, "*", new Message(JSON.toJSONBytes(e), new MessageProperties()));
     }
 
     @Override
@@ -471,7 +448,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     @Transactional
-    public Object qqLogin(QQOauthVO qqOauthVO) {
+    public Dict qqLogin(QQOauthVO qqOauthVO) {
         QQAuth qqAuth = qqAuthMapper.selectOne(new LambdaQueryWrapper<QQAuth>()
                 .select(QQAuth::getUserId, QQAuth::getAccessToken, QQAuth::getLockedFlag, QQAuth::getDisabledFlag)
                 .eq(QQAuth::getOpenid, qqOauthVO.getOpenid())
@@ -482,6 +459,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         formData.put("openid", qqOauthVO.getOpenid());
         formData.put("access_token", qqOauthVO.getAccessToken());
         formData.put("oauth_consumer_key", QQ_APP_ID);
+        Dict dict = Dict.create();
         if (qqAuth == null) {
             Map map = JSON.parseObject(restTemplate.getForObject(QQ_USER_INFO_URL, String.class, formData), Map.class);
             if (map == null || !map.get("ret").equals(0))
@@ -504,7 +482,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .accessToken(qqOauthVO.getAccessToken())
                     .createUser(loginUserId)
                     .createTime(dateTime).build());
-            registerUser(loginUserId, loginUserId, String.valueOf(IdWorker.getId()), DEFAULT_PASSWORD, dateTime, true);
+            String username = String.valueOf(IdWorker.getId());
+            registerUser(loginUserId, loginUserId, username, DEFAULT_PASSWORD, dateTime, true);
+            dict.set("username", username);
         } else {
             if (qqAuth.getLockedFlag())
                 throw new LockedStatusException("您的账号已被锁定, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
@@ -518,8 +498,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 qqAuthMapper.update(null, new LambdaUpdateWrapper<QQAuth>()
                         .set(QQAuth::getAccessToken, qqOauthVO.getAccessToken())
                         .set(QQAuth::getUpdateUser, loginUserId)
-                        .set(QQAuth::getUpdateTime, dateTime));
+                        .set(QQAuth::getUpdateTime, dateTime)
+                        .eq(QQAuth::getUserId, loginUserId));
             }
+            List<Object> objectList = userAuthMapper.selectObjs(new LambdaQueryWrapper<UserAuth>()
+                    .select(UserAuth::getUsername)
+                    .eq(UserAuth::getUserId, loginUserId));
+            dict.set("username", objectList.get(0));
         }
         List<Role> roleList = roleMapper.selectLoginRoleByUserId(loginUserId);
         if (roleList.isEmpty())
@@ -541,7 +526,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         loginUser.setLoginPlatform(loginPlatform);
         insertLoginLog(loginUserId, dateTime, loginPlatform, request);
         if (loginPlatform) {
-            return LoginUserBackDTO.builder()
+            return dict.set("loginUser", LoginUserBackDTO.builder()
                     .userId(loginUserId)
                     .intro(user.getIntro())
                     .email(user.getEmail())
@@ -550,11 +535,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .weight(loginUser.getRoleWeight())
                     .website(user.getWebsite())
                     .nickname(user.getNickname())
-                    .build();
+                    .build());
         } else {
             Set<Integer> articleLikeSet = (Set<Integer>) redisTemplate.boundHashOps(ARTICLE_USER_LIKE).get(loginUserId.toString());
             Set<Integer> commentLikeSet = (Set<Integer>) redisTemplate.boundHashOps(COMMENT_USER_LIKE).get(loginUserId.toString());
-            return LoginUserDTO.builder()
+            return dict.set("loginUser", LoginUserDTO.builder()
                     .userId(loginUserId)
                     .intro(user.getIntro())
                     .email(user.getEmail())
@@ -564,7 +549,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .nickname(user.getNickname())
                     .articleLikeSet(articleLikeSet)
                     .commentLikeSet(commentLikeSet)
-                    .build();
+                    .build());
         }
     }
 

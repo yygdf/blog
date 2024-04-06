@@ -475,11 +475,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .createTime(dateTime).build();
             userMapper.insert(user);
             loginUserId = user.getId();
-            qqAuth = QQAuth.builder().openid(qqOauthVO.getOpenid()).accessToken(qqOauthVO.getAccessToken()).build();
+            qqAuth = QQAuth.builder().openid(qqOauthVO.getOpenid()).accessToken(passwordEncoder.encode(qqOauthVO.getAccessToken())).build();
             qqAuthMapper.insert(QQAuth.builder()
                     .userId(loginUserId)
                     .openid(qqOauthVO.getOpenid())
-                    .accessToken(qqOauthVO.getAccessToken())
+                    .accessToken(qqAuth.getAccessToken())
                     .createUser(loginUserId)
                     .createTime(dateTime).build());
             String username = String.valueOf(IdWorker.getId());
@@ -491,12 +491,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             if (qqAuth.getDisabledFlag())
                 throw new DisabledStatusException("您的账号已被禁用, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
             loginUserId = qqAuth.getUserId();
-            if (!qqOauthVO.getAccessToken().equals(qqAuth.getAccessToken())) {
+            if (!passwordEncoder.matches(qqOauthVO.getAccessToken(), qqAuth.getAccessToken())) {
                 Map map = JSON.parseObject(restTemplate.getForObject(QQ_USER_INFO_URL, String.class, formData), Map.class);
                 if (map == null || !map.get("ret").equals(0))
                     throw new AuthenticationStatusException();
+                qqAuth.setAccessToken(passwordEncoder.encode(qqOauthVO.getAccessToken()));
                 qqAuthMapper.update(null, new LambdaUpdateWrapper<QQAuth>()
-                        .set(QQAuth::getAccessToken, qqOauthVO.getAccessToken())
+                        .set(QQAuth::getAccessToken, qqAuth.getAccessToken())
                         .set(QQAuth::getUpdateUser, loginUserId)
                         .set(QQAuth::getUpdateTime, dateTime)
                         .eq(QQAuth::getUserId, loginUserId));

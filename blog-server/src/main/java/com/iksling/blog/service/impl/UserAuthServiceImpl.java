@@ -218,8 +218,13 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         Object o = JSON.parseObject(username, Map.class).get("username");
         if (o == null)
             throw new OperationStatusException();
+        Integer count = userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
+                .eq(UserAuth::getUsername, o.toString())
+                .eq(UserAuth::getDeletedFlag, false));
+        if (count != 0)
+            throw new OperationStatusException("该用户名已被使用!");
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
-        int count = userMapper.update(null, new LambdaUpdateWrapper<User>()
+        count = userMapper.update(null, new LambdaUpdateWrapper<User>()
                 .set(User::getModifiedFlag, true)
                 .eq(User::getId, loginUserId)
                 .eq(User::getModifiedFlag, false));

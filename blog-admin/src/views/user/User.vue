@@ -101,10 +101,10 @@
       <el-table-column prop="avatar" label="头像" align="center" width="80">
         <template slot-scope="scope">
           <el-image
-            :src="scope.row.avatar ? defaultAvatar : scope.row.avatar"
+            :src="scope.row.avatar === '' ? defaultAvatar : scope.row.avatar"
             style="width: 40px;height: 40px;"
             :preview-src-list="[
-              scope.row.avatar ? defaultAvatar : scope.row.avatar
+              scope.row.avatar === '' ? defaultAvatar : scope.row.avatar
             ]"
           />
         </template>

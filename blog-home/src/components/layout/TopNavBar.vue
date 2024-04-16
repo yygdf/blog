@@ -13,7 +13,7 @@
     </div>
     <div class="d-md-block d-none nav-container">
       <div class="float-left blog-title">
-        <a href="https://www.iksling.com" target="_blank" v-html="logo"></a>
+        <a :href="adminUrl" target="_blank" v-html="logo"></a>
       </div>
       <div class="float-right nav-title">
         <div class="menus-btn">
@@ -102,7 +102,8 @@ export default {
   },
   data: function() {
     return {
-      navClass: ""
+      navClass: "",
+      adminUrl: process.env.VUE_APP_ADMIN_URL
     };
   },
   computed: {

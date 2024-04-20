@@ -3,7 +3,7 @@
     <div class="footer-wrap">
       <div>©{{ 2022 + " - " + new Date().getFullYear() + " by KS" }}</div>
       <a href="https://beian.miit.gov.cn/" target="_blank">
-        {{ "赣ICP备2024028116号" }}
+        {{ "赣ICP备2024028116号-1" }}
       </a>
     </div>
   </v-footer>

@@ -306,6 +306,10 @@ export default {
         if (data.flag) {
           this.$store.commit("updateUserInfo", this.userForm);
           this.userFormOrigin = JSON.parse(JSON.stringify(this.userForm));
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
         } else {
           this.$notify.error({
             title: "失败",

@@ -281,10 +281,13 @@ export default {
         );
       });
       let pathArr = this.$route.path.split("/");
+      let lastPath = pathArr[pathArr.length - 1];
       let param = {
-        articleId: pathArr[pathArr.length - 1],
         commentContent: content
       };
+      if (lastPath !== "friendLinks") {
+        param.articleId = lastPath;
+      }
       this.axios.post("/api/comment", param).then(({ data }) => {
         if (data.flag) {
           this.$emit("reloadComment");

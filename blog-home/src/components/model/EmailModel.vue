@@ -182,7 +182,7 @@ export default {
   .login-container {
     padding: 1rem;
     border-radius: 4px;
-    height: 400px;
+    height: 440px;
   }
 }
 </style>

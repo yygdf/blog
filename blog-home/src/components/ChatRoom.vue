@@ -180,7 +180,8 @@ export default {
         data: null
       },
       heartBeat: null,
-      defaultAvatar: require("../assets/img/default/avatar.png")
+      defaultAvatar: require("../assets/img/default/avatar.png"),
+      wsURL: process.env.VUE_APP_WS_URL
     };
   },
   methods: {
@@ -196,7 +197,7 @@ export default {
       this.isVoice = false;
     },
     connect() {
-      this.websocket = new WebSocket("wss://iksling.com/websocket");
+      this.websocket = new WebSocket(this.wsURL);
       this.websocket.onerror = function() {};
       const that = this;
       this.websocket.onopen = function() {

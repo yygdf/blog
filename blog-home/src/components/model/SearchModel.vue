@@ -131,6 +131,11 @@ export default {
         }
       });
     }
+  },
+  watch: {
+    status() {
+      this.getArticles();
+    }
   }
 };
 </script>

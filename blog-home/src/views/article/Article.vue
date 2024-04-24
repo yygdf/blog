@@ -360,6 +360,7 @@ export default {
     },
     getArticle() {
       let pathArr = this.$route.path.split("/");
+      const that = this;
       this.axios
         .get("/api/article/" + pathArr[pathArr.length - 1])
         .then(({ data }) => {
@@ -368,7 +369,7 @@ export default {
             document.title = this.article.articleTitle;
             if (this.article.permitFlag !== false && data.data.articleContent) {
               this.markdownToHtml();
-              this.articleRender();
+              this.articleRender(that);
             }
           } else {
             this.$router.push({
@@ -462,7 +463,7 @@ export default {
       });
       this.article.articleContent = md.render(this.article.articleContent);
     },
-    articleRender() {
+    articleRender(that) {
       this.$nextTick(() => {
         this.wordNum = this.deleteHTMLTag(this.article.articleContent).length;
         this.readTime = Math.round(this.wordNum / 400) + "分钟";
@@ -499,7 +500,7 @@ export default {
         for (let i = 0; i < imgList.length; i++) {
           this.imgList.push(imgList[i].src);
           imgList[i].addEventListener("click", function(e) {
-            this.previewImg(e.target.currentSrc);
+            that.previewImg(e.target.currentSrc);
           });
         }
       });

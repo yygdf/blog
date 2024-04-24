@@ -94,12 +94,7 @@
           <Emoji :chooseEmoji="true" @addEmoji="addEmoji" />
         </div>
         <div class="emoji-border" v-show="isEmoji" />
-        <v-icon
-          v-show="!isVoice"
-          :disabled="userId == null"
-          @click="isVoice = !isVoice"
-          style="margin-right: 8px"
-        >
+        <v-icon v-show="!isVoice" @click="openVoice" style="margin-right: 8px">
           mdi-microphone
         </v-icon>
         <v-icon
@@ -195,6 +190,13 @@ export default {
     openEmoji() {
       this.isEmoji = !this.isEmoji;
       this.isVoice = false;
+    },
+    openVoice() {
+      if (this.userId == null) {
+        this.$toast({ type: "error", message: "登陆后才能发送语音哦~" });
+        return false;
+      }
+      this.isVoice = !this.isVoice;
     },
     connect() {
       this.websocket = new WebSocket(this.wsURL);
@@ -328,7 +330,7 @@ export default {
       this.voiceActive = false;
       this.rc.pause();
       if (new Date() - this.startVoiceTime < 1000) {
-        this.$toast({ type: "error", message: "按键时间太短" });
+        this.$toast({ type: "error", message: "按键时间太短!" });
         return false;
       }
       let wav = this.rc.getRecord({

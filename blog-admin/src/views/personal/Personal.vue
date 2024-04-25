@@ -322,6 +322,10 @@ export default {
       if (data.flag) {
         this.avatarForm.avatar = data.data;
         this.$store.commit("updateAvatar", data.data);
+        this.$notify.success({
+          title: "成功",
+          message: data.message
+        });
       } else {
         this.$notify.error({
           title: "失败",
@@ -359,6 +363,10 @@ export default {
           this.oldPasswordStatus = 0;
           this.newPasswordStatus = 0;
           this.confirmPasswordStatus = 0;
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
         } else {
           this.$notify.error({
             title: "失败",

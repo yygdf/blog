@@ -58,4 +58,14 @@ public class CommonConst {
      * 核心角色idList
      */
     public static final List<Integer> ROOT_ROLE_ID_LIST = Arrays.asList(1);
+
+    /**
+     * 默认角色同步标志
+     */
+    public static final Boolean DEFAULT_ROLE_ASSIMILATE = false;
+
+    /**
+     * 首页博主id
+     */
+    public static final Integer HOME_BLOGGER_ID = 2;
 }

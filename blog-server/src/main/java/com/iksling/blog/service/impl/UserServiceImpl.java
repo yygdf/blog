@@ -17,6 +17,7 @@ import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.MultiFileService;
+import com.iksling.blog.service.UserConfigService;
 import com.iksling.blog.service.UserService;
 import com.iksling.blog.util.*;
 import com.iksling.blog.vo.*;
@@ -69,9 +70,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private RoleMapper roleMapper;
     @Autowired
     private LoginLogMapper loginLogMapper;
+    @Autowired
+    private UserConfigMapper userConfigMapper;
 
     @Autowired
     private MultiFileService multiFileService;
+    @Autowired
+    private UserConfigService userConfigService;
 
     @Autowired
     private SessionRegistry sessionRegistry;
@@ -114,7 +119,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             user.setCreateUser(loginUserId);
             user.setCreateTime(createTime);
             userMapper.insert(user);
-            registerUser(user.getId(), loginUserId, userBackVO.getUsername(), DEFAULT_PASSWORD, createTime, false);
+            registerUser(user.getId(), loginUserId, userBackVO.getUsername(), DEFAULT_PASSWORD, createTime, false, user.getEmail());
         } else {
             if (loginUser.getRoleWeight() > 100 && ROOT_USER_ID_LIST.contains(user.getId()))
                 throw new IllegalRequestException();
@@ -438,11 +443,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new OperationStatusException("验证码错误!");
         Date createTime = new Date();
         User user = User.builder()
-                .email(userRegisterVO.getEmail())
+                .email(email)
                 .nickname("用户" + IdWorker.getId())
                 .createTime(createTime).build();
         userMapper.insert(user);
-        registerUser(user.getId(), user.getId(), userRegisterVO.getUsername(), passwordEncoder.encode(userRegisterVO.getPassword()), createTime, false);
+        registerUser(user.getId(), user.getId(), userRegisterVO.getUsername(), passwordEncoder.encode(userRegisterVO.getPassword()), createTime, false, email);
         redisTemplate.expire(EMAIL_REGISTER_CODE + "_" + email, 0, TimeUnit.MILLISECONDS);
     }
 
@@ -483,7 +488,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .createUser(loginUserId)
                     .createTime(dateTime).build());
             String username = String.valueOf(IdWorker.getId());
-            registerUser(loginUserId, loginUserId, username, DEFAULT_PASSWORD, dateTime, true);
+            registerUser(loginUserId, loginUserId, username, DEFAULT_PASSWORD, dateTime, true, "");
             dict.set("username", username);
         } else {
             if (qqAuth.getLockedFlag())
@@ -596,13 +601,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         MultiFileUtil.rename(fileFullPath, fileFullPathNew);
     }
 
-    private void registerUser(Integer userId, Integer loginUserId, String username, String password, Date createTime, Boolean disabledFlag) {
+    private void registerUser(Integer userId, Integer loginUserId, String username, String password, Date createTime, Boolean disabledFlag, String email) {
         userAuthMapper.insert(UserAuth.builder()
                 .userId(userId)
                 .username(username)
                 .password(password)
                 .loginMethod(disabledFlag ? 11 : null)
                 .disabledFlag(disabledFlag ? true : null)
+                .assimilateFlag(DEFAULT_ROLE_ASSIMILATE)
+                .assimilateNowFlag(DEFAULT_ROLE_ASSIMILATE)
                 .createUser(loginUserId)
                 .createTime(createTime)
                 .build());
@@ -650,9 +657,55 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .createUser(loginUserId)
                 .createTime(createTime)
                 .build());
-        multiFileList.remove(0);
-        multiFileList.remove(0);
+        Integer imageParentId = multiFileList.remove(0).getId();
+        Integer audioParentId = multiFileList.remove(0).getId();
         multiFileService.saveBatch(multiFileList);
+        if (DEFAULT_ROLE_ASSIMILATE) {
+            List<UserConfig> userConfigList = userConfigMapper.selectList(new LambdaQueryWrapper<UserConfig>()
+                    .select(UserConfig::getConfigDesc, UserConfig::getConfigName, UserConfig::getConfigValue, UserConfig::getDeletedFlag)
+                    .eq(UserConfig::getUserId, ROOT_USER_ID));
+            userConfigService.saveBatch(userConfigList.stream()
+                    .peek(e -> {
+                        e.setUserId(userId);
+                        e.setCreateUser(loginUserId);
+                        e.setCreateTime(createTime);
+                    })
+                    .collect(Collectors.toList()));
+            multiFileList.clear();
+            multiFileList.add(MultiFile.builder()
+                    .userId(userId)
+                    .parentId(imageParentId)
+                    .fileName(IMAGE_ARTICLE.getCurrentPath())
+                    .fileFullPath(userId + "/" + IMAGE_ARTICLE.getPath())
+                    .fileNameOrigin(IMAGE_ARTICLE.getName())
+                    .deletableFlag(false)
+                    .createUser(loginUserId)
+                    .createTime(createTime)
+                    .build());
+            multiFileList.add(MultiFile.builder()
+                    .userId(userId)
+                    .parentId(imageParentId)
+                    .fileName(IMAGE_ALBUM.getCurrentPath())
+                    .fileFullPath(userId + "/" + IMAGE_ALBUM.getPath())
+                    .fileNameOrigin(IMAGE_ALBUM.getName())
+                    .deletableFlag(false)
+                    .createUser(loginUserId)
+                    .createTime(createTime)
+                    .build());
+            multiFileList.add(MultiFile.builder()
+                    .userId(userId)
+                    .parentId(audioParentId)
+                    .fileName(AUDIO_MUSIC.getCurrentPath())
+                    .fileFullPath(userId + "/" + AUDIO_MUSIC.getPath())
+                    .fileNameOrigin(AUDIO_MUSIC.getName())
+                    .deletableFlag(false)
+                    .createUser(loginUserId)
+                    .createTime(createTime)
+                    .build());
+            multiFileService.saveBatch(multiFileList);
+            if (!email.equals(""))
+                EmailUtil.sendEmail(email, "用户等级提升", "快来<a href='" + WEBSITE_URL_BACK + "'>点击登录后台</a>发布您的第一篇文章吧!您的前台地址为: <a href='" + WEBSITE_URL + "/" + userId + "'>点击跳转前台</a>");
+        }
     }
 
     @Async

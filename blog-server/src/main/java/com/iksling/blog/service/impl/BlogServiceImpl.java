@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.iksling.blog.constant.CommonConst.HOME_BLOGGER_ID;
 import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
 import static com.iksling.blog.constant.RedisConst.*;
 
@@ -105,13 +106,13 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public Integer getBlogId(Integer bloggerId) {
         if (bloggerId == null)
-            return ROOT_USER_ID;
+            return HOME_BLOGGER_ID;
         Integer count = userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
                 .eq(UserAuth::getUserId, bloggerId)
                 .eq(UserAuth::getDeletedFlag, false)
                 .eq(UserAuth::getAssimilateNowFlag, true));
         if (count == 0)
-            return ROOT_USER_ID;
+            return HOME_BLOGGER_ID;
         return bloggerId;
     }
 

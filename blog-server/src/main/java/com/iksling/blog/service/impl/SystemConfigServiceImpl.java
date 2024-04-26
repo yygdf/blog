@@ -19,10 +19,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.iksling.blog.constant.CommonConst.*;
 
 /**
  *
@@ -30,21 +33,29 @@ import java.util.stream.Collectors;
 @Service
 public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, SystemConfig>
     implements SystemConfigService{
-    private static HashMap<String, String> systemConfigMap;
 
     @Autowired
     private SystemConfigMapper systemConfigMapper;
 
     @PostConstruct
     public void loadSystemConfigMap() {
-        systemConfigMap = systemConfigMapper.selectList(new LambdaQueryWrapper<SystemConfig>()
+        HashMap<String, String> hashMap = systemConfigMapper.selectList(new LambdaQueryWrapper<SystemConfig>()
                 .select(SystemConfig::getConfigName, SystemConfig::getConfigValue))
                 .stream()
                 .collect(Collectors.toMap(SystemConfig::getConfigName, SystemConfig::getConfigValue, (key1, key2) -> key2, HashMap::new));
-    }
-
-    public HashMap<String, String> getSystemConfigMap() {
-        return systemConfigMap;
+        ADMIN_CONTACT_QQ = hashMap.get("admin_contact_qq");
+        ADMIN_CONTACT_EMAIL = hashMap.get("admin_contact_email");
+        WEBSITE_URL = hashMap.get("website_url");
+        WEBSITE_URL_BACK = hashMap.get("website_url_back");
+        DEFAULT_ROLE_ID = Integer.valueOf(hashMap.get("default_role_id"));
+        ROOT_USER_ID = Integer.valueOf(hashMap.get("root_user_id"));
+        ROOT_USER_ID_LIST = Arrays.stream(hashMap.get("root_user_id_list").split(",")).map(Integer::parseInt).collect(Collectors.toList());
+        HOME_MENU_ID = Integer.valueOf(hashMap.get("home_menu_id"));
+        ROOT_ROLE_ID = Integer.valueOf(hashMap.get("root_role_id"));
+        ROOT_ROLE_ID_LIST = Arrays.stream(hashMap.get("root_role_id_list").split(",")).map(Integer::parseInt).collect(Collectors.toList());
+        DEFAULT_ROLE_ASSIMILATE = Boolean.parseBoolean(hashMap.get("default_role_assimilate"));
+        HOME_BLOGGER_ID = Integer.valueOf(hashMap.get("home_blogger_id"));
+        ENABLE_USER_CONFIG = Boolean.parseBoolean(hashMap.get("enable_user_config"));
     }
 
     @Override

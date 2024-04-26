@@ -22,8 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.HOME_BLOGGER_ID;
-import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
+import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.constant.RedisConst.*;
 
 /**
@@ -49,8 +48,6 @@ public class BlogServiceImpl implements BlogService {
     @Resource
     private HttpServletRequest request;
 
-    @Autowired
-    private SystemConfigServiceImpl systemConfigServiceImpl;
     @Autowired
     private UserConfigServiceImpl userConfigServiceImpl;
 
@@ -122,7 +119,7 @@ public class BlogServiceImpl implements BlogService {
         HashMap<String, Object> blogConfigMap;
         HashMap<String, Object> bloggerInfoMap = new HashMap<>();
         Integer bloggerId = Integer.valueOf(request.getHeader("Blogger-Id"));
-        if (bloggerId.equals(ROOT_USER_ID) || !"true".equals(systemConfigServiceImpl.getSystemConfigMap().get("enable_user_config"))) {
+        if (bloggerId.equals(ROOT_USER_ID) || !ENABLE_USER_CONFIG) {
             blogConfigMap = new HashMap<>(userConfigServiceImpl.getUserConfigMap());
         } else {
             blogConfigMap = userConfigMapper.selectList(new LambdaQueryWrapper<UserConfig>()

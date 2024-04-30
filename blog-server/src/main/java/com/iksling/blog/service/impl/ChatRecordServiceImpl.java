@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.enums.FileDirEnum.AUDIO_CHAT;
@@ -105,7 +106,7 @@ public class ChatRecordServiceImpl extends ServiceImpl<ChatRecordMapper, ChatRec
                 .eq(MultiFile::getDeletedCount, 0));
         if (multiFile == null)
             throw new OperationStatusException();
-        String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
+        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         long fileName = IdWorker.getId();
         String targetAddr = multiFile.getFileFullPath();
         String fullFileName = fileName + "." + originalFilenameArr[1];

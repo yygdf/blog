@@ -8,11 +8,10 @@ import com.iksling.blog.mapper.QQAuthMapper;
 import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.Result;
+import com.iksling.blog.util.RedisUtil;
 import com.iksling.blog.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.data.redis.core.BoundValueOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,9 +26,6 @@ import static com.iksling.blog.constant.StatusConst.*;
 @RestControllerAdvice
 public class GlobalExceptionAdvice {
     @Autowired
-    private RedisTemplate redisTemplate;
-
-    @Autowired
     private UserAuthMapper userAuthMapper;
     @Autowired
     private QQAuthMapper qqAuthMapper;
@@ -38,11 +34,11 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(value = IllegalRequestException.class)
     public Result exceptionAdvice(IllegalRequestException e) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        BoundValueOperations<String, Integer> boundValueOperations = redisTemplate.boundValueOps(USER_ILLEGAL_OPERATION + "_" + loginUser.getUserId());
-        Integer count = boundValueOperations.get();
+        String key = USER_ILLEGAL_OPERATION + "_" + loginUser.getUserId();
+        Integer count = RedisUtil.getValue(key);
         if (count == null || count < 3) {
-            boundValueOperations.increment(1);
-            boundValueOperations.expire(1, TimeUnit.DAYS);
+            RedisUtil.increment(key, 1);
+            RedisUtil.expire(key, 1, TimeUnit.DAYS);
         } else {
             userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                     .set(UserAuth::getLockedFlag, true)

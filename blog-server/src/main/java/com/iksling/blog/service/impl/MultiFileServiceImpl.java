@@ -20,8 +20,6 @@ import com.iksling.blog.vo.MultiFilesBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.TokenBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.BoundHashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,9 +42,6 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     implements MultiFileService{
     @Autowired
     private MultiFileMapper multiFileMapper;
-
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @Resource
     private HttpServletRequest request;
@@ -79,7 +74,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
         MultiFileUtil.checkValidFile(fileList, OTHER, checkSizeFlag);
         for (MultipartFile file : fileList) {
             long fileName = IdWorker.getId();
-            String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
+            String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
             String targetAddr = objectList.get(0).toString();
             String fullFileName = fileName + "." + originalFilenameArr[1];
             String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
@@ -159,8 +154,8 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     @Transactional
     public void saveOrUpdateMultiFileTokenBackVO(TokenBackVO tokenBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        BoundHashOperations boundHashOperations = redisTemplate.boundHashOps(MULTI_FILE_TOKEN + "_" + tokenBackVO.getId());
-        Map<String, Object> map = boundHashOperations.entries();
+        String key = MULTI_FILE_TOKEN + "_" + tokenBackVO.getId();
+        Map<String, Object> map = RedisUtil.getMap(key);
         if (map.isEmpty()) {
             if (tokenBackVO.getAccessToken() == null)
                 throw new OperationStatusException();
@@ -186,13 +181,13 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
                 map.put("effectiveCount", tokenBackVO.getEffectiveCount());
         }
         if (tokenBackVO.getExpireTime() == null) {
-            boundHashOperations.persist();
+            RedisUtil.persist(key);
             map.put("expireTime", null);
         } else {
-            boundHashOperations.expireAt(tokenBackVO.getExpireTime());
+            RedisUtil.expireAt(key, tokenBackVO.getExpireTime());
             map.put("expireTime", tokenBackVO.getExpireTime());
         }
-        boundHashOperations.putAll(map);
+        RedisUtil.setMap(key, map);
     }
 
     @Override
@@ -470,8 +465,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
     @Override
     public Dict getMultiFileTokenById(Integer id) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        BoundHashOperations boundHashOperations = redisTemplate.boundHashOps(MULTI_FILE_TOKEN + "_" + id);
-        Map<String, Object> map = boundHashOperations.entries();
+        Map<String, Object> map = RedisUtil.getMap(MULTI_FILE_TOKEN + "_" + id);
         if (map.isEmpty() || (loginUser.getRoleWeight() > 200 && !loginUser.getUserId().equals(map.get("userId"))))
             return Dict.create();
         return Dict.create().putAll(new HashMap<>(map));

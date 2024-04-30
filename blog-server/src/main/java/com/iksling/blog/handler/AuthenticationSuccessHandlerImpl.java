@@ -14,10 +14,10 @@ import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.util.IpUtil;
+import com.iksling.blog.util.RedisUtil;
 import com.iksling.blog.util.UserUtil;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -40,9 +40,6 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
     private UserAuthMapper userAuthMapper;
     @Autowired
     private LoginLogMapper loginLogMapper;
-
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException {
@@ -71,8 +68,8 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
             httpServletResponse.setContentType("application/json;charset=UTF-8");
             httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message("登录成功!").data(loginUserBackDTO)));
         } else {
-            Set<Integer> articleLikeSet = (Set<Integer>) redisTemplate.boundHashOps(ARTICLE_USER_LIKE).get(userId.toString());
-            Set<Integer> commentLikeSet = (Set<Integer>) redisTemplate.boundHashOps(COMMENT_USER_LIKE).get(userId.toString());
+            Set<Integer> articleLikeSet = RedisUtil.getMapValue(ARTICLE_USER_LIKE, userId.toString());
+            Set<Integer> commentLikeSet = RedisUtil.getMapValue(COMMENT_USER_LIKE, userId.toString());
             LoginUserDTO loginUserDTO = LoginUserDTO.builder()
                     .userId(userId)
                     .intro(user.getIntro())

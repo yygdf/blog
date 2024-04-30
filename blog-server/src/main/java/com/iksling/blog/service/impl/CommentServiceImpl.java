@@ -18,12 +18,12 @@ import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.CommentService;
 import com.iksling.blog.util.IpUtil;
+import com.iksling.blog.util.RedisUtil;
 import com.iksling.blog.util.RegexUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.CommentVO;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,9 +48,6 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
 
     @Autowired
     private ArticleMapper articleMapper;
-
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @Resource
     private HttpServletRequest request;
@@ -105,7 +102,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         List<CommentsBackDTO> commentsBackDTOList = commentMapper.selectCommentsBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (commentsBackDTOList.isEmpty())
             return new PagePojo<>(count, new ArrayList<>());
-        Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
+        Map<String, Integer> likeCountMap = RedisUtil.getMap(COMMENT_LIKE_COUNT);
         commentsBackDTOList.forEach(e -> e.setLikeCount(likeCountMap.get(e.getId().toString())));
         return new PagePojo<>(count, commentsBackDTOList);
     }
@@ -174,17 +171,17 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                         .exists("select a.id from tb_article a where a.id=article_id and a.draft_flag=false"+(loginUser.getRoleWeight() > 300 ? " and ((a.hidden_flag=false and a.commentable_flag=true) or a.user_id="+loginUser.getUserId()+")" : ""))));
         if (count == 0)
             throw new OperationStatusException();
-        HashSet<Integer> commentLikeSet = (HashSet<Integer>) redisTemplate.boundHashOps(COMMENT_USER_LIKE).get(loginUserId.toString());
+        HashSet<Integer> commentLikeSet = RedisUtil.getMapValue(COMMENT_USER_LIKE, loginUserId.toString());
         if (commentLikeSet == null)
             commentLikeSet = new HashSet<>();
         if (commentLikeSet.contains(id)) {
             commentLikeSet.remove(id);
-            redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).increment(id.toString(), -1);
+            RedisUtil.increment(COMMENT_LIKE_COUNT, id.toString(), -1);
         } else {
             commentLikeSet.add(id);
-            redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).increment(id.toString(), 1);
+            RedisUtil.increment(COMMENT_LIKE_COUNT, id.toString(), 1);
         }
-        redisTemplate.boundHashOps(COMMENT_USER_LIKE).put(loginUserId.toString(), commentLikeSet);
+        RedisUtil.setMapValue(COMMENT_USER_LIKE, loginUserId.toString(), commentLikeSet);
     }
 
     @Override
@@ -197,7 +194,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         List<CommentsDTO> commentsDTOList = commentMapper.selectCommentsDTO(condition);
         if (commentsDTOList.isEmpty())
             return new PagePojo<>(count, new ArrayList<>());
-        Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
+        Map<String, Integer> likeCountMap = RedisUtil.getMap(COMMENT_LIKE_COUNT);
         List<Integer> commentsDTOIdList = new ArrayList<>();
         commentsDTOList.forEach(e -> {
             commentsDTOIdList.add(e.getId());
@@ -225,7 +222,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         LoginUser loginUser = UserUtil.getLoginUser();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         List<CommentsReplyDTO> commentsReplyDTOList = commentMapper.selectCommentsReplyDTOById(condition, loginUser.getUserId(), loginUser.getRoleWeight());
-        Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(COMMENT_LIKE_COUNT).entries();
+        Map<String, Integer> likeCountMap = RedisUtil.getMap(COMMENT_LIKE_COUNT);
         commentsReplyDTOList.forEach(e -> e.setLikeCount(likeCountMap.get(e.getId().toString())));
         return commentsReplyDTOList;
     }

@@ -1,8 +1,7 @@
 package com.iksling.blog.listener;
 
 import com.iksling.blog.util.IpUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import com.iksling.blog.util.RedisUtil;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,21 +13,19 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
+import static com.iksling.blog.constant.CommonConst.HOME_BLOGGER_ID;
 import static com.iksling.blog.constant.RedisConst.BLOG_VIEW_COUNT;
 import static com.iksling.blog.util.DateUtil.*;
 
 @Component
 public class ServletRequestListenerImpl implements ServletRequestListener {
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @Override
     public void requestInitialized(ServletRequestEvent sre) {
         HttpServletRequest request = (HttpServletRequest) sre.getServletRequest();
         String bloggerId = request.getParameter("bloggerId");
         if (bloggerId == null)
-            bloggerId = ROOT_USER_ID.toString();
+            bloggerId = HOME_BLOGGER_ID.toString();
         HttpSession session = request.getSession();
         Set<String> bloggerIdSet = (Set<String>) session.getAttribute("bloggerIdSet");
         if (bloggerIdSet == null)
@@ -37,13 +34,13 @@ public class ServletRequestListenerImpl implements ServletRequestListener {
             String ipAddress = IpUtil.getIpAddress(request);
             bloggerIdSet.add(bloggerId);
             session.setAttribute("bloggerIdSet", bloggerIdSet);
-            redisTemplate.boundHashOps(BLOG_VIEW_COUNT).increment(bloggerId, 1);
-            redisTemplate.boundSetOps(dateToStr(new Date(), YYYY_MM_DD)).add(ipAddress + "-" + bloggerId);
+            RedisUtil.increment(BLOG_VIEW_COUNT, bloggerId, 1);
+            RedisUtil.setSetValue(dateToStr(new Date(), YYYY_MM_DD), ipAddress + "_" + bloggerId);
         }
     }
 
     @Scheduled(cron = " 0 0 0 * * ?")
     private void clear() {
-        redisTemplate.delete(dateToStr(getSomeDay(new Date(), -7), YYYY_MM_DD));
+        RedisUtil.delKey(dateToStr(getSomeDay(new Date(), -7), YYYY_MM_DD));
     }
 }

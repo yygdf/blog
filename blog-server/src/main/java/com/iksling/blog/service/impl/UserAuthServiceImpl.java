@@ -23,7 +23,6 @@ import com.iksling.blog.vo.PasswordVO;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.UserAuthBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -71,8 +70,6 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     private SessionRegistry sessionRegistry;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @Override
     @Transactional
@@ -300,17 +297,17 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 .exists("select id from tb_user_auth where user_id=id and deleted_flag=false"));
         if (objectList.isEmpty())
             throw new OperationStatusException("该邮箱号不存在!");
-        Object code = redisTemplate.boundValueOps(EMAIL_FORGET_CODE + "_" + email).get();
+        String code = RedisUtil.getValue(EMAIL_FORGET_CODE + "_" + email);
         if (code == null)
             throw new OperationStatusException("验证码不存在或已失效!");
-        if (!passwordForgetVO.getCode().equals(code.toString()))
+        if (!passwordForgetVO.getCode().equals(code))
             throw new OperationStatusException("验证码错误!");
         userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                         .set(UserAuth::getPassword, passwordEncoder.encode(passwordForgetVO.getPassword()))
                         .set(UserAuth::getUpdateUser, objectList.get(0))
                         .set(UserAuth::getUpdateTime, new Date())
                         .eq(UserAuth::getUserId, objectList.get(0)));
-        redisTemplate.expire(EMAIL_FORGET_CODE + "_" + email, 0, TimeUnit.MILLISECONDS);
+        RedisUtil.expire(EMAIL_FORGET_CODE + "_" + email, 0, TimeUnit.MILLISECONDS);
     }
 
     private void offlineByUserId(Integer userId) {

@@ -30,8 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.redis.core.BoundHashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,8 +67,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Autowired
     private ArticleTagService articleTagService;
 
-    @Autowired
-    private RedisTemplate redisTemplate;
     @Resource
     private HttpServletRequest request;
     @Autowired
@@ -184,7 +180,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (multiFile == null)
             throw new OperationStatusException();
         long fileName = IdWorker.getId();
-        String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
+        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         String targetAddr = multiFile.getFileFullPath();
         String fullFileName = fileName + "." + originalFilenameArr[1];
         if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
@@ -213,8 +209,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Transactional
     public void saveOrUpdateArticleTokenBackVO(TokenBackVO tokenBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        BoundHashOperations boundHashOperations = redisTemplate.boundHashOps(ARTICLE_TOKEN + "_" + tokenBackVO.getId());
-        Map<String, Object> map = boundHashOperations.entries();
+        String key = ARTICLE_TOKEN + "_" + tokenBackVO.getId();
+        Map<String, Object> map = RedisUtil.getMap(key);
         if (map.isEmpty()) {
             if (tokenBackVO.getAccessToken() == null)
                 throw new OperationStatusException();
@@ -239,13 +235,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 map.put("effectiveCount", tokenBackVO.getEffectiveCount());
         }
         if (tokenBackVO.getExpireTime() == null) {
-            boundHashOperations.persist();
+            RedisUtil.persist(key);
             map.put("expireTime", null);
         } else {
-            boundHashOperations.expireAt(tokenBackVO.getExpireTime());
+            RedisUtil.expireAt(key, tokenBackVO.getExpireTime());
             map.put("expireTime", tokenBackVO.getExpireTime());
         }
-        boundHashOperations.putAll(map);
+        RedisUtil.setMap(key, map);
     }
 
     @Override
@@ -401,8 +397,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         List<ArticlesBackDTO> articlesBackDTOList = articleMapper.selectArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
         if (articlesBackDTOList.isEmpty())
             return new PagePojo<>(count, new ArrayList<>());
-        Map<String, Integer> viewCountMap = redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).entries();
-        Map<String, Integer> likeCountMap = redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).entries();
+        Map<String, Integer> viewCountMap = RedisUtil.getMap(ARTICLE_VIEW_COUNT);
+        Map<String, Integer> likeCountMap = RedisUtil.getMap(ARTICLE_LIKE_COUNT);
         articlesBackDTOList.forEach(e -> {
             e.setViewCount(viewCountMap.get(e.getId().toString()));
             e.setLikeCount(likeCountMap.get(e.getId().toString()));
@@ -413,8 +409,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public Dict getArticleTokenById(Integer id) {
         LoginUser loginUser = UserUtil.getLoginUser();
-        BoundHashOperations boundHashOperations = redisTemplate.boundHashOps(ARTICLE_TOKEN + "_" + id);
-        Map<String, Object> map = boundHashOperations.entries();
+        Map<String, Object> map = RedisUtil.getMap(ARTICLE_TOKEN + "_" + id);
         if (map.isEmpty() || (loginUser.getRoleWeight() > 300 && !loginUser.getUserId().equals(map.get("userId"))))
             return Dict.create();
         return Dict.create().putAll(new HashMap<>(map));
@@ -431,17 +426,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 .eq(loginUser.getRoleWeight() > 300, Article::getHiddenFlag, false));
         if (count == 0)
             throw new OperationStatusException();
-        HashSet<Integer> articleLikeSet = (HashSet<Integer>) redisTemplate.boundHashOps(ARTICLE_USER_LIKE).get(loginUserId.toString());
+        HashSet<Integer> articleLikeSet = RedisUtil.getMapValue(ARTICLE_USER_LIKE, loginUserId.toString());
         if (articleLikeSet == null)
             articleLikeSet = new HashSet<>();
         if (articleLikeSet.contains(id)) {
             articleLikeSet.remove(id);
-            redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).increment(id.toString(), -1);
+            RedisUtil.increment(ARTICLE_LIKE_COUNT, id.toString(), -1);
         } else {
             articleLikeSet.add(id);
-            redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).increment(id.toString(), 1);
+            RedisUtil.increment(ARTICLE_LIKE_COUNT, id.toString(), 1);
         }
-        redisTemplate.boundHashOps(ARTICLE_USER_LIKE).put(loginUserId.toString(), articleLikeSet);
+        RedisUtil.setMapValue(ARTICLE_USER_LIKE, loginUserId.toString(), articleLikeSet);
     }
 
     @Override
@@ -470,8 +465,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             if (loginFlag)
                 articleDTO.setPermitFlag(false);
             else if (flag) {
-                HashSet<Integer> articleTokenSet = (HashSet<Integer>) redisTemplate.boundHashOps(ARTICLE_TOKEN).get(loginUserId.toString());
-                if (articleTokenSet == null || !articleTokenSet.contains(id)) {
+                HashSet<Integer> articleTokenSet = RedisUtil.getMapValue(ARTICLE_TOKEN, loginUserId.toString());
+                if (!articleTokenSet.contains(id)) {
                     articleDTO.setPermitFlag(false);
                     articleDTO.setArticleContent("");
                 }
@@ -490,8 +485,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 articleDTO.setNextArticle(articlesPaginationDTOList.get(0));
         }
         articleDTO.setArticlesRecommendDTOList(articlesRecommendDTOList);
-        articleDTO.setViewCount((Integer) redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).get(id.toString()));
-        articleDTO.setLikeCount((Integer) redisTemplate.boundHashOps(ARTICLE_LIKE_COUNT).get(id.toString()));
+        articleDTO.setViewCount(RedisUtil.getMapValue(ARTICLE_VIEW_COUNT, id.toString()));
+        articleDTO.setLikeCount(RedisUtil.getMapValue(ARTICLE_LIKE_COUNT, id.toString()));
         return articleDTO;
     }
 
@@ -698,7 +693,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (!articleIdSet.contains(id)) {
             articleIdSet.add(id);
             session.setAttribute("articleIdSet", articleIdSet);
-            redisTemplate.boundHashOps(ARTICLE_VIEW_COUNT).increment(id, 1);
+            RedisUtil.increment(ARTICLE_VIEW_COUNT, id, 1);
         }
     }
 }

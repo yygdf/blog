@@ -24,7 +24,6 @@ import com.iksling.blog.vo.*;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -85,8 +84,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private RedisTemplate redisTemplate;
     @Autowired
     private RestTemplate restTemplate;
 
@@ -166,7 +163,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new OperationStatusException();
         long fileName = IdWorker.getId();
         String targetAddr = multiFile.getFileFullPath();
-        String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
+        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         String fullFileName = fileName + "." + originalFilenameArr[1];
         if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
             throw new FileStatusException("文件上传失败!");
@@ -410,20 +407,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (emailCodeVO.getType() == null) {
             if (userMapper.selectBackUserAvatarById(email, null, null) != null)
                 throw new OperationStatusException("该邮箱号已被注册!");
-            redisTemplate.boundValueOps(EMAIL_REGISTER_CODE + "_" + email).set(code);
-            redisTemplate.expire(EMAIL_REGISTER_CODE + "_" + email, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+            RedisUtil.setValue(EMAIL_REGISTER_CODE + "_" + email, code, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
             EmailUtil.sendEmail(email, "邮箱注册验证码", "您的验证码为 " + code.toString() + " 有效期15分钟,请不要告诉他人哦!");
         } else if (emailCodeVO.getType() == 2) {
             if (userMapper.selectBackUserAvatarById(email, null, null) == null)
                 throw new OperationStatusException("该邮箱号不存在!");
-            redisTemplate.boundValueOps(EMAIL_FORGET_CODE + "_" + email).set(code);
-            redisTemplate.expire(EMAIL_FORGET_CODE + "_" + email, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+            RedisUtil.setValue(EMAIL_FORGET_CODE + "_" + email, code, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
             EmailUtil.sendEmail(email, "重设密码验证码", "您的验证码为 " + code.toString() + " 有效期15分钟,如果非本人操作请忽略!");
         } else {
             if (userMapper.selectBackUserAvatarById(email, null, null) != null)
                 throw new OperationStatusException("该邮箱号已被注册!");
-            redisTemplate.boundValueOps(EMAIL_MODIFY_CODE + "_" + email).set(code);
-            redisTemplate.expire(EMAIL_MODIFY_CODE + "_" + email, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+            RedisUtil.setValue(EMAIL_MODIFY_CODE + "_" + email, code, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
             EmailUtil.sendEmail(email, "邮箱换绑验证码", "您的验证码为 " + code.toString() + " 有效期15分钟,请不要告诉他人哦!");
         }
     }
@@ -436,10 +430,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new OperationStatusException();
         if (userMapper.selectBackUserAvatarById(email, userRegisterVO.getUsername(), null) != null)
             throw new OperationStatusException("用户名或邮箱已注册!");
-        Object code = redisTemplate.boundValueOps(EMAIL_REGISTER_CODE + "_" + email).get();
+        String code = RedisUtil.getValue(EMAIL_REGISTER_CODE + "_" + email);
         if (code == null)
             throw new OperationStatusException("验证码不存在或已失效!");
-        if (!userRegisterVO.getCode().equals(code.toString()))
+        if (!userRegisterVO.getCode().equals(code))
             throw new OperationStatusException("验证码错误!");
         Date createTime = new Date();
         User user = User.builder()
@@ -448,7 +442,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .createTime(createTime).build();
         userMapper.insert(user);
         registerUser(user.getId(), user.getId(), userRegisterVO.getUsername(), passwordEncoder.encode(userRegisterVO.getPassword()), createTime, false, email);
-        redisTemplate.expire(EMAIL_REGISTER_CODE + "_" + email, 0, TimeUnit.MILLISECONDS);
+        RedisUtil.expire(EMAIL_REGISTER_CODE + "_" + email, 0, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -543,8 +537,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .nickname(user.getNickname())
                     .build());
         } else {
-            Set<Integer> articleLikeSet = (Set<Integer>) redisTemplate.boundHashOps(ARTICLE_USER_LIKE).get(loginUserId.toString());
-            Set<Integer> commentLikeSet = (Set<Integer>) redisTemplate.boundHashOps(COMMENT_USER_LIKE).get(loginUserId.toString());
+            Set<Integer> articleLikeSet = RedisUtil.getMapValue(ARTICLE_USER_LIKE, loginUserId.toString());
+            Set<Integer> commentLikeSet = RedisUtil.getMapValue(COMMENT_USER_LIKE, loginUserId.toString());
             return dict.set("loginUser", LoginUserDTO.builder()
                     .userId(loginUserId)
                     .intro(user.getIntro())
@@ -573,17 +567,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new OperationStatusException();
         if (userMapper.selectBackUserAvatarById(email, null, null) != null)
             throw new OperationStatusException("邮箱已注册!");
-        Object code = redisTemplate.boundValueOps(EMAIL_MODIFY_CODE + "_" + email).get();
+        String code = RedisUtil.getValue(EMAIL_MODIFY_CODE + "_" + email);
         if (code == null)
             throw new OperationStatusException("验证码不存在或已失效!");
-        if (!emailVO.getCode().equals(code.toString()))
+        if (!emailVO.getCode().equals(code))
             throw new OperationStatusException("验证码错误!");
         userMapper.update(null, new LambdaUpdateWrapper<User>()
                 .set(User::getEmail, emailVO.getEmail())
                 .set(User::getUpdateUser, loginUserId)
                 .set(User::getUpdateTime, new Date())
                 .eq(User::getId, loginUserId));
-        redisTemplate.expire(EMAIL_MODIFY_CODE + "_" + email, 0, TimeUnit.MILLISECONDS);
+        RedisUtil.expire(EMAIL_MODIFY_CODE + "_" + email, 0, TimeUnit.MILLISECONDS);
     }
 
     private void updateUserAvatarBy(Integer loginUserId, String fileFullPath, Date updateTime) {

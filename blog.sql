@@ -540,7 +540,7 @@ INSERT INTO `tb_resource` VALUES (150, 2, 6, '/back/multiFile/status', '修改�
 INSERT INTO `tb_resource` VALUES (151, 2, 6, '/back/multiFiles', '批量上传文件', 'POST', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (152, 2, 6, '/back/multiFiles/status', '批量更新文件状态', 'PUT', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (153, 2, 6, '/back/multiFile/token', '添加或修改文件令牌', 'POST', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
-INSERT INTO `tb_resource` VALUES (154, 2, 6, '/back/multiFile/*', '根据文件id查找文件令牌', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (154, 2, 6, '/back/multiFile/token/*', '根据文件id查找文件令牌', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (155, 2, 6, '/back/multiFiles', '物理批量删除文件', 'DELETE', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (156, 2, 7, '/back/comments', '查看后台评论列表', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (157, 2, 7, '/back/comments/status', '批量更新评论状态', 'PUT', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);

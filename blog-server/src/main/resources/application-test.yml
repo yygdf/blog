@@ -52,12 +52,8 @@ spring:
         debug: true
         smtp:
           auth: true
-          startttls:
-            enabled: true
-            required: true
-            socketFactory:
-              class: javax.net.ssl.SSLSocketFactory
-              fallback: false
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
 
   # Multipart File
   servlet:

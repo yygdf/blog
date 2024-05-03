@@ -1094,6 +1094,7 @@ INSERT INTO `tb_role_resource` VALUES (326, 2, 221);
 INSERT INTO `tb_role_resource` VALUES (327, 3, 221);
 INSERT INTO `tb_role_resource` VALUES (328, 4, 221);
 INSERT INTO `tb_role_resource` VALUES (329, 5, 221);
+INSERT INTO `tb_role_resource` VALUES (330, 5, 118);
 
 -- ----------------------------
 -- Table structure for tb_system_config

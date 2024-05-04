@@ -7,6 +7,7 @@ export function getBloggerId() {
   let currentPathArr = window.location.pathname.split("/");
   if (store.state.loginUrl) {
     currentPathArr = store.state.loginUrl;
+    store.commit("saveLoginUrl", "");
   }
   if (currentPathArr[1] === "" || isNaN(Number(currentPathArr[1]))) {
     commonUserFlag = false;

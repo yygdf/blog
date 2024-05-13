@@ -1,137 +1,137 @@
 export default {
-  "[666]": "https://iksling.com/static/img/emoji/liuliuliu.png",
+  "#[666]": "/emoji/liuliuliu.png",
 
-  "[Emm]": "https://iksling.com/static/img/emoji/emm.png",
+  "#[Emm]": "/emoji/emm.png",
 
-  "[ok]": "https://iksling.com/static/img/emoji/ok.png",
+  "#[ok]": "/emoji/ok.png",
 
-  "[微笑]": "https://iksling.com/static/img/emoji/smile.png",
+  "#[微笑]": "/emoji/smile.png",
 
-  "[呲牙]": "https://iksling.com/static/img/emoji/ciya.png",
+  "#[呲牙]": "/emoji/ciya.png",
 
-  "[大哭]": "https://iksling.com/static/img/emoji/daku.png",
+  "#[大哭]": "/emoji/daku.png",
 
-  "[害羞]": "https://iksling.com/static/img/emoji/haixiu.png",
+  "#[害羞]": "/emoji/haixiu.png",
 
-  "[调皮]": "https://iksling.com/static/img/emoji/tiaopi.png",
+  "#[调皮]": "/emoji/tiaopi.png",
 
-  "[奸笑]": "https://iksling.com/static/img/emoji/jianxiao.png",
+  "#[奸笑]": "/emoji/jianxiao.png",
 
-  "[偷笑]": "https://iksling.com/static/img/emoji/touxiao.png",
+  "#[偷笑]": "/emoji/touxiao.png",
 
-  "[阴险]": "https://iksling.com/static/img/emoji/yinxian.png",
+  "#[阴险]": "/emoji/yinxian.png",
 
-  "[捂脸]": "https://iksling.com/static/img/emoji/wulian.png",
+  "#[捂脸]": "/emoji/wulian.png",
 
-  "[抠鼻]": "https://iksling.com/static/img/emoji/koubi.png",
+  "#[抠鼻]": "/emoji/koubi.png",
 
-  "[惊讶]": "https://iksling.com/static/img/emoji/jingya.png",
+  "#[惊讶]": "/emoji/jingya.png",
 
-  "[吃瓜]": "https://iksling.com/static/img/emoji/chigua.png",
+  "#[吃瓜]": "/emoji/chigua.png",
 
-  "[鼓掌]": "https://iksling.com/static/img/emoji/guzhang.png",
+  "#[鼓掌]": "/emoji/guzhang.png",
 
-  "[尴尬]": "https://iksling.com/static/img/emoji/ganga.png",
+  "#[尴尬]": "/emoji/ganga.png",
 
-  "[委屈]": "https://iksling.com/static/img/emoji/weiqu.png",
+  "#[委屈]": "/emoji/weiqu.png",
 
-  "[吐]": "https://iksling.com/static/img/emoji/tu.png",
+  "#[吐]": "/emoji/tu.png",
 
-  "[嘘声]": "https://iksling.com/static/img/emoji/xu.png",
+  "#[嘘声]": "/emoji/xu.png",
 
-  "[再见]": "https://iksling.com/static/img/emoji/zaijian.png",
+  "#[再见]": "/emoji/zaijian.png",
 
-  "[白眼]": "https://iksling.com/static/img/emoji/baiyan.png",
+  "#[白眼]": "/emoji/baiyan.png",
 
-  "[翻白眼]": "https://iksling.com/static/img/emoji/fanbaiyan.png",
+  "#[翻白眼]": "/emoji/fanbaiyan.png",
 
-  "[难过]": "https://iksling.com/static/img/emoji/nanguo.png",
+  "#[难过]": "/emoji/nanguo.png",
 
-  "[抓狂]": "https://iksling.com/static/img/emoji/zhuakuang.png",
+  "#[抓狂]": "/emoji/zhuakuang.png",
 
-  "[嘿哈]": "https://iksling.com/static/img/emoji/heiha.png",
+  "#[嘿哈]": "/emoji/heiha.png",
 
-  "[机制]": "https://iksling.com/static/img/emoji/jizhi.png",
+  "#[机制]": "/emoji/jizhi.png",
 
-  "[耶]": "https://iksling.com/static/img/emoji/ye.png",
+  "#[耶]": "/emoji/ye.png",
 
-  "[皱眉]": "https://iksling.com/static/img/emoji/zhoumei.png",
+  "#[皱眉]": "/emoji/zhoumei.png",
 
-  "[加油]": "https://iksling.com/static/img/emoji/jiayou.png",
+  "#[加油]": "/emoji/jiayou.png",
 
-  "[裂开]": "https://iksling.com/static/img/emoji/liekai.png",
+  "#[裂开]": "/emoji/liekai.png",
 
-  "[苦涩]": "https://iksling.com/static/img/emoji/kuse.png",
+  "#[苦涩]": "/emoji/kuse.png",
 
-  "[让我看看]": "https://iksling.com/static/img/emoji/rangwokankan.png",
+  "#[让我看看]": "/emoji/rangwokankan.png",
 
-  "[天阿]": "https://iksling.com/static/img/emoji/tiana.png",
+  "#[天阿]": "/emoji/tiana.png",
 
-  "[叹气]": "https://iksling.com/static/img/emoji/tanqi.png",
+  "#[叹气]": "/emoji/tanqi.png",
 
-  "[打脸]": "https://iksling.com/static/img/emoji/dalian.png",
+  "#[打脸]": "/emoji/dalian.png",
 
-  "[撇嘴]": "https://iksling.com/static/img/emoji/piezui.png",
+  "#[撇嘴]": "/emoji/piezui.png",
 
-  "[色]": "https://iksling.com/static/img/emoji/se.png",
+  "#[色]": "/emoji/se.png",
 
-  "[发呆]": "https://iksling.com/static/img/emoji/fadai.png",
+  "#[发呆]": "/emoji/fadai.png",
 
-  "[得意]": "https://iksling.com/static/img/emoji/deyi.png",
+  "#[得意]": "/emoji/deyi.png",
 
-  "[流泪]": "https://iksling.com/static/img/emoji/liulei.png",
+  "#[流泪]": "/emoji/liulei.png",
 
-  "[闭嘴]": "https://iksling.com/static/img/emoji/bizui.png",
+  "#[闭嘴]": "/emoji/bizui.png",
 
-  "[睡]": "https://iksling.com/static/img/emoji/shui.png",
+  "#[睡]": "/emoji/shui.png",
 
-  "[发怒]": "https://iksling.com/static/img/emoji/fanu.png",
+  "#[发怒]": "/emoji/fanu.png",
 
-  "[囧]": "https://iksling.com/static/img/emoji/jiong.png",
+  "#[囧]": "/emoji/jiong.png",
 
-  "[愉快]": "https://iksling.com/static/img/emoji/yukuai.png",
+  "#[愉快]": "/emoji/yukuai.png",
 
-  "[傲慢]": "https://iksling.com/static/img/emoji/aoman.png",
+  "#[傲慢]": "/emoji/aoman.png",
 
-  "[困]": "https://iksling.com/static/img/emoji/kun.png",
+  "#[困]": "/emoji/kun.png",
 
-  "[惊恐]": "https://iksling.com/static/img/emoji/jingkong.png",
+  "#[惊恐]": "/emoji/jingkong.png",
 
-  "[憨笑]": "https://iksling.com/static/img/emoji/hanxiao.png",
+  "#[憨笑]": "/emoji/hanxiao.png",
 
-  "[悠闲]": "https://iksling.com/static/img/emoji/youxian.png",
+  "#[悠闲]": "/emoji/youxian.png",
 
-  "[咒骂]": "https://iksling.com/static/img/emoji/zouma.png",
+  "#[咒骂]": "/emoji/zouma.png",
 
-  "[敲打]": "https://iksling.com/static/img/emoji/qiaoda.png",
+  "#[敲打]": "/emoji/qiaoda.png",
 
-  "[骷髅]": "https://iksling.com/static/img/emoji/kulo.png",
+  "#[骷髅]": "/emoji/kulo.png",
 
-  "[疑问]": "https://iksling.com/static/img/emoji/yiwen.png",
+  "#[疑问]": "/emoji/yiwen.png",
 
-  "[晕]": "https://iksling.com/static/img/emoji/yun.png",
+  "#[晕]": "/emoji/yun.png",
 
-  "[衰]": "https://iksling.com/static/img/emoji/shuai.png",
+  "#[衰]": "/emoji/shuai.png",
 
-  "[擦汗]": "https://iksling.com/static/img/emoji/cahan.png",
+  "#[擦汗]": "/emoji/cahan.png",
 
-  "[坏笑]": "https://iksling.com/static/img/emoji/huaixiao.png",
+  "#[坏笑]": "/emoji/huaixiao.png",
 
-  "[右哼哼]": "https://iksling.com/static/img/emoji/youhengheng.png",
+  "#[右哼哼]": "/emoji/youhengheng.png",
 
-  "[鄙视]": "https://iksling.com/static/img/emoji/bishi.png",
+  "#[鄙视]": "/emoji/bishi.png",
 
-  "[快哭了]": "https://iksling.com/static/img/emoji/kuaikule.png",
+  "#[快哭了]": "/emoji/kuaikule.png",
 
-  "[亲亲]": "https://iksling.com/static/img/emoji/qinqin.png",
+  "#[亲亲]": "/emoji/qinqin.png",
 
-  "[可怜]": "https://iksling.com/static/img/emoji/kelian.png",
+  "#[可怜]": "/emoji/kelian.png",
 
-  "[社会社会]": "https://iksling.com/static/img/emoji/shehuishehui.png",
+  "#[社会社会]": "/emoji/shehuishehui.png",
 
-  "[汗]": "https://iksling.com/static/img/emoji/han.png",
+  "#[汗]": "/emoji/han.png",
 
-  "[哇]": "https://iksling.com/static/img/emoji/wa.png",
+  "#[哇]": "/emoji/wa.png",
 
-  "[旺柴]": "https://iksling.com/static/img/emoji/wangchai.png"
+  "#[旺柴]": "/emoji/wangchai.png"
 };

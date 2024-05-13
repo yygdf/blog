@@ -123,7 +123,7 @@ CREATE TABLE `tb_comment`  (
   `reply_id` int(11) NOT NULL DEFAULT -1 COMMENT '回复用户id, 默认-1',
   `article_id` int(11) NOT NULL DEFAULT -1 COMMENT '文章id, 默认-1',
   `parent_id` int(11) NOT NULL DEFAULT -1 COMMENT '父id, 默认-1',
-  `comment_content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '评论内容',
+  `comment_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '评论内容',
   `recycle_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未回收, 1已回收, 默认0',
   `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除, 1已删除, 默认0',
   `ip_source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ip来源, 默认空串',

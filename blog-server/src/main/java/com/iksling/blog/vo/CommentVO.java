@@ -32,7 +32,7 @@ public class CommentVO {
      * 评论内容
      */
     @NotNull(message = "'commentContent':'NotNull'")
-    @Size(min = 1, max = 255, message = "'commentContent':{'minlength':1,'maxlength':255}")
+    @Size(min = 1, message = "'commentContent':{'minlength':1}")
     @ApiModelProperty(name = "commentContent", value = "评论内容", dataType = "String")
     private String commentContent;
 }

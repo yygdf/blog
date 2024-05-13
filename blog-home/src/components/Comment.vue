@@ -271,7 +271,7 @@ export default {
         this.$toast({ type: "error", message: "评论不能为空" });
         return false;
       }
-      const reg = /\[.+?]/g;
+      const reg = /#\[.+?]/g;
       let content = this.commentContent;
       content = content.replace(reg, function(str) {
         return (

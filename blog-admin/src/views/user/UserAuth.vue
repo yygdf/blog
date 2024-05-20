@@ -262,7 +262,11 @@
       <div class="dialog-title-container" slot="title" ref="userAuthTitle" />
       <el-form :model="userAuth" size="medium" label-width="80">
         <el-form-item label="账号">
-          <el-input v-model="userAuth.username" class="form-input-width" disabled />
+          <el-input
+            v-model="userAuth.username"
+            class="form-input-width"
+            disabled
+          />
         </el-form-item>
         <el-form-item label="密码">
           <el-input

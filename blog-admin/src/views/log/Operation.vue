@@ -77,12 +77,14 @@
     </div>
     <el-table v-loading="loading" :data="operationLogList" border>
       <el-table-column
+        v-if="showColumnConfig.username"
         prop="username"
         label="操作人员"
         align="center"
-        width="160"
+        min-width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.optModule"
         prop="optModule"
         label="操作模块"
         align="center"
@@ -95,6 +97,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.optType"
         prop="optType"
         label="操作类型"
         align="center"
@@ -107,29 +110,39 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.optDesc"
         prop="optDesc"
         label="操作描述"
         align="center"
-        width="200"
+        min-width="240"
       />
-      <el-table-column prop="optMethod" label="操作方法" align="center" />
       <el-table-column
+        v-if="showColumnConfig.optMethod"
+        prop="optMethod"
+        label="操作方法"
+        align="center"
+        min-width="240"
+      />
+      <el-table-column
+        v-if="showColumnConfig.ipAddress"
         prop="ipAddress"
         label="ip地址"
         align="center"
         width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.ipSource"
         prop="ipSource"
         label="ip来源"
         align="center"
         width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.createTime"
         prop="createTime"
         label="操作时间"
-        width="200"
         align="center"
+        width="200"
       >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
@@ -137,6 +150,48 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="120">
+        <template slot="header">
+          <el-popover placement="bottom" title="选择显示列" width="160">
+            <div>
+              <el-checkbox v-model="showColumnConfig.username"
+                >操作人员</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.optModule"
+                >操作模块</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.optType"
+                >操作类型</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.optDesc"
+                >操作描述</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.optMethod"
+                >操作方法</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.ipAddress"
+                >ip地址</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.ipSource"
+                >ip来源</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.createTime"
+                >操作时间</el-checkbox
+              >
+              <div>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="float: right"
+                  plain
+                  @click="saveColumnConfig"
+                >
+                  保存
+                </el-button>
+              </div>
+            </div>
+            <i slot="reference" class="el-icon-setting table-setting-icon"></i>
+          </el-popover>
+        </template>
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="check(scope.row)">
             <i class="el-icon-view" /> 查看
@@ -205,8 +260,9 @@
 <script>
 export default {
   created() {
-    this.getOperationLogs();
+    this.loadColumnConfig();
     this.getModuleNames();
+    this.getOperationLogs();
   },
   data: function() {
     return {
@@ -258,6 +314,7 @@ export default {
       moduleNameList: [],
       operationLogList: [],
       operationLog: {},
+      showColumnConfig: {},
       userId: null,
       endTime: null,
       optType: null,
@@ -282,6 +339,31 @@ export default {
     currentChange(current) {
       this.current = current;
       this.getOperationLogs();
+    },
+    saveColumnConfig() {
+      localStorage.setItem(
+        "OperationColumnSet",
+        JSON.stringify(this.showColumnConfig)
+      );
+      document.body.click();
+    },
+    loadColumnConfig() {
+      if (localStorage.getItem("OperationColumnSet")) {
+        this.showColumnConfig = JSON.parse(
+          localStorage.getItem("OperationColumnSet")
+        );
+      } else {
+        this.showColumnConfig = {
+          username: true,
+          optModule: true,
+          optType: true,
+          optDesc: true,
+          optMethod: true,
+          ipAddress: true,
+          ipSource: true,
+          createTime: true
+        };
+      }
     },
     getOperationLogs(resetCurrentPage) {
       if (resetCurrentPage) {

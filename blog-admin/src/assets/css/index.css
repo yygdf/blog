@@ -98,3 +98,11 @@ body {
 .myScrollbar ::-webkit-resizer {
   display: none;
 }
+
+.table-setting-icon {
+  font-size: 20px;
+  cursor: pointer;
+}
+.table-setting-icon:hover {
+  color: dodgerblue;
+}

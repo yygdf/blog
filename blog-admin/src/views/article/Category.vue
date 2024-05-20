@@ -97,20 +97,28 @@
         :selectable="checkSelectable"
       />
       <el-table-column
-        v-if="checkWeight(200)"
+        v-if="checkWeight(200) && showColumnConfig.username"
         prop="username"
         label="用户"
         align="center"
-        width="120"
+        min-width="120"
       />
-      <el-table-column prop="categoryName" label="分类名" align="center" />
       <el-table-column
+        v-if="showColumnConfig.categoryName"
+        prop="categoryName"
+        label="分类名"
+        align="center"
+        min-width="240"
+      />
+      <el-table-column
+        v-if="showColumnConfig.articleCount"
         prop="articleCount"
         label="文章数"
         align="center"
         width="80"
       />
       <el-table-column
+        v-if="showColumnConfig.createTime"
         prop="createTime"
         label="创建日期"
         align="center"
@@ -122,6 +130,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.updateTime"
         prop="updateTime"
         label="更新日期"
         align="center"
@@ -132,7 +141,13 @@
           {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
-      <el-table-column prop="publicFlag" label="公开" align="center" width="80">
+      <el-table-column
+        v-if="showColumnConfig.publicFlag"
+        prop="publicFlag"
+        label="公开"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.publicFlag"
@@ -145,7 +160,13 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
+      <el-table-column
+        v-if="showColumnConfig.hiddenFlag"
+        prop="hiddenFlag"
+        label="隐藏"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hiddenFlag"
@@ -159,6 +180,46 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
+        <template slot="header">
+          <el-popover placement="bottom" title="选择显示列" width="160">
+            <div>
+              <el-checkbox v-model="showColumnConfig.username"
+                >用户</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.categoryName"
+                >分类名</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.articleCount"
+                >文章数</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.createTime"
+                >创建日期</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.updateTime"
+                >更新日期</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.publicFlag"
+                >公开</el-checkbox
+              >
+              <div />
+              <el-checkbox v-model="showColumnConfig.hiddenFlag"
+                >隐藏</el-checkbox
+              >
+              <div>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="float: right"
+                  plain
+                  @click="saveColumnConfig"
+                >
+                  保存
+                </el-button>
+              </div>
+            </div>
+            <i slot="reference" class="el-icon-setting table-setting-icon"></i>
+          </el-popover>
+        </template>
         <template slot-scope="scope">
           <el-button
             :disabled="type != null"
@@ -286,6 +347,7 @@
 <script>
 export default {
   created() {
+    this.loadColumnConfig();
     this.getCategories();
     this.$nextTick(() => {
       this.$refs.input.focus();
@@ -308,6 +370,7 @@ export default {
       categoryIdList: [],
       category: {},
       categoryOrigin: {},
+      showColumnConfig: {},
       type: null,
       userId: null,
       keywords: null,
@@ -364,6 +427,30 @@ export default {
       selection.forEach(item => {
         this.categoryIdList.push(item.id);
       });
+    },
+    saveColumnConfig() {
+      localStorage.setItem(
+        "CategoryColumnSet",
+        JSON.stringify(this.showColumnConfig)
+      );
+      document.body.click();
+    },
+    loadColumnConfig() {
+      if (localStorage.getItem("CategoryColumnSet")) {
+        this.showColumnConfig = JSON.parse(
+          localStorage.getItem("CategoryColumnSet")
+        );
+      } else {
+        this.showColumnConfig = {
+          username: true,
+          categoryName: true,
+          articleCount: true,
+          createTime: true,
+          updateTime: true,
+          publicFlag: true,
+          hiddenFlag: true
+        };
+      }
     },
     getCategories(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

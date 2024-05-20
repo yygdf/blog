@@ -284,7 +284,7 @@ INSERT INTO `tb_menu` VALUES (118, 2, 7, 'el-icon-s-order', 73, '/userAuth', '�
 INSERT INTO `tb_menu` VALUES (119, 2, 8, 'el-icon-receiving', 82, '/operation', '操作日志', '/log/Operation.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 INSERT INTO `tb_menu` VALUES (120, 2, 8, 'el-icon-map-location', 81, '/loginLog', '登录日志', '/log/Login.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 INSERT INTO `tb_menu` VALUES (121, 2, 8, 'el-icon-warning-outline', 83, '/exception', '异常日志', '/log/Exception.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (122, 2, 9, 'el-icon-folder-opened', 91, '/multiFile', '文件管理', '/file/MultiFile.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (122, 2, 9, 'el-icon-folder-opened', 91, '/multiFile', '文件列表', '/file/MultiFile.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 INSERT INTO `tb_menu` VALUES (123, 2, 10, 'el-icon-postcard', 92, '/personal', '个人信息', '/personal/Personal.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 INSERT INTO `tb_menu` VALUES (124, 2, 10, 'el-icon-coin', 94, '/userConfig', '用户配置', '/personal/UserConfig.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 

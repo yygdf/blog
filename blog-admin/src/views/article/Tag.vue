@@ -92,13 +92,19 @@
     >
       <el-table-column type="selection" align="center" width="40" />
       <el-table-column
-        v-if="checkWeight(300)"
+        v-if="checkWeight(300) && showColumnConfig.username"
         prop="username"
         label="用户"
         align="center"
-        width="120"
+        min-width="120"
       />
-      <el-table-column prop="tagName" label="标签名" align="center">
+      <el-table-column
+        v-if="showColumnConfig.tagName"
+        prop="tagName"
+        label="标签名"
+        align="center"
+        min-width="240"
+      >
         <template slot-scope="scope">
           <el-tag>
             {{ scope.row.tagName }}
@@ -106,6 +112,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.createTime"
         prop="createTime"
         label="创建日期"
         align="center"
@@ -117,6 +124,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.updateTime"
         prop="updateTime"
         label="更新日期"
         align="center"
@@ -128,6 +136,36 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
+        <template slot="header">
+          <el-popover placement="bottom" title="选择显示列" width="160">
+            <div>
+              <el-checkbox v-model="showColumnConfig.username"
+                >用户</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.tagName"
+                >标签名</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.createTime"
+                >创建日期</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.updateTime"
+                >更新日期</el-checkbox
+              >
+              <div>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="float: right"
+                  plain
+                  @click="saveColumnConfig"
+                >
+                  保存
+                </el-button>
+              </div>
+            </div>
+            <i slot="reference" class="el-icon-setting table-setting-icon"></i>
+          </el-popover>
+        </template>
         <template slot-scope="scope">
           <el-button
             :disabled="type != null"
@@ -234,6 +272,7 @@
 <script>
 export default {
   created() {
+    this.loadColumnConfig();
     this.getTags();
     this.$nextTick(() => {
       this.$refs.input.focus();
@@ -256,6 +295,7 @@ export default {
       usernameList: [],
       tag: {},
       tagOrigin: {},
+      showColumnConfig: {},
       type: null,
       userId: null,
       keywords: null,
@@ -305,6 +345,27 @@ export default {
       selection.forEach(item => {
         this.tagIdList.push(item.id);
       });
+    },
+    saveColumnConfig() {
+      localStorage.setItem(
+        "TagColumnSet",
+        JSON.stringify(this.showColumnConfig)
+      );
+      document.body.click();
+    },
+    loadColumnConfig() {
+      if (localStorage.getItem("TagColumnSet")) {
+        this.showColumnConfig = JSON.parse(
+          localStorage.getItem("TagColumnSet")
+        );
+      } else {
+        this.showColumnConfig = {
+          username: true,
+          tagName: true,
+          createTime: true,
+          updateTime: true
+        };
+      }
     },
     getTags(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

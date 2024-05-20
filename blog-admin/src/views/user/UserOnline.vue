@@ -59,12 +59,19 @@
         :selectable="checkSelectable"
       />
       <el-table-column
+        v-if="showColumnConfig.username"
         prop="username"
         label="用户"
         align="center"
-        width="160"
+        min-width="120"
       />
-      <el-table-column prop="avatar" label="头像" align="center" width="80">
+      <el-table-column
+        v-if="showColumnConfig.avatar"
+        prop="avatar"
+        label="头像"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <el-image
             :src="scope.row.avatar === '' ? defaultAvatar : scope.row.avatar"
@@ -75,12 +82,19 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="nickname" label="昵称" align="center" />
       <el-table-column
-        prop="loginDevice"
-        label="登陆设备"
+        v-if="showColumnConfig.nickname"
+        prop="nickname"
+        label="昵称"
         align="center"
-        width="160"
+        min-width="120"
+      />
+      <el-table-column
+        v-if="showColumnConfig.loginDevice"
+        prop="loginDevice"
+        label="登录设备"
+        align="center"
+        width="120"
       >
         <template slot-scope="scope">
           <el-tag style="margin-right:4px;margin-top:4px">
@@ -89,10 +103,11 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.loginMethod"
         prop="loginMethod"
         label="登录方式"
         align="center"
-        width="160"
+        width="120"
       >
         <template slot-scope="scope">
           <el-tag style="margin-right:4px;margin-top:4px">
@@ -101,10 +116,11 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.loginPlatform"
         prop="loginPlatform"
         label="登录平台"
         align="center"
-        width="160"
+        width="120"
       >
         <template slot-scope="scope">
           <el-tag style="margin-right:4px;margin-top:4px">
@@ -113,18 +129,21 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.ipAddress"
         prop="ipAddress"
         label="ip地址"
         align="center"
-        width="160"
+        width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.ipSource"
         prop="ipSource"
         label="ip来源"
         align="center"
-        width="160"
+        width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.loginTime"
         prop="loginTime"
         label="登录时间"
         align="center"
@@ -136,6 +155,49 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="80">
+        <template slot="header">
+          <el-popover placement="bottom" title="选择显示列" width="160">
+            <div>
+              <el-checkbox v-model="showColumnConfig.username"
+                >用户</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.avatar">头像</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.nickname"
+                >昵称</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.loginDevice"
+                >登录设备</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.loginMethod"
+                >登录方式</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.loginPlatform"
+                >登录平台</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.ipAddress"
+                >ip地址</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.ipSource"
+                >ip来源</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.loginTime"
+                >登录时间</el-checkbox
+              >
+              <div>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="float: right"
+                  plain
+                  @click="saveColumnConfig"
+                >
+                  保存
+                </el-button>
+              </div>
+            </div>
+            <i slot="reference" class="el-icon-setting table-setting-icon"></i>
+          </el-popover>
+        </template>
         <template slot-scope="scope">
           <el-popconfirm
             title="确定强制下线该用户吗？"
@@ -183,6 +245,7 @@
 <script>
 export default {
   created() {
+    this.loadColumnConfig();
     this.getUserOnlines();
     this.$nextTick(() => {
       this.$refs.input.focus();
@@ -203,6 +266,7 @@ export default {
       rootUserIdList: [],
       userOnlineList: [],
       userOnlineIdList: [],
+      showColumnConfig: {},
       flag: null,
       keywords: null,
       oldKeywords: null,
@@ -231,6 +295,32 @@ export default {
       selection.forEach(item => {
         this.userOnlineIdList.push(item.id);
       });
+    },
+    saveColumnConfig() {
+      localStorage.setItem(
+        "UserOnlineColumnSet",
+        JSON.stringify(this.showColumnConfig)
+      );
+      document.body.click();
+    },
+    loadColumnConfig() {
+      if (localStorage.getItem("UserOnlineColumnSet")) {
+        this.showColumnConfig = JSON.parse(
+          localStorage.getItem("UserOnlineColumnSet")
+        );
+      } else {
+        this.showColumnConfig = {
+          username: true,
+          avatar: true,
+          nickname: true,
+          loginDevice: true,
+          loginMethod: true,
+          loginPlatform: true,
+          ipAddress: true,
+          ipSource: true,
+          loginTime: true
+        };
+      }
     },
     getUserOnlines(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

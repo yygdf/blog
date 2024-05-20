@@ -93,12 +93,19 @@
         :selectable="checkSelectable"
       />
       <el-table-column
+        v-if="showColumnConfig.username"
         prop="username"
         label="用户"
         align="center"
-        width="120"
+        min-width="120"
       />
-      <el-table-column prop="avatar" label="头像" align="center" width="80">
+      <el-table-column
+        v-if="showColumnConfig.avatar"
+        prop="avatar"
+        label="头像"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <el-image
             :src="scope.row.avatar === '' ? defaultAvatar : scope.row.avatar"
@@ -110,24 +117,50 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.nickname"
         prop="nickname"
         label="昵称"
         align="center"
-        width="120"
+        min-width="120"
       />
-      <el-table-column prop="gender" label="性别" align="center" width="80">
+      <el-table-column
+        v-if="showColumnConfig.gender"
+        prop="gender"
+        label="性别"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <img :src="switchGender(scope.row.gender)" width="30" height="30" />
         </template>
       </el-table-column>
-      <el-table-column prop="email" label="邮箱" align="center" width="120" />
-      <el-table-column prop="intro" label="介绍" align="center" />
-      <el-table-column prop="website" label="网站" align="center" />
       <el-table-column
+        v-if="showColumnConfig.email"
+        prop="email"
+        label="邮箱"
+        align="center"
+        width="120"
+      />
+      <el-table-column
+        v-if="showColumnConfig.intro"
+        prop="intro"
+        label="介绍"
+        align="center"
+        min-width="240"
+      />
+      <el-table-column
+        v-if="showColumnConfig.website"
+        prop="website"
+        label="网站"
+        align="center"
+        min-width="240"
+      />
+      <el-table-column
+        v-if="showColumnConfig.createTime"
         prop="createTime"
         label="创建时间"
-        width="200"
         align="center"
+        width="200"
       >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
@@ -135,17 +168,53 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.updateTime"
         prop="updateTime"
         label="更新时间"
-        width="200"
         align="center"
+        width="200"
       >
         <template slot-scope="scope" v-if="scope.row.updateTime">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.updateTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="160">
+      <el-table-column fixed="right" label="操作" align="center" width="160">
+        <template slot="header">
+          <el-popover placement="bottom" title="选择显示列" width="160">
+            <div>
+              <el-checkbox v-model="showColumnConfig.username"
+                >用户</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.avatar">头像</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.nickname"
+                >昵称</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.gender">性别</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.email">邮箱</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.intro">介绍</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.website">网站</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.createTime"
+                >创建时间</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.updateTime"
+                >更新时间</el-checkbox
+              >
+              <div>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="float: right"
+                  plain
+                  @click="saveColumnConfig"
+                >
+                  保存
+                </el-button>
+              </div>
+            </div>
+            <i slot="reference" class="el-icon-setting table-setting-icon"></i>
+          </el-popover>
+        </template>
         <template slot-scope="scope">
           <el-button
             v-if="type !== 7"
@@ -374,6 +443,7 @@
 <script>
 export default {
   created() {
+    this.loadColumnConfig();
     this.getUsers();
     this.$nextTick(() => {
       this.$refs.input.focus();
@@ -414,6 +484,7 @@ export default {
       rootUserIdList: [],
       user: {},
       userOrigin: {},
+      showColumnConfig: {},
       type: null,
       gender: null,
       keywords: null,
@@ -575,6 +646,32 @@ export default {
             this.usernameExistStatus = 2;
           }
         });
+    },
+    saveColumnConfig() {
+      localStorage.setItem(
+        "UserColumnSet",
+        JSON.stringify(this.showColumnConfig)
+      );
+      document.body.click();
+    },
+    loadColumnConfig() {
+      if (localStorage.getItem("UserColumnSet")) {
+        this.showColumnConfig = JSON.parse(
+          localStorage.getItem("UserColumnSet")
+        );
+      } else {
+        this.showColumnConfig = {
+          username: true,
+          avatar: true,
+          nickname: true,
+          gender: true,
+          email: true,
+          intro: true,
+          website: true,
+          createTime: true,
+          updateTime: true
+        };
+      }
     },
     getUsers(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

@@ -76,12 +76,14 @@
     </div>
     <el-table v-loading="loading" :data="loginLogList" border>
       <el-table-column
+        v-if="showColumnConfig.username"
         prop="username"
         label="登录用户"
         align="center"
-        width="160"
+        min-width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.loginMethod"
         prop="loginMethod"
         label="登录方式"
         align="center"
@@ -94,6 +96,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.loginPlatform"
         prop="loginPlatform"
         label="登录平台"
         align="center"
@@ -105,30 +108,98 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="loginDevice" label="登录设备" align="center" />
-      <el-table-column prop="loginSystem" label="操作系统" align="center" />
-      <el-table-column prop="loginBrowser" label="浏览器类型" align="center" />
       <el-table-column
+        v-if="showColumnConfig.loginDevice"
+        prop="loginDevice"
+        label="登录设备"
+        align="center"
+        width="120"
+      />
+      <el-table-column
+        v-if="showColumnConfig.loginSystem"
+        prop="loginSystem"
+        label="操作系统"
+        align="center"
+        width="120"
+      />
+      <el-table-column
+        v-if="showColumnConfig.loginBrowser"
+        prop="loginBrowser"
+        label="浏览器类型"
+        align="center"
+        width="120"
+      />
+      <el-table-column
+        v-if="showColumnConfig.ipAddress"
         prop="ipAddress"
         label="ip地址"
         align="center"
         width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.ipSource"
         prop="ipSource"
         label="ip来源"
         align="center"
         width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.loginTime"
         prop="loginTime"
         label="登录时间"
-        width="200"
         align="center"
+        width="200"
       >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
           {{ scope.row.loginTime | dateTime }}
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" align="center" width="80">
+        <template slot="header">
+          <el-popover placement="bottom" title="选择显示列" width="160">
+            <div>
+              <el-checkbox v-model="showColumnConfig.username"
+                >登录用户</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.loginMethod"
+                >登录方式</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.loginPlatform"
+                >登录平台</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.loginDevice"
+                >登录设备</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.loginSystem"
+                >操作系统</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.loginBrowser"
+                >浏览器类型</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.ipAddress"
+                >ip地址</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.ipSource"
+                >ip来源</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.loginTime"
+                >登录时间</el-checkbox
+              >
+              <div>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="float: right"
+                  plain
+                  @click="saveColumnConfig"
+                >
+                  保存
+                </el-button>
+              </div>
+            </div>
+            <i slot="reference" class="el-icon-setting table-setting-icon"></i>
+          </el-popover>
         </template>
       </el-table-column>
     </el-table>
@@ -149,6 +220,7 @@
 <script>
 export default {
   created() {
+    this.loadColumnConfig();
     this.getLoginLogs();
   },
   data: function() {
@@ -209,6 +281,7 @@ export default {
       },
       loginLogList: [],
       usernameList: [],
+      showColumnConfig: {},
       userId: null,
       endTime: null,
       optModule: null,
@@ -230,6 +303,32 @@ export default {
     currentChange(current) {
       this.current = current;
       this.getLoginLogs();
+    },
+    saveColumnConfig() {
+      localStorage.setItem(
+        "LoginColumnSet",
+        JSON.stringify(this.showColumnConfig)
+      );
+      document.body.click();
+    },
+    loadColumnConfig() {
+      if (localStorage.getItem("LoginColumnSet")) {
+        this.showColumnConfig = JSON.parse(
+          localStorage.getItem("LoginColumnSet")
+        );
+      } else {
+        this.showColumnConfig = {
+          username: true,
+          loginMethod: true,
+          loginPlatform: true,
+          loginDevice: true,
+          loginSystem: true,
+          loginBrowser: true,
+          ipAddress: true,
+          ipSource: true,
+          loginTime: true
+        };
+      }
     },
     getLoginLogs(resetCurrentPage) {
       if (resetCurrentPage) {

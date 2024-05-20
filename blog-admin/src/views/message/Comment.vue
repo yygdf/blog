@@ -100,13 +100,19 @@
     >
       <el-table-column type="selection" align="center" width="40" />
       <el-table-column
-        v-if="checkWeight(400)"
+        v-if="checkWeight(400) && showColumnConfig.username"
         prop="username"
         label="用户"
         align="center"
-        width="120"
+        min-width="120"
       />
-      <el-table-column prop="avatar" label="头像" align="center" width="80">
+      <el-table-column
+        v-if="showColumnConfig.avatar"
+        prop="avatar"
+        label="头像"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <el-image
             :src="scope.row.avatar === '' ? defaultAvatar : scope.row.avatar"
@@ -118,16 +124,18 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.nickname"
         prop="nickname"
         label="评论人"
         align="center"
-        width="120"
+        min-width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.replyNickname"
         prop="replyNickname"
         label="回复人"
         align="center"
-        width="120"
+        min-width="120"
       >
         <template slot-scope="scope">
           <span v-if="scope.row.replyNickname">
@@ -136,10 +144,11 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.articleTitle"
         prop="articleTitle"
         label="文章标题"
         align="center"
-        width="120"
+        min-width="120"
       >
         <template slot-scope="scope">
           <span v-if="scope.row.articleTitle">
@@ -147,12 +156,19 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column prop="commentContent" label="评论内容" align="center">
+      <el-table-column
+        v-if="showColumnConfig.commentContent"
+        prop="commentContent"
+        label="评论内容"
+        align="center"
+        min-width="240"
+      >
         <template slot-scope="scope">
           <span v-html="scope.row.commentContent" class="comment-content" />
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.likeCount"
         prop="likeCount"
         label="点赞量"
         align="center"
@@ -166,6 +182,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.createTime"
         prop="createTime"
         label="评论时间"
         align="center"
@@ -177,6 +194,46 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
+        <template slot="header">
+          <el-popover placement="bottom" title="选择显示列" width="160">
+            <div>
+              <el-checkbox v-model="showColumnConfig.username"
+                >用户</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.avatar">头像</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.nickname"
+                >评论人</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.replyNickname"
+                >回复人</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.articleTitle"
+                >文章标题</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.commentContent"
+                >评论内容</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.likeCount"
+                >点赞量</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.createTime"
+                >评论时间</el-checkbox
+              >
+              <div>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="float: right"
+                  plain
+                  @click="saveColumnConfig"
+                >
+                  保存
+                </el-button>
+              </div>
+            </div>
+            <i slot="reference" class="el-icon-setting table-setting-icon"></i>
+          </el-popover>
+        </template>
         <template slot-scope="scope">
           <el-popconfirm
             v-if="checkWeight(300)"
@@ -267,6 +324,7 @@
 <script>
 export default {
   created() {
+    this.loadColumnConfig();
     this.getComments();
     if (this.checkWeight(100)) {
       this.options.push({
@@ -303,6 +361,7 @@ export default {
       commentList: [],
       usernameList: [],
       commentIdList: [],
+      showColumnConfig: {},
       flag: null,
       type: null,
       userId: null,
@@ -334,6 +393,31 @@ export default {
       selection.forEach(item => {
         this.commentIdList.push(item.id);
       });
+    },
+    saveColumnConfig() {
+      localStorage.setItem(
+        "CommentColumnSet",
+        JSON.stringify(this.showColumnConfig)
+      );
+      document.body.click();
+    },
+    loadColumnConfig() {
+      if (localStorage.getItem("CommentColumnSet")) {
+        this.showColumnConfig = JSON.parse(
+          localStorage.getItem("CommentColumnSet")
+        );
+      } else {
+        this.showColumnConfig = {
+          username: true,
+          avatar: true,
+          nickname: true,
+          replyNickname: true,
+          articleTitle: true,
+          commentContent: true,
+          likeCount: true,
+          createTime: true
+        };
+      }
     },
     getComments(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

@@ -122,25 +122,33 @@
     >
       <el-table-column type="selection" align="center" width="40" />
       <el-table-column
-        v-if="checkWeight(300)"
+        v-if="checkWeight(300) && showColumnConfig.username"
         prop="username"
         label="用户"
         align="center"
-        width="120"
+        min-width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.articleTitle"
         prop="articleTitle"
         label="标题"
         align="center"
-        width="120"
+        min-width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.categoryName"
         prop="categoryName"
         label="分类"
         align="center"
-        width="120"
+        min-width="120"
       />
-      <el-table-column prop="tagNameList" label="标签" align="center">
+      <el-table-column
+        v-if="showColumnConfig.tagNameList"
+        prop="tagNameList"
+        label="标签"
+        align="center"
+        min-width="240"
+      >
         <template slot-scope="scope">
           <el-tag
             v-for="item of scope.row.tagNameList == null
@@ -154,6 +162,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.viewCount"
         prop="viewCount"
         label="浏览量"
         align="center"
@@ -167,6 +176,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.likeCount"
         prop="likeCount"
         label="点赞量"
         align="center"
@@ -180,6 +190,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.publishTime"
         prop="publishTime"
         label="发表日期"
         align="center"
@@ -191,6 +202,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.updateTime"
         prop="updateTime"
         label="更新日期"
         align="center"
@@ -201,7 +213,13 @@
           {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
-      <el-table-column prop="topFlag" label="置顶" align="center" width="80">
+      <el-table-column
+        v-if="showColumnConfig.topFlag"
+        prop="topFlag"
+        label="置顶"
+        align="center"
+        min-width="70"
+      >
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.topFlag"
@@ -214,7 +232,13 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="publicFlag" label="公开" align="center" width="80">
+      <el-table-column
+        v-if="showColumnConfig.publicFlag"
+        prop="publicFlag"
+        label="公开"
+        align="center"
+        min-width="70"
+      >
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.publicFlag"
@@ -227,7 +251,13 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
+      <el-table-column
+        v-if="showColumnConfig.hiddenFlag"
+        prop="hiddenFlag"
+        label="隐藏"
+        align="center"
+        min-width="70"
+      >
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hiddenFlag"
@@ -241,10 +271,11 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.commentableFlag"
         prop="commentableFlag"
         label="可评论"
         align="center"
-        width="80"
+        min-width="70"
       >
         <template slot-scope="scope">
           <el-switch
@@ -258,7 +289,60 @@
           />
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="200">
+      <el-table-column fixed="right" label="操作" align="center" width="200">
+        <template slot="header">
+          <el-popover placement="bottom" title="选择显示列" width="160">
+            <div>
+              <el-checkbox v-model="showColumnConfig.username"
+                >用户</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.articleTitle"
+                >标题</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.categoryName"
+                >分类</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.tagNameList"
+                >标签</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.viewCount"
+                >浏览量</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.likeCount"
+                >点赞量</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.publishTime"
+                >发表日期</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.updateTime"
+                >更新日期</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.topFlag">置顶</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.publicFlag"
+                >公开</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.hiddenFlag"
+                >隐藏</el-checkbox
+              >
+              <div />
+              <el-checkbox v-model="showColumnConfig.commentableFlag"
+                >可评论</el-checkbox
+              >
+              <div>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="float: right"
+                  plain
+                  @click="saveColumnConfig"
+                >
+                  保存
+                </el-button>
+              </div>
+            </div>
+            <i slot="reference" class="el-icon-setting table-setting-icon"></i>
+          </el-popover>
+        </template>
         <template slot-scope="scope">
           <el-button
             v-if="type == null || type === 5"
@@ -436,6 +520,7 @@
 import qs from "qs";
 export default {
   created() {
+    this.loadColumnConfig();
     this.getArticles();
     this.getArticleOption();
     if (this.checkWeight(100)) {
@@ -472,6 +557,7 @@ export default {
       articleIdList: [],
       articleToken: {},
       articleTokenOrigin: {},
+      showColumnConfig: {},
       type: null,
       userId: null,
       keywords: null,
@@ -557,6 +643,35 @@ export default {
     },
     cancelAddOrEditArticleToken() {
       this.tokenMap.set(this.articleTokenOrigin.id, this.articleTokenOrigin);
+    },
+    saveColumnConfig() {
+      localStorage.setItem(
+        "ArticlesColumnSet",
+        JSON.stringify(this.showColumnConfig)
+      );
+      document.body.click();
+    },
+    loadColumnConfig() {
+      if (localStorage.getItem("ArticlesColumnSet")) {
+        this.showColumnConfig = JSON.parse(
+          localStorage.getItem("ArticlesColumnSet")
+        );
+      } else {
+        this.showColumnConfig = {
+          username: true,
+          articleTitle: true,
+          categoryName: true,
+          tagNameList: true,
+          viewCount: true,
+          likeCount: true,
+          publishTime: true,
+          updateTime: true,
+          topFlag: true,
+          publicFlag: true,
+          hiddenFlag: true,
+          commentableFlag: true
+        };
+      }
     },
     getArticles(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

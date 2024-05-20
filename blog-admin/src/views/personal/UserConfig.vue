@@ -90,20 +90,35 @@
         :selectable="checkSelectable"
       />
       <el-table-column
+        v-if="checkWeight(200) && showColumnConfig.username"
         prop="username"
         label="用户"
         align="center"
-        width="120"
+        min-width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.configName"
         prop="configName"
         label="配置名"
         align="center"
         width="200"
       />
-      <el-table-column prop="configValue" label="配置值" align="center" />
-      <el-table-column prop="configDesc" label="配置描述" align="center" width="160" />
       <el-table-column
+        v-if="showColumnConfig.configValue"
+        prop="configValue"
+        label="配置值"
+        align="center"
+        min-width="240"
+      />
+      <el-table-column
+        v-if="showColumnConfig.configDesc"
+        prop="configDesc"
+        label="配置描述"
+        align="center"
+        min-width="240"
+      />
+      <el-table-column
+        v-if="showColumnConfig.createTime"
         prop="createTime"
         label="创建日期"
         align="center"
@@ -115,6 +130,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.updateTime"
         prop="updateTime"
         label="更新日期"
         align="center"
@@ -126,6 +142,42 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
+        <template slot="header">
+          <el-popover placement="bottom" title="选择显示列" width="160">
+            <div>
+              <el-checkbox v-model="showColumnConfig.username"
+                >用户</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.configName"
+                >配置名</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.configValue"
+                >配置值</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.configDesc"
+                >配置描述</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.createTime"
+                >创建日期</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.updateTime"
+                >更新日期</el-checkbox
+              >
+              <div>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="float: right"
+                  plain
+                  @click="saveColumnConfig"
+                >
+                  保存
+                </el-button>
+              </div>
+            </div>
+            <i slot="reference" class="el-icon-setting table-setting-icon"></i>
+          </el-popover>
+        </template>
         <template slot-scope="scope">
           <el-button
             :disabled="!checkSelectable(scope.row)"
@@ -252,6 +304,7 @@
 <script>
 export default {
   created() {
+    this.loadColumnConfig();
     this.getUserConfigs();
     this.$nextTick(() => {
       this.$refs.input.focus();
@@ -275,6 +328,7 @@ export default {
       userConfigIdList: [],
       userConfig: {},
       userConfigOrigin: {},
+      showColumnConfig: {},
       type: null,
       userId: null,
       keywords: null,
@@ -329,6 +383,29 @@ export default {
       selection.forEach(item => {
         this.userConfigIdList.push(item.id);
       });
+    },
+    saveColumnConfig() {
+      localStorage.setItem(
+        "UserConfigColumnSet",
+        JSON.stringify(this.showColumnConfig)
+      );
+      document.body.click();
+    },
+    loadColumnConfig() {
+      if (localStorage.getItem("UserConfigColumnSet")) {
+        this.showColumnConfig = JSON.parse(
+          localStorage.getItem("UserConfigColumnSet")
+        );
+      } else {
+        this.showColumnConfig = {
+          username: true,
+          configName: true,
+          configValue: true,
+          configDesc: true,
+          createTime: true,
+          updateTime: true
+        };
+      }
     },
     getUserConfigs(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

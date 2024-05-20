@@ -83,16 +83,18 @@
     </div>
     <el-table v-loading="loading" :data="userAuthList" border>
       <el-table-column
+        v-if="showColumnConfig.username"
         prop="username"
         label="用户"
         align="center"
-        width="160"
+        min-width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.roleDTOList"
         prop="roleDTOList"
         label="角色"
         align="center"
-        width="160"
+        min-width="240"
       >
         <template slot-scope="scope">
           <el-tag
@@ -109,6 +111,7 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.disabledFlag"
         prop="disabledFlag"
         label="禁用"
         align="center"
@@ -126,7 +129,13 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="lockedFlag" label="锁定" align="center" width="80">
+      <el-table-column
+        v-if="showColumnConfig.lockedFlag"
+        prop="lockedFlag"
+        label="锁定"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <el-switch
             :value="scope.row.lockedFlag"
@@ -139,7 +148,13 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="loginMethod" label="登录方式" align="center">
+      <el-table-column
+        v-if="showColumnConfig.loginMethod"
+        prop="loginMethod"
+        label="登录方式"
+        align="center"
+        min-width="240"
+      >
         <template slot-scope="scope" v-if="scope.row.loginMethod">
           <el-tag
             v-for="item of parseLoginMethod(scope.row.loginMethod)"
@@ -151,18 +166,21 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.ipAddress"
         prop="ipAddress"
-        label="登录ip"
+        label="ip地址"
         align="center"
-        width="160"
+        width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.ipSource"
         prop="ipSource"
-        label="登录地址"
+        label="ip来源"
         align="center"
-        width="160"
+        width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.loginTime"
         prop="loginTime"
         label="上次登录时间"
         width="200"
@@ -174,6 +192,48 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="80">
+        <template slot="header">
+          <el-popover placement="bottom" title="选择显示列" width="160">
+            <div>
+              <el-checkbox v-model="showColumnConfig.username"
+                >用户</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.roleDTOList"
+                >角色</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.disabledFlag"
+                >禁用</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.lockedFlag"
+                >锁定</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.loginMethod"
+                >登录方式</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.ipAddress"
+                >ip地址</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.ipSource"
+                >ip来源</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.loginTime"
+                >上次登录时间</el-checkbox
+              >
+              <div>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="float: right"
+                  plain
+                  @click="saveColumnConfig"
+                >
+                  保存
+                </el-button>
+              </div>
+            </div>
+            <i slot="reference" class="el-icon-setting table-setting-icon"></i>
+          </el-popover>
+        </template>
         <template slot-scope="scope">
           <el-button
             :disabled="checkRootUser(scope.row.userId)"
@@ -298,6 +358,7 @@
 import md5 from "js-md5";
 export default {
   created() {
+    this.loadColumnConfig();
     this.getUserAuths();
     this.getRoleNames();
     this.$nextTick(() => {
@@ -342,6 +403,7 @@ export default {
       rootRoleIdList: [],
       userAuth: {},
       userAuthOrigin: {},
+      showColumnConfig: {},
       confirmPassword: "",
       type: null,
       roleId: null,
@@ -432,6 +494,31 @@ export default {
         return;
       }
       this.confirmPasswordStatus = 2;
+    },
+    saveColumnConfig() {
+      localStorage.setItem(
+        "UserAuthColumnSet",
+        JSON.stringify(this.showColumnConfig)
+      );
+      document.body.click();
+    },
+    loadColumnConfig() {
+      if (localStorage.getItem("UserAuthColumnSet")) {
+        this.showColumnConfig = JSON.parse(
+          localStorage.getItem("UserAuthColumnSet")
+        );
+      } else {
+        this.showColumnConfig = {
+          username: true,
+          roleDTOList: true,
+          disabledFlag: true,
+          lockedFlag: true,
+          loginMethod: true,
+          ipAddress: true,
+          ipSource: true,
+          loginTime: true
+        };
+      }
     },
     getUserAuths(resetCurrentPage = false) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

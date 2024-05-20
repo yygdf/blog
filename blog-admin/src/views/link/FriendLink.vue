@@ -91,16 +91,18 @@
     >
       <el-table-column type="selection" align="center" width="40" />
       <el-table-column
+        v-if="showColumnConfig.username"
         prop="username"
         label="用户"
         align="center"
-        width="120"
+        min-width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.linkLogo"
         prop="linkLogo"
         label="友链图标"
         align="center"
-        width="120"
+        width="80"
       >
         <template slot-scope="scope">
           <el-image
@@ -111,14 +113,28 @@
         </template>
       </el-table-column>
       <el-table-column
+        v-if="showColumnConfig.linkName"
         prop="linkName"
         label="友链名称"
         align="center"
-        width="120"
+        min-width="120"
       />
-      <el-table-column prop="linkUrl" label="友链地址" align="center" />
-      <el-table-column prop="linkDesc" label="友链描述" align="center" />
       <el-table-column
+        v-if="showColumnConfig.linkUrl"
+        prop="linkUrl"
+        label="友链地址"
+        align="center"
+        min-width="240"
+      />
+      <el-table-column
+        v-if="showColumnConfig.linkDesc"
+        prop="linkDesc"
+        label="友链描述"
+        align="center"
+        min-width="240"
+      />
+      <el-table-column
+        v-if="showColumnConfig.createTime"
         prop="createTime"
         label="创建日期"
         align="center"
@@ -130,6 +146,42 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
+        <template slot="header">
+          <el-popover placement="bottom" title="选择显示列" width="160">
+            <div>
+              <el-checkbox v-model="showColumnConfig.username"
+                >用户</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.linkLogo"
+                >友链图标</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.linkName"
+                >友链名称</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.linkUrl"
+                >友链地址</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.linkDesc"
+                >友链描述</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.createTime"
+                >创建日期</el-checkbox
+              >
+              <div>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="float: right"
+                  plain
+                  @click="saveColumnConfig"
+                >
+                  保存
+                </el-button>
+              </div>
+            </div>
+            <i slot="reference" class="el-icon-setting table-setting-icon"></i>
+          </el-popover>
+        </template>
         <template slot-scope="scope">
           <el-button
             v-if="type !== 7"
@@ -301,6 +353,7 @@
 <script>
 export default {
   created() {
+    this.loadColumnConfig();
     this.getFriendLinks();
     this.$nextTick(() => {
       this.$refs.input.focus();
@@ -324,6 +377,7 @@ export default {
       friendLinkIdList: [],
       friendLink: {},
       friendLinkOrigin: {},
+      showColumnConfig: {},
       type: null,
       userId: null,
       keywords: null,
@@ -381,6 +435,29 @@ export default {
       selection.forEach(item => {
         this.friendLinkIdList.push(item.id);
       });
+    },
+    saveColumnConfig() {
+      localStorage.setItem(
+        "FriendLinkColumnSet",
+        JSON.stringify(this.showColumnConfig)
+      );
+      document.body.click();
+    },
+    loadColumnConfig() {
+      if (localStorage.getItem("FriendLinkColumnSet")) {
+        this.showColumnConfig = JSON.parse(
+          localStorage.getItem("FriendLinkColumnSet")
+        );
+      } else {
+        this.showColumnConfig = {
+          username: true,
+          linkLogo: true,
+          linkName: true,
+          linkUrl: true,
+          linkDesc: true,
+          createTime: true
+        };
+      }
     },
     getFriendLinks(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

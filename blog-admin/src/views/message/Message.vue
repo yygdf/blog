@@ -65,7 +65,20 @@
       @selection-change="selectionChange"
     >
       <el-table-column type="selection" align="center" width="40" />
-      <el-table-column prop="avatar" label="头像" align="center" width="80">
+      <el-table-column
+        v-if="showColumnConfig.nickname"
+        prop="nickname"
+        label="留言人"
+        align="center"
+        min-width="120"
+      />
+      <el-table-column
+        v-if="showColumnConfig.avatar"
+        prop="avatar"
+        label="头像"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <el-image
             :src="scope.row.avatar === '' ? defaultAvatar : scope.row.avatar"
@@ -77,25 +90,28 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="nickname"
-        label="留言人"
+        v-if="showColumnConfig.messageContent"
+        prop="messageContent"
+        label="留言内容"
         align="center"
-        width="120"
+        min-width="240"
       />
-      <el-table-column prop="messageContent" label="留言内容" align="center" />
       <el-table-column
+        v-if="showColumnConfig.ipAddress"
         prop="ipAddress"
         label="ip地址"
         align="center"
         width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.ipSource"
         prop="ipSource"
         label="ip来源"
         align="center"
         width="120"
       />
       <el-table-column
+        v-if="showColumnConfig.createTime"
         prop="createTime"
         label="留言时间"
         align="center"
@@ -107,6 +123,40 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
+        <template slot="header">
+          <el-popover placement="bottom" title="选择显示列" width="160">
+            <div>
+              <el-checkbox v-model="showColumnConfig.nickname"
+                >留言人</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.avatar">头像</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.messageContent"
+                >留言内容</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.ipAddress"
+                >ip地址</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.ipSource"
+                >ip来源</el-checkbox
+              >
+              <el-checkbox v-model="showColumnConfig.createTime"
+                >留言时间</el-checkbox
+              >
+              <div>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="float: right"
+                  plain
+                  @click="saveColumnConfig"
+                >
+                  保存
+                </el-button>
+              </div>
+            </div>
+            <i slot="reference" class="el-icon-setting table-setting-icon"></i>
+          </el-popover>
+        </template>
         <template slot-scope="scope">
           <el-popconfirm
             v-if="checkWeight(100)"
@@ -197,6 +247,7 @@
 <script>
 export default {
   created() {
+    this.loadColumnConfig();
     this.getMessages();
     this.$nextTick(() => {
       this.$refs.input.focus();
@@ -216,6 +267,7 @@ export default {
       ],
       messageList: [],
       messageIdList: [],
+      showColumnConfig: {},
       type: null,
       keywords: null,
       oldKeywords: null,
@@ -245,6 +297,29 @@ export default {
       selection.forEach(item => {
         this.messageIdList.push(item.id);
       });
+    },
+    saveColumnConfig() {
+      localStorage.setItem(
+        "MessageColumnSet",
+        JSON.stringify(this.showColumnConfig)
+      );
+      document.body.click();
+    },
+    loadColumnConfig() {
+      if (localStorage.getItem("MessageColumnSet")) {
+        this.showColumnConfig = JSON.parse(
+          localStorage.getItem("MessageColumnSet")
+        );
+      } else {
+        this.showColumnConfig = {
+          nickname: true,
+          avatar: true,
+          messageContent: true,
+          ipAddress: true,
+          ipSource: true,
+          createTime: true
+        };
+      }
     },
     getMessages(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

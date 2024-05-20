@@ -18,7 +18,7 @@ public class MultiFileBackVO {
     /**
      * 父id
      */
-    @ApiModelProperty(name = "parentId", value = "父资源id", dataType = "Integer")
+    @ApiModelProperty(name = "parentId", value = "父id", dataType = "Integer")
     private Integer parentId;
 
     /**

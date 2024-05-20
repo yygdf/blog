@@ -99,10 +99,10 @@
         prop="configName"
         label="配置名"
         align="center"
-        width="120"
+        width="200"
       />
       <el-table-column prop="configValue" label="配置值" align="center" />
-      <el-table-column prop="configDesc" label="配置描述" align="center" />
+      <el-table-column prop="configDesc" label="配置描述" align="center" width="160" />
       <el-table-column
         prop="createTime"
         label="创建日期"

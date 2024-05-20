@@ -53,7 +53,11 @@
       </div>
       <el-form :model="article" size="medium" label-width="80">
         <el-form-item label="文章分类">
-          <el-select v-model="article.categoryId" placeholder="请选择分类">
+          <el-select
+            v-model="article.categoryId"
+            placeholder="请选择分类"
+            style="width: 360px"
+          >
             <el-option
               v-for="item in categoryList"
               :key="item.id"
@@ -67,6 +71,7 @@
           <el-select
             v-model="article.tagIdList"
             placeholder="请选择标签"
+            style="width: 360px"
             multiple
             clearable
           >
@@ -94,7 +99,7 @@
               将文件拖到此处, 或<em>点击上传</em><br />
               支持jpg/png/gif文件, 且不超过5MB
             </div>
-            <img v-else :src="article.articleCover" width="360" height="180" />
+            <img v-else :src="article.articleCover" width="384" height="216" />
           </el-upload>
         </el-form-item>
         <el-form-item label="封面链接">
@@ -102,7 +107,7 @@
             v-model="article.articleCover"
             :placeholder="staticResourceUrl"
             class="word-limit-input2"
-            style="width: 520px"
+            style="width: 360px"
             maxlength="255"
             @focus="articleCoverUpload = article.articleCover"
             @change="changeInputCover"

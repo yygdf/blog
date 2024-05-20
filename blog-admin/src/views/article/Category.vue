@@ -306,8 +306,7 @@
           <el-input
             v-model="category.categoryName"
             ref="input"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width2"
             maxlength="50"
             placeholder="请输入分类名"
             show-word-limit

@@ -282,7 +282,7 @@
             :disabled="friendLink.id != null"
             v-model="friendLink.userId"
             :ref="friendLink.id ? '' : 'input'"
-            style="width: 200px"
+            class="form-input-width"
             placeholder="请选择用户"
             remote
             clearable
@@ -302,8 +302,7 @@
           <el-input
             v-model="friendLink.linkName"
             :ref="friendLink.id ? 'input' : ''"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width"
             maxlength="50"
             placeholder="请输入友链名称"
             show-word-limit
@@ -312,8 +311,7 @@
         <el-form-item label="友链描述">
           <el-input
             v-model="friendLink.linkDesc"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width"
             maxlength="50"
             placeholder="请输入友链描述"
             show-word-limit
@@ -322,8 +320,7 @@
         <el-form-item label="友链图标">
           <el-input
             v-model="friendLink.linkLogo"
-            class="word-limit-input2"
-            style="width: 200px"
+            class="word-limit-input2 form-input-width"
             maxlength="255"
             placeholder="请输入友链图标"
             show-word-limit
@@ -332,8 +329,7 @@
         <el-form-item label="友链地址">
           <el-input
             v-model="friendLink.linkUrl"
-            class="word-limit-input2"
-            style="width: 200px"
+            class="word-limit-input2 form-input-width"
             maxlength="255"
             placeholder="请输入友链地址"
             show-word-limit

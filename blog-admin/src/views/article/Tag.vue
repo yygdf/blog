@@ -251,8 +251,7 @@
           <el-input
             v-model="tag.tagName"
             ref="input"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width2"
             maxlength="50"
             placeholder="请输入标签名"
             show-word-limit

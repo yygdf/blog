@@ -8,8 +8,7 @@
               v-model="userForm.nickname"
               ref="input"
               size="small"
-              class="word-limit-input"
-              style="width: 200px"
+              class="word-limit-input form-input-width"
               maxlength="50"
               placeholder="请输入昵称"
               show-word-limit
@@ -19,8 +18,7 @@
             <el-input
               v-model="userForm.intro"
               size="small"
-              class="word-limit-input"
-              style="width: 200px"
+              class="word-limit-input form-input-width"
               maxlength="50"
               placeholder="请输入介绍(可为空)"
               show-word-limit
@@ -30,8 +28,7 @@
             <el-input
               v-model="userForm.website"
               size="small"
-              class="word-limit-input2"
-              style="width: 200px"
+              class="word-limit-input2 form-input-width"
               maxlength="255"
               placeholder="请输入网站(可为空)"
               show-word-limit
@@ -65,7 +62,7 @@
             <el-input
               v-model="usernameForm.usernameOrigin"
               size="small"
-              style="width: 200px"
+              class="form-input-width"
               disabled
             />
           </el-form-item>
@@ -74,8 +71,7 @@
               v-model="usernameForm.username"
               ref="input"
               size="small"
-              class="word-limit-input"
-              style="width: 200px"
+              class="word-limit-input form-input-width"
               maxlength="50"
               placeholder="每位用户仅可修改一次!"
               show-word-limit
@@ -98,7 +94,7 @@
               v-model="passwordForm.oldPassword"
               ref="input"
               size="small"
-              style="width: 200px"
+              class="form-input-width"
               show-password
               @keyup.native="oldPasswordInputChange"
             />&nbsp;
@@ -119,7 +115,7 @@
             <el-input
               v-model="passwordForm.newPassword"
               size="small"
-              style="width: 200px"
+              class="form-input-width"
               show-password
               @keyup.native="passwordInputChange(true)"
             />&nbsp;
@@ -140,7 +136,7 @@
             <el-input
               v-model="passwordForm.confirmPassword"
               size="small"
-              style="width: 200px"
+              class="form-input-width"
               show-password
               @keyup.native="passwordInputChange(false)"
             />&nbsp;

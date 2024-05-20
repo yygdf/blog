@@ -156,7 +156,7 @@
           <el-select
             v-model="resource.parentId"
             size="small"
-            style="margin-right:1rem;width: 200px"
+            class="form-input-width"
             placeholder="请选择"
           >
             <el-option
@@ -171,8 +171,7 @@
           <el-input
             v-model="resource.resourceName"
             ref="input"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width"
             maxlength="50"
             placeholder="请输入资源名称"
             show-word-limit
@@ -181,8 +180,7 @@
         <el-form-item v-if="resource.parentId" label="资源路径">
           <el-input
             v-model="resource.resourceUri"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width"
             maxlength="50"
             placeholder="请输入资源路径"
             show-word-limit

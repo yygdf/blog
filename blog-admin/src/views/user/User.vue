@@ -321,7 +321,7 @@
             :disabled="user.id != null"
             v-model="user.username"
             :ref="user.id != null ? '' : 'input'"
-            style="width: 200px"
+            class="form-input-width"
             maxlength="50"
             @keyup.native="usernameInputChange($event)"
             @keyup.enter.native="getUsernameExistFlag"
@@ -343,8 +343,7 @@
           <el-input
             v-model="user.nickname"
             :ref="user.id != null ? 'input' : ''"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width"
             maxlength="50"
             placeholder="请输入昵称"
             show-word-limit
@@ -353,7 +352,7 @@
         <el-form-item label="邮箱">
           <el-input
             v-model="user.email"
-            style="width: 200px"
+            class="form-input-width"
             maxlength="50"
             @keyup.native="emailInputChange($event)"
             @keyup.enter.native="getEmailExistFlag"
@@ -381,8 +380,7 @@
         <el-form-item label="介绍">
           <el-input
             v-model="user.intro"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width"
             maxlength="50"
             placeholder="请输入介绍(可为空)"
             show-word-limit
@@ -391,8 +389,7 @@
         <el-form-item label="网站">
           <el-input
             v-model="user.website"
-            class="word-limit-input2"
-            style="width: 200px"
+            class="word-limit-input2 form-input-width"
             maxlength="255"
             placeholder="请输入网站(可为空)"
             show-word-limit
@@ -402,7 +399,6 @@
           <el-upload
             ref="upload"
             action=""
-            class="upload-cover"
             :on-change="changeAvatar"
             :on-remove="updateAvatar"
             :http-request="uploadAvatar"
@@ -414,7 +410,7 @@
               将文件拖到此处, 或<em>点击上传</em><br />
               支持jpg/png/gif文件, 且不超过5MB
             </div>
-            <img v-else :src="user.avatar" width="200" height="200" />
+            <img v-else :src="user.avatar" width="240" height="240" />
           </el-upload>
         </el-form-item>
         <el-form-item>
@@ -868,7 +864,7 @@ export default {
 
 <style scoped>
 /deep/ .el-upload .el-upload-dragger {
-  width: 200px;
-  height: 200px;
+  width: 240px;
+  height: 240px;
 }
 </style>

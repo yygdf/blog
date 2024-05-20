@@ -127,8 +127,7 @@
           <el-input
             v-model="role.roleName"
             ref="input"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width"
             maxlength="50"
             placeholder="请输入角色名称"
             show-word-limit
@@ -137,8 +136,7 @@
         <el-form-item label="角色描述">
           <el-input
             v-model="role.roleDesc"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width"
             maxlength="50"
             placeholder="请输入角色描述"
             show-word-limit
@@ -147,6 +145,7 @@
         <el-form-item label="角色权重">
           <el-input-number
             v-model="role.roleWeight"
+            class="form-input-width"
             :min="1"
             :max="1000"
             value="1"

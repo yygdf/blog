@@ -253,8 +253,7 @@
           <el-input
             :disabled="true"
             v-model="userConfig.configName"
-            class="word-limit-input"
-            style="width: 360px"
+            class="word-limit-input form-input-width"
             maxlength="50"
             placeholder="请输入配置名"
             show-word-limit
@@ -264,8 +263,7 @@
           <el-input
             v-model="userConfig.configValue"
             ref="input"
-            class="word-limit-input2"
-            style="width: 360px"
+            class="word-limit-input2 form-input-width"
             maxlength="255"
             placeholder="请输入配置值"
             show-word-limit
@@ -274,8 +272,7 @@
         <el-form-item label="配置描述">
           <el-input
             v-model="userConfig.configDesc"
-            class="word-limit-input2"
-            style="width: 360px"
+            class="word-limit-input2 form-input-width"
             maxlength="255"
             placeholder="请输入配置描述"
             show-word-limit

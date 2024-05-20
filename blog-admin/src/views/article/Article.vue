@@ -56,7 +56,7 @@
           <el-select
             v-model="article.categoryId"
             placeholder="请选择分类"
-            style="width: 360px"
+            class="form-input-width2"
           >
             <el-option
               v-for="item in categoryList"
@@ -71,7 +71,7 @@
           <el-select
             v-model="article.tagIdList"
             placeholder="请选择标签"
-            style="width: 360px"
+            class="form-input-width2"
             multiple
             clearable
           >
@@ -87,7 +87,6 @@
           <el-upload
             ref="upload"
             action=""
-            class="upload-cover"
             :on-change="changeCover"
             :on-remove="updateCover"
             :http-request="uploadCover"
@@ -106,8 +105,7 @@
           <el-input
             v-model="article.articleCover"
             :placeholder="staticResourceUrl"
-            class="word-limit-input2"
-            style="width: 360px"
+            class="word-limit-input2 form-input-width2"
             maxlength="255"
             @focus="articleCoverUpload = article.articleCover"
             @change="changeInputCover"

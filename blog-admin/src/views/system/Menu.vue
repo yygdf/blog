@@ -159,7 +159,7 @@
           <el-select
             v-model="menu.parentId"
             size="small"
-            style="width: 200px"
+            class="form-input-width"
             placeholder="请选择"
           >
             <el-option
@@ -174,8 +174,7 @@
           <el-input
             v-model="menu.name"
             ref="input"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width"
             maxlength="50"
             placeholder="请输入菜单名称"
             show-word-limit
@@ -185,7 +184,7 @@
           <el-input
             v-model="menu.icon"
             :prefix-icon="menu.icon"
-            style="width: 200px"
+            class="form-input-width"
             placeholder="请选择菜单图标"
             @focus="showIcon = true"
             @blur="showIcon = false"
@@ -208,8 +207,7 @@
         <el-form-item label="菜单路径">
           <el-input
             v-model="menu.path"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width"
             maxlength="50"
             placeholder="请输入菜单路径"
             show-word-limit
@@ -218,8 +216,7 @@
         <el-form-item label="菜单组件">
           <el-input
             v-model="menu.component"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width"
             maxlength="50"
             placeholder="请输入菜单组件"
             show-word-limit
@@ -228,6 +225,7 @@
         <el-form-item label="排序指标">
           <el-input-number
             v-model="menu.rank"
+            class="form-input-width"
             :min="1"
             :max="100"
             value="1"

@@ -106,3 +106,10 @@ body {
 .table-setting-icon:hover {
   color: dodgerblue;
 }
+
+.form-input-width {
+  width: 320px;
+}
+.form-input-width2 {
+  width: 360px;
+}

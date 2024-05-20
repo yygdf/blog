@@ -313,8 +313,7 @@
           <el-input
             v-model="multiFile.fileNameOrigin"
             ref="input"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width2"
             maxlength="50"
             placeholder="请输入名称"
             show-word-limit
@@ -323,8 +322,7 @@
         <el-form-item label="描述">
           <el-input
             v-model="multiFile.fileDesc"
-            class="word-limit-input"
-            style="width: 200px"
+            class="word-limit-input form-input-width2"
             maxlength="50"
             placeholder="请输入描述"
             show-word-limit
@@ -333,8 +331,7 @@
         <el-form-item v-if="multiFile.fileCover != null" label="封面">
           <el-input
             v-model="multiFile.fileCover"
-            class="word-limit-input2"
-            style="width: 400px"
+            class="word-limit-input2 form-input-width2"
             maxlength="255"
             :placeholder="staticResourceUrl"
             show-word-limit
@@ -395,7 +392,7 @@
         <el-form-item label="目录名称">
           <el-input
             v-model="multiFileToken.fileNameOrigin"
-            style="width: 200px"
+            class="form-input-width"
             disabled
           />
         </el-form-item>
@@ -403,7 +400,7 @@
           <el-input
             v-model="multiFileToken.accessToken"
             ref="input"
-            style="width: 200px"
+            class="form-input-width"
             maxlength="100"
             placeholder="请输入访问密令"
             @keyup.native="tokenInputChange"
@@ -424,6 +421,7 @@
         <el-form-item label="有效次数">
           <el-input-number
             v-model="multiFileToken.effectiveCount"
+            class="form-input-width"
             :min="-1"
             :max="2147483647"
             value="-1"
@@ -434,7 +432,7 @@
           <el-date-picker
             v-model="multiFileToken.expireTime"
             type="datetime"
-            style="width: 200px"
+            class="form-input-width"
             placeholder="选择过期时间"
           >
           </el-date-picker>

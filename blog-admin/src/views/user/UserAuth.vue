@@ -262,13 +262,13 @@
       <div class="dialog-title-container" slot="title" ref="userAuthTitle" />
       <el-form :model="userAuth" size="medium" label-width="80">
         <el-form-item label="账号">
-          <el-input v-model="userAuth.username" style="width: 200px" disabled />
+          <el-input v-model="userAuth.username" class="form-input-width" disabled />
         </el-form-item>
         <el-form-item label="密码">
           <el-input
             v-model="userAuth.password"
             ref="input"
-            style="width: 200px"
+            class="form-input-width"
             show-password
             @keyup.native="passwordInputChange(true)"
           />&nbsp;
@@ -288,7 +288,7 @@
         <el-form-item label="重复">
           <el-input
             v-model="confirmPassword"
-            style="width: 200px"
+            class="form-input-width"
             show-password
             @keyup.native="passwordInputChange(false)"
           />&nbsp;

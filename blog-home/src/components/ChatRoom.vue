@@ -270,7 +270,7 @@ export default {
         this.$toast({ type: "error", message: "内容不能为空" });
         return false;
       }
-      const reg = /\[.+?\]/g;
+      const reg = /#\[.+?]/g;
       let chatRecord = this.chatContent;
       chatRecord = chatRecord.replace(reg, function(str) {
         return (

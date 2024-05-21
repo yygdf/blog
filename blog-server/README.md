@@ -21,11 +21,14 @@ service vsftpd start
 /usr/work/nginx/sbin/nginx -c /usr/work/nginx/conf/nginx.conf
 ~~~
 
-
 ~~~
 /usr/work/elasticsearch/bin/elasticsearch -d
 ~~~
 
 ~~~
-/usr/work/maxwell/bin/maxwell --config=/usr/work/maxwell/config.properties &
+/usr/work/maxwell/bin/maxwell --config=/usr/work/maxwell/config.properties --daemon
+~~~
+
+~~~
+nohup java -jar /www/serve/xxx.jar >/dev/null 2>&1 &
 ~~~

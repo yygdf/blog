@@ -1130,6 +1130,7 @@ INSERT INTO `tb_system_config` VALUES (10, 2, '核心角色id', 'root_role_id', 
 INSERT INTO `tb_system_config` VALUES (11, 2, '核心角色id组', 'root_role_id_list', '1', 0, 2, '2024-01-08 10:00:38', NULL, NULL);
 INSERT INTO `tb_system_config` VALUES (12, 2, '默认角色同步标志(true/false)', 'default_role_assimilate', 'false', 0, 2, '2024-01-08 10:00:38', NULL, NULL);
 INSERT INTO `tb_system_config` VALUES (13, 2, '前台首页博主id', 'home_blogger_id', '2', 0, 2, '2024-01-08 10:00:38', NULL, NULL);
+INSERT INTO `tb_system_config` VALUES (14, 2, '检查文件类型是否启用严格模式(true/false)', 'enable_file_type_strict', 'false', 0, 2, '2024-01-08 10:00:38', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_tag

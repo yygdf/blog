@@ -56,6 +56,7 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
         DEFAULT_ROLE_ASSIMILATE = Boolean.parseBoolean(hashMap.get("default_role_assimilate"));
         HOME_BLOGGER_ID = Integer.valueOf(hashMap.get("home_blogger_id"));
         ENABLE_USER_CONFIG = Boolean.parseBoolean(hashMap.get("enable_user_config"));
+        ENABLE_FILE_TYPE_STRICT = Boolean.parseBoolean(hashMap.get("enable_file_type_strict"));
     }
 
     @Override

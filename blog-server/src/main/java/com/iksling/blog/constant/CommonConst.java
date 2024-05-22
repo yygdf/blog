@@ -73,4 +73,9 @@ public class CommonConst {
      * 是否启用用户配置
      */
     public static Boolean ENABLE_USER_CONFIG = true;
+
+    /**
+     * 检查文件类型是否启用严格模式
+     */
+    public static Boolean ENABLE_FILE_TYPE_STRICT = false;
 }

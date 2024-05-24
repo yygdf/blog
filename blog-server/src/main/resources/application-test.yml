@@ -92,7 +92,7 @@ ftp:
 baidu:
   url: "http://api.map.baidu.com/location/ip"
   ak: "23333333"
-  coor: "23333333"
+  coor: "bd0911"
 
 # qq
 qq:

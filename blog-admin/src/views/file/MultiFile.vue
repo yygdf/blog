@@ -107,6 +107,7 @@
       :data="multiFileList"
       :load="load"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+      @row-click="rowClick"
       @expand-change="expandChange"
       @select="select"
       @select-all="selectAll"
@@ -157,26 +158,30 @@
       </el-table-column>
       <el-table-column prop="publicFlag" label="公开" align="center" width="80">
         <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.publicFlag"
-            :active-value="true"
-            :inactive-value="false"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
-            @change="updateMultiFileStatus(scope.row)"
-          />
+          <div @click.stop="">
+            <el-switch
+              v-model="scope.row.publicFlag"
+              :active-value="true"
+              :inactive-value="false"
+              active-color="#13ce66"
+              inactive-color="#F4F4F5"
+              @change="updateMultiFileStatus(scope.row)"
+            />
+          </div>
         </template>
       </el-table-column>
       <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
         <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.hiddenFlag"
-            :active-value="true"
-            :inactive-value="false"
-            active-color="#13ce66"
-            inactive-color="#F4F4F5"
-            @change="updateMultiFileStatus(scope.row, 3)"
-          />
+          <div @click.stop="">
+            <el-switch
+              v-model="scope.row.hiddenFlag"
+              :active-value="true"
+              :inactive-value="false"
+              active-color="#13ce66"
+              inactive-color="#F4F4F5"
+              @change="updateMultiFileStatus(scope.row, 3)"
+            />
+          </div>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="240">
@@ -187,7 +192,7 @@
             type="primary"
             size="mini"
             class="smaller-btn"
-            @click="openModel(scope.row)"
+            @click.stop="openModel(scope.row)"
           >
             <i class="el-icon-edit" /> 编辑
           </el-button>
@@ -202,6 +207,7 @@
               size="mini"
               slot="reference"
               class="smaller-btn"
+              @click.stop=""
             >
               <i class="el-icon-refresh-left" /> 恢复
             </el-button>
@@ -218,6 +224,7 @@
               size="mini"
               slot="reference"
               class="smaller-btn"
+              @click.stop=""
             >
               <i class="el-icon-delete" /> 删除
             </el-button>
@@ -233,12 +240,18 @@
               size="mini"
               slot="reference"
               class="smaller-btn"
+              @click.stop=""
             >
               <i class="el-icon-delete" /> 删除
             </el-button>
           </el-popconfirm>
           <el-dropdown style="margin-left:10px">
-            <el-button type="primary" size="mini" class="smaller-btn">
+            <el-button
+              type="primary"
+              size="mini"
+              class="smaller-btn"
+              @click.stop=""
+            >
               更多操作<i class="el-icon-arrow-down el-icon--right"></i>
             </el-button>
             <el-dropdown-menu slot="dropdown">
@@ -453,6 +466,7 @@
 </template>
 
 <script>
+import { getRowIdentity } from "element-ui/packages/table/src/util.js";
 export default {
   created() {
     this.getMultiFiles();
@@ -540,6 +554,15 @@ export default {
         this.getMultiFiles();
       }
     },
+    rowClick(row) {
+      if (row.fileExtension) {
+        this.copyUrl(row.fileFullPath);
+      } else if (!this.treeNodeMap.get(row.id)) {
+        this.toggleRowExpansion(row);
+      } else {
+        this.$refs.table.toggleRowExpansion(row);
+      }
+    },
     expandChange(row, expanded) {
       if (expanded) {
         this.multiFileIdSetExpended.add(row.id);
@@ -552,6 +575,20 @@ export default {
         this.multiFileIdSetExpended.delete(row.id);
         this.multiFileParentId = row.parentId;
       }
+    },
+    toggleRowExpansion(row) {
+      const {
+        table: { store }
+      } = this.$refs;
+      const {
+        states: { treeData, rowKey },
+        assertRowKey,
+        loadData
+      } = store;
+      assertRowKey();
+      const id = getRowIdentity(row, rowKey);
+      const data = treeData[id];
+      return loadData(row, id, data);
     },
     setChildren(children, type) {
       children

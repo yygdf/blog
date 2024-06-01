@@ -200,7 +200,8 @@ export default {
       commentContent: "",
       chooseEmoji: false,
       current: 1,
-      defaultAvatar: require("../assets/img/default/avatar.png")
+      defaultAvatar: require("../assets/img/default/avatar.png"),
+      emojiURL: process.env.VUE_APP_EMOJI_URL
     };
   },
   methods: {
@@ -273,9 +274,11 @@ export default {
       }
       const reg = /#\[.+?]/g;
       let content = this.commentContent;
+      let that = this;
       content = content.replace(reg, function(str) {
         return (
           "<img src= '" +
+          that.emojiURL +
           EmojiList[str] +
           "' width='20' height='20' style='padding: 0 1px' alt='' />"
         );

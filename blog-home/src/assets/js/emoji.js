@@ -1,137 +1,137 @@
 export default {
-  "#[666]": "/emoji/liuliuliu.png",
+  "#[666]": "liuliuliu.png",
 
-  "#[Emm]": "/emoji/emm.png",
+  "#[Emm]": "emm.png",
 
-  "#[ok]": "/emoji/ok.png",
+  "#[ok]": "ok.png",
 
-  "#[微笑]": "/emoji/smile.png",
+  "#[微笑]": "smile.png",
 
-  "#[呲牙]": "/emoji/ciya.png",
+  "#[呲牙]": "ciya.png",
 
-  "#[大哭]": "/emoji/daku.png",
+  "#[大哭]": "daku.png",
 
-  "#[害羞]": "/emoji/haixiu.png",
+  "#[害羞]": "haixiu.png",
 
-  "#[调皮]": "/emoji/tiaopi.png",
+  "#[调皮]": "tiaopi.png",
 
-  "#[奸笑]": "/emoji/jianxiao.png",
+  "#[奸笑]": "jianxiao.png",
 
-  "#[偷笑]": "/emoji/touxiao.png",
+  "#[偷笑]": "touxiao.png",
 
-  "#[阴险]": "/emoji/yinxian.png",
+  "#[阴险]": "yinxian.png",
 
-  "#[捂脸]": "/emoji/wulian.png",
+  "#[捂脸]": "wulian.png",
 
-  "#[抠鼻]": "/emoji/koubi.png",
+  "#[抠鼻]": "koubi.png",
 
-  "#[惊讶]": "/emoji/jingya.png",
+  "#[惊讶]": "jingya.png",
 
-  "#[吃瓜]": "/emoji/chigua.png",
+  "#[吃瓜]": "chigua.png",
 
-  "#[鼓掌]": "/emoji/guzhang.png",
+  "#[鼓掌]": "guzhang.png",
 
-  "#[尴尬]": "/emoji/ganga.png",
+  "#[尴尬]": "ganga.png",
 
-  "#[委屈]": "/emoji/weiqu.png",
+  "#[委屈]": "weiqu.png",
 
-  "#[吐]": "/emoji/tu.png",
+  "#[吐]": "tu.png",
 
-  "#[嘘声]": "/emoji/xu.png",
+  "#[嘘声]": "xu.png",
 
-  "#[再见]": "/emoji/zaijian.png",
+  "#[再见]": "zaijian.png",
 
-  "#[白眼]": "/emoji/baiyan.png",
+  "#[白眼]": "baiyan.png",
 
-  "#[翻白眼]": "/emoji/fanbaiyan.png",
+  "#[翻白眼]": "fanbaiyan.png",
 
-  "#[难过]": "/emoji/nanguo.png",
+  "#[难过]": "nanguo.png",
 
-  "#[抓狂]": "/emoji/zhuakuang.png",
+  "#[抓狂]": "zhuakuang.png",
 
-  "#[嘿哈]": "/emoji/heiha.png",
+  "#[嘿哈]": "heiha.png",
 
-  "#[机制]": "/emoji/jizhi.png",
+  "#[机制]": "jizhi.png",
 
-  "#[耶]": "/emoji/ye.png",
+  "#[耶]": "ye.png",
 
-  "#[皱眉]": "/emoji/zhoumei.png",
+  "#[皱眉]": "zhoumei.png",
 
-  "#[加油]": "/emoji/jiayou.png",
+  "#[加油]": "jiayou.png",
 
-  "#[裂开]": "/emoji/liekai.png",
+  "#[裂开]": "liekai.png",
 
-  "#[苦涩]": "/emoji/kuse.png",
+  "#[苦涩]": "kuse.png",
 
-  "#[让我看看]": "/emoji/rangwokankan.png",
+  "#[让我看看]": "rangwokankan.png",
 
-  "#[天阿]": "/emoji/tiana.png",
+  "#[天阿]": "tiana.png",
 
-  "#[叹气]": "/emoji/tanqi.png",
+  "#[叹气]": "tanqi.png",
 
-  "#[打脸]": "/emoji/dalian.png",
+  "#[打脸]": "dalian.png",
 
-  "#[撇嘴]": "/emoji/piezui.png",
+  "#[撇嘴]": "piezui.png",
 
-  "#[色]": "/emoji/se.png",
+  "#[色]": "se.png",
 
-  "#[发呆]": "/emoji/fadai.png",
+  "#[发呆]": "fadai.png",
 
-  "#[得意]": "/emoji/deyi.png",
+  "#[得意]": "deyi.png",
 
-  "#[流泪]": "/emoji/liulei.png",
+  "#[流泪]": "liulei.png",
 
-  "#[闭嘴]": "/emoji/bizui.png",
+  "#[闭嘴]": "bizui.png",
 
-  "#[睡]": "/emoji/shui.png",
+  "#[睡]": "shui.png",
 
-  "#[发怒]": "/emoji/fanu.png",
+  "#[发怒]": "fanu.png",
 
-  "#[囧]": "/emoji/jiong.png",
+  "#[囧]": "jiong.png",
 
-  "#[愉快]": "/emoji/yukuai.png",
+  "#[愉快]": "yukuai.png",
 
-  "#[傲慢]": "/emoji/aoman.png",
+  "#[傲慢]": "aoman.png",
 
-  "#[困]": "/emoji/kun.png",
+  "#[困]": "kun.png",
 
-  "#[惊恐]": "/emoji/jingkong.png",
+  "#[惊恐]": "jingkong.png",
 
-  "#[憨笑]": "/emoji/hanxiao.png",
+  "#[憨笑]": "hanxiao.png",
 
-  "#[悠闲]": "/emoji/youxian.png",
+  "#[悠闲]": "youxian.png",
 
-  "#[咒骂]": "/emoji/zouma.png",
+  "#[咒骂]": "zouma.png",
 
-  "#[敲打]": "/emoji/qiaoda.png",
+  "#[敲打]": "qiaoda.png",
 
-  "#[骷髅]": "/emoji/kulo.png",
+  "#[骷髅]": "kulo.png",
 
-  "#[疑问]": "/emoji/yiwen.png",
+  "#[疑问]": "yiwen.png",
 
-  "#[晕]": "/emoji/yun.png",
+  "#[晕]": "yun.png",
 
-  "#[衰]": "/emoji/shuai.png",
+  "#[衰]": "shuai.png",
 
-  "#[擦汗]": "/emoji/cahan.png",
+  "#[擦汗]": "cahan.png",
 
-  "#[坏笑]": "/emoji/huaixiao.png",
+  "#[坏笑]": "huaixiao.png",
 
-  "#[右哼哼]": "/emoji/youhengheng.png",
+  "#[右哼哼]": "youhengheng.png",
 
-  "#[鄙视]": "/emoji/bishi.png",
+  "#[鄙视]": "bishi.png",
 
-  "#[快哭了]": "/emoji/kuaikule.png",
+  "#[快哭了]": "kuaikule.png",
 
-  "#[亲亲]": "/emoji/qinqin.png",
+  "#[亲亲]": "qinqin.png",
 
-  "#[可怜]": "/emoji/kelian.png",
+  "#[可怜]": "kelian.png",
 
-  "#[社会社会]": "/emoji/shehuishehui.png",
+  "#[社会社会]": "shehuishehui.png",
 
-  "#[汗]": "/emoji/han.png",
+  "#[汗]": "han.png",
 
-  "#[哇]": "/emoji/wa.png",
+  "#[哇]": "wa.png",
 
-  "#[旺柴]": "/emoji/wangchai.png"
+  "#[旺柴]": "wangchai.png"
 };

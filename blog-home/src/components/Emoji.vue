@@ -7,7 +7,7 @@
       @click="addEmoji(key)"
     >
       <img
-        :src="value"
+        :src="emojiURL + value"
         :title="key"
         class="emoji"
         width="24"
@@ -28,7 +28,8 @@ export default {
   },
   data: function() {
     return {
-      emojiList: EmojiList
+      emojiList: EmojiList,
+      emojiURL: process.env.VUE_APP_EMOJI_URL
     };
   },
   methods: {

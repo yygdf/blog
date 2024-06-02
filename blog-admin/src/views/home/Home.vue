@@ -1,11 +1,15 @@
 <template>
   <el-card class="main-card">
-    <el-tabs tab-position="left" style="height:calc(100vh - 180px);">
-      <el-tab-pane>
+    <el-tabs
+      tab-position="left"
+      style="height:calc(100vh - 180px);"
+      @tab-click="handleTabClick"
+    >
+      <el-tab-pane name="reply">
         <span slot="label" style="font-weight: bold;"
           ><i class="el-icon-s-comment"></i> 回复我的</span
         >
-        <el-card v-for="(item, index) of commentList" :key="item.id">
+        <el-card v-for="(item, index) of replyCommentList" :key="item.id">
           <el-image
             :src="item.avatar ? item.avatar : defaultAvatar"
             class="comment-avatar"
@@ -69,7 +73,7 @@
                 <i class="el-icon-chat-square"></i>回复
               </span>
               <span
-                v-if="isLike(item.id)"
+                v-if="isLike(item.commentId)"
                 class="like-active"
                 @click="like(item)"
                 ><i class="el-icon-thumb"></i>已赞</span
@@ -89,31 +93,31 @@
           </div>
         </el-card>
       </el-tab-pane>
-      <el-tab-pane>
+      <el-tab-pane name="at">
         <span slot="label" style="font-weight: bold;"
           ><i class="el-icon-s-comment"></i> &nbsp;@ 我的</span
         >
         我的行程
       </el-tab-pane>
-      <el-tab-pane>
+      <el-tab-pane name="like">
         <span slot="label" style="font-weight: bold;"
           ><i class="el-icon-star-on"></i> 收到的赞</span
         >
         我的行程
       </el-tab-pane>
-      <el-tab-pane>
+      <el-tab-pane name="systemNotice">
         <span slot="label" style="font-weight: bold;"
           ><i class="el-icon-message-solid"></i> 系统通知</span
         >
         我的行程
       </el-tab-pane>
-      <el-tab-pane>
+      <el-tab-pane name="myMessage">
         <span slot="label" style="font-weight: bold;"
           ><i class="el-icon-message-solid"></i> 我的消息</span
         >
         我的行程
       </el-tab-pane>
-      <el-tab-pane>
+      <el-tab-pane name="messageConfig">
         <span slot="label" style="font-weight: bold;"
           ><i class="el-icon-setting"></i> 消息设置</span
         >
@@ -130,15 +134,17 @@ export default {
     Reply
   },
   created() {
-    this.getData();
+    this.getReplyCommentList();
   },
   data: function() {
     return {
+      replyCommentList: null,
       commentList: [
         {
           id: 9,
           userId: 2,
           articleId: 1,
+          commentId: 9,
           commentContent:
             "<img src= 'http://192.168.143.130/static/img/emoji/liuliuliu.png' width='20' height='20' style='padding: 0 1px' alt='' /><img src= 'http://192.168.143.130/static/img/emoji/emm.png' width='20' height='20' style='padding: 0 1px' alt='' /><img src= 'http://192.168.143.130/static/img/emoji/ok.png' width='20' height='20' style='padding: 0 1px' alt='' />",
           createTime: "2024-06-01T13:59:52.000+00:00",
@@ -146,8 +152,6 @@ export default {
             "http://192.168.143.130/static/2/-1/-11/1792506667906437121.png",
           website: "",
           nickname: "root",
-          likeCount: null,
-          replyCount: 0,
           commentCount: 2,
           articleCover: "http://192.168.143.130/static/img/emoji/liuliuliu.png",
           articleTitle: "123321"
@@ -156,6 +160,7 @@ export default {
           id: 3,
           userId: 2,
           articleId: 1,
+          commentId: 9,
           commentContent: "gggg",
           createTime: "2024-06-01T08:36:47.000+00:00",
           avatar:
@@ -170,14 +175,13 @@ export default {
           id: 2,
           userId: 3,
           articleId: 1,
+          commentId: 9,
           commentContent:
             "hhhhhh<img src= '/emoji/zhoumei.png' width='20' height='20' style='padding: 0 1px' alt='' /><img src= '/emoji/liekai.png' width='20' height='20' style='padding: 0 1px' alt='' />",
           createTime: "2024-06-01T08:35:44.000+00:00",
           avatar: "",
           website: "",
           nickname: "admin",
-          likeCount: null,
-          replyCount: 5,
           commentCount: 2,
           articleCover: "",
           articleTitle: "123321"
@@ -186,14 +190,13 @@ export default {
           id: 1,
           userId: 3,
           articleId: 1,
+          commentId: 9,
           commentContent:
             "hhha<img src= '/emoji/daku.png' width='20' height='20' style='padding: 0 1px' alt='' />",
           createTime: "2024-06-01T08:34:58.000+00:00",
           avatar: "",
           website: "",
           nickname: "admin",
-          likeCount: 1,
-          replyCount: 0,
           commentCount: 2,
           articleCover: "http://192.168.143.130/static/img/emoji/liuliuliu.png",
           articleTitle: "123321"
@@ -205,6 +208,16 @@ export default {
     };
   },
   methods: {
+    handleTabClick(tab) {
+      if (tab.name === "reply" && this.replyCommentList == null) {
+        this.getReplyCommentList();
+      }
+    },
+    getReplyCommentList() {
+      this.axios.get("/api/about").then(({ data }) => {
+        this.replyCommentList = data.data;
+      });
+    },
     replyComment(index, item) {
       this.$refs.reply.forEach(item => {
         item.$el.style.display = "none";
@@ -212,7 +225,7 @@ export default {
       this.$refs.reply[index].commentContent = "";
       this.$refs.reply[index].nickname = item.nickname;
       this.$refs.reply[index].replyId = item.userId;
-      this.$refs.reply[index].parentId = this.commentList[index].id;
+      this.$refs.reply[index].parentId = this.commentList[index].commentId;
       this.$refs.reply[index].layer = item.parentId == null;
       this.$refs.reply[index].chooseEmoji = false;
       this.$refs.reply[index].index = index;
@@ -229,20 +242,19 @@ export default {
         this.$store.state.loginFlag = true;
         return false;
       }
-      this.axios.post("/api/comment/like/" + comment.id).then(({ data }) => {
-        if (data.flag) {
-          if (this.$store.state.commentLikeSet.indexOf(comment.id) !== -1) {
-            this.$set(comment, "likeCount", comment.likeCount - 1);
-            this.$store.commit("commentUnLike", comment.id);
-          } else {
-            this.$set(comment, "likeCount", comment.likeCount + 1);
-            this.$store.commit("commentLike", comment.id);
+      this.axios
+        .post("/api/comment/like/" + comment.commentId)
+        .then(({ data }) => {
+          if (data.flag) {
+            if (
+              this.$store.state.commentLikeSet.indexOf(comment.commentId) !== -1
+            ) {
+              this.$store.commit("commentUnLike", comment.commentId);
+            } else {
+              this.$store.commit("commentLike", comment.commentId);
+            }
           }
-        }
-      });
-    },
-    getData() {
-      this.axios.get("/api/back/blog/home").then();
+        });
     }
   },
   computed: {

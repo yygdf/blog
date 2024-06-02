@@ -1,6 +1,6 @@
 <template>
   <el-card class="main-card">
-    <el-tabs v-model="activeName">
+    <el-tabs v-model="activeName" @tab-click="handleTabClick">
       <el-tab-pane label="基本信息" name="info">
         <el-form label-width="80px" :model="userForm">
           <el-form-item label="昵称">
@@ -215,11 +215,6 @@ import AvatarCropper from "vue-avatar-cropper";
 import { resetRouter } from "../../router";
 export default {
   components: { AvatarCropper },
-  created() {
-    if (this.$store.state.weight <= 400) {
-      this.getAbout();
-    }
-  },
   data: function() {
     return {
       oldPasswordStatus: 0,
@@ -252,6 +247,7 @@ export default {
       },
       aboutContent: "",
       aboutContentOrigin: "",
+      loadAboutContent: true,
       toolbars: {
         bold: true,
         italic: true,
@@ -406,6 +402,12 @@ export default {
         return;
       }
       this.oldPasswordStatus = 2;
+    },
+    handleTabClick(tab) {
+      if (tab.name === "about" && this.loadAboutContent) {
+        this.getAbout();
+        this.loadAboutContent = false;
+      }
     },
     getAbout() {
       this.axios.get("/api/about").then(({ data }) => {

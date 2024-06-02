@@ -76,6 +76,13 @@ export default new Vuex.Store({
       state.gender = user.gender;
       state.website = user.website;
       state.nickname = user.nickname;
+    },
+    commentLike(state, commentId) {
+      state.commentLikeSet.push(commentId);
+    },
+    commentUnLike(state, commentId) {
+      let commentLikeSet = state.commentLikeSet;
+      commentLikeSet.splice(commentLikeSet.indexOf(commentId), 1);
     }
   },
   actions: {},

@@ -32,17 +32,22 @@ export default new Vuex.Store({
       home_github: "#",
       home_gitee: "#",
       home_notice: "暂无内容~~~",
-      wx_pay_code: require("../assets/img/wxPay.png"),
-      ali_pay_code: require("../assets/img/aliPay.png"),
-      article_default_cover: require("../assets/img/default/article.jpg"),
-      tag_banner_cover: require("../assets/img/banner/tag.jpg"),
-      home_banner_cover: require("../assets/img/banner/home.jpg"),
-      link_banner_cover: require("../assets/img/banner/link.jpg"),
-      about_banner_cover: require("../assets/img/banner/about.jpg"),
-      archive_banner_cover: require("../assets/img/banner/archive.jpg"),
-      message_banner_cover: require("../assets/img/banner/message.jpg"),
-      category_banner_cover: require("../assets/img/banner/category.jpg"),
-      personal_banner_cover: require("../assets/img/banner/personal.jpg")
+      wx_pay_code: process.env.VUE_APP_STATIC_URL + "img/wxPay.png",
+      ali_pay_code: process.env.VUE_APP_STATIC_URL + "img/aliPay.png",
+      article_default_cover: process.env.VUE_APP_STATIC_URL + "img/article.jpg",
+      tag_banner_cover: process.env.VUE_APP_STATIC_URL + "img/banner/tag.jpg",
+      home_banner_cover: process.env.VUE_APP_STATIC_URL + "img/banner/home.jpg",
+      link_banner_cover: process.env.VUE_APP_STATIC_URL + "img/banner/link.jpg",
+      about_banner_cover:
+        process.env.VUE_APP_STATIC_URL + "img/banner/about.jpg",
+      archive_banner_cover:
+        process.env.VUE_APP_STATIC_URL + "img/banner/archive.jpg",
+      message_banner_cover:
+        process.env.VUE_APP_STATIC_URL + "img/banner/message.jpg",
+      category_banner_cover:
+        process.env.VUE_APP_STATIC_URL + "img/banner/category.jpg",
+      personal_banner_cover:
+        process.env.VUE_APP_STATIC_URL + "img/banner/personal.jpg"
     },
     bloggerInfo: {},
     rootUrl: location.protocol + "//" + location.host

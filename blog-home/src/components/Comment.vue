@@ -21,8 +21,6 @@
               class="comment-textarea"
               v-model="commentContent"
               placeholder="留下点什么吧..."
-              auto-grow
-              dense
             />
           </div>
           <div class="emoji-container">
@@ -200,8 +198,8 @@ export default {
       commentContent: "",
       chooseEmoji: false,
       current: 1,
-      defaultAvatar: require("../assets/img/default/avatar.png"),
-      emojiURL: process.env.VUE_APP_EMOJI_URL
+      defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png",
+      staticURL: process.env.VUE_APP_STATIC_URL
     };
   },
   methods: {
@@ -278,7 +276,7 @@ export default {
       content = content.replace(reg, function(str) {
         return (
           "<img src= '" +
-          that.emojiURL +
+          that.staticURL +
           EmojiList[str] +
           "' width='20' height='20' style='padding: 0 1px' alt='' />"
         );

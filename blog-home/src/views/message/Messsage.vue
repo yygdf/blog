@@ -54,7 +54,7 @@ export default {
       show: false,
       messageContent: "",
       barrageList: [],
-      defaultAvatar: require("../../assets/img/default/avatar.png")
+      defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png"
     };
   },
   methods: {

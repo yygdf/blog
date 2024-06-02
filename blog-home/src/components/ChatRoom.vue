@@ -175,7 +175,7 @@ export default {
         data: null
       },
       heartBeat: null,
-      defaultAvatar: require("../assets/img/default/avatar.png"),
+      defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png",
       wsURL: process.env.VUE_APP_WS_URL
     };
   },

@@ -10,7 +10,7 @@
         :class="chooseEmoji ? 'emoji-btn-active' : 'emoji-btn'"
         @click="chooseEmoji = !chooseEmoji"
       >
-        <i class="iconfont my-icon-expression" />
+        <i class="el-icon-aim" />
       </span>
       <div style="margin-left:auto">
         <button @click="cancelReply" class="cancel-btn v-comment-btn">
@@ -98,6 +98,6 @@ export default {
   border: 1px solid #90939950;
   border-radius: 4px;
   padding: 10px;
-  margin: 0 0 10px;
+  margin: 10px 0 10px;
 }
 </style>

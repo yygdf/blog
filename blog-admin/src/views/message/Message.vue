@@ -277,7 +277,7 @@ export default {
       size: 10,
       count: 0,
       current: 1,
-      defaultAvatar: require("../../assets/img/default/avatar.png")
+      defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png"
     };
   },
   methods: {

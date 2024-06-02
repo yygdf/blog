@@ -138,7 +138,7 @@ export default {
         .then(({ data }) => {
           if (data.flag) {
             if (!data.data.avatar) {
-              data.data.avatar = require("../../assets/img/default/avatar.png");
+              data.data.avatar = process.env.VUE_APP_STATIC_URL + "img/avatar.png";
             }
             this.$store.commit("login", data.data);
             generateMenu().then(() => {

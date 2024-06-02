@@ -497,12 +497,12 @@ export default {
       lastTimeStamp: 0,
       emailExistStatus: 0,
       usernameExistStatus: 0,
-      defaultAvatar: require("../../assets/img/default/avatar.png"),
-      gender1: require("../../assets/img/gender1.png"),
-      gender2: require("../../assets/img/gender2.png"),
-      gender3: require("../../assets/img/gender3.png"),
-      gender4: require("../../assets/img/gender4.png"),
-      gender5: require("../../assets/img/gender5.png")
+      defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png",
+      gender1: process.env.VUE_APP_STATIC_URL + "img/gender1.png",
+      gender2: process.env.VUE_APP_STATIC_URL + "img/gender2.png",
+      gender3: process.env.VUE_APP_STATIC_URL + "img/gender3.png",
+      gender4: process.env.VUE_APP_STATIC_URL + "img/gender4.png",
+      gender5: process.env.VUE_APP_STATIC_URL + "img/gender5.png"
     };
   },
   methods: {

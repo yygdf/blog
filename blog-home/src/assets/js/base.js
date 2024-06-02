@@ -31,7 +31,8 @@ export async function getBlogInfo() {
     if (data.flag) {
       store.commit("saveBlogConfig", data.data.blogConfig);
       if (!data.data.bloggerInfo.avatar) {
-        data.data.bloggerInfo.avatar = require("../../assets/img/default/avatar.png");
+        data.data.bloggerInfo.avatar =
+          process.env.VUE_APP_STATIC_URL + "img/avatar.png";
       }
       store.commit("saveBloggerInfo", data.data.bloggerInfo);
     }

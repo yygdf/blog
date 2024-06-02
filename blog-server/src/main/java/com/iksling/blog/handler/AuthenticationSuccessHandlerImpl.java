@@ -53,6 +53,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         loginUser.setLoginTime(loginTime);
         loginUser.setLoginPlatform(loginPlatform);
         insertLoginLog(userId, loginTime, loginPlatform, httpServletRequest);
+        Set<Integer> commentLikeSet = RedisUtil.getMapValue(COMMENT_USER_LIKE, userId.toString());
         if (loginPlatform) {
             LoginUserBackDTO loginUserBackDTO = LoginUserBackDTO.builder()
                     .userId(userId)
@@ -64,12 +65,12 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
                     .website(user.getWebsite())
                     .nickname(user.getNickname())
                     .modifiedFlag(user.getModifiedFlag())
+                    .commentLikeSet(commentLikeSet)
                     .build();
             httpServletResponse.setContentType("application/json;charset=UTF-8");
             httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message("登录成功!").data(loginUserBackDTO)));
         } else {
             Set<Integer> articleLikeSet = RedisUtil.getMapValue(ARTICLE_USER_LIKE, userId.toString());
-            Set<Integer> commentLikeSet = RedisUtil.getMapValue(COMMENT_USER_LIKE, userId.toString());
             LoginUserDTO loginUserDTO = LoginUserDTO.builder()
                     .userId(userId)
                     .intro(user.getIntro())

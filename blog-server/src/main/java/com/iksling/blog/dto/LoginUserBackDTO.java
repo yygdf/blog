@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -54,4 +56,9 @@ public class LoginUserBackDTO {
      * 修改标志
      */
     private Boolean modifiedFlag;
+
+    /**
+     * 点赞评论集合
+     */
+    private Set<Integer> commentLikeSet;
 }

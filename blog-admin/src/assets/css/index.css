@@ -132,7 +132,6 @@ body {
 .comment-content {
   font-size: 0.875rem;
   line-height: 0.75;
-  padding-top: 0.2rem;
 }
 .comment-info {
   line-height: 0.75;
@@ -202,7 +201,16 @@ body {
 }
 .reply-btn {
   cursor: pointer;
+  font-size: 0.875rem;
 }
 .reply-btn:hover {
   color: #66b1ff;
+}
+.del-btn {
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 0.875rem;
+}
+.del-btn:hover {
+  color: #ff7242;
 }

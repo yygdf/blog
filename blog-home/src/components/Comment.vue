@@ -71,11 +71,18 @@
               @click="like(item)"
             />
             <span v-show="item.likeCount > 0"> {{ item.likeCount }}</span>
-            <span class="reply-btn" @click="replyComment(index, item)">
+            <span
+              v-if="showReplyFlag"
+              class="reply-btn"
+              @click="replyComment(index, item)"
+            >
               回复
             </span>
           </div>
-          <p v-html="item.commentContent" class="comment-content"></p>
+          <p
+            class="comment-content"
+            v-html="item.commentContent.replace(/\n/g, '<br/>')"
+          ></p>
           <div
             style="display:flex"
             v-for="reply of item.commentsReplyDTOList"
@@ -117,13 +124,18 @@
                   @click="like(reply)"
                 />
                 <span v-show="reply.likeCount > 0"> {{ reply.likeCount }}</span>
-                <span class="reply-btn" @click="replyComment(index, reply)">
+                <span
+                  v-if="showReplyFlag"
+                  class="reply-btn"
+                  @click="replyComment(index, reply)"
+                >
                   回复
                 </span>
               </div>
-              <p class="comment-content">
-                <span v-html="reply.commentContent" />
-              </p>
+              <p
+                class="comment-content"
+                v-html="reply.commentContent.replace(/\n/g, '<br/>')"
+              ></p>
             </div>
           </div>
           <div
@@ -210,7 +222,7 @@ export default {
       this.$refs.reply[index].commentContent = "";
       this.$refs.reply[index].nickname = item.nickname;
       this.$refs.reply[index].replyId = item.userId;
-      this.$refs.reply[index].parentId = this.commentList[index].id;
+      this.$refs.reply[index].parentId = item.id;
       this.$refs.reply[index].layer = item.parentId == null;
       this.$refs.reply[index].chooseEmoji = false;
       this.$refs.reply[index].index = index;
@@ -345,6 +357,9 @@ export default {
     },
     bloggerId() {
       return this.$store.state.bloggerId;
+    },
+    showReplyFlag() {
+      return this.$route.path !== this.$store.state.rootUri + "/friendLinks";
     }
   },
   watch: {

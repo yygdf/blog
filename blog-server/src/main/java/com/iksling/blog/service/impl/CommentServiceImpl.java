@@ -9,10 +9,12 @@ import com.iksling.blog.dto.CommentsDTO;
 import com.iksling.blog.dto.CommentsReplyDTO;
 import com.iksling.blog.entity.Article;
 import com.iksling.blog.entity.Comment;
+import com.iksling.blog.entity.Notice;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.ArticleMapper;
 import com.iksling.blog.mapper.CommentMapper;
+import com.iksling.blog.mapper.NoticeMapper;
 import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
@@ -32,6 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
+import static com.iksling.blog.constant.CommonConst.WEBSITE_URL;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.RECYCLE;
 import static com.iksling.blog.constant.RedisConst.COMMENT_LIKE_COUNT;
@@ -48,6 +52,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
 
     @Autowired
     private ArticleMapper articleMapper;
+    @Autowired
+    private NoticeMapper noticeMapper;
 
     @Resource
     private HttpServletRequest request;
@@ -116,45 +122,76 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         Integer articleId = commentVO.getArticleId() == null ? -1 : commentVO.getArticleId();
         Integer parentId = commentVO.getParentId();
         Comment comment = new Comment();
-        if (parentId == null) {
-            if (articleId != -1) {
-                Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
-                        .eq(Article::getId, articleId)
-                        .eq(Article::getDraftFlag, false)
-                        .and(loginUser.getRoleWeight() > 300, e -> e
-                                .and(e2 -> e2.eq(Article::getHiddenFlag, false).eq(Article::getCommentableFlag, true))
-                                .or()
-                                .eq(Article::getUserId, loginUserId)));
-                if (count == 0)
+        Notice notice = new Notice();
+        boolean sendNoticeFlag = true;
+        if (articleId == -1) {
+            if (parentId == null) {
+                notice.setUserId(ROOT_USER_ID);
+                notice.setNoticeType(4);
+                notice.setNoticeTypeSub(1);
+                notice.setNoticeTitle("您收到一条新的友链评论!");
+                notice.setNoticeContent("该评论来自用户 "+loginUser.getUsername()+" ,点击 <a href='"+WEBSITE_URL+"/"+ROOT_USER_ID+"/friendLinks' target='_blank'>网页链接</a> 查看详情!");
+            } else {
+                if (!loginUserId.equals(ROOT_USER_ID))
                     throw new OperationStatusException();
-                comment.setArticleId(articleId);
+                comment.setParentId(parentId);
+                sendNoticeFlag = false;
             }
         } else {
-            LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<Comment>()
-                    .eq(Comment::getId, parentId)
-                    .eq(Comment::getArticleId, articleId)
-                    .eq(Comment::getParentId, -1)
-                    .eq(Comment::getRecycleFlag, false);
-            if (articleId != -1) {
-                lambdaQueryWrapper.exists("select a.id from tb_article a where a.draft_flag=false and a.id="+articleId+(loginUser.getRoleWeight() > 300 ? " and ((a.hidden_flag=false and a.commentable_flag=true) or a.user_id="+loginUser.getUserId()+")" : ""));
-                comment.setArticleId(articleId);
+            List<Object> objectList = articleMapper.selectObjs(new LambdaQueryWrapper<Article>()
+                    .select(Article::getUserId)
+                    .eq(Article::getId, articleId)
+                    .eq(Article::getDraftFlag, false)
+                    .and(loginUser.getRoleWeight() > 300, e -> e
+                            .and(e2 -> e2.eq(Article::getHiddenFlag, false).eq(Article::getCommentableFlag, true))
+                            .or()
+                            .eq(Article::getUserId, loginUserId)));
+            if (objectList.size() == 0)
+                throw new OperationStatusException();
+            comment.setArticleId(articleId);
+            Integer userId = (Integer) objectList.get(0);
+            if (loginUserId.equals(userId))
+                sendNoticeFlag = false;
+            else {
+                notice.setUserId(userId);
+                notice.setArticleId(articleId);
+                notice.setNoticeType(1);
+            }
+            if (parentId != null) {
+                Integer count = commentMapper.selectCount(new LambdaQueryWrapper<Comment>()
+                        .eq(Comment::getId, parentId)
+                        .eq(Comment::getArticleId, articleId)
+                        .eq(Comment::getParentId, -1)
+                        .eq(Comment::getRecycleFlag, false));
+                if (count == 0)
+                    throw new OperationStatusException();
+                comment.setParentId(parentId);
             }
             if (replyId != null) {
-                lambdaQueryWrapper.exists("select c.id from tb_comment c where c.parent_id="+parentId+" and c.user_id="+replyId+" and c.recycle_flag=false");
+                Integer count = commentMapper.selectCount(new LambdaQueryWrapper<Comment>()
+                        .eq(Comment::getParentId, parentId)
+                        .eq(Comment::getUserId, replyId)
+                        .eq(Comment::getRecycleFlag, false));
+                if (count == 0)
+                    throw new OperationStatusException();
                 comment.setReplyId(replyId);
+                notice.setNoticeType(2);
             }
-            Integer count = commentMapper.selectCount(lambdaQueryWrapper);
-            if (count == 0)
-                throw new OperationStatusException();
-            comment.setParentId(parentId);
         }
+        Date createTime = new Date();
         comment.setUserId(loginUserId);
         comment.setCommentContent(RegexUtil.deleteHTMLTag(commentVO.getCommentContent()));
         comment.setIpAddress(IpUtil.getIpAddress(request));
         comment.setIpSource(comment.getIpAddress());
         comment.setCreateUser(loginUserId);
-        comment.setCreateTime(new Date());
+        comment.setCreateTime(createTime);
         commentMapper.insert(comment);
+        if (sendNoticeFlag) {
+            notice.setCommentId(comment.getId());
+            notice.setCreateUser(ROOT_USER_ID);
+            notice.setCreateTime(createTime);
+            noticeMapper.insert(notice);
+        }
     }
 
     @Override

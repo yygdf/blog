@@ -1,6 +1,7 @@
 <template>
   <el-card class="main-card">
     <el-tabs
+      v-model="activeName"
       tab-position="left"
       style="height:calc(100vh - 180px);"
       @tab-click="handleTabClick"
@@ -51,7 +52,7 @@
                 style="text-decoration: none;color: inherit;"
                 target="_blank"
               >
-                <span> 对我的文章发表了{{ item.commentCount }}条评论</span>
+                <span> 对我的文章发表了评论</span>
               </a>
             </div>
             <a
@@ -59,7 +60,10 @@
               style="text-decoration: none;color: inherit;"
               target="_blank"
             >
-              <p v-html="item.commentContent" class="comment-content"></p>
+              <p
+                class="comment-content"
+                v-html="item.commentContent.replace(/\n/g, '<br/>')"
+              ></p>
             </a>
             <div
               class="comment-info"
@@ -85,7 +89,7 @@
                 ref="delTip"
                 class="del-btn"
                 style="display: none;"
-                @click="like(item)"
+                @click="updateNoticesStatus(item.id)"
                 ><i class="el-icon-delete"></i>删除该通知</span
               >
             </div>
@@ -138,70 +142,8 @@ export default {
   },
   data: function() {
     return {
+      activeName: "reply",
       replyCommentList: null,
-      commentList: [
-        {
-          id: 9,
-          userId: 2,
-          articleId: 1,
-          commentId: 9,
-          commentContent:
-            "<img src= 'http://192.168.143.130/static/img/emoji/liuliuliu.png' width='20' height='20' style='padding: 0 1px' alt='' /><img src= 'http://192.168.143.130/static/img/emoji/emm.png' width='20' height='20' style='padding: 0 1px' alt='' /><img src= 'http://192.168.143.130/static/img/emoji/ok.png' width='20' height='20' style='padding: 0 1px' alt='' />",
-          createTime: "2024-06-01T13:59:52.000+00:00",
-          avatar:
-            "http://192.168.143.130/static/2/-1/-11/1792506667906437121.png",
-          website: "",
-          nickname: "root",
-          commentCount: 2,
-          articleCover: "http://192.168.143.130/static/img/emoji/liuliuliu.png",
-          articleTitle: "123321"
-        },
-        {
-          id: 3,
-          userId: 2,
-          articleId: 1,
-          commentId: 9,
-          commentContent: "gggg",
-          createTime: "2024-06-01T08:36:47.000+00:00",
-          avatar:
-            "http://192.168.143.130/static/2/-1/-11/1792506667906437121.png",
-          website: "",
-          nickname: "root",
-          commentCount: 2,
-          articleCover: "",
-          articleTitle: "123321"
-        },
-        {
-          id: 2,
-          userId: 3,
-          articleId: 1,
-          commentId: 9,
-          commentContent:
-            "hhhhhh<img src= '/emoji/zhoumei.png' width='20' height='20' style='padding: 0 1px' alt='' /><img src= '/emoji/liekai.png' width='20' height='20' style='padding: 0 1px' alt='' />",
-          createTime: "2024-06-01T08:35:44.000+00:00",
-          avatar: "",
-          website: "",
-          nickname: "admin",
-          commentCount: 2,
-          articleCover: "",
-          articleTitle: "123321"
-        },
-        {
-          id: 1,
-          userId: 3,
-          articleId: 1,
-          commentId: 9,
-          commentContent:
-            "hhha<img src= '/emoji/daku.png' width='20' height='20' style='padding: 0 1px' alt='' />",
-          createTime: "2024-06-01T08:34:58.000+00:00",
-          avatar: "",
-          website: "",
-          nickname: "admin",
-          commentCount: 2,
-          articleCover: "http://192.168.143.130/static/img/emoji/liuliuliu.png",
-          articleTitle: "123321"
-        }
-      ],
       defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png",
       defaultArticleCover: process.env.VUE_APP_STATIC_URL + "img/article.jpg",
       homeURL: process.env.VUE_APP_HOME_URL
@@ -214,7 +156,7 @@ export default {
       }
     },
     getReplyCommentList() {
-      this.axios.get("/api/about").then(({ data }) => {
+      this.axios.get("/api/back/notice/1").then(({ data }) => {
         this.replyCommentList = data.data;
       });
     },
@@ -224,9 +166,10 @@ export default {
       });
       this.$refs.reply[index].commentContent = "";
       this.$refs.reply[index].nickname = item.nickname;
-      this.$refs.reply[index].replyId = item.userId;
-      this.$refs.reply[index].parentId = this.commentList[index].commentId;
-      this.$refs.reply[index].layer = item.parentId == null;
+      this.$refs.reply[index].replyId = item.commentUserId;
+      this.$refs.reply[index].parentId = item.commentId;
+      this.$refs.reply[index].articleId = item.articleId;
+      this.$refs.reply[index].layer = item.parentId === -1;
       this.$refs.reply[index].chooseEmoji = false;
       this.$refs.reply[index].index = index;
       this.$refs.reply[index].$el.style.display = "block";
@@ -238,10 +181,6 @@ export default {
       this.$refs.delTip[index].style.display = "none";
     },
     like(comment) {
-      if (this.$store.state.userId == null) {
-        this.$store.state.loginFlag = true;
-        return false;
-      }
       this.axios
         .post("/api/comment/like/" + comment.commentId)
         .then(({ data }) => {
@@ -255,6 +194,26 @@ export default {
             }
           }
         });
+    },
+    updateNoticesStatus(id) {
+      let param = {
+        idList: [id]
+      };
+      this.axios.put("/api/back/notices/status", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+          this.getReplyCommentList();
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+      });
+      this.editStatus = false;
     }
   },
   computed: {

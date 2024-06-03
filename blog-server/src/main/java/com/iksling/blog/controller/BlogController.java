@@ -29,12 +29,6 @@ public class BlogController {
         return Result.success().message("操作成功");
     }
 
-    @ApiOperation(value = "查看后台首页信息")
-    @GetMapping("/back/blog/home")
-    public Result getBackBlogHome() {
-        return Result.success().message("查询成功");
-    }
-
     /****************************************************************************************************/
 
     @ApiOperation(value = "校验访问令牌")

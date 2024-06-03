@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iksling.blog.mapper.NoticeMapper">
+
+    <resultMap id="BaseResultMap" type="com.iksling.blog.entity.Notice">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="articleId" column="article_id" jdbcType="INTEGER"/>
+            <result property="commentId" column="comment_id" jdbcType="INTEGER"/>
+            <result property="noticeType" column="notice_type" jdbcType="INTEGER"/>
+            <result property="noticeTypeSub" column="notice_type_sub" jdbcType="INTEGER"/>
+            <result property="noticeTitle" column="notice_title" jdbcType="VARCHAR"/>
+            <result property="noticeContent" column="notice_content" jdbcType="VARCHAR"/>
+            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
+            <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,article_id,
+        comment_id,notice_type,notice_type_sub,
+        notice_title,notice_content,deleted_flag,
+        create_user,create_time
+    </sql>
+
+    <select id="selectBackReplyComments" resultType="java.util.Map">
+        SELECT
+            n.id,n.user_id userId,n.article_id articleId,
+            n.comment_id commentId,u.avatar,u.website,
+            u.nickname,a.article_title articleTitle,a.article_cover articleCover,
+            c.comment_content commentContent,c.create_time createTime,
+            c.user_id commentUserId,c.parent_id parentId
+        FROM
+            tb_notice n
+        LEFT JOIN tb_article a ON n.article_id = a.id
+        LEFT JOIN tb_comment c ON n.comment_id = c.id
+        LEFT JOIN tb_user u ON c.user_id = u.id
+        WHERE
+            n.user_id = #{userId} AND n.notice_type = 1 AND n.deleted_flag = false
+        ORDER BY
+            n.id DESC
+    </select>
+</mapper>

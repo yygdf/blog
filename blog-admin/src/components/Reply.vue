@@ -40,6 +40,7 @@ export default {
       nickname: "",
       replyId: null,
       parentId: null,
+      articleId: null,
       commentContent: "",
       staticURL: process.env.VUE_APP_STATIC_URL
     };
@@ -54,7 +55,7 @@ export default {
         return false;
       }
       if (this.commentContent.trim() === "") {
-        this.$toast({ type: "error", message: "回复不能为空" });
+        this.$message.error("回复不能为空");
         return false;
       }
       const reg = /#\[.+?]/g;
@@ -68,11 +69,9 @@ export default {
           "' width='20' height='20' style='padding: 0 1px' alt=''/>"
         );
       });
-      const path = this.$route.path;
-      const arr = path.split("/");
       let comment = {
         parentId: this.parentId,
-        articleId: arr[arr.length - 1],
+        articleId: this.articleId,
         commentContent: content
       };
       if (!this.layer) {
@@ -81,8 +80,11 @@ export default {
       this.commentContent = "";
       this.axios.post("/api/comment", comment).then(({ data }) => {
         if (data.flag) {
-          this.$emit("reloadCommentsReply", this.index);
-          this.$toast({ type: "success", message: "回复成功" });
+          this.$notify.success({
+            title: "成功",
+            message: "回复成功"
+          });
+          this.$refs.reply.style.display = "none";
         }
       });
     },

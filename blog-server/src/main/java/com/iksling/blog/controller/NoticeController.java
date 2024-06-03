@@ -1,6 +1,7 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.NoticeService;
 import com.iksling.blog.vo.StatusBackVO;
@@ -21,10 +22,10 @@ public class NoticeController {
     private NoticeService noticeService;
 
     @ApiOperation(value = "查看后台通知")
-    @ApiImplicitParam(name = "type", value = "通知类型", dataType = "Integer")
-    @GetMapping("/back/notice/{type}")
-    public Result getBackNotice(@PathVariable Integer type) {
-        return Result.success().message("查询成功").data(noticeService.getBackNotice(type));
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
+    @GetMapping("/back/notices")
+    public Result getBackNotice(@Valid Condition condition) {
+        return Result.success().message("查询成功").data(noticeService.getBackNotices(condition));
     }
 
     @OptLog(optType = UPDATE)

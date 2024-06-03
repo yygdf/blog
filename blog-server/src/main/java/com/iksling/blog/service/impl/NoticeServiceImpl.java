@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.entity.Notice;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.NoticeMapper;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.NoticeService;
 import com.iksling.blog.util.UserUtil;
@@ -26,19 +27,20 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice>
     private NoticeMapper noticeMapper;
 
     @Override
-    public List<Map<String, Object>> getBackNotice(Integer type) {
-        LoginUser loginUser = UserUtil.getLoginUser();
-        switch (type) {
+    public List<Map<String, Object>> getBackNotices(Condition condition) {
+        condition.setUserId(UserUtil.getLoginUser().getUserId());
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
+        switch (condition.getType()) {
             case 2:
-                return noticeMapper.selectBackReplyComments(loginUser.getUserId());
+                return noticeMapper.selectBackReplyComments(condition);
             case 3:
-                return noticeMapper.selectBackReplyComments(loginUser.getUserId());
+                return noticeMapper.selectBackReplyComments(condition);
             case 4:
-                return noticeMapper.selectBackReplyComments(loginUser.getUserId());
+                return noticeMapper.selectBackReplyComments(condition);
             case 5:
-                return noticeMapper.selectBackReplyComments(loginUser.getUserId());
+                return noticeMapper.selectBackReplyComments(condition);
             default:
-                return noticeMapper.selectBackReplyComments(loginUser.getUserId());
+                return noticeMapper.selectBackReplyComments(condition);
         }
     }
 

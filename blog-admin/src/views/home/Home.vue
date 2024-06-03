@@ -10,92 +10,94 @@
         <span slot="label" style="font-weight: bold;"
           ><i class="el-icon-s-comment"></i> 回复我的</span
         >
-        <el-card v-for="(item, index) of replyCommentList" :key="item.id">
-          <el-image
-            :src="item.avatar ? item.avatar : defaultAvatar"
-            class="comment-avatar"
-            style="width: 40px;height: 40px;border-radius: 20px;"
-          />
-          <a
-            :href="homeURL + '/' + userId + '/article/' + item.articleId"
-            target="_blank"
-          >
-            <el-tooltip
-              :content="item.articleTitle"
-              placement="bottom"
-              effect="light"
+        <div class="el-tab-pane" v-infinite-scroll="loadReplyCommentList">
+          <el-card v-for="(item, index) of replyCommentList" :key="item.id">
+            <el-image
+              :src="item.avatar ? item.avatar : defaultAvatar"
+              class="comment-avatar"
+              style="width: 40px;height: 40px;border-radius: 20px;"
+            />
+            <a
+              :href="homeURL + '/' + userId + '/article/' + item.articleId"
+              target="_blank"
             >
-              <el-image
-                :src="
-                  item.articleCover ? item.articleCover : defaultArticleCover
-                "
-                style="width: 80px;height: 80px;float: right;"
-              />
-            </el-tooltip>
-          </a>
-          <div
-            class="comment-meta"
-            style="padding-left: 40px;margin-top: -50px"
-          >
-            <div class="comment-user">
-              <span
-                v-if="!item.website"
-                style="font-weight: bold;font-size: 20px"
+              <el-tooltip
+                :content="item.articleTitle"
+                placement="bottom"
+                effect="light"
               >
-                {{ item.nickname }}
-              </span>
-              <a v-else :href="item.website" target="_blank">
-                {{ item.nickname }}
-              </a>
+                <el-image
+                  :src="
+                    item.articleCover ? item.articleCover : defaultArticleCover
+                  "
+                  style="width: 80px;height: 80px;float: right;"
+                />
+              </el-tooltip>
+            </a>
+            <div
+              class="comment-meta"
+              style="padding-left: 40px;margin-top: -50px"
+            >
+              <div class="comment-user">
+                <span
+                  v-if="!item.website"
+                  style="font-weight: bold;font-size: 20px"
+                >
+                  {{ item.nickname }}
+                </span>
+                <a v-else :href="item.website" target="_blank">
+                  {{ item.nickname }}
+                </a>
+                <a
+                  :href="homeURL + '/' + userId + '/article/' + item.articleId"
+                  style="text-decoration: none;color: inherit;"
+                  target="_blank"
+                >
+                  <span> 对我的文章发表了评论</span>
+                </a>
+              </div>
               <a
                 :href="homeURL + '/' + userId + '/article/' + item.articleId"
                 style="text-decoration: none;color: inherit;"
                 target="_blank"
               >
-                <span> 对我的文章发表了评论</span>
+                <p
+                  class="comment-content"
+                  v-html="item.commentContent.replace(/\n/g, '<br/>')"
+                ></p>
               </a>
+              <div
+                class="comment-info"
+                @mouseenter="showDelTip(index)"
+                @mouseleave="hideDelTip(index)"
+              >
+                <span style="margin-right:10px">{{
+                  item.createTime | dateTime
+                }}</span>
+                <span class="reply-btn" @click="replyComment(index, item)">
+                  <i class="el-icon-chat-square"></i>回复
+                </span>
+                <span
+                  v-if="isLike(item.commentId)"
+                  class="like-active"
+                  @click="like(item)"
+                  ><i class="el-icon-thumb"></i>已赞</span
+                >
+                <span v-else class="like" @click="like(item)"
+                  ><i class="el-icon-thumb"></i>点赞</span
+                >
+                <span
+                  ref="delTip"
+                  class="del-btn"
+                  style="display: none;"
+                  @click="updateNoticesStatus(item.id)"
+                  ><i class="el-icon-delete"></i>删除该通知</span
+                >
+              </div>
+              <Reply ref="reply" />
             </div>
-            <a
-              :href="homeURL + '/' + userId + '/article/' + item.articleId"
-              style="text-decoration: none;color: inherit;"
-              target="_blank"
-            >
-              <p
-                class="comment-content"
-                v-html="item.commentContent.replace(/\n/g, '<br/>')"
-              ></p>
-            </a>
-            <div
-              class="comment-info"
-              @mouseenter="showDelTip(index)"
-              @mouseleave="hideDelTip(index)"
-            >
-              <span style="margin-right:10px">{{
-                item.createTime | dateTime
-              }}</span>
-              <span class="reply-btn" @click="replyComment(index, item)">
-                <i class="el-icon-chat-square"></i>回复
-              </span>
-              <span
-                v-if="isLike(item.commentId)"
-                class="like-active"
-                @click="like(item)"
-                ><i class="el-icon-thumb"></i>已赞</span
-              >
-              <span v-else class="like" @click="like(item)"
-                ><i class="el-icon-thumb"></i>点赞</span
-              >
-              <span
-                ref="delTip"
-                class="del-btn"
-                style="display: none;"
-                @click="updateNoticesStatus(item.id)"
-                ><i class="el-icon-delete"></i>删除该通知</span
-              >
-            </div>
-            <Reply ref="reply" />
-          </div>
-        </el-card>
+          </el-card>
+        </div>
       </el-tab-pane>
       <el-tab-pane name="at">
         <span slot="label" style="font-weight: bold;"
@@ -137,16 +139,15 @@ export default {
   components: {
     Reply
   },
-  created() {
-    this.getReplyCommentList();
-  },
   data: function() {
     return {
       activeName: "reply",
-      replyCommentList: null,
+      replyCommentList: [],
       defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png",
       defaultArticleCover: process.env.VUE_APP_STATIC_URL + "img/article.jpg",
-      homeURL: process.env.VUE_APP_HOME_URL
+      homeURL: process.env.VUE_APP_HOME_URL,
+      current: 1,
+      infiniteLoadFlag: true
     };
   },
   methods: {
@@ -214,6 +215,27 @@ export default {
         }
       });
       this.editStatus = false;
+    },
+    loadReplyCommentList() {
+      if (this.infiniteLoadFlag) {
+        this.axios
+          .get("/api/back/notices", {
+            params: {
+              type: 1,
+              size: 10,
+              current: this.current
+            }
+          })
+          .then(({ data }) => {
+            if (data.data.length) {
+              this.current++;
+              this.replyCommentList.push(...data.data);
+            }
+            if (data.data.length < 10) {
+              this.infiniteLoadFlag = false;
+            }
+          });
+      }
     }
   },
   computed: {

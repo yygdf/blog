@@ -230,4 +230,12 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.el-tab-pane {
+  height: 80vh;
+  overflow-y: auto;
+}
+.el-tab-pane >>> .el-card:hover {
+  background-color: rgba(240, 240, 240, 0.3);
+}
+</style>

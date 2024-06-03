@@ -37,6 +37,8 @@
             <div
               class="comment-meta"
               style="padding-left: 40px;margin-top: -50px"
+              @mouseenter="showDelTip(index)"
+              @mouseleave="hideDelTip(index)"
             >
               <div class="comment-user">
                 <span
@@ -66,11 +68,7 @@
                   v-html="item.commentContent.replace(/\n/g, '<br/>')"
                 ></p>
               </a>
-              <div
-                class="comment-info"
-                @mouseenter="showDelTip(index)"
-                @mouseleave="hideDelTip(index)"
-              >
+              <div class="comment-info">
                 <span style="margin-right:10px">{{
                   item.createTime | dateTime
                 }}</span>
@@ -87,7 +85,7 @@
                   ><i class="el-icon-thumb"></i>点赞</span
                 >
                 <span
-                  ref="delTip"
+                  ref="replyDelTip"
                   class="del-btn"
                   style="display: none;"
                   @click="updateNoticesStatus(item.id)"
@@ -103,7 +101,92 @@
         <span slot="label" style="font-weight: bold;"
           ><i class="el-icon-s-comment"></i> &nbsp;@ 我的</span
         >
-        我的行程
+        <div class="el-tab-pane" v-infinite-scroll="loadAtCommentList">
+          <el-card v-for="(item, index) of atCommentList" :key="item.id">
+            <el-image
+              :src="item.avatar ? item.avatar : defaultAvatar"
+              class="comment-avatar"
+              style="width: 40px;height: 40px;border-radius: 20px;"
+            />
+            <a
+              :href="homeURL + '/' + userId + '/article/' + item.articleId"
+              target="_blank"
+            >
+              <el-tooltip
+                :content="item.articleTitle"
+                placement="bottom"
+                effect="light"
+              >
+                <el-image
+                  :src="
+                    item.articleCover ? item.articleCover : defaultArticleCover
+                  "
+                  style="width: 80px;height: 80px;float: right;"
+                />
+              </el-tooltip>
+            </a>
+            <div
+              class="comment-meta"
+              style="padding-left: 40px;margin-top: -50px"
+              @mouseenter="showDelTip(index)"
+              @mouseleave="hideDelTip(index)"
+            >
+              <div class="comment-user">
+                <span
+                  v-if="!item.website"
+                  style="font-weight: bold;font-size: 20px"
+                >
+                  {{ item.nickname }}
+                </span>
+                <a v-else :href="item.website" target="_blank">
+                  {{ item.nickname }}
+                </a>
+                <a
+                  :href="homeURL + '/' + userId + '/article/' + item.articleId"
+                  style="text-decoration: none;color: inherit;"
+                  target="_blank"
+                >
+                  <span> @了我</span>
+                </a>
+              </div>
+              <a
+                :href="homeURL + '/' + userId + '/article/' + item.articleId"
+                style="text-decoration: none;color: inherit;"
+                target="_blank"
+              >
+                <p
+                  class="comment-content"
+                  v-html="item.commentContent.replace(/\n/g, '<br/>')"
+                ></p>
+              </a>
+              <div class="comment-info">
+                <span style="margin-right:10px">{{
+                  item.createTime | dateTime
+                }}</span>
+                <span class="reply-btn" @click="replyComment(index, item)">
+                  <i class="el-icon-chat-square"></i>回复
+                </span>
+                <span
+                  v-if="isLike(item.commentId)"
+                  class="like-active"
+                  @click="like(item)"
+                  ><i class="el-icon-thumb"></i>已赞</span
+                >
+                <span v-else class="like" @click="like(item)"
+                  ><i class="el-icon-thumb"></i>点赞</span
+                >
+                <span
+                  ref="atDelTip"
+                  class="del-btn"
+                  style="display: none;"
+                  @click="updateNoticesStatus(item.id)"
+                  ><i class="el-icon-delete"></i>删除该通知</span
+                >
+              </div>
+              <Reply ref="at" />
+            </div>
+          </el-card>
+        </div>
       </el-tab-pane>
       <el-tab-pane name="like">
         <span slot="label" style="font-weight: bold;"
@@ -143,43 +226,65 @@ export default {
     return {
       activeName: "reply",
       replyCommentList: [],
+      atCommentList: [],
       defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png",
       defaultArticleCover: process.env.VUE_APP_STATIC_URL + "img/article.jpg",
       homeURL: process.env.VUE_APP_HOME_URL,
-      current: 1,
-      infiniteLoadFlag: true
+      replyCurrent: 1,
+      replyInfiniteLoadFlag: true,
+      atCurrent: 1,
+      atInfiniteLoadFlag: true
     };
   },
   methods: {
-    handleTabClick(tab) {
-      if (tab.name === "reply" && this.replyCommentList == null) {
-        this.getReplyCommentList();
+    handleTabClick() {
+      if (this.activeName === "at" && this.atCommentList.length === 0) {
+        this.loadAtCommentList();
       }
     },
-    getReplyCommentList() {
-      this.axios.get("/api/back/notice/1").then(({ data }) => {
-        this.replyCommentList = data.data;
-      });
-    },
     replyComment(index, item) {
-      this.$refs.reply.forEach(item => {
-        item.$el.style.display = "none";
-      });
-      this.$refs.reply[index].commentContent = "";
-      this.$refs.reply[index].nickname = item.nickname;
-      this.$refs.reply[index].replyId = item.commentUserId;
-      this.$refs.reply[index].parentId = item.commentId;
-      this.$refs.reply[index].articleId = item.articleId;
-      this.$refs.reply[index].layer = item.parentId === -1;
-      this.$refs.reply[index].chooseEmoji = false;
-      this.$refs.reply[index].index = index;
-      this.$refs.reply[index].$el.style.display = "block";
+      if (this.activeName === "reply") {
+        this.$refs.reply.forEach(item => {
+          item.$el.style.display = "none";
+        });
+        this.$refs.reply[index].commentContent = "";
+        this.$refs.reply[index].nickname = item.nickname;
+        this.$refs.reply[index].replyId = item.commentUserId;
+        this.$refs.reply[index].parentId =
+          item.parentId === -1 ? item.commentId : item.parentId;
+        this.$refs.reply[index].articleId = item.articleId;
+        this.$refs.reply[index].layer = item.parentId === -1;
+        this.$refs.reply[index].chooseEmoji = false;
+        this.$refs.reply[index].index = index;
+        this.$refs.reply[index].$el.style.display = "block";
+      } else if (this.activeName === "at") {
+        this.$refs.at.forEach(item => {
+          item.$el.style.display = "none";
+        });
+        this.$refs.at[index].commentContent = "";
+        this.$refs.at[index].nickname = item.nickname;
+        this.$refs.at[index].replyId = item.commentUserId;
+        this.$refs.at[index].parentId = item.parentId;
+        this.$refs.at[index].articleId = item.articleId;
+        this.$refs.at[index].layer = false;
+        this.$refs.at[index].chooseEmoji = false;
+        this.$refs.at[index].index = index;
+        this.$refs.at[index].$el.style.display = "block";
+      }
     },
     showDelTip(index) {
-      this.$refs.delTip[index].style.display = "";
+      if (this.activeName === "reply") {
+        this.$refs.replyDelTip[index].style.display = "";
+      } else if (this.activeName === "at") {
+        this.$refs.atDelTip[index].style.display = "";
+      }
     },
     hideDelTip(index) {
-      this.$refs.delTip[index].style.display = "none";
+      if (this.activeName === "reply") {
+        this.$refs.replyDelTip[index].style.display = "none";
+      } else if (this.activeName === "at") {
+        this.$refs.atDelTip[index].style.display = "none";
+      }
     },
     like(comment) {
       this.axios
@@ -206,7 +311,14 @@ export default {
             title: "成功",
             message: data.message
           });
-          this.getReplyCommentList();
+          let commentList;
+          if (this.activeName === "reply") {
+            commentList = this.replyCommentList;
+          } else if (this.activeName === "at") {
+            commentList = this.atCommentList;
+          }
+          let index = commentList.findIndex(item => item.id === id);
+          commentList.splice(index, 1);
         } else {
           this.$notify.error({
             title: "失败",
@@ -217,22 +329,43 @@ export default {
       this.editStatus = false;
     },
     loadReplyCommentList() {
-      if (this.infiniteLoadFlag) {
+      if (this.replyInfiniteLoadFlag) {
         this.axios
           .get("/api/back/notices", {
             params: {
               type: 1,
               size: 10,
-              current: this.current
+              current: this.replyCurrent
             }
           })
           .then(({ data }) => {
             if (data.data.length) {
-              this.current++;
+              this.replyCurrent++;
               this.replyCommentList.push(...data.data);
             }
             if (data.data.length < 10) {
-              this.infiniteLoadFlag = false;
+              this.replyInfiniteLoadFlag = false;
+            }
+          });
+      }
+    },
+    loadAtCommentList() {
+      if (this.atInfiniteLoadFlag) {
+        this.axios
+          .get("/api/back/notices", {
+            params: {
+              type: 2,
+              size: 10,
+              current: this.atCurrent
+            }
+          })
+          .then(({ data }) => {
+            if (data.data.length) {
+              this.atCurrent++;
+              this.atCommentList.push(...data.data);
+            }
+            if (data.data.length < 10) {
+              this.atInfiniteLoadFlag = false;
             }
           });
       }

@@ -222,7 +222,7 @@ export default {
       this.$refs.reply[index].commentContent = "";
       this.$refs.reply[index].nickname = item.nickname;
       this.$refs.reply[index].replyId = item.userId;
-      this.$refs.reply[index].parentId = item.id;
+      this.$refs.reply[index].parentId = this.commentList[index].id;
       this.$refs.reply[index].layer = item.parentId == null;
       this.$refs.reply[index].chooseEmoji = false;
       this.$refs.reply[index].index = index;
@@ -267,10 +267,10 @@ export default {
       const arr = path.split("/");
       this.axios
         .get("/api/comments", {
-          params: { current: this.current, articleId: arr[2] }
+          params: { current: this.current, categoryId: arr[2] }
         })
         .then(({ data }) => {
-          this.commentList.push(...data.data.recordList);
+          this.commentList.push(...data.data.pageList);
         });
     },
     addComment() {

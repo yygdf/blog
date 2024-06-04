@@ -61,7 +61,14 @@
                   style="text-decoration: none;color: inherit;"
                   target="_blank"
                 >
-                  <span> 对我的文章发表了评论 <sup v-show="replyCommentIdUnReadStatus(item.id)" style="color: red">·</sup></span>
+                  <span>
+                    对我的文章发表了评论
+                    <sup
+                      v-show="replyCommentIdUnReadStatus(item.id)"
+                      style="color: red"
+                      >·</sup
+                    ></span
+                  >
                 </a>
               </div>
               <a
@@ -107,9 +114,7 @@
         <span slot="label" style="font-weight: bold;"
           ><i class="el-icon-s-comment"></i> &nbsp;@ 我的
           <sup
-            :style="
-              atCommentIdUnReadCount > 0 ? 'color: red;' : 'color: gray;'
-            "
+            :style="atCommentIdUnReadCount > 0 ? 'color: red;' : 'color: gray;'"
             >{{ "NEW(" + atCommentIdUnReadCount + ")" }}</sup
           ></span
         >
@@ -158,7 +163,14 @@
                   style="text-decoration: none;color: inherit;"
                   target="_blank"
                 >
-                  <span> @了我 <sup v-show="atCommentIdUnReadStatus(item.id)" style="color: red">·</sup></span>
+                  <span>
+                    @了我
+                    <sup
+                      v-show="atCommentIdUnReadStatus(item.id)"
+                      style="color: red"
+                      >·</sup
+                    ></span
+                  >
                 </a>
               </div>
               <a
@@ -269,7 +281,10 @@
                   <span>
                     {{
                       item.noticeTypeSub === 1 ? "赞了我的文章" : "赞了我的评论"
-                    }} <sup v-show="likeIdUnReadStatus(item.id)" style="color: red">·</sup></span
+                    }}
+                    <sup v-show="likeIdUnReadStatus(item.id)" style="color: red"
+                      >·</sup
+                    ></span
                   >
                 </a>
               </div>
@@ -294,7 +309,7 @@
                   item.createTime | dateTime
                 }}</span>
                 <span class="reply-btn">
-                  <i class="el-icon-chat-square"></i>回复
+                  <i class="el-icon-chat-square"></i>私信
                 </span>
                 <span
                   ref="likeDelTip"
@@ -310,21 +325,105 @@
       </el-tab-pane>
       <el-tab-pane name="systemNotice">
         <span slot="label" style="font-weight: bold;"
-          ><i class="el-icon-message-solid"></i> 系统通知</span
+          ><i class="el-icon-message-solid"></i> 系统通知
+          <sup
+            :style="
+              systemNoticeIdUnReadCount > 0 ? 'color: red;' : 'color: gray;'
+            "
+            >{{ "NEW(" + systemNoticeIdUnReadCount + ")" }}</sup
+          ></span
         >
-        我的行程
+        <div class="el-tab-pane" v-infinite-scroll="loadSystemNoticeList">
+          <el-card v-for="(item, index) of systemNoticeList" :key="item.id">
+            <div
+              class="comment-meta"
+              @mouseenter="showDelTip(index, item.id)"
+              @mouseleave="hideDelTip(index)"
+            >
+              <div class="comment-user">
+                <div slot="header">
+                  <span style="font-weight: bold">
+                    {{ item.noticeTitle }}
+                    <sup
+                      v-show="systemNoticeIdUnReadStatus(item.id)"
+                      style="color: red"
+                      >·</sup
+                    ></span
+                  >
+                </div>
+              </div>
+              <p
+                class="comment-content"
+                v-html="item.noticeContent.replace(/\n/g, '<br/>')"
+              ></p>
+              <div class="comment-info">
+                <span style="margin-right:10px">{{
+                  item.createTime | dateTime
+                }}</span>
+                <span class="reply-btn">
+                  <i class="el-icon-close-notification"></i>不再通知
+                </span>
+                <span
+                  ref="systemNoticeDelTip"
+                  class="del-btn"
+                  style="display: none;"
+                  @click="updateNoticesStatus(item.id)"
+                  ><i class="el-icon-delete"></i>删除该通知</span
+                >
+              </div>
+            </div>
+          </el-card>
+        </div>
       </el-tab-pane>
       <el-tab-pane name="myMessage">
         <span slot="label" style="font-weight: bold;"
-          ><i class="el-icon-message-solid"></i> 我的消息</span
-        >
-        我的行程
+          ><i class="el-icon-message-solid"></i> 我的消息
+          <sup
+            :style="myMessageIdUnReadCount > 0 ? 'color: red;' : 'color: gray;'"
+            >{{ "NEW(" + myMessageIdUnReadCount + ")" }}</sup
+          >
+        </span>
       </el-tab-pane>
       <el-tab-pane name="messageConfig">
         <span slot="label" style="font-weight: bold;"
           ><i class="el-icon-setting"></i> 消息设置</span
         >
-        我的行程
+        <el-card>
+          <div slot="header">
+            <span>回复我的消息提醒</span>
+          </div>
+          <el-radio-group>
+            <el-radio :label="1">开启</el-radio>
+            <el-radio :label="2">关闭</el-radio>
+          </el-radio-group>
+        </el-card>
+        <el-card>
+          <div slot="header">
+            <span>@我的消息提醒</span>
+          </div>
+          <el-radio-group>
+            <el-radio :label="1">开启</el-radio>
+            <el-radio :label="2">关闭</el-radio>
+          </el-radio-group>
+        </el-card>
+        <el-card>
+          <div slot="header">
+            <span>收到的赞消息提醒</span>
+          </div>
+          <el-radio-group>
+            <el-radio :label="1">开启</el-radio>
+            <el-radio :label="2">关闭</el-radio>
+          </el-radio-group>
+        </el-card>
+        <el-card>
+          <div slot="header">
+            <span>私信提醒</span>
+          </div>
+          <el-radio-group>
+            <el-radio :label="1">开启</el-radio>
+            <el-radio :label="2">关闭</el-radio>
+          </el-radio-group>
+        </el-card>
       </el-tab-pane>
     </el-tabs>
   </el-card>
@@ -348,8 +447,8 @@ export default {
       replyCommentList: [],
       atCommentList: [],
       likeList: [],
-      systemNotice: [],
-      myMessage: [],
+      systemNoticeList: [],
+      myMessageList: [],
       defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png",
       defaultArticleCover: process.env.VUE_APP_STATIC_URL + "img/article.jpg",
       homeURL: process.env.VUE_APP_HOME_URL,
@@ -382,6 +481,11 @@ export default {
         this.loadAtCommentList();
       } else if (this.activeName === "like" && this.likeList.length === 0) {
         this.loadLikeList();
+      } else if (
+        this.activeName === "systemNotice" &&
+        this.likeList.length === 0
+      ) {
+        this.loadSystemNoticeList();
       }
     },
     replyComment(index, item) {
@@ -436,6 +540,13 @@ export default {
           this.likeIdUnReadCount--;
           this.idReadList.push(id);
         }
+      } else if (this.activeName === "systemNotice") {
+        this.$refs.systemNoticeDelTip[index].style.display = "";
+        if (this.systemNoticeIdUnReadSet.has(id)) {
+          this.systemNoticeIdUnReadSet.delete(id);
+          this.systemNoticeIdUnReadCount--;
+          this.idReadList.push(id);
+        }
       }
     },
     hideDelTip(index) {
@@ -445,6 +556,8 @@ export default {
         this.$refs.atDelTip[index].style.display = "none";
       } else if (this.activeName === "like") {
         this.$refs.likeDelTip[index].style.display = "none";
+      } else if (this.activeName === "systemNotice") {
+        this.$refs.systemNoticeDelTip[index].style.display = "none";
       }
     },
     like(comment) {
@@ -479,6 +592,8 @@ export default {
             commentList = this.atCommentList;
           } else if (this.activeName === "like") {
             commentList = this.likeList;
+          } else if (this.activeName === "systemNotice") {
+            commentList = this.systemNoticeList;
           }
           let index = commentList.findIndex(item => item.id === id);
           commentList.splice(index, 1);
@@ -572,6 +687,27 @@ export default {
             }
             if (data.data.length < 10) {
               this.likeInfiniteLoadFlag = false;
+            }
+          });
+      }
+    },
+    loadSystemNoticeList() {
+      if (this.systemNoticeInfiniteLoadFlag) {
+        this.axios
+          .get("/api/back/notices", {
+            params: {
+              type: 4,
+              size: 10,
+              current: this.systemNoticeCurrent
+            }
+          })
+          .then(({ data }) => {
+            if (data.data.length) {
+              this.systemNoticeCurrent++;
+              this.systemNoticeList.push(...data.data);
+            }
+            if (data.data.length < 10) {
+              this.systemNoticeInfiniteLoadFlag = false;
             }
           });
       }

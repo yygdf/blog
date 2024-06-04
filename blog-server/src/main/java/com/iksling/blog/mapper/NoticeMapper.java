@@ -19,6 +19,9 @@ public interface NoticeMapper extends BaseMapper<Notice> {
 
     @MapKey("id")
     List<Map<String, Object>> selectBackLikes(@Param("condition") Condition condition);
+
+    @MapKey("id")
+    List<Map<String, Object>> selectBackSystemNotices(@Param("condition") Condition condition);
 }
 
 

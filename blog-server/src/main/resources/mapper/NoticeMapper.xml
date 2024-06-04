@@ -64,4 +64,18 @@
         LIMIT
             #{condition.current}, #{condition.size}
     </select>
+
+    <select id="selectBackSystemNotices" resultType="java.util.Map">
+          SELECT
+            n.id,n.user_id userId,n.create_time createTime,
+            n.notice_type_sub noticeTypeSub,n.notice_title noticeTitle,n.notice_content noticeContent
+        FROM
+            tb_notice n
+        WHERE
+            n.user_id = #{condition.userId} AND n.notice_type = #{condition.type} AND n.deleted_flag = false
+        ORDER BY
+            n.id DESC
+        LIMIT
+            #{condition.current}, #{condition.size}
+    </select>
 </mapper>

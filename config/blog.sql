@@ -396,6 +396,26 @@ INSERT INTO `tb_multi_file` VALUES (49, 7, 47, '', 0, -11, -1, '', '7/-1/-11', '
 INSERT INTO `tb_multi_file` VALUES (50, 7, 48, '', 0, -21, -1, '', '7/-2/-21', '', -1, 'chat', 0, 0, 0, 0, '', '', 7, '2023-11-13 06:18:17', NULL, NULL);
 
 -- ----------------------------
+-- Table structure for tb_notice
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_notice`;
+CREATE TABLE `tb_notice`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `user_id` int(11) NOT NULL COMMENT '用户id',
+  `article_id` int(11) NOT NULL DEFAULT -1 COMMENT '文章id, 默认-1',
+  `comment_id` int(11) NOT NULL DEFAULT -1 COMMENT '评论id, 默认-1',
+  `notice_type` int(11) NOT NULL COMMENT '通知类型, 1回复我的, 2@ 我的, 3收到的赞, 4系统通知, 5我的消息',
+  `notice_type_sub` int(11) NOT NULL DEFAULT -1 COMMENT '通知子类型, 默认-1',
+  `notice_title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '通知标题, 默认空串',
+  `notice_content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '通知内容, 默认空串',
+  `read_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未读, 1已读, 默认0',
+  `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除, 1已删除, 默认0',
+  `create_user` int(11) NOT NULL COMMENT '创建人',
+  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
 -- Table structure for tb_operation_log
 -- ----------------------------
 DROP TABLE IF EXISTS `tb_operation_log`;
@@ -462,7 +482,7 @@ CREATE TABLE `tb_resource`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 222 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 226 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_resource
@@ -487,6 +507,7 @@ INSERT INTO `tb_resource` VALUES (17, 2, -1, '', '登录日志模块', '', 0, 0,
 INSERT INTO `tb_resource` VALUES (18, 2, -1, '', '操作日志模块', '', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (19, 2, -1, '', '博客模块', '', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (20, 2, -1, '', '聊天室模块', '', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (21, 2, -1, '', '通知模块', '', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (101, 2, 1, '/back/menus/user', '查看用户菜单', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (102, 2, 1, '/back/menus', '查看后台菜单列表', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (103, 2, 1, '/back/menu/status', '修改菜单状态', 'PUT', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
@@ -606,6 +627,10 @@ INSERT INTO `tb_resource` VALUES (218, 2, 5, '/user/oauth/qq', 'qq登录', 'POST
 INSERT INTO `tb_resource` VALUES (219, 2, 2, '/back/article/token', '添加或修改文件令牌', 'POST', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (220, 2, 2, '/back/article/token/*', '根据文章id查找文章令牌', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (221, 2, 13, '/back/userAuth/username', '修改用户名', 'PUT', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (222, 2, 21, '/back/notices', '查看后台通知', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (223, 2, 21, '/back/notices/status', '批量更新通知状态', 'PUT', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (224, 2, 21, '/back/notices/unread', '查看后台未读通知', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (225, 2, 21, '/back/notices/status/read', '批量更新通知未读状态', 'PUT', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_role
@@ -760,7 +785,7 @@ CREATE TABLE `tb_role_resource`  (
   `role_id` int(11) NOT NULL COMMENT '角色id',
   `resource_id` int(11) NOT NULL COMMENT '资源id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 330 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 356 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_role_resource
@@ -1095,6 +1120,31 @@ INSERT INTO `tb_role_resource` VALUES (327, 3, 221);
 INSERT INTO `tb_role_resource` VALUES (328, 4, 221);
 INSERT INTO `tb_role_resource` VALUES (329, 5, 221);
 INSERT INTO `tb_role_resource` VALUES (330, 5, 118);
+INSERT INTO `tb_role_resource` VALUES (331, 1, 21);
+INSERT INTO `tb_role_resource` VALUES (332, 1, 222);
+INSERT INTO `tb_role_resource` VALUES (333, 1, 223);
+INSERT INTO `tb_role_resource` VALUES (334, 1, 224);
+INSERT INTO `tb_role_resource` VALUES (335, 1, 225);
+INSERT INTO `tb_role_resource` VALUES (336, 2, 21);
+INSERT INTO `tb_role_resource` VALUES (337, 2, 222);
+INSERT INTO `tb_role_resource` VALUES (338, 2, 223);
+INSERT INTO `tb_role_resource` VALUES (339, 2, 224);
+INSERT INTO `tb_role_resource` VALUES (340, 2, 225);
+INSERT INTO `tb_role_resource` VALUES (341, 3, 21);
+INSERT INTO `tb_role_resource` VALUES (342, 3, 222);
+INSERT INTO `tb_role_resource` VALUES (343, 3, 223);
+INSERT INTO `tb_role_resource` VALUES (344, 3, 224);
+INSERT INTO `tb_role_resource` VALUES (345, 3, 225);
+INSERT INTO `tb_role_resource` VALUES (346, 4, 21);
+INSERT INTO `tb_role_resource` VALUES (347, 4, 222);
+INSERT INTO `tb_role_resource` VALUES (348, 4, 223);
+INSERT INTO `tb_role_resource` VALUES (349, 4, 224);
+INSERT INTO `tb_role_resource` VALUES (350, 4, 225);
+INSERT INTO `tb_role_resource` VALUES (351, 5, 21);
+INSERT INTO `tb_role_resource` VALUES (352, 5, 222);
+INSERT INTO `tb_role_resource` VALUES (353, 5, 223);
+INSERT INTO `tb_role_resource` VALUES (354, 5, 224);
+INSERT INTO `tb_role_resource` VALUES (355, 5, 225);
 
 -- ----------------------------
 -- Table structure for tb_system_config
@@ -1112,7 +1162,7 @@ CREATE TABLE `tb_system_config`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_system_config

@@ -8,7 +8,13 @@
     >
       <el-tab-pane name="reply">
         <span slot="label" style="font-weight: bold;"
-          ><i class="el-icon-s-comment"></i> 回复我的</span
+          ><i class="el-icon-s-comment"></i> 回复我的
+          <sup
+            :style="
+              replyCommentIdUnReadCount > 0 ? 'color: red;' : 'color: gray;'
+            "
+            >{{ "NEW(" + replyCommentIdUnReadCount + ")" }}</sup
+          ></span
         >
         <div class="el-tab-pane" v-infinite-scroll="loadReplyCommentList">
           <el-card v-for="(item, index) of replyCommentList" :key="item.id">
@@ -37,7 +43,7 @@
             <div
               class="comment-meta"
               style="padding-left: 40px;margin-top: -50px"
-              @mouseenter="showDelTip(index)"
+              @mouseenter="showDelTip(index, item.id)"
               @mouseleave="hideDelTip(index)"
             >
               <div class="comment-user">
@@ -55,7 +61,7 @@
                   style="text-decoration: none;color: inherit;"
                   target="_blank"
                 >
-                  <span> 对我的文章发表了评论</span>
+                  <span> 对我的文章发表了评论 <sup v-show="replyCommentIdUnReadStatus(item.id)" style="color: red">·</sup></span>
                 </a>
               </div>
               <a
@@ -99,7 +105,13 @@
       </el-tab-pane>
       <el-tab-pane name="at">
         <span slot="label" style="font-weight: bold;"
-          ><i class="el-icon-s-comment"></i> &nbsp;@ 我的</span
+          ><i class="el-icon-s-comment"></i> &nbsp;@ 我的
+          <sup
+            :style="
+              atCommentIdUnReadCount > 0 ? 'color: red;' : 'color: gray;'
+            "
+            >{{ "NEW(" + atCommentIdUnReadCount + ")" }}</sup
+          ></span
         >
         <div class="el-tab-pane" v-infinite-scroll="loadAtCommentList">
           <el-card v-for="(item, index) of atCommentList" :key="item.id">
@@ -128,7 +140,7 @@
             <div
               class="comment-meta"
               style="padding-left: 40px;margin-top: -50px"
-              @mouseenter="showDelTip(index)"
+              @mouseenter="showDelTip(index, item.id)"
               @mouseleave="hideDelTip(index)"
             >
               <div class="comment-user">
@@ -146,7 +158,7 @@
                   style="text-decoration: none;color: inherit;"
                   target="_blank"
                 >
-                  <span> @了我</span>
+                  <span> @了我 <sup v-show="atCommentIdUnReadStatus(item.id)" style="color: red">·</sup></span>
                 </a>
               </div>
               <a
@@ -190,10 +202,14 @@
       </el-tab-pane>
       <el-tab-pane name="like">
         <span slot="label" style="font-weight: bold;"
-          ><i class="el-icon-star-on"></i> 收到的赞</span
+          ><i class="el-icon-star-on"></i> 收到的赞
+          <sup
+            :style="likeIdUnReadCount > 0 ? 'color: red;' : 'color: gray;'"
+            >{{ "NEW(" + likeIdUnReadCount + ")" }}</sup
+          ></span
         >
         <div class="el-tab-pane" v-infinite-scroll="loadLikeList">
-          <el-card v-for="item of likeList" :key="item.id">
+          <el-card v-for="(item, index) of likeList" :key="item.id">
             <el-image
               :src="item.avatar ? item.avatar : defaultAvatar"
               class="comment-avatar"
@@ -226,6 +242,8 @@
             <div
               class="comment-meta"
               style="padding-left: 40px;margin-top: -50px"
+              @mouseenter="showDelTip(index, item.id)"
+              @mouseleave="hideDelTip(index)"
             >
               <div class="comment-user">
                 <span
@@ -251,7 +269,7 @@
                   <span>
                     {{
                       item.noticeTypeSub === 1 ? "赞了我的文章" : "赞了我的评论"
-                    }}</span
+                    }} <sup v-show="likeIdUnReadStatus(item.id)" style="color: red">·</sup></span
                   >
                 </a>
               </div>
@@ -275,8 +293,11 @@
                 <span style="margin-right:10px">{{
                   item.createTime | dateTime
                 }}</span>
+                <span class="reply-btn">
+                  <i class="el-icon-chat-square"></i>回复
+                </span>
                 <span
-                  ref="replyDelTip"
+                  ref="likeDelTip"
                   class="del-btn"
                   style="display: none;"
                   @click="updateNoticesStatus(item.id)"
@@ -315,12 +336,20 @@ export default {
   components: {
     Reply
   },
+  created() {
+    this.loadUnReadSet();
+  },
+  destroyed() {
+    this.updateNoticesReadStatus();
+  },
   data: function() {
     return {
       activeName: "reply",
       replyCommentList: [],
       atCommentList: [],
       likeList: [],
+      systemNotice: [],
+      myMessage: [],
       defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png",
       defaultArticleCover: process.env.VUE_APP_STATIC_URL + "img/article.jpg",
       homeURL: process.env.VUE_APP_HOME_URL,
@@ -329,7 +358,22 @@ export default {
       atCurrent: 1,
       atInfiniteLoadFlag: true,
       likeCurrent: 1,
-      likeInfiniteLoadFlag: true
+      likeInfiniteLoadFlag: true,
+      systemNoticeCurrent: 1,
+      systemNoticeInfiniteLoadFlag: true,
+      myMessageCurrent: 1,
+      myMessageInfiniteLoadFlag: true,
+      replyCommentIdUnReadSet: new Set(),
+      replyCommentIdUnReadCount: 0,
+      atCommentIdUnReadSet: new Set(),
+      atCommentIdUnReadCount: 0,
+      likeIdUnReadSet: new Set(),
+      likeIdUnReadCount: 0,
+      systemNoticeIdUnReadSet: new Set(),
+      systemNoticeIdUnReadCount: 0,
+      myMessageIdUnReadSet: new Set(),
+      myMessageIdUnReadCount: 0,
+      idReadList: []
     };
   },
   methods: {
@@ -370,11 +414,28 @@ export default {
         this.$refs.at[index].$el.style.display = "block";
       }
     },
-    showDelTip(index) {
+    showDelTip(index, id) {
       if (this.activeName === "reply") {
         this.$refs.replyDelTip[index].style.display = "";
+        if (this.replyCommentIdUnReadSet.has(id)) {
+          this.replyCommentIdUnReadSet.delete(id);
+          this.replyCommentIdUnReadCount--;
+          this.idReadList.push(id);
+        }
       } else if (this.activeName === "at") {
         this.$refs.atDelTip[index].style.display = "";
+        if (this.atCommentIdUnReadSet.has(id)) {
+          this.atCommentIdUnReadSet.delete(id);
+          this.atCommentIdUnReadCount--;
+          this.idReadList.push(id);
+        }
+      } else if (this.activeName === "like") {
+        this.$refs.likeDelTip[index].style.display = "";
+        if (this.likeIdUnReadSet.has(id)) {
+          this.likeIdUnReadSet.delete(id);
+          this.likeIdUnReadCount--;
+          this.idReadList.push(id);
+        }
       }
     },
     hideDelTip(index) {
@@ -382,6 +443,8 @@ export default {
         this.$refs.replyDelTip[index].style.display = "none";
       } else if (this.activeName === "at") {
         this.$refs.atDelTip[index].style.display = "none";
+      } else if (this.activeName === "like") {
+        this.$refs.likeDelTip[index].style.display = "none";
       }
     },
     like(comment) {
@@ -426,7 +489,29 @@ export default {
           });
         }
       });
-      this.editStatus = false;
+    },
+    loadUnReadSet() {
+      this.axios.get("/api/back/notices/unread").then(({ data }) => {
+        if (data.flag) {
+          this.replyCommentIdUnReadSet = new Set(data.data["1"]);
+          this.replyCommentIdUnReadCount = this.replyCommentIdUnReadSet.size;
+          this.atCommentIdUnReadSet = new Set(data.data["2"]);
+          this.atCommentIdUnReadCount = this.atCommentIdUnReadSet.size;
+          this.likeIdUnReadSet = new Set(data.data["3"]);
+          this.likeIdUnReadCount = this.likeIdUnReadSet.size;
+          this.systemNoticeIdUnReadSet = new Set(data.data["4"]);
+          this.systemNoticeIdUnReadCount = this.systemNoticeIdUnReadSet.size;
+          this.myMessageIdUnReadSet = new Set(data.data["5"]);
+          this.myMessageIdUnReadCount = this.myMessageIdUnReadSet.size;
+        }
+      });
+    },
+    updateNoticesReadStatus() {
+      if (this.idReadList.length > 0) {
+        this.axios.put("/api/back/notices/status/read", {
+          idList: this.idReadList
+        });
+      }
     },
     loadReplyCommentList() {
       if (this.replyInfiniteLoadFlag) {
@@ -508,6 +593,31 @@ export default {
           return commentContent.toString().replace(/\n/g, "<br/><br/>");
         }
         return "";
+      };
+    },
+    replyCommentIdUnReadStatus: function() {
+      return id => {
+        return this.replyCommentIdUnReadSet.has(id);
+      };
+    },
+    atCommentIdUnReadStatus: function() {
+      return id => {
+        return this.atCommentIdUnReadSet.has(id);
+      };
+    },
+    likeIdUnReadStatus: function() {
+      return id => {
+        return this.likeIdUnReadSet.has(id);
+      };
+    },
+    systemNoticeIdUnReadStatus: function() {
+      return id => {
+        return this.systemNoticeIdUnReadSet.has(id);
+      };
+    },
+    myMessageIdUnReadStatus: function() {
+      return id => {
+        return this.myMessageIdUnReadSet.has(id);
       };
     }
   }

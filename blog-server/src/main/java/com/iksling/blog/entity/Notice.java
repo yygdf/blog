@@ -64,6 +64,11 @@ public class Notice implements Serializable {
     private String noticeContent;
 
     /**
+     * 0未读, 1已读, 默认0
+     */
+    private Boolean readFlag;
+
+    /**
      * 0未删除, 1已删除, 默认0
      */
     private Boolean deletedFlag;

@@ -1,5 +1,6 @@
 package com.iksling.blog.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.entity.Notice;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -43,6 +45,16 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice>
     }
 
     @Override
+    public Map<Integer, List<Integer>> getBackNoticesUnread() {
+        List<Notice> noticeList = noticeMapper.selectList(new LambdaQueryWrapper<Notice>()
+                .select(Notice::getId, Notice::getNoticeType)
+                .eq(Notice::getDeletedFlag, false)
+                .eq(Notice::getReadFlag, false)
+                .eq(Notice::getUserId, UserUtil.getLoginUser().getUserId()));
+        return noticeList.stream().collect(Collectors.groupingBy(Notice::getNoticeType, Collectors.mapping(Notice::getId, Collectors.toList())));
+    }
+
+    @Override
     @Transactional
     public void updateNoticesStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
@@ -50,6 +62,18 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice>
                 .and(loginUser.getRoleWeight() > 200, e -> e.eq(Notice::getUserId, loginUser.getUserId()).eq(Notice::getDeletedFlag, false))
                 .in(Notice::getId, statusBackVO.getIdList())
                 .set(Notice::getDeletedFlag, true));
+        if (count != statusBackVO.getIdList().size())
+            throw new OperationStatusException();
+    }
+
+    @Override
+    @Transactional
+    public void updateNoticesStatusRead(StatusBackVO statusBackVO) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        int count = noticeMapper.update(null, new LambdaUpdateWrapper<Notice>()
+                .and(loginUser.getRoleWeight() > 200, e -> e.eq(Notice::getUserId, loginUser.getUserId()).eq(Notice::getDeletedFlag, false).eq(Notice::getReadFlag, false))
+                .in(Notice::getId, statusBackVO.getIdList())
+                .set(Notice::getReadFlag, true));
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
     }

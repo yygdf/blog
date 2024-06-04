@@ -13,6 +13,7 @@
             <result property="noticeTypeSub" column="notice_type_sub" jdbcType="INTEGER"/>
             <result property="noticeTitle" column="notice_title" jdbcType="VARCHAR"/>
             <result property="noticeContent" column="notice_content" jdbcType="VARCHAR"/>
+            <result property="readFlag" column="read_flag" jdbcType="BOOLEAN"/>
             <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
             <result property="createUser" column="create_user" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -21,8 +22,8 @@
     <sql id="Base_Column_List">
         id,user_id,article_id,
         comment_id,notice_type,notice_type_sub,
-        notice_title,notice_content,deleted_flag,
-        create_user,create_time
+        notice_title,notice_content,read_flag,
+        deleted_flag,create_user,create_time
     </sql>
 
     <select id="selectBackReplyComments" resultType="java.util.Map">

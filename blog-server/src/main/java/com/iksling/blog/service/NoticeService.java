@@ -15,5 +15,9 @@ public interface NoticeService extends IService<Notice> {
 
     List<Map<String, Object>> getBackNotices(Condition condition);
 
+    Map<Integer, List<Integer>> getBackNoticesUnread();
+
     void updateNoticesStatusBackVO(StatusBackVO statusBackVO);
+
+    void updateNoticesStatusRead(StatusBackVO statusBackVO);
 }

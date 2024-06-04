@@ -164,7 +164,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                         .eq(Comment::getParentId, -1)
                         .eq(Comment::getRecycleFlag, false));
                 if (count == 0)
-                    throw new OperationStatusException();
+                    throw new OperationStatusException("该评论已被删除, 无法回复!");
                 comment.setParentId(parentId);
             }
             if (replyId != null) {
@@ -173,7 +173,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                         .eq(Comment::getUserId, replyId)
                         .eq(Comment::getRecycleFlag, false));
                 if (count == 0)
-                    throw new OperationStatusException();
+                    throw new OperationStatusException("该评论已被删除, 无法回复!");
                 comment.setReplyId(replyId);
                 notice.setNoticeType(2);
             }
@@ -188,7 +188,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         commentMapper.insert(comment);
         if (sendNoticeFlag) {
             notice.setCommentId(comment.getId());
-            notice.setCreateUser(ROOT_USER_ID);
+            notice.setCreateUser(loginUserId);
             notice.setCreateTime(createTime);
             noticeMapper.insert(notice);
         }
@@ -199,15 +199,21 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     public void saveCommentLike(Integer id) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer loginUserId = loginUser.getUserId();
-        Integer count = commentMapper.selectCount(new LambdaQueryWrapper<Comment>()
+        List<Map<String, Object>> mapList = commentMapper.selectMaps(new LambdaQueryWrapper<Comment>()
+                .select(Comment::getUserId, Comment::getArticleId)
                 .eq(Comment::getId, id)
-                .eq(Comment::getRecycleFlag, false)
-                .and(e -> e
-                        .eq(Comment::getArticleId, -1)
-                        .or()
-                        .exists("select a.id from tb_article a where a.id=article_id and a.draft_flag=false"+(loginUser.getRoleWeight() > 300 ? " and ((a.hidden_flag=false and a.commentable_flag=true) or a.user_id="+loginUser.getUserId()+")" : ""))));
-        if (count == 0)
-            throw new OperationStatusException();
+                .eq(Comment::getRecycleFlag, false));
+        if (mapList.size() == 0)
+            throw new OperationStatusException("该评论已被删除, 无法点赞!");
+        Integer articleId = (Integer) mapList.get(0).get("article_id");
+        if (articleId != -1) {
+            int count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
+                    .eq(Article::getId, articleId)
+                    .eq(Article::getDraftFlag, false)
+                    .and(loginUser.getRoleWeight() > 300, e -> e.and(e2 -> e2.eq(Article::getHiddenFlag, false).eq(Article::getCommentableFlag, true)).or().eq(Article::getUserId, loginUser.getUserId())));
+            if (count == 0)
+                throw new OperationStatusException("文章信息不可查询, 无法点赞!");
+        }
         HashSet<Integer> commentLikeSet = RedisUtil.getMapValue(COMMENT_USER_LIKE, loginUserId.toString());
         if (commentLikeSet == null)
             commentLikeSet = new HashSet<>();
@@ -217,6 +223,16 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         } else {
             commentLikeSet.add(id);
             RedisUtil.increment(COMMENT_LIKE_COUNT, id.toString(), 1);
+            Integer userId = (Integer) mapList.get(0).get("user_id");
+            if (!loginUserId.equals(userId))
+                noticeMapper.insert(Notice.builder()
+                        .userId(userId)
+                        .articleId(articleId)
+                        .commentId(id)
+                        .noticeType(3)
+                        .noticeTypeSub(articleId == -1 ? 2 : 3)
+                        .createUser(loginUserId)
+                        .createTime(new Date()).build());
         }
         RedisUtil.setMapValue(COMMENT_USER_LIKE, loginUserId.toString(), commentLikeSet);
     }

@@ -30,13 +30,32 @@
             n.id,n.user_id userId,n.article_id articleId,
             n.comment_id commentId,u.avatar,u.website,
             u.nickname,a.article_title articleTitle,a.article_cover articleCover,
-            c.comment_content commentContent,c.create_time createTime,
+            c.comment_content commentContent,n.create_time createTime,
             c.user_id commentUserId,c.parent_id parentId
         FROM
             tb_notice n
         LEFT JOIN tb_article a ON n.article_id = a.id
         LEFT JOIN tb_comment c ON n.comment_id = c.id
         LEFT JOIN tb_user u ON c.user_id = u.id
+        WHERE
+            n.user_id = #{condition.userId} AND n.notice_type = #{condition.type} AND n.deleted_flag = false
+        ORDER BY
+            n.id DESC
+        LIMIT
+            #{condition.current}, #{condition.size}
+    </select>
+
+    <select id="selectBackLikes" resultType="java.util.Map">
+         SELECT
+            n.id,n.user_id userId,n.article_id articleId,
+            u.avatar,u.website,a.user_id articleUserId,
+            u.nickname,a.article_title articleTitle,a.article_cover articleCover,
+            c.comment_content commentContent,n.create_time createTime,n.notice_type_sub noticeTypeSub
+        FROM
+            tb_notice n
+        LEFT JOIN tb_article a ON n.article_id = a.id
+        LEFT JOIN tb_comment c ON n.comment_id = c.id
+        LEFT JOIN tb_user u ON n.create_user = u.id
         WHERE
             n.user_id = #{condition.userId} AND n.notice_type = #{condition.type} AND n.deleted_flag = false
         ORDER BY

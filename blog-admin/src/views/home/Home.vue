@@ -192,7 +192,100 @@
         <span slot="label" style="font-weight: bold;"
           ><i class="el-icon-star-on"></i> 收到的赞</span
         >
-        我的行程
+        <div class="el-tab-pane" v-infinite-scroll="loadLikeList">
+          <el-card v-for="item of likeList" :key="item.id">
+            <el-image
+              :src="item.avatar ? item.avatar : defaultAvatar"
+              class="comment-avatar"
+              style="width: 40px;height: 40px;border-radius: 20px;"
+            />
+            <a
+              :href="
+                homeURL +
+                  '/' +
+                  (item.noticeTypeSub === 2
+                    ? 'friendLinks'
+                    : item.articleUserId + '/article/' + item.articleId)
+              "
+              target="_blank"
+            >
+              <el-tooltip
+                v-if="item.noticeTypeSub === 1"
+                :content="item.articleTitle"
+                placement="bottom"
+                effect="light"
+              >
+                <el-image
+                  :src="
+                    item.articleCover ? item.articleCover : defaultArticleCover
+                  "
+                  style="width: 60px;height: 60px;float: right;margin-top: -5px"
+                />
+              </el-tooltip>
+            </a>
+            <div
+              class="comment-meta"
+              style="padding-left: 40px;margin-top: -50px"
+            >
+              <div class="comment-user">
+                <span
+                  v-if="!item.website"
+                  style="font-weight: bold;font-size: 20px"
+                >
+                  {{ item.nickname }}
+                </span>
+                <a v-else :href="item.website" target="_blank">
+                  {{ item.nickname }}
+                </a>
+                <a
+                  :href="
+                    homeURL +
+                      '/' +
+                      (item.noticeTypeSub === 2
+                        ? 'friendLinks'
+                        : item.articleUserId + '/article/' + item.articleId)
+                  "
+                  style="text-decoration: none;color: inherit;"
+                  target="_blank"
+                >
+                  <span>
+                    {{
+                      item.noticeTypeSub === 1 ? "赞了我的文章" : "赞了我的评论"
+                    }}</span
+                  >
+                </a>
+              </div>
+              <a
+                :href="
+                  homeURL +
+                    '/' +
+                    (item.noticeTypeSub === 2
+                      ? 'friendLinks'
+                      : item.articleUserId + '/article/' + item.articleId)
+                "
+                style="text-decoration: none;color: inherit;"
+                target="_blank"
+              >
+                <p
+                  class="comment-content"
+                  v-html="replaceEnter(item.commentContent)"
+                ></p>
+              </a>
+              <div class="comment-info">
+                <span style="margin-right:10px">{{
+                  item.createTime | dateTime
+                }}</span>
+                <span
+                  ref="replyDelTip"
+                  class="del-btn"
+                  style="display: none;"
+                  @click="updateNoticesStatus(item.id)"
+                  ><i class="el-icon-delete"></i>删除该通知</span
+                >
+              </div>
+            </div>
+          </el-card>
+        </div>
       </el-tab-pane>
       <el-tab-pane name="systemNotice">
         <span slot="label" style="font-weight: bold;"
@@ -227,19 +320,24 @@ export default {
       activeName: "reply",
       replyCommentList: [],
       atCommentList: [],
+      likeList: [],
       defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png",
       defaultArticleCover: process.env.VUE_APP_STATIC_URL + "img/article.jpg",
       homeURL: process.env.VUE_APP_HOME_URL,
       replyCurrent: 1,
       replyInfiniteLoadFlag: true,
       atCurrent: 1,
-      atInfiniteLoadFlag: true
+      atInfiniteLoadFlag: true,
+      likeCurrent: 1,
+      likeInfiniteLoadFlag: true
     };
   },
   methods: {
     handleTabClick() {
       if (this.activeName === "at" && this.atCommentList.length === 0) {
         this.loadAtCommentList();
+      } else if (this.activeName === "like" && this.likeList.length === 0) {
+        this.loadLikeList();
       }
     },
     replyComment(index, item) {
@@ -316,6 +414,8 @@ export default {
             commentList = this.replyCommentList;
           } else if (this.activeName === "at") {
             commentList = this.atCommentList;
+          } else if (this.activeName === "like") {
+            commentList = this.likeList;
           }
           let index = commentList.findIndex(item => item.id === id);
           commentList.splice(index, 1);
@@ -369,6 +469,27 @@ export default {
             }
           });
       }
+    },
+    loadLikeList() {
+      if (this.likeInfiniteLoadFlag) {
+        this.axios
+          .get("/api/back/notices", {
+            params: {
+              type: 3,
+              size: 10,
+              current: this.likeCurrent
+            }
+          })
+          .then(({ data }) => {
+            if (data.data.length) {
+              this.likeCurrent++;
+              this.likeList.push(...data.data);
+            }
+            if (data.data.length < 10) {
+              this.likeInfiniteLoadFlag = false;
+            }
+          });
+      }
     }
   },
   computed: {
@@ -380,6 +501,14 @@ export default {
     },
     userId() {
       return this.$store.state.userId;
+    },
+    replaceEnter: function() {
+      return commentContent => {
+        if (commentContent != null) {
+          return commentContent.toString().replace(/\n/g, "<br/><br/>");
+        }
+        return "";
+      };
     }
   }
 };

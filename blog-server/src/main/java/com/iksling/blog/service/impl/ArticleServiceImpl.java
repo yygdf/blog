@@ -63,6 +63,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     private ArticleTagMapper articleTagMapper;
     @Autowired
     private MultiFileMapper multiFileMapper;
+    @Autowired
+    private NoticeMapper noticeMapper;
 
     @Autowired
     private ArticleTagService articleTagService;
@@ -420,11 +422,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     public void saveArticleLike(Integer id) {
         LoginUser loginUser = UserUtil.getLoginUser();
         Integer loginUserId = loginUser.getUserId();
-        Integer count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
+        List<Object> objectList = articleMapper.selectObjs(new LambdaQueryWrapper<Article>()
+                .select(Article::getUserId)
                 .eq(Article::getId, id)
                 .eq(Article::getDraftFlag, false)
                 .eq(loginUser.getRoleWeight() > 300, Article::getHiddenFlag, false));
-        if (count == 0)
+        if (objectList.size() == 0)
             throw new OperationStatusException();
         HashSet<Integer> articleLikeSet = RedisUtil.getMapValue(ARTICLE_USER_LIKE, loginUserId.toString());
         if (articleLikeSet == null)
@@ -435,6 +438,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         } else {
             articleLikeSet.add(id);
             RedisUtil.increment(ARTICLE_LIKE_COUNT, id.toString(), 1);
+            Integer userId = (Integer) objectList.get(0);
+            if (!loginUserId.equals(userId))
+                noticeMapper.insert(Notice.builder()
+                        .userId(userId)
+                        .articleId(id)
+                        .noticeType(3)
+                        .noticeTypeSub(1)
+                        .createUser(loginUserId)
+                        .createTime(new Date()).build());
         }
         RedisUtil.setMapValue(ARTICLE_USER_LIKE, loginUserId.toString(), articleLikeSet);
     }

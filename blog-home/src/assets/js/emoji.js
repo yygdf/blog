@@ -37,7 +37,7 @@ export default {
 
   "#[吐]": "img/emoji/tu.png",
 
-  "#[嘘声]": "img/emoji/xu.png",
+  "#[嘘]": "img/emoji/xu.png",
 
   "#[再见]": "img/emoji/zaijian.png",
 
@@ -51,7 +51,7 @@ export default {
 
   "#[嘿哈]": "img/emoji/heiha.png",
 
-  "#[机制]": "img/emoji/jizhi.png",
+  "#[机智]": "img/emoji/jizhi.png",
 
   "#[耶]": "img/emoji/ye.png",
 

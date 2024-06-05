@@ -34,8 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
-import static com.iksling.blog.constant.CommonConst.WEBSITE_URL;
+import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.RECYCLE;
 import static com.iksling.blog.constant.RedisConst.COMMENT_LIKE_COUNT;
@@ -150,7 +149,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                 throw new OperationStatusException();
             comment.setArticleId(articleId);
             Integer userId = (Integer) objectList.get(0);
-            if (loginUserId.equals(userId))
+            HashMap<String, Integer> map = UserUtil.getUserMessageConfig(userId);
+            if (loginUserId.equals(userId) || map.get("1") == 2)
                 sendNoticeFlag = false;
             else {
                 notice.setUserId(userId);
@@ -175,7 +175,10 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                 if (count == 0)
                     throw new OperationStatusException("该评论已被删除, 无法回复!");
                 comment.setReplyId(replyId);
-                notice.setNoticeType(2);
+                if (map.get("2") == 2)
+                    sendNoticeFlag = false;
+                else
+                    notice.setNoticeType(2);
             }
         }
         Date createTime = new Date();
@@ -224,7 +227,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
             commentLikeSet.add(id);
             RedisUtil.increment(COMMENT_LIKE_COUNT, id.toString(), 1);
             Integer userId = (Integer) mapList.get(0).get("user_id");
-            if (!loginUserId.equals(userId))
+            HashMap<String, Integer> map = UserUtil.getUserMessageConfig(userId);
+            if (!loginUserId.equals(userId) && map.get("3") == 1)
                 noticeMapper.insert(Notice.builder()
                         .userId(userId)
                         .articleId(articleId)

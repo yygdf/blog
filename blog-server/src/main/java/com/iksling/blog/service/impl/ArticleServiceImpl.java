@@ -439,7 +439,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             articleLikeSet.add(id);
             RedisUtil.increment(ARTICLE_LIKE_COUNT, id.toString(), 1);
             Integer userId = (Integer) objectList.get(0);
-            if (!loginUserId.equals(userId))
+            HashMap<String, Integer> map = UserUtil.getUserMessageConfig(userId);
+            if (!loginUserId.equals(userId) && map.get("3") == 1)
                 noticeMapper.insert(Notice.builder()
                         .userId(userId)
                         .articleId(id)

@@ -71,6 +71,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private LoginLogMapper loginLogMapper;
     @Autowired
     private UserConfigMapper userConfigMapper;
+    @Autowired
+    private NoticeMapper noticeMapper;
 
     @Autowired
     private MultiFileService multiFileService;
@@ -697,8 +699,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .createTime(createTime)
                     .build());
             multiFileService.saveBatch(multiFileList);
-            if (!email.equals(""))
-                EmailUtil.sendEmail(email, "用户等级提升", "快来<a href='" + WEBSITE_URL_BACK + "'>点击登录后台</a>发布您的第一篇文章吧!您的前台地址为: <a href='" + WEBSITE_URL + "/" + userId + "'>点击跳转前台</a>");
+            if (!email.equals("")) {
+                noticeMapper.insert(Notice.builder()
+                        .userId(userId)
+                        .noticeType(4)
+                        .noticeTypeSub(2)
+                        .noticeTitle("用户等级提升")
+                        .noticeContent("快来<a href='" + WEBSITE_URL_BACK + "' target='_blank'>点击登录后台</a>发布您的第一篇文章吧!您的前台地址为: <a href='" + WEBSITE_URL + "/" + userId + "' target='_blank'>点击跳转前台</a>")
+                        .createUser(userId)
+                        .createTime(createTime).build());
+                EmailUtil.sendEmail(email, "用户等级提升", "快来<a href='" + WEBSITE_URL_BACK + "' target='_blank'>点击登录后台</a>发布您的第一篇文章吧!您的前台地址为: <a href='" + WEBSITE_URL + "/" + userId + "' target='_blank'>点击跳转前台</a>");
+            }
         }
     }
 

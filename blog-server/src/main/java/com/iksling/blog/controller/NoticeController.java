@@ -24,19 +24,6 @@ public class NoticeController {
     @Autowired
     private NoticeService noticeService;
 
-    @ApiOperation(value = "查看后台通知")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
-    @GetMapping("/back/notices")
-    public Result getBackNotices(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(noticeService.getBackNotices(condition));
-    }
-
-    @ApiOperation(value = "查看后台未读通知")
-    @GetMapping("/back/notices/unread")
-    public Result getBackNoticesUnread() {
-        return Result.success().message("查询成功").data(noticeService.getBackNoticesUnread());
-    }
-
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "批量更新通知状态")
     @ApiImplicitParam(name = "StatusBackVO", value = "状态后台VO", required = true, dataType = "StatusBackVO")
@@ -53,5 +40,18 @@ public class NoticeController {
     public Result updateBackNoticesStatusRead(@Valid @RequestBody StatusBackVO statusBackVO) {
         noticeService.updateNoticesStatusRead(statusBackVO);
         return Result.success().message("操作成功");
+    }
+
+    @ApiOperation(value = "查看后台通知")
+    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
+    @GetMapping("/back/notices")
+    public Result getBackNotices(@Valid Condition condition) {
+        return Result.success().message("查询成功").data(noticeService.getBackNotices(condition));
+    }
+
+    @ApiOperation(value = "查看后台未读通知")
+    @GetMapping("/back/notices/unread")
+    public Result getBackNoticesUnread() {
+        return Result.success().message("查询成功").data(noticeService.getBackNoticesUnread());
     }
 }

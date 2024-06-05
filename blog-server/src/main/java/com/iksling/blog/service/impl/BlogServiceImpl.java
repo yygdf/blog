@@ -9,6 +9,7 @@ import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.BlogService;
 import com.iksling.blog.util.RedisUtil;
 import com.iksling.blog.util.UserUtil;
+import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.TokenVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,27 @@ public class BlogServiceImpl implements BlogService {
         Object o = JSON.parseObject(aboutContent, Map.class).get("aboutContent");
         if (o != null)
             RedisUtil.setMapValue(BLOG_ABOUT_ME, UserUtil.getLoginUser().getUserId().toString(), o);
+    }
+
+    @Override
+    @Transactional
+    public void updateBlogMessageConfig(StatusBackVO statusBackVO) {
+        Integer type = statusBackVO.getIdList().get(0);
+        if (type < 1 || type > 4)
+            throw new OperationStatusException();
+        Integer value = statusBackVO.getType();
+        if (value < 1 || value > 2)
+            throw new OperationStatusException();
+        String loginUserId = UserUtil.getLoginUser().getUserId().toString();
+        HashMap<String, Integer> map = UserUtil.getUserMessageConfig(loginUserId);
+        map.put(type.toString(), value);
+        USER_MESSAGE_CONFIG_MAP.put(loginUserId, map);
+        RedisUtil.setMapValue(USER_MESSAGE_CONFIG, loginUserId, map);
+    }
+
+    @Override
+    public HashMap<String, Integer> getBlogMessageConfig() {
+        return UserUtil.getUserMessageConfig(UserUtil.getLoginUser().getUserId());
     }
 
     @Override

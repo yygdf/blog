@@ -29,30 +29,6 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice>
     private NoticeMapper noticeMapper;
 
     @Override
-    public List<Map<String, Object>> getBackNotices(Condition condition) {
-        condition.setUserId(UserUtil.getLoginUser().getUserId());
-        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        switch (condition.getType()) {
-            case 3:
-                return noticeMapper.selectBackLikes(condition);
-            case 4:
-                return noticeMapper.selectBackSystemNotices(condition);
-            default:
-                return noticeMapper.selectBackReplyComments(condition);
-        }
-    }
-
-    @Override
-    public Map<Integer, List<Integer>> getBackNoticesUnread() {
-        List<Notice> noticeList = noticeMapper.selectList(new LambdaQueryWrapper<Notice>()
-                .select(Notice::getId, Notice::getNoticeType)
-                .eq(Notice::getDeletedFlag, false)
-                .eq(Notice::getReadFlag, false)
-                .eq(Notice::getUserId, UserUtil.getLoginUser().getUserId()));
-        return noticeList.stream().collect(Collectors.groupingBy(Notice::getNoticeType, Collectors.mapping(Notice::getId, Collectors.toList())));
-    }
-
-    @Override
     @Transactional
     public void updateNoticesStatusBackVO(StatusBackVO statusBackVO) {
         LoginUser loginUser = UserUtil.getLoginUser();
@@ -74,6 +50,30 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice>
                 .set(Notice::getReadFlag, true));
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
+    }
+
+    @Override
+    public List<Map<String, Object>> getBackNotices(Condition condition) {
+        condition.setUserId(UserUtil.getLoginUser().getUserId());
+        condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
+        switch (condition.getType()) {
+            case 3:
+                return noticeMapper.selectBackLikes(condition);
+            case 4:
+                return noticeMapper.selectBackSystemNotices(condition);
+            default:
+                return noticeMapper.selectBackReplyComments(condition);
+        }
+    }
+
+    @Override
+    public Map<Integer, List<Integer>> getBackNoticesUnread() {
+        List<Notice> noticeList = noticeMapper.selectList(new LambdaQueryWrapper<Notice>()
+                .select(Notice::getId, Notice::getNoticeType)
+                .eq(Notice::getDeletedFlag, false)
+                .eq(Notice::getReadFlag, false)
+                .eq(Notice::getUserId, UserUtil.getLoginUser().getUserId()));
+        return noticeList.stream().collect(Collectors.groupingBy(Notice::getNoticeType, Collectors.mapping(Notice::getId, Collectors.toList())));
     }
 }
 

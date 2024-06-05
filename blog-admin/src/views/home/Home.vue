@@ -392,7 +392,10 @@
           <div slot="header">
             <span>回复我的消息提醒</span>
           </div>
-          <el-radio-group>
+          <el-radio-group
+            v-model="replyCommentSetting"
+            @change="updateMessageConfigStatus(1)"
+          >
             <el-radio :label="1">开启</el-radio>
             <el-radio :label="2">关闭</el-radio>
           </el-radio-group>
@@ -401,7 +404,10 @@
           <div slot="header">
             <span>@我的消息提醒</span>
           </div>
-          <el-radio-group>
+          <el-radio-group
+            v-model="atCommentSetting"
+            @change="updateMessageConfigStatus(2)"
+          >
             <el-radio :label="1">开启</el-radio>
             <el-radio :label="2">关闭</el-radio>
           </el-radio-group>
@@ -410,7 +416,10 @@
           <div slot="header">
             <span>收到的赞消息提醒</span>
           </div>
-          <el-radio-group>
+          <el-radio-group
+            v-model="likeSetting"
+            @change="updateMessageConfigStatus(3)"
+          >
             <el-radio :label="1">开启</el-radio>
             <el-radio :label="2">关闭</el-radio>
           </el-radio-group>
@@ -419,7 +428,10 @@
           <div slot="header">
             <span>私信提醒</span>
           </div>
-          <el-radio-group>
+          <el-radio-group
+            v-model="myMessageSetting"
+            @change="updateMessageConfigStatus(4)"
+          >
             <el-radio :label="1">开启</el-radio>
             <el-radio :label="2">关闭</el-radio>
           </el-radio-group>
@@ -472,7 +484,12 @@ export default {
       systemNoticeIdUnReadCount: 0,
       myMessageIdUnReadSet: new Set(),
       myMessageIdUnReadCount: 0,
-      idReadList: []
+      idReadList: [],
+      replyCommentSetting: 1,
+      atCommentSetting: 1,
+      likeSetting: 1,
+      myMessageSetting: 1,
+      loadMessageConfigFlag: true
     };
   },
   methods: {
@@ -486,6 +503,8 @@ export default {
         this.likeList.length === 0
       ) {
         this.loadSystemNoticeList();
+      } else if (this.activeName === "messageConfig") {
+        this.loadMessageConfig();
       }
     },
     replyComment(index, item) {
@@ -628,6 +647,22 @@ export default {
         });
       }
     },
+    updateMessageConfigStatus(id) {
+      let value;
+      if (id === 1) {
+        value = this.replyCommentSetting;
+      } else if (id === 2) {
+        value = this.atCommentSetting;
+      } else if (id === 3) {
+        value = this.likeSetting;
+      } else if (id === 4) {
+        value = this.myMessageSetting;
+      }
+      this.axios.put("/api/back/blog/messageConfig", {
+        idList: [id],
+        type: value
+      });
+    },
     loadReplyCommentList() {
       if (this.replyInfiniteLoadFlag) {
         this.axios
@@ -709,6 +744,19 @@ export default {
             if (data.data.length < 10) {
               this.systemNoticeInfiniteLoadFlag = false;
             }
+          });
+      }
+    },
+    loadMessageConfig() {
+      if (this.loadMessageConfigFlag) {
+        this.axios
+          .get("/api/back/blog/messageConfig")
+          .then(({ data }) => {
+            this.replyCommentSetting = data.data["1"];
+            this.atCommentSetting = data.data["2"];
+            this.likeSetting = data.data["3"];
+            this.myMessageSetting = data.data["4"];
+            this.loadMessageConfigFlag = false;
           });
       }
     }

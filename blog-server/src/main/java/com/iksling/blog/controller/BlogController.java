@@ -3,6 +3,7 @@ package com.iksling.blog.controller;
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.BlogService;
+import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.TokenVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -27,6 +28,21 @@ public class BlogController {
     public Result updateBackAbout(@RequestBody String aboutContent) {
         blogService.updateBackAbout(aboutContent);
         return Result.success().message("操作成功");
+    }
+
+    @OptLog(optType = UPDATE)
+    @ApiOperation(value = "修改后台用户消息提醒设置")
+    @ApiImplicitParam(name = "StatusBackVO", value = "状态后台VO", required = true, dataType = "StatusBackVO")
+    @PutMapping("/back/blog/messageConfig")
+    public Result updateBackMessageConfig(@Valid @RequestBody StatusBackVO statusBackVO) {
+        blogService.updateBlogMessageConfig(statusBackVO);
+        return Result.success().message("操作成功");
+    }
+
+    @ApiOperation(value = "查看后台用户消息提醒设置")
+    @GetMapping("/back/blog/messageConfig")
+    public Result getBackMessageConfigs() {
+        return Result.success().message("查询成功").data(blogService.getBlogMessageConfig());
     }
 
     /****************************************************************************************************/

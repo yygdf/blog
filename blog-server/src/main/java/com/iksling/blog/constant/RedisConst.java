@@ -75,4 +75,9 @@ public class RedisConst {
      * 分类令牌前缀
      */
     public static final String CATEGORY_TOKEN = "category_token";
+
+    /**
+     * 用户消息提醒设置
+     */
+    public static String USER_MESSAGE_CONFIG = "user_message_config";
 }

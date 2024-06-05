@@ -1,6 +1,7 @@
 package com.iksling.blog.constant;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class CommonConst {
@@ -78,4 +79,9 @@ public class CommonConst {
      * 检查文件类型是否启用严格模式
      */
     public static Boolean ENABLE_FILE_TYPE_STRICT = false;
+
+    /**
+     * 用户消息提醒设置
+     */
+    public static HashMap<String, HashMap<String, Integer>> USER_MESSAGE_CONFIG_MAP = new HashMap<>();
 }

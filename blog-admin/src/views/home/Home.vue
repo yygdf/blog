@@ -437,6 +437,117 @@
           </el-radio-group>
         </el-card>
       </el-tab-pane>
+      <el-tab-pane name="sendMessage" v-if="checkWeight(200)">
+        <span slot="label" style="font-weight: bold;"
+          ><i class="el-icon-message"></i> 发送消息</span
+        >
+        <el-tabs v-model="activeNameSendMessage">
+          <el-tab-pane label="系统通知" name="system" style="height:60vh;">
+            <el-form label-width="80px" :model="systemNoticeForm">
+              <el-form-item label="收件人">
+                <el-select
+                  v-model="systemNoticeForm.userId"
+                  ref="input"
+                  size="small"
+                  class="word-limit-input form-input-width"
+                  placeholder="请选择收件人"
+                  remote
+                  clearable
+                  filterable
+                  :remote-method="getUsernames"
+                >
+                  <el-option
+                    v-for="item in usernameList"
+                    :key="item.id"
+                    :value="item.id"
+                    :label="item.label"
+                  />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="标题">
+                <el-input
+                  v-model="systemNoticeForm.noticeTitle"
+                  size="small"
+                  class="word-limit-input form-input-width"
+                  maxlength="50"
+                  placeholder="请输入标题"
+                  show-word-limit
+                />
+              </el-form-item>
+              <el-form-item label="内容">
+                <el-input
+                  v-model="systemNoticeForm.noticeContent"
+                  size="small"
+                  type="textarea"
+                  style="width: 320px;"
+                  placeholder="请输入内容"
+                  show-word-limit
+                />
+              </el-form-item>
+              <el-button
+                @click="sendSystemNotice(1)"
+                type="primary"
+                size="medium"
+                style="margin-left:12rem"
+              >
+                发送
+              </el-button>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="邮件通知" name="email" style="height:60vh;">
+            <el-form label-width="80px" :model="emailNoticeForm">
+              <el-form-item label="收件人">
+                <el-select
+                  v-model="emailNoticeForm.userId"
+                  ref="input"
+                  size="small"
+                  class="word-limit-input form-input-width"
+                  placeholder="请选择收件人"
+                  remote
+                  clearable
+                  filterable
+                  :remote-method="getUsernames"
+                >
+                  <el-option
+                    v-for="item in usernameList"
+                    :key="item.id"
+                    :value="item.id"
+                    :label="item.label"
+                  />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="主题">
+                <el-input
+                  v-model="emailNoticeForm.noticeTitle"
+                  size="small"
+                  class="word-limit-input form-input-width"
+                  maxlength="50"
+                  placeholder="请输入标题"
+                  show-word-limit
+                />
+              </el-form-item>
+              <el-form-item label="内容">
+                <el-input
+                  v-model="emailNoticeForm.noticeContent"
+                  size="small"
+                  type="textarea"
+                  style="width: 320px;"
+                  placeholder="请输入内容"
+                  show-word-limit
+                />
+              </el-form-item>
+              <el-button
+                @click="sendSystemNotice(2)"
+                type="primary"
+                size="medium"
+                style="margin-left:12rem"
+              >
+                发送
+              </el-button>
+            </el-form>
+          </el-tab-pane>
+        </el-tabs>
+      </el-tab-pane>
     </el-tabs>
   </el-card>
 </template>
@@ -456,6 +567,7 @@ export default {
   data: function() {
     return {
       activeName: "reply",
+      activeNameSendMessage: "system",
       replyCommentList: [],
       atCommentList: [],
       likeList: [],
@@ -489,10 +601,36 @@ export default {
       atCommentSetting: 1,
       likeSetting: 1,
       myMessageSetting: 1,
-      loadMessageConfigFlag: true
+      loadMessageConfigFlag: true,
+      usernameList: [],
+      systemNoticeForm: {
+        type: 1,
+        userId: null,
+        noticeTitle: "",
+        noticeContent: ""
+      },
+      emailNoticeForm: {
+        type: 2,
+        userId: null,
+        noticeTitle: "",
+        noticeContent: ""
+      }
     };
   },
   methods: {
+    checkWeight(weight) {
+      return this.$store.state.weight <= weight;
+    },
+    getUsernames(keywords) {
+      if (keywords.trim() === "") {
+        return;
+      }
+      this.axios
+        .get("/api/back/userAuth/usernames", { params: { keywords } })
+        .then(({ data }) => {
+          this.usernameList = data.data;
+        });
+    },
     handleTabClick() {
       if (this.activeName === "at" && this.atCommentList.length === 0) {
         this.loadAtCommentList();
@@ -749,16 +887,59 @@ export default {
     },
     loadMessageConfig() {
       if (this.loadMessageConfigFlag) {
-        this.axios
-          .get("/api/back/blog/messageConfig")
-          .then(({ data }) => {
-            this.replyCommentSetting = data.data["1"];
-            this.atCommentSetting = data.data["2"];
-            this.likeSetting = data.data["3"];
-            this.myMessageSetting = data.data["4"];
-            this.loadMessageConfigFlag = false;
-          });
+        this.axios.get("/api/back/blog/messageConfig").then(({ data }) => {
+          this.replyCommentSetting = data.data["1"];
+          this.atCommentSetting = data.data["2"];
+          this.likeSetting = data.data["3"];
+          this.myMessageSetting = data.data["4"];
+          this.loadMessageConfigFlag = false;
+        });
       }
+    },
+    sendSystemNotice(type) {
+      let param;
+      if (type === 1) {
+        if (!this.systemNoticeForm.userId) {
+          this.$message.error("收件人不能为空");
+          return false;
+        }
+        if (this.systemNoticeForm.noticeTitle.trim() === "") {
+          this.$message.error("标题不能为空");
+          return false;
+        }
+        if (this.systemNoticeForm.noticeContent.trim() === "") {
+          this.$message.error("内容不能为空");
+          return false;
+        }
+        param = this.systemNoticeForm;
+      } else if (type === 2) {
+        if (!this.emailNoticeForm.userId) {
+          this.$message.error("收件人不能为空");
+          return false;
+        }
+        if (this.emailNoticeForm.noticeTitle.trim() === "") {
+          this.$message.error("主题不能为空");
+          return false;
+        }
+        if (this.emailNoticeForm.noticeContent.trim() === "") {
+          this.$message.error("内容不能为空");
+          return false;
+        }
+        param = this.emailNoticeForm;
+      }
+      this.axios.post("/api/back/notice", param).then(({ data }) => {
+        if (data.flag) {
+          this.$notify.success({
+            title: "成功",
+            message: data.message
+          });
+        } else {
+          this.$notify.error({
+            title: "失败",
+            message: data.message
+          });
+        }
+      });
     }
   },
   computed: {

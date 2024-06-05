@@ -46,7 +46,7 @@
             @click="updateInfo"
             type="primary"
             size="medium"
-            style="margin-left:8rem"
+            style="margin-left:12rem"
           >
             修改
           </el-button>
@@ -80,7 +80,7 @@
           <el-button
             type="danger"
             size="medium"
-            style="margin-left:8rem"
+            style="margin-left:12rem"
             @click="updateUsername"
           >
             修改
@@ -161,7 +161,7 @@
             "
             type="danger"
             size="medium"
-            style="margin-left:8rem"
+            style="margin-left:12rem"
             @click="updatePassword"
           >
             修改

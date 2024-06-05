@@ -4,18 +4,17 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.NoticeService;
+import com.iksling.blog.vo.NoticeBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static com.iksling.blog.constant.LogConst.SAVE;
 import static com.iksling.blog.constant.LogConst.UPDATE;
 
 @RestController
@@ -23,6 +22,15 @@ import static com.iksling.blog.constant.LogConst.UPDATE;
 public class NoticeController {
     @Autowired
     private NoticeService noticeService;
+
+    @OptLog(optType = SAVE)
+    @ApiOperation(value = "发送通知")
+    @ApiImplicitParam(name = "noticeBackVO", value = "通知后台VO", required = true, dataType = "NoticeBackVO")
+    @PostMapping("/back/notice")
+    public Result saveBackNotice(@Valid @RequestBody NoticeBackVO noticeBackVO) {
+        noticeService.saveNoticeBackVO(noticeBackVO);
+        return Result.success().message("操作成功");
+    }
 
     @OptLog(optType = UPDATE)
     @ApiOperation(value = "批量更新通知状态")

@@ -482,7 +482,7 @@ CREATE TABLE `tb_resource`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 226 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 229 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_resource
@@ -631,6 +631,9 @@ INSERT INTO `tb_resource` VALUES (222, 2, 21, '/back/notices', '查看后台通�
 INSERT INTO `tb_resource` VALUES (223, 2, 21, '/back/notices/status', '批量更新通知状态', 'PUT', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (224, 2, 21, '/back/notices/unread', '查看后台未读通知', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (225, 2, 21, '/back/notices/status/read', '批量更新通知未读状态', 'PUT', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (226, 2, 19, '/back/blog/messageConfig', '查看后台用户消息提醒设置', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (227, 2, 19, '/back/blog/messageConfig', '修改后台用户消息提醒设置', 'PUT', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (228, 2, 21, '/back/notice', '发送通知', 'POST', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_role
@@ -785,7 +788,7 @@ CREATE TABLE `tb_role_resource`  (
   `role_id` int(11) NOT NULL COMMENT '角色id',
   `resource_id` int(11) NOT NULL COMMENT '资源id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 356 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 368 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_role_resource
@@ -1145,6 +1148,18 @@ INSERT INTO `tb_role_resource` VALUES (352, 5, 222);
 INSERT INTO `tb_role_resource` VALUES (353, 5, 223);
 INSERT INTO `tb_role_resource` VALUES (354, 5, 224);
 INSERT INTO `tb_role_resource` VALUES (355, 5, 225);
+INSERT INTO `tb_role_resource` VALUES (356, 1, 226);
+INSERT INTO `tb_role_resource` VALUES (357, 1, 227);
+INSERT INTO `tb_role_resource` VALUES (358, 1, 228);
+INSERT INTO `tb_role_resource` VALUES (359, 2, 226);
+INSERT INTO `tb_role_resource` VALUES (360, 2, 227);
+INSERT INTO `tb_role_resource` VALUES (361, 2, 228);
+INSERT INTO `tb_role_resource` VALUES (362, 3, 226);
+INSERT INTO `tb_role_resource` VALUES (363, 3, 227);
+INSERT INTO `tb_role_resource` VALUES (364, 4, 226);
+INSERT INTO `tb_role_resource` VALUES (365, 4, 227);
+INSERT INTO `tb_role_resource` VALUES (366, 5, 226);
+INSERT INTO `tb_role_resource` VALUES (367, 5, 227);
 
 -- ----------------------------
 -- Table structure for tb_system_config

@@ -4,20 +4,31 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iksling.blog.entity.Notice;
+import com.iksling.blog.entity.User;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.NoticeMapper;
+import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.NoticeService;
+import com.iksling.blog.util.EmailUtil;
 import com.iksling.blog.util.UserUtil;
+import com.iksling.blog.vo.NoticeBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.iksling.blog.constant.CommonConst.USER_MESSAGE_CONFIG_MAP;
+import static com.iksling.blog.constant.RedisConst.USER_MESSAGE_CONFIG;
 
 /**
  *
@@ -27,6 +38,41 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice>
     implements NoticeService{
     @Autowired
     private NoticeMapper noticeMapper;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @PostConstruct
+    public void loadMessageConfigMap() {
+        USER_MESSAGE_CONFIG_MAP = new HashMap<>(redisTemplate.opsForHash().entries(USER_MESSAGE_CONFIG));
+    }
+
+    @Override
+    @Transactional
+    public void saveNoticeBackVO(NoticeBackVO noticeBackVO) {
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
+        Integer userId = noticeBackVO.getUserId();
+        if (noticeBackVO.getType() == 2) {
+            List<Object> objectList = userMapper.selectObjs(new LambdaQueryWrapper<User>()
+                    .select(User::getEmail)
+                    .eq(User::getId, userId));
+            String email = objectList.get(0).toString();
+            if (!email.equals(""))
+                EmailUtil.sendEmail(email, noticeBackVO.getNoticeTitle(), noticeBackVO.getNoticeContent());
+        } else {
+            noticeMapper.insert(Notice.builder()
+                    .userId(userId)
+                    .noticeType(4)
+                    .noticeTypeSub(9)
+                    .noticeTitle(noticeBackVO.getNoticeTitle())
+                    .noticeContent(noticeBackVO.getNoticeContent())
+                    .createUser(loginUserId)
+                    .createTime(new Date()).build());
+        }
+    }
 
     @Override
     @Transactional

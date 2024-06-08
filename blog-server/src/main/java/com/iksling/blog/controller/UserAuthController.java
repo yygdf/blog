@@ -68,7 +68,7 @@ public class UserAuthController {
     }
 
     @ApiOperation(value = "查看所有的用户名")
-    @ApiImplicitParam(name = "keywords", value = "关键字(用户名)", required = true, dataType = "String")
+    @ApiImplicitParam(name = "keywords", value = "关键字(用户名)", dataType = "String")
     @GetMapping("/back/userAuth/usernames")
     public Result getBackUsernames(String keywords) {
         return Result.success().message("查询成功").data(userAuthService.getBackUsernames(keywords));

@@ -103,11 +103,14 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice>
         condition.setUserId(UserUtil.getLoginUser().getUserId());
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
         switch (condition.getType()) {
+            case 2:
+                return noticeMapper.selectBackReplyComments(condition);
             case 3:
                 return noticeMapper.selectBackLikes(condition);
             case 4:
                 return noticeMapper.selectBackSystemNotices(condition);
             default:
+                condition.setType(1);
                 return noticeMapper.selectBackReplyComments(condition);
         }
     }

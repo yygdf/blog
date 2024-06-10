@@ -561,7 +561,7 @@ export default {
       if (id != null) {
         param.idList = [id];
       } else {
-        param.idList = this.articleIdList;
+        param.idList = this.categoryIdList;
       }
       this.axios.put("/api/back/categories/status", param).then(({ data }) => {
         if (data.flag) {

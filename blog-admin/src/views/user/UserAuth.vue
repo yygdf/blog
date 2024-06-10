@@ -603,7 +603,8 @@ export default {
           };
           if (flag) {
             param.type = 12;
-            if (userAuth.lockedFlag) {
+          } else {
+            if (userAuth.disabledFlag) {
               param.status = true;
             }
           }

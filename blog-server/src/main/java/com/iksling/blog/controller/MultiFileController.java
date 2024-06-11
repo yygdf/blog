@@ -2,10 +2,8 @@ package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Condition;
-import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MultiFileService;
-import com.iksling.blog.util.FtpUtil;
 import com.iksling.blog.vo.MultiFileBackVO;
 import com.iksling.blog.vo.MultiFilesBackVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -85,9 +83,7 @@ public class MultiFileController {
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/multiFiles")
     public Result getBackMultiFiles(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(Dict.create()
-                .set("dataList", multiFileService.getMultiFilesBackDTO(condition))
-                .set("staticResourceUrl", FtpUtil.address));
+        return Result.success().message("查询成功").data(multiFileService.getMultiFilesBackDTO(condition));
     }
 
     @ApiOperation(value = "根据文件id查找文件令牌")

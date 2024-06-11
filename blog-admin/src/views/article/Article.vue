@@ -215,7 +215,7 @@ export default {
       tagList: [],
       fileNameList: [],
       categoryList: [],
-      staticResourceUrl: "",
+      staticResourceUrl: process.env.VUE_APP_STATIC_URL,
       articleCoverUpload: "",
       articleUserId: null,
       autoSaveFlag: true,
@@ -465,9 +465,8 @@ export default {
           params: { userId: this.articleUserId }
         })
         .then(({ data }) => {
-          this.tagList = data.data.option.tagDTOList;
-          this.categoryList = data.data.option.categoryDTOList;
-          this.staticResourceUrl = data.data.staticResourceUrl;
+          this.tagList = data.data.tagDTOList;
+          this.categoryList = data.data.categoryDTOList;
         });
     },
     addOrEditArticle() {

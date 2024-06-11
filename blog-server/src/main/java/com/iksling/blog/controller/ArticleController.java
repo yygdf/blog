@@ -2,10 +2,8 @@ package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Condition;
-import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ArticleService;
-import com.iksling.blog.util.FtpUtil;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleImageBackVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -99,9 +97,7 @@ public class ArticleController {
     @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer")
     @GetMapping("/back/article/option")
     public Result getBackArticleOption(Integer userId) {
-        return Result.success().message("查询成功").data(Dict.create()
-                .set("option", articleService.getArticleOptionBackDTO(userId))
-                .set("staticResourceUrl", FtpUtil.address));
+        return Result.success().message("查询成功").data(articleService.getArticleOptionBackDTO(userId));
     }
 
     @ApiOperation(value = "查看后台文章列表")

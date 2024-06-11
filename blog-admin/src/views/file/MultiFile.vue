@@ -499,7 +499,7 @@ export default {
       userId: null,
       multiFileParentId: null,
       keywords: "",
-      staticResourceUrl: "",
+      staticResourceUrl: process.env.VUE_APP_STATIC_URL,
       loading: true,
       editStatus: false,
       removeStatus: false,
@@ -535,7 +535,7 @@ export default {
             params
           })
           .then(({ data }) => {
-            tree.children = data.data.dataList;
+            tree.children = data.data;
             if (this.multiFileIdListSelected.includes(tree.id)) {
               this.setChildren(data.data.dataList, true);
             }
@@ -863,8 +863,7 @@ export default {
           params
         })
         .then(({ data }) => {
-          this.multiFileList = data.data.dataList;
-          this.staticResourceUrl = data.data.staticResourceUrl;
+          this.multiFileList = data.data;
           this.loading = false;
         });
     },

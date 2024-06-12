@@ -63,7 +63,7 @@ public class ChatRecordServiceImpl extends ServiceImpl<ChatRecordMapper, ChatRec
         Object o = JSON.parseObject(chatContent, Map.class).get("chatContent");
         if (o == null)
             throw new OperationStatusException();
-        chatContent = o.toString();
+        chatContent = o.toString().trim();
         if (chatContent.equals(""))
             throw new OperationStatusException();
         Integer loginUserId = UserUtil.getLoginUser().getUserId();

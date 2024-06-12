@@ -54,7 +54,7 @@ public class BlogServiceImpl implements BlogService {
     public void updateBackAbout(String aboutContent) {
         Object o = JSON.parseObject(aboutContent, Map.class).get("aboutContent");
         if (o != null)
-            RedisUtil.setMapValue(BLOG_ABOUT_ME, UserUtil.getLoginUser().getUserId().toString(), o);
+            RedisUtil.setMapValue(BLOG_ABOUT_ME, UserUtil.getLoginUser().getUserId().toString().trim(), o);
     }
 
     @Override

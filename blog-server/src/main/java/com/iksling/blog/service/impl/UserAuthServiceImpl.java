@@ -246,8 +246,11 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         Object o = JSON.parseObject(username, Map.class).get("username");
         if (o == null)
             throw new OperationStatusException();
+        String usernameVal = o.toString().trim();
+        if (usernameVal.length() < 1 || usernameVal.length() > 50)
+            throw new OperationStatusException("用户名长度不符合要求!");
         Integer count = userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
-                .eq(UserAuth::getUsername, o.toString())
+                .eq(UserAuth::getUsername, usernameVal)
                 .eq(UserAuth::getDeletedFlag, false));
         if (count != 0)
             throw new OperationStatusException("该用户名已被使用!");
@@ -259,7 +262,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         if (count == 0)
             throw new OperationStatusException();
         userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
-                .set(UserAuth::getUsername, o.toString())
+                .set(UserAuth::getUsername, usernameVal)
                 .set(UserAuth::getUpdateUser, loginUserId)
                 .set(UserAuth::getUpdateTime, new Date())
                 .eq(UserAuth::getUserId, loginUserId));

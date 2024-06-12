@@ -190,6 +190,21 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
             }
             offlineByUserId(userId);
         }
+        LambdaUpdateWrapper<QQAuth> lambdaUpdateWrapper = new LambdaUpdateWrapper<QQAuth>()
+                .eq(QQAuth::getUserId, userId);
+        boolean flag = false;
+        if (userAuth.getLockedFlag() != null) {
+            lambdaUpdateWrapper.set(QQAuth::getLockedFlag, userAuth.getLockedFlag());
+            flag = true;
+        }
+        if (userAuth.getDisabledFlag() != null) {
+            lambdaUpdateWrapper.set(QQAuth::getDisabledFlag, userAuth.getDisabledFlag());
+            flag = true;
+        }
+        if (flag) {
+            qqAuthMapper.update(null, lambdaUpdateWrapper);
+            offlineByUserId(userId);
+        }
     }
 
     @Override
@@ -200,23 +215,28 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 .in(UserAuth::getId, statusBackVO.getIdList())
                 .eq(UserAuth::getDeletedFlag, false)
                 .notIn(loginUser.getRoleWeight() > 100, UserAuth::getUserId, ROOT_USER_ID_LIST);
-        if (LOCKED.equals(statusBackVO.getType()))
-            lambdaUpdateWrapper.setSql("locked_flag = !locked_flag");
-        else
-            lambdaUpdateWrapper.setSql("disabled_flag = !disabled_flag");
+        LambdaUpdateWrapper<QQAuth> lambdaUpdateWrapper2 = new LambdaUpdateWrapper<QQAuth>()
+                .in(QQAuth::getUserId, userAuthMapper.selectObjs(new LambdaQueryWrapper<UserAuth>().select(UserAuth::getUserId).in(UserAuth::getId, statusBackVO.getIdList())));
+        if (LOCKED.equals(statusBackVO.getType())) {
+            if (statusBackVO.getStatus() == Boolean.TRUE) {
+                lambdaUpdateWrapper.set(UserAuth::getLockedFlag, false);
+                lambdaUpdateWrapper2.set(QQAuth::getLockedFlag, false);
+            } else {
+                lambdaUpdateWrapper.set(UserAuth::getLockedFlag, true);
+                lambdaUpdateWrapper2.set(QQAuth::getLockedFlag, true);
+            }
+        } else {
+            if (statusBackVO.getStatus() == Boolean.TRUE) {
+                lambdaUpdateWrapper.set(UserAuth::getDisabledFlag, false);
+                lambdaUpdateWrapper2.set(QQAuth::getDisabledFlag, false);
+            } else {
+                lambdaUpdateWrapper.set(UserAuth::getDisabledFlag, true);
+                lambdaUpdateWrapper2.set(QQAuth::getDisabledFlag, true);
+            }
+        }
         int count = userAuthMapper.update(null, lambdaUpdateWrapper);
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
-        LambdaUpdateWrapper<QQAuth> lambdaUpdateWrapper2 = new LambdaUpdateWrapper<QQAuth>()
-                .in(QQAuth::getUserId, userAuthMapper.selectObjs(new LambdaQueryWrapper<UserAuth>().select(UserAuth::getUserId).in(UserAuth::getId, statusBackVO.getIdList())));
-        if (LOCKED.equals(statusBackVO.getType()))
-            lambdaUpdateWrapper2.setSql("locked_flag = !locked_flag");
-        else {
-            if (statusBackVO.getStatus() == Boolean.TRUE)
-                lambdaUpdateWrapper2.set(QQAuth::getDisabledFlag, false);
-            else
-                lambdaUpdateWrapper2.set(QQAuth::getDisabledFlag, true);
-        }
         qqAuthMapper.update(null, lambdaUpdateWrapper2);
     }
 

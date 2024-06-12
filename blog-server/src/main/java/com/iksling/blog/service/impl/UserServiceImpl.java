@@ -319,7 +319,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .orderByAsc(MultiFile::getId));
         if (multiFileList.isEmpty())
             throw new OperationStatusException();
-        String[] originalFilenameArr = file.getOriginalFilename().split("\\.");
+        String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         long fileName = IdWorker.getId();
         String targetAddr = multiFileList.get(0).getFileFullPath();
         String fullFileName = fileName + "." + originalFilenameArr[1];

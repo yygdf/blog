@@ -537,9 +537,9 @@ export default {
           .then(({ data }) => {
             tree.children = data.data;
             if (this.multiFileIdListSelected.includes(tree.id)) {
-              this.setChildren(data.data.dataList, true);
+              this.setChildren(data.data, true);
             }
-            resolve(data.data.dataList);
+            resolve(data.data);
           });
       }
     },

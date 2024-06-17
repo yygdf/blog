@@ -913,6 +913,7 @@ export default {
           });
         }
       });
+      this.removeStatus = false;
     },
     addOrEditMultiFile() {
       if (this.multiFile.fileNameOrigin.trim() === "") {

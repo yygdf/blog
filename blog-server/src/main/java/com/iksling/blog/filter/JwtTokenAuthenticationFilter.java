@@ -60,14 +60,15 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
             httpServletResponse.getWriter().write(JSON.toJSONString(Result.failure().code(NOT_LOGIN).message("您已被强制下线!如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]")));
             return;
         }
-        LoginUser loginUser = new LoginUser();
-        loginUser.setUserId((Integer) map.get("userId"));
-        loginUser.setUsername(map.get("username").toString());
-        loginUser.setPassword(map.get("password").toString());
-        loginUser.setLoginTime((Date) map.get("loginTime"));
-        loginUser.setLoginPlatform((Boolean) map.get("loginPlatform"));
-        loginUser.setRoleIdList((List<String>) map.get("roleIdList"));
-        loginUser.setRoleWeight((Integer) map.get("roleWeight"));
+        LoginUser loginUser = LoginUser.builder()
+                .userId((Integer) map.get("userId"))
+                .username(map.get("username").toString())
+                .password(map.get("password").toString())
+                .loginTime((Date) map.get("loginTime"))
+                .loginPlatform((Boolean) map.get("loginPlatform"))
+                .roleIdList((List<String>) map.get("roleIdList"))
+                .roleWeight((Integer) map.get("roleWeight"))
+                .build();
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         RedisUtil.expire(LOGIN_TOKEN + "_" + loginUser.getUserId(), TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);

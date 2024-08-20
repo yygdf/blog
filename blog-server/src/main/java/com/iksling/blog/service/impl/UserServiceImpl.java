@@ -23,10 +23,13 @@ import com.iksling.blog.vo.*;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -87,6 +91,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * qq app-id
@@ -201,13 +207,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public void deleteBackUserOnlinesByIdList(List<Integer> idList) {
         if (idList.isEmpty() || !Collections.disjoint(idList, ROOT_USER_ID_LIST))
             throw new OperationStatusException();
-        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(e -> {
-            LoginUser loginUser = (LoginUser) e;
-            return idList.contains(loginUser.getUserId());
-        }).collect(Collectors.toList());
-        List<SessionInformation> allSessions = new ArrayList<>();
-        loginUserList.forEach(e -> allSessions.addAll(sessionRegistry.getAllSessions(e, false)));
-        allSessions.forEach(SessionInformation::expireNow);
+        idList.forEach(e -> RedisUtil.setMapValue("login_token_" + e, "offlineFlag", true));
     }
 
     @Override
@@ -375,9 +375,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public PagePojo<UserOnlinesBackDTO> getUserOnlinesBackDTO(Condition condition) {
-        List<Integer> onlineUserIdList = sessionRegistry.getAllPrincipals().stream()
-                .filter(e -> sessionRegistry.getAllSessions(e, false).size() > 0)
-                .map(e -> BeanCopyUtil.copyObject(e, LoginUser.class))
+        List<LoginUser> loginUserList = (List<LoginUser>)
+        redisTemplate.execute((RedisCallback<List<LoginUser>>) connection -> {
+            List<LoginUser> list = new ArrayList<>();
+            try (Cursor<byte[]> cursor = connection.scan(new ScanOptions.ScanOptionsBuilder().match("login_token_*").count(10000).build())) {
+                while (cursor.hasNext()) {
+                    Map<String, Object> map = RedisUtil.getMap(new String(cursor.next(), StandardCharsets.UTF_8));
+                    if (map.get("offlineFlag") == null) {
+                        LoginUser loginUser = LoginUser.builder()
+                                .userId((Integer) map.get("userId"))
+                                .username(map.get("username").toString())
+                                .loginTime((Date) map.get("loginTime"))
+                                .loginPlatform((Boolean) map.get("loginPlatform"))
+                                .build();
+                        list.add(loginUser);
+                    }
+                }
+            } catch (Exception e) {
+                throw new OperationStatusException();
+            }
+            return list;
+        });
+        List<Integer> onlineUserIdList = loginUserList.stream()
                 .filter(e -> CommonUtil.isEmpty(condition.getKeywords()) || e.getUsername().contains(condition.getKeywords()))
                 .filter(e -> condition.getFlag() == null || e.getLoginPlatform().equals(condition.getFlag()))
                 .sorted(Comparator.comparing(LoginUser::getLoginTime).reversed())

@@ -55,7 +55,13 @@ router.beforeEach((to, from, next) => {
   if (to.path === "/login") {
     next();
   } else if (!store.state.userId) {
-    next({ path: "/login", query: { url: to.path } });
+    if (to.query.token != null) {
+      store.commit("saveToken", to.query.token);
+      store.commit("login", JSON.parse(to.query.loginUserDTO.toString()));
+      next();
+    } else {
+      next({ path: "/login", query: { url: to.path } });
+    }
   } else {
     next();
     store.state.currentRoutePath = to.path;

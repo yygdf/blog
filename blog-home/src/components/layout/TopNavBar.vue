@@ -2,7 +2,7 @@
   <v-app-bar app :class="navClass" hide-on-scroll flat height="60">
     <div class="d-md-none nav-mobile-container">
       <div style="font-size:18px;font-weight:bold">
-        <a href="https://www.iksling.com" target="_blank" v-html="logo"></a>
+        <a :href="adminUrl" target="_blank" v-html="logo"></a>
       </div>
       <div style="margin-left:auto">
         <a @click="openSearch"><i class="iconfont my-icon-search"/></a>
@@ -102,8 +102,7 @@ export default {
   },
   data: function() {
     return {
-      navClass: "",
-      adminUrl: process.env.VUE_APP_ADMIN_URL
+      navClass: ""
     };
   },
   computed: {
@@ -125,6 +124,27 @@ export default {
     },
     rootUri() {
       return this.$store.state.rootUri;
+    },
+    adminUrl() {
+      return this.$store.state.token
+        ? process.env.VUE_APP_ADMIN_URL +
+            "?token=" +
+            this.$store.state.token +
+            "&loginUserDTO=" +
+            JSON.stringify({
+              userId: this.$store.state.userId,
+              intro: this.$store.state.intro,
+              email: this.$store.state.email,
+              avatar: this.$store.state.avatar,
+              gender: this.$store.state.gender,
+              weight: this.$store.state.weight,
+              website: this.$store.state.website,
+              nickname: this.$store.state.nickname,
+              modifiedFlag: this.$store.state.modifiedFlag,
+              articleLikeSet: this.$store.state.articleLikeSet,
+              commentLikeSet: this.$store.state.commentLikeSet
+            })
+        : process.env.VUE_APP_ADMIN_URL;
     }
   },
   methods: {

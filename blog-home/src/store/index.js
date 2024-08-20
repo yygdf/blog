@@ -21,8 +21,10 @@ export default new Vuex.Store({
     email: null,
     avatar: null,
     gender: null,
+    weight: 1000,
     website: null,
     nickname: null,
+    modifiedFlag: null,
     bloggerId: null,
     articleLikeSet: [],
     commentLikeSet: [],
@@ -60,8 +62,10 @@ export default new Vuex.Store({
       state.email = user.email;
       state.avatar = user.avatar;
       state.gender = user.gender;
+      state.weight = user.weight;
       state.website = user.website;
       state.nickname = user.nickname;
+      state.modifiedFlag = user.modifiedFlag;
       state.articleLikeSet = user.articleLikeSet ? user.articleLikeSet : [];
       state.commentLikeSet = user.commentLikeSet ? user.commentLikeSet : [];
     },
@@ -71,8 +75,10 @@ export default new Vuex.Store({
       state.email = null;
       state.avatar = null;
       state.gender = null;
+      state.weight = 1000;
       state.website = null;
       state.nickname = null;
+      state.modifiedFlag = null;
       state.articleLikeSet = [];
       state.commentLikeSet = [];
     },

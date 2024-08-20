@@ -20,7 +20,8 @@ export default new Vuex.Store({
     userMenuList: [],
     commentLikeSet: [],
     currentRoutePath: "/",
-    currentTab: { name: "首页", path: "/" }
+    currentTab: { name: "首页", path: "/" },
+    token: null
   },
   mutations: {
     saveTab(state, tab) {
@@ -52,6 +53,12 @@ export default new Vuex.Store({
       state.nickname = user.nickname;
       state.modifiedFlag = user.modifiedFlag;
       state.commentLikeSet = user.commentLikeSet ? user.commentLikeSet : [];
+    },
+    saveToken(state, token) {
+      state.token = token;
+    },
+    removeToken(state) {
+      state.token = null;
     },
     saveUserMenuList(state, userMenuList) {
       state.userMenuList = userMenuList;

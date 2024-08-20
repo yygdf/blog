@@ -80,4 +80,14 @@ public class RedisConst {
      * 用户消息提醒设置
      */
     public static String USER_MESSAGE_CONFIG = "user_message_config";
+
+    /**
+     * 登录令牌前缀
+     */
+    public static final String LOGIN_TOKEN = "login_token";
+
+    /**
+     * 登录令牌过期时间
+     */
+    public static final Integer TOKEN_EXPIRE_TIME = 60 * 60 * 1000;
 }

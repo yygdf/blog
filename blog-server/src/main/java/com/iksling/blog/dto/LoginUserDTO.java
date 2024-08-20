@@ -38,6 +38,11 @@ public class LoginUserDTO {
     private Integer gender;
 
     /**
+     * 权重
+     */
+    private Integer weight;
+
+    /**
      * 用户网站
      */
     private String website;
@@ -46,6 +51,11 @@ public class LoginUserDTO {
      * 用户昵称
      */
     private String nickname;
+
+    /**
+     * 修改标志
+     */
+    private Boolean modifiedFlag;
 
     /**
      * 点赞文章集合

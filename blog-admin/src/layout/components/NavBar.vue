@@ -133,7 +133,9 @@ export default {
         this.$router.push({ path: "/personal" });
       }
       if (command === "logout") {
-        this.axios.post("/api/logout");
+        this.axios.post("/api/logout").then(() => {
+          this.$store.commit("removeToken");
+        });
         this.$store.commit("logout");
         this.$store.commit("resetTab");
         resetRouter();

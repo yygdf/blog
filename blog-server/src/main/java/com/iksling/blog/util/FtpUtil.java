@@ -20,12 +20,12 @@ public class FtpUtil {
 
     private static String password;
 
-    @Value("${ftp.hostname:null}")
+    @Value("${ftp.hostname}")
     public void setHostname(String hostname) {
         FtpUtil.hostname = hostname;
     }
 
-    @Value("${ftp.address:null}")
+    @Value("${ftp.address}")
     public void setAddress(String address) {
         FtpUtil.address = address;
     }
@@ -35,12 +35,12 @@ public class FtpUtil {
         FtpUtil.port = port;
     }
 
-    @Value("${ftp.username:null}")
+    @Value("${ftp.username}")
     public void setUsername(String username) {
         FtpUtil.username = username;
     }
 
-    @Value("${ftp.password:null}")
+    @Value("${ftp.password}")
     public void setPassword(String password) {
         FtpUtil.password = password;
     }

@@ -66,10 +66,23 @@ router.afterEach(() => {
   NProgress.done();
 });
 
+axios.interceptors.request.use(
+  function(request) {
+    if (store.state.token != null) {
+      request.headers["token"] = store.state.token;
+    }
+    return request;
+  },
+  function(error) {
+    return Promise.reject(error);
+  }
+);
+
 axios.interceptors.response.use(
   function(response) {
     switch (response.data.code) {
-      case 40002:
+      // case 40001:
+      // case 40002:
       case 40003:
       case 40005:
       case 50001:
@@ -80,6 +93,7 @@ axios.interceptors.response.use(
           message: response.data.message
         });
         router.push({ path: "/login" }).then();
+        store.commit("saveToken", null);
         break;
       case 40004:
         Vue.prototype.$message({
@@ -92,6 +106,7 @@ axios.interceptors.response.use(
             query: { url: store.state.currentRoutePath }
           })
           .then();
+        store.commit("saveToken", null);
         break;
     }
     return response;

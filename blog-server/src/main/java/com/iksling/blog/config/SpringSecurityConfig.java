@@ -1,5 +1,6 @@
 package com.iksling.blog.config;
 
+import com.iksling.blog.filter.JwtTokenAuthenticationFilter;
 import com.iksling.blog.handler.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -9,12 +10,14 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 @Configuration
@@ -31,9 +34,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private LogoutSuccessHandlerImpl logoutSuccessHandler;
     @Autowired
-    private InvalidSessionStrategyImpl invalidSessionStrategy;
-    @Autowired
-    private SessionInformationExpiredStrategyImpl sessionInformationExpiredStrategy;
+    private JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter;
 
     @Bean
     public FilterInvocationSecurityMetadataSource securityMetadataSource() {
@@ -86,10 +87,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .headers().frameOptions().disable()
                 .and()
-                .sessionManagement()
-                .invalidSessionStrategy(invalidSessionStrategy)
-                .maximumSessions(1)
-                .expiredSessionStrategy(sessionInformationExpiredStrategy)
-                .sessionRegistry(sessionRegistry());
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.addFilterBefore(jwtTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }

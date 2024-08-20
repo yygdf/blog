@@ -137,11 +137,12 @@ export default {
         })
         .then(({ data }) => {
           if (data.flag) {
-            if (!data.data.avatar) {
-              data.data.avatar =
+            if (!data.data.loginUserDTO.avatar) {
+              data.data.loginUserDTO.avatar =
                 process.env.VUE_APP_STATIC_URL + "img/avatar.png";
             }
-            this.$store.commit("login", data.data);
+            this.$store.commit("login", data.data.loginUserDTO);
+            this.$store.commit("saveToken", data.data.token);
             generateMenu().then(() => {
               localStorage.setItem("username", this.loginForm.username);
               this.$message.success("登录成功");

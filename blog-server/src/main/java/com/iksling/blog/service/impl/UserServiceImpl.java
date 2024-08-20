@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.iksling.blog.dto.LoginUserBackDTO;
 import com.iksling.blog.dto.LoginUserDTO;
 import com.iksling.blog.dto.UserOnlinesBackDTO;
 import com.iksling.blog.dto.UsersBackDTO;
@@ -521,38 +520,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .select(User::getIntro, User::getEmail, User::getAvatar, User::getGender, User::getWebsite, User::getNickname)
+                .select(User::getIntro, User::getEmail, User::getAvatar, User::getGender, User::getWebsite, User::getNickname, User::getModifiedFlag)
                 .eq(User::getId, loginUserId));
         Boolean loginPlatform = Boolean.parseBoolean(request.getHeader("Login-Platform"));
         loginUser.setLoginTime(dateTime);
         loginUser.setLoginPlatform(loginPlatform);
         insertLoginLog(loginUserId, dateTime, loginPlatform, request);
-        if (loginPlatform) {
-            return dict.set("loginUser", LoginUserBackDTO.builder()
-                    .userId(loginUserId)
-                    .intro(user.getIntro())
-                    .email(user.getEmail())
-                    .avatar(user.getAvatar())
-                    .gender(user.getGender())
-                    .weight(loginUser.getRoleWeight())
-                    .website(user.getWebsite())
-                    .nickname(user.getNickname())
-                    .build());
-        } else {
-            Set<Integer> articleLikeSet = RedisUtil.getMapValue(ARTICLE_USER_LIKE, loginUserId.toString());
-            Set<Integer> commentLikeSet = RedisUtil.getMapValue(COMMENT_USER_LIKE, loginUserId.toString());
-            return dict.set("loginUser", LoginUserDTO.builder()
-                    .userId(loginUserId)
-                    .intro(user.getIntro())
-                    .email(user.getEmail())
-                    .avatar(user.getAvatar())
-                    .gender(user.getGender())
-                    .website(user.getWebsite())
-                    .nickname(user.getNickname())
-                    .articleLikeSet(articleLikeSet)
-                    .commentLikeSet(commentLikeSet)
-                    .build());
-        }
+        Set<Integer> articleLikeSet = RedisUtil.getMapValue(ARTICLE_USER_LIKE, loginUserId.toString());
+        Set<Integer> commentLikeSet = RedisUtil.getMapValue(COMMENT_USER_LIKE, loginUserId.toString());
+        return dict.set("loginUser", LoginUserDTO.builder()
+                .userId(loginUserId)
+                .intro(user.getIntro())
+                .email(user.getEmail())
+                .avatar(user.getAvatar())
+                .gender(user.getGender())
+                .weight(loginUser.getRoleWeight())
+                .website(user.getWebsite())
+                .nickname(user.getNickname())
+                .modifiedFlag(user.getModifiedFlag())
+                .articleLikeSet(articleLikeSet)
+                .commentLikeSet(commentLikeSet)
+                .build());
     }
 
     @Override

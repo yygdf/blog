@@ -55,6 +55,10 @@ router.beforeEach((to, from, next) => {
   if (to.meta.title) {
     document.title = to.meta.title;
   }
+  if (to.query.token != null) {
+    store.commit("saveToken", to.query.token);
+    store.commit("login", JSON.parse(to.query.loginUserDTO.toString()));
+  }
   next();
 });
 

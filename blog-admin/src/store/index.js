@@ -18,6 +18,7 @@ export default new Vuex.Store({
     nickname: "",
     modifiedFlag: null,
     userMenuList: [],
+    articleLikeSet: [],
     commentLikeSet: [],
     currentRoutePath: "/",
     currentTab: { name: "首页", path: "/" },
@@ -52,6 +53,7 @@ export default new Vuex.Store({
       state.website = user.website;
       state.nickname = user.nickname;
       state.modifiedFlag = user.modifiedFlag;
+      state.articleLikeSet = user.articleLikeSet ? user.articleLikeSet : [];
       state.commentLikeSet = user.commentLikeSet ? user.commentLikeSet : [];
     },
     saveToken(state, token) {
@@ -73,6 +75,7 @@ export default new Vuex.Store({
       state.website = "";
       state.nickname = "";
       state.modifiedFlag = null;
+      state.articleLikeSet = [];
       state.userMenuList = [];
     },
     updateAvatar(state, avatar) {

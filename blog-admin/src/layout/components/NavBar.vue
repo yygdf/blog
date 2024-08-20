@@ -15,7 +15,9 @@
           <i class="el-icon-full-screen" />
         </div>
         <el-dropdown @command="handleCommand">
-          <el-avatar :src="this.$store.state.avatar" :size="40" />
+          <a :href="homeUrl" target="_blank"
+            ><el-avatar :src="this.$store.state.avatar" :size="40"
+          /></a>
           <i class="el-icon-caret-bottom" />
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="personal">
@@ -154,6 +156,31 @@ export default {
         }
         return "tabs-view-item";
       };
+    },
+    homeUrl() {
+      let url = process.env.VUE_APP_HOME_URL;
+      if (this.$store.state.weight <= 400) {
+        url = url + "/" + this.$store.state.userId;
+      }
+      return this.$store.state.token
+        ? url +
+            "?token=" +
+            this.$store.state.token +
+            "&loginUserDTO=" +
+            JSON.stringify({
+              userId: this.$store.state.userId,
+              intro: this.$store.state.intro,
+              email: this.$store.state.email,
+              avatar: this.$store.state.avatar,
+              gender: this.$store.state.gender,
+              weight: this.$store.state.weight,
+              website: this.$store.state.website,
+              nickname: this.$store.state.nickname,
+              modifiedFlag: this.$store.state.modifiedFlag,
+              articleLikeSet: this.$store.state.articleLikeSet,
+              commentLikeSet: this.$store.state.commentLikeSet
+            })
+        : url;
     }
   }
 };

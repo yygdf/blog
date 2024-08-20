@@ -137,6 +137,7 @@ export default {
       this.axios.post("/api/logout").then(({ data }) => {
         if (data.flag) {
           this.$store.commit("logout");
+          this.$store.commit("removeToken");
           this.$toast({ type: "success", message: data.message });
         }
       });

@@ -118,11 +118,12 @@ export default {
         if (data.flag) {
           localStorage.setItem("username", this.username);
           this.password = "";
-          if (!data.data.avatar) {
-            data.data.avatar =
+          if (!data.data.loginUserDTO.avatar) {
+            data.data.loginUserDTO.avatar =
               process.env.VUE_APP_STATIC_URL + "img/avatar.png";
           }
-          this.$store.commit("login", data.data);
+          this.$store.commit("login", data.data.loginUserDTO);
+          this.$store.commit("saveToken", data.data.token);
           this.$store.commit("updateLoginFlag", false);
           this.$toast({ type: "success", message: data.message });
         }

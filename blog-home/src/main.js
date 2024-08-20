@@ -71,6 +71,9 @@ axios.interceptors.request.use(
     if (store.state.bloggerId != null) {
       request.headers["Blogger-Id"] = store.state.bloggerId;
     }
+    if (store.state.token != null) {
+      request.headers["Token"] = store.state.token;
+    }
     return request;
   },
   function(error) {
@@ -83,11 +86,11 @@ axios.interceptors.response.use(
     switch (response.data.code) {
       case 20001:
       case 40001:
+      case 40002:
       case 60001:
       case 60002:
         Vue.prototype.$toast({ type: "error", message: response.data.message });
         break;
-      case 40002:
       case 40003:
       case 40004:
       case 40005:
@@ -96,6 +99,7 @@ axios.interceptors.response.use(
       case 50003:
         Vue.prototype.$toast({ type: "error", message: response.data.message });
         store.commit("logout");
+        store.commit("saveToken", null);
         break;
     }
     return response;

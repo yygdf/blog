@@ -69,7 +69,7 @@ router.afterEach(() => {
 axios.interceptors.request.use(
   function(request) {
     if (store.state.token != null) {
-      request.headers["token"] = store.state.token;
+      request.headers["Token"] = store.state.token;
     }
     return request;
   },

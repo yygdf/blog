@@ -50,7 +50,8 @@ export default new Vuex.Store({
         process.env.VUE_APP_STATIC_URL + "img/banner/personal.jpg"
     },
     bloggerInfo: {},
-    rootUrl: location.protocol + "//" + location.host
+    rootUrl: location.protocol + "//" + location.host,
+    token: null
   },
   mutations: {
     login(state, user) {
@@ -74,6 +75,12 @@ export default new Vuex.Store({
       state.nickname = null;
       state.articleLikeSet = [];
       state.commentLikeSet = [];
+    },
+    saveToken(state, token) {
+      state.token = token;
+    },
+    removeToken(state) {
+      state.token = null;
     },
     saveLoginUrl(state, url) {
       state.loginUrl = url;

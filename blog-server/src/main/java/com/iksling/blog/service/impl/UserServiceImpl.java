@@ -528,7 +528,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         insertLoginLog(loginUserId, dateTime, loginPlatform, request);
         Set<Integer> articleLikeSet = RedisUtil.getMapValue(ARTICLE_USER_LIKE, loginUserId.toString());
         Set<Integer> commentLikeSet = RedisUtil.getMapValue(COMMENT_USER_LIKE, loginUserId.toString());
-        return dict.set("loginUser", LoginUserDTO.builder()
+        String tokenId = String.valueOf(IdWorker.getId());
+        Map<String, Object> map = new HashMap<>();
+        map.put("tokenId", tokenId);
+        map.put("userId", loginUserId);
+        map.put("username", loginUser.getUsername());
+        map.put("password", loginUser.getPassword());
+        map.put("loginTime", loginUser.getLoginTime());
+        map.put("loginPlatform", loginUser.getLoginPlatform());
+        map.put("roleIdList", loginUser.getRoleIdList());
+        map.put("roleWeight", loginUser.getRoleWeight());
+        RedisUtil.setMap(LOGIN_TOKEN + "_" + loginUserId, map);
+        RedisUtil.expire(LOGIN_TOKEN + "_" + loginUserId, TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+        return dict.set("loginUserDTO", LoginUserDTO.builder()
                 .userId(loginUserId)
                 .intro(user.getIntro())
                 .email(user.getEmail())

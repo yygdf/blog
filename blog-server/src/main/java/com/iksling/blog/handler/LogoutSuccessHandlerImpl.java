@@ -19,7 +19,7 @@ import static com.iksling.blog.constant.RedisConst.LOGIN_TOKEN;
 public class LogoutSuccessHandlerImpl implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException {
-        String token = httpServletRequest.getHeader("token");
+        String token = httpServletRequest.getHeader("Token");
         Claims claims = JwtUtil.parseJwtToken(token);
         String subject = claims.getSubject();
         RedisUtil.delKey(LOGIN_TOKEN + "_" + subject);

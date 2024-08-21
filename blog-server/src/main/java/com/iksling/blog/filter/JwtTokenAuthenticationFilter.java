@@ -40,7 +40,9 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         try {
             claims = JwtUtil.parseJwtToken(token);
         } catch (Exception e) {
-            throw new RuntimeException("Token不合法!");
+            httpServletResponse.setContentType("application/json;charset=UTF-8");
+            httpServletResponse.getWriter().write(JSON.toJSONString(Result.failure().code(AUTHENTICATION_FAILURE).message("Token不合法!")));
+            return;
         }
         String subject = claims.getSubject();
         Map<String, Object> map = RedisUtil.getMap(LOGIN_TOKEN + "_" + subject);

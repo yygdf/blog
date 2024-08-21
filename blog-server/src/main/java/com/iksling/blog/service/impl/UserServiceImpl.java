@@ -207,7 +207,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public void deleteBackUserOnlinesByIdList(List<Integer> idList) {
         if (idList.isEmpty() || !Collections.disjoint(idList, ROOT_USER_ID_LIST))
             throw new OperationStatusException();
-        idList.forEach(e -> RedisUtil.setMapValue("login_token_" + e, "offlineFlag", true));
+        idList.forEach(e -> RedisUtil.setMapValue(LOGIN_TOKEN + "_" + e, "offlineFlag", true));
     }
 
     @Override
@@ -378,7 +378,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<LoginUser> loginUserList = (List<LoginUser>)
         redisTemplate.execute((RedisCallback<List<LoginUser>>) connection -> {
             List<LoginUser> list = new ArrayList<>();
-            try (Cursor<byte[]> cursor = connection.scan(new ScanOptions.ScanOptionsBuilder().match("login_token_*").count(10000).build())) {
+            try (Cursor<byte[]> cursor = connection.scan(new ScanOptions.ScanOptionsBuilder().match(LOGIN_TOKEN + "_*").count(10000).build())) {
                 while (cursor.hasNext()) {
                     Map<String, Object> map = RedisUtil.getMap(new String(cursor.next(), StandardCharsets.UTF_8));
                     if (map.get("offlineFlag") == null) {

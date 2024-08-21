@@ -529,10 +529,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<Role> roleList = roleMapper.selectLoginRoleByUserId(loginUserId);
         if (roleList.isEmpty())
             throw new DisabledStatusException("您的角色已被禁用, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
+        Boolean loginPlatform = Boolean.parseBoolean(request.getHeader("Login-Platform"));
         LoginUser loginUser = LoginUser.builder()
                 .userId(loginUserId)
-                .username(qqAuth.getOpenid())
-                .password(qqAuth.getAccessToken())
+                .username(dict.get("username").toString())
+                .loginTime(dateTime)
+                .loginPlatform(loginPlatform)
                 .roleWeight(roleList.get(0).getRoleWeight())
                 .roleIdList(roleList.stream().map(e -> e.getId().toString()).collect(Collectors.toList()))
                 .build();
@@ -541,9 +543,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .select(User::getIntro, User::getEmail, User::getAvatar, User::getGender, User::getWebsite, User::getNickname, User::getModifiedFlag)
                 .eq(User::getId, loginUserId));
-        Boolean loginPlatform = Boolean.parseBoolean(request.getHeader("Login-Platform"));
-        loginUser.setLoginTime(dateTime);
-        loginUser.setLoginPlatform(loginPlatform);
         insertLoginLog(loginUserId, dateTime, loginPlatform, request);
         Set<Integer> articleLikeSet = RedisUtil.getMapValue(ARTICLE_USER_LIKE, loginUserId.toString());
         Set<Integer> commentLikeSet = RedisUtil.getMapValue(COMMENT_USER_LIKE, loginUserId.toString());
@@ -556,6 +555,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         map.put("loginPlatform", loginUser.getLoginPlatform());
         map.put("roleIdList", loginUser.getRoleIdList());
         map.put("roleWeight", loginUser.getRoleWeight());
+        map.put("loginMethod", 2);
         RedisUtil.setMap(LOGIN_TOKEN + "_" + loginUserId, map);
         RedisUtil.expire(LOGIN_TOKEN + "_" + loginUserId, TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
         return dict.set("loginUserDTO", LoginUserDTO.builder()

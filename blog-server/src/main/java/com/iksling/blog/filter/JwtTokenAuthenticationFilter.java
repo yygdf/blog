@@ -68,8 +68,8 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
                 .roleIdList((List<String>) map.get("roleIdList"))
                 .roleWeight((Integer) map.get("roleWeight"))
                 .build();
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
         RedisUtil.expire(LOGIN_TOKEN + "_" + loginUser.getUserId(), TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }

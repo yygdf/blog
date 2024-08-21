@@ -28,7 +28,7 @@ export default {
               that.$store.commit("login", data.data.loginUserDTO);
               that.$store.commit("saveToken", data.data.token);
               localStorage.setItem("username", data.data.username);
-              if (data.data.email === "") {
+              if (data.data.loginUserDTO.email === "") {
                 that.$toast({
                   type: "warning",
                   message: "请绑定邮箱以便及时收到回复!"

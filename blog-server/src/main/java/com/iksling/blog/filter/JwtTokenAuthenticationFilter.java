@@ -63,7 +63,6 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         LoginUser loginUser = LoginUser.builder()
                 .userId((Integer) map.get("userId"))
                 .username(map.get("username").toString())
-                .password(map.get("password").toString())
                 .loginTime((Date) map.get("loginTime"))
                 .loginPlatform((Boolean) map.get("loginPlatform"))
                 .roleIdList((List<String>) map.get("roleIdList"))

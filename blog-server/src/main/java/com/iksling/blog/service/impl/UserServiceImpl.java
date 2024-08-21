@@ -552,7 +552,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         map.put("tokenId", tokenId);
         map.put("userId", loginUserId);
         map.put("username", loginUser.getUsername());
-        map.put("password", loginUser.getPassword());
         map.put("loginTime", loginUser.getLoginTime());
         map.put("loginPlatform", loginUser.getLoginPlatform());
         map.put("roleIdList", loginUser.getRoleIdList());

@@ -77,7 +77,6 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         map.put("tokenId", tokenId);
         map.put("userId", userId);
         map.put("username", loginUser.getUsername());
-        map.put("password", loginUser.getPassword());
         map.put("loginTime", loginUser.getLoginTime());
         map.put("loginPlatform", loginUser.getLoginPlatform());
         map.put("roleIdList", loginUser.getRoleIdList());

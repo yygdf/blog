@@ -25,7 +25,8 @@ export default {
           };
           that.axios.post("/api/user/oauth/qq", param).then(({ data }) => {
             if (data.flag) {
-              that.$store.commit("login", data.data.loginUser);
+              that.$store.commit("login", data.data.loginUserDTO);
+              that.$store.commit("saveToken", data.data.token);
               localStorage.setItem("username", data.data.username);
               if (data.data.email === "") {
                 that.$toast({

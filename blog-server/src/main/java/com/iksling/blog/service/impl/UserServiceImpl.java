@@ -571,7 +571,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .modifiedFlag(user.getModifiedFlag())
                 .articleLikeSet(articleLikeSet)
                 .commentLikeSet(commentLikeSet)
-                .build());
+                .build())
+                .set("token", JwtUtil.createJwtToken(tokenId, loginUserId.toString()));
     }
 
     @Override

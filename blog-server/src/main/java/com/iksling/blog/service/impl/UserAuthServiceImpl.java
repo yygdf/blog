@@ -219,8 +219,11 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 .in(UserAuth::getId, statusBackVO.getIdList())
                 .eq(UserAuth::getDeletedFlag, false)
                 .notIn(loginUser.getRoleWeight() > 100, UserAuth::getUserId, ROOT_USER_ID_LIST);
+        List<Object> userIdList = userAuthMapper.selectObjs(new LambdaQueryWrapper<UserAuth>()
+                .select(UserAuth::getUserId)
+                .in(UserAuth::getId, statusBackVO.getIdList()));
         LambdaUpdateWrapper<QQAuth> lambdaUpdateWrapper2 = new LambdaUpdateWrapper<QQAuth>()
-                .in(QQAuth::getUserId, userAuthMapper.selectObjs(new LambdaQueryWrapper<UserAuth>().select(UserAuth::getUserId).in(UserAuth::getId, statusBackVO.getIdList())));
+                .in(QQAuth::getUserId, userIdList);
         boolean flag = false;
         if (LOCKED.equals(statusBackVO.getType())) {
             if (statusBackVO.getStatus() == Boolean.TRUE) {
@@ -246,7 +249,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
             throw new OperationStatusException();
         qqAuthMapper.update(null, lambdaUpdateWrapper2);
         if (flag)
-            offlineByUserId(statusBackVO.getIdList());
+            offlineByUserId(userIdList.stream().map(e -> (Integer) e).collect(Collectors.toList()));
     }
 
     @Override

@@ -16,25 +16,30 @@ import com.iksling.blog.handler.FilterInvocationSecurityMetadataSourceImpl;
 import com.iksling.blog.mapper.RoleMapper;
 import com.iksling.blog.mapper.RoleMenuMapper;
 import com.iksling.blog.mapper.RoleResourceMapper;
-import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.*;
 import com.iksling.blog.util.BeanCopyUtil;
+import com.iksling.blog.util.RedisUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.RoleBackVO;
 import com.iksling.blog.vo.RolePermissionBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID;
+import static com.iksling.blog.constant.RedisConst.LOGIN_TOKEN;
 
 /**
  *
@@ -60,7 +65,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     private RoleResourceService roleResourceService;
 
     @Autowired
-    private SessionRegistry sessionRegistry;
+    private RedisTemplate redisTemplate;
+
     @Autowired
     private FilterInvocationSecurityMetadataSourceImpl filterInvocationSecurityMetadataSource;
 
@@ -155,6 +161,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
                     .collect(Collectors.toList()));
             filterInvocationSecurityMetadataSource.loadResourceRoleList();
         }
+        offlineByRoleId(rolePermissionBackVO.getId());
     }
 
     @Override
@@ -186,13 +193,21 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     }
 
     private void offlineByRoleId(Integer roleId) {
-        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(e -> {
-            LoginUser loginUser = (LoginUser) e;
-            return loginUser.getRoleIdList().contains(roleId.toString());
-        }).collect(Collectors.toList());
-        List<SessionInformation> allSessions = new ArrayList<>();
-        loginUserList.forEach(e -> allSessions.addAll(sessionRegistry.getAllSessions(e, false)));
-        allSessions.forEach(SessionInformation::expireNow);
+        List<String> keyList = (List<String>) redisTemplate.execute((RedisCallback<List<String>>) connection -> {
+            List<String> list = new ArrayList<>();
+            try (Cursor<byte[]> cursor = connection.scan(new ScanOptions.ScanOptionsBuilder().match(LOGIN_TOKEN + "_*").count(10000).build())) {
+                while (cursor.hasNext()) {
+                    String key = new String(cursor.next(), StandardCharsets.UTF_8);
+                    Map<String, Object> map = RedisUtil.getMap(key);
+                    if (((List<String>) map.get("roleIdList")).contains(roleId.toString()))
+                        list.add(key);
+                }
+            } catch (Exception e) {
+                throw new OperationStatusException();
+            }
+            return list;
+        });
+        RedisUtil.delKey(keyList);
     }
 }
 

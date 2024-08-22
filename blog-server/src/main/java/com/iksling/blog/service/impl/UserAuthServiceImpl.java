@@ -23,8 +23,6 @@ import com.iksling.blog.vo.PasswordVO;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.UserAuthBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +35,7 @@ import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.LOCKED;
 import static com.iksling.blog.constant.RedisConst.EMAIL_FORGET_CODE;
+import static com.iksling.blog.constant.RedisConst.LOGIN_TOKEN;
 import static com.iksling.blog.enums.FileDirEnum.*;
 
 /**
@@ -69,8 +68,6 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     private MultiFileService multiFileService;
 
     @Autowired
-    private SessionRegistry sessionRegistry;
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
@@ -97,7 +94,9 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         userAuth.setUpdateTime(createTime);
         userAuthMapper.update(userAuth, new LambdaUpdateWrapper<UserAuth>()
                 .eq(UserAuth::getId, userAuth.getId()));
+        boolean modifyRoleFlag = false;
         if (userAuthBackVO.getRoleIdList() != null) {
+            modifyRoleFlag = true;
             if (loginUser.getRoleWeight() > 100 && !Collections.disjoint(userAuthBackVO.getRoleIdList(), ROOT_ROLE_ID_LIST))
                 throw new IllegalRequestException();
             userRoleMapper.deleteByMap(Collections.singletonMap("user_id", userId));
@@ -193,18 +192,23 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         LambdaUpdateWrapper<QQAuth> lambdaUpdateWrapper = new LambdaUpdateWrapper<QQAuth>()
                 .eq(QQAuth::getUserId, userId);
         boolean flag = false;
+        boolean modifyStatusFlag = false;
         if (userAuth.getLockedFlag() != null) {
             lambdaUpdateWrapper.set(QQAuth::getLockedFlag, userAuth.getLockedFlag());
             flag = true;
+            if (userAuth.getLockedFlag() == Boolean.TRUE)
+                modifyStatusFlag = true;
         }
         if (userAuth.getDisabledFlag() != null) {
             lambdaUpdateWrapper.set(QQAuth::getDisabledFlag, userAuth.getDisabledFlag());
             flag = true;
+            if (userAuth.getDisabledFlag() == Boolean.TRUE)
+                modifyStatusFlag = true;
         }
-        if (flag) {
+        if (flag)
             qqAuthMapper.update(null, lambdaUpdateWrapper);
+        if (!modifyRoleFlag && modifyStatusFlag)
             offlineByUserId(userId);
-        }
     }
 
     @Override
@@ -217,6 +221,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 .notIn(loginUser.getRoleWeight() > 100, UserAuth::getUserId, ROOT_USER_ID_LIST);
         LambdaUpdateWrapper<QQAuth> lambdaUpdateWrapper2 = new LambdaUpdateWrapper<QQAuth>()
                 .in(QQAuth::getUserId, userAuthMapper.selectObjs(new LambdaQueryWrapper<UserAuth>().select(UserAuth::getUserId).in(UserAuth::getId, statusBackVO.getIdList())));
+        boolean flag = false;
         if (LOCKED.equals(statusBackVO.getType())) {
             if (statusBackVO.getStatus() == Boolean.TRUE) {
                 lambdaUpdateWrapper.set(UserAuth::getLockedFlag, false);
@@ -224,6 +229,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
             } else {
                 lambdaUpdateWrapper.set(UserAuth::getLockedFlag, true);
                 lambdaUpdateWrapper2.set(QQAuth::getLockedFlag, true);
+                flag = true;
             }
         } else {
             if (statusBackVO.getStatus() == Boolean.TRUE) {
@@ -232,12 +238,15 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
             } else {
                 lambdaUpdateWrapper.set(UserAuth::getDisabledFlag, true);
                 lambdaUpdateWrapper2.set(QQAuth::getDisabledFlag, true);
+                flag = true;
             }
         }
         int count = userAuthMapper.update(null, lambdaUpdateWrapper);
         if (count != statusBackVO.getIdList().size())
             throw new OperationStatusException();
         qqAuthMapper.update(null, lambdaUpdateWrapper2);
+        if (flag)
+            offlineByUserId(statusBackVO.getIdList());
     }
 
     @Override
@@ -345,13 +354,11 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     }
 
     private void offlineByUserId(Integer userId) {
-        List<Object> loginUserList = sessionRegistry.getAllPrincipals().stream().filter(e -> {
-            LoginUser loginUser = (LoginUser) e;
-            return loginUser.getUserId().equals(userId);
-        }).collect(Collectors.toList());
-        List<SessionInformation> allSessions = new ArrayList<>();
-        loginUserList.forEach(e -> allSessions.addAll(sessionRegistry.getAllSessions(e, false)));
-        allSessions.forEach(SessionInformation::expireNow);
+        RedisUtil.delKey(LOGIN_TOKEN + "_" + userId);
+    }
+
+    private void offlineByUserId(List<Integer> idList) {
+        RedisUtil.delKey(idList.stream().map(e -> LOGIN_TOKEN + "_" + e).collect(Collectors.toList()));
     }
 }
 

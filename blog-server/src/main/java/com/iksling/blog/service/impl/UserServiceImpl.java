@@ -255,6 +255,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                         .eq(MultiFile::getUserId, e));
                 MultiFileUtil.rename(fileFullPath, fileFullPathNew);
             });
+            RedisUtil.delKey(statusBackVO.getIdList().stream().map(e -> LOGIN_TOKEN + "_" + e).collect(Collectors.toList()));
         }
     }
 
@@ -372,21 +373,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public PagePojo<UserOnlinesBackDTO> getUserOnlinesBackDTO(Condition condition) {
-        List<LoginUser> loginUserList = (List<LoginUser>)
-        redisTemplate.execute((RedisCallback<List<LoginUser>>) connection -> {
+        List<LoginUser> loginUserList = (List<LoginUser>) redisTemplate.execute((RedisCallback<List<LoginUser>>) connection -> {
             List<LoginUser> list = new ArrayList<>();
             try (Cursor<byte[]> cursor = connection.scan(new ScanOptions.ScanOptionsBuilder().match(LOGIN_TOKEN + "_*").count(10000).build())) {
                 while (cursor.hasNext()) {
                     Map<String, Object> map = RedisUtil.getMap(new String(cursor.next(), StandardCharsets.UTF_8));
-                    if (map.get("offlineFlag") == null) {
-                        LoginUser loginUser = LoginUser.builder()
+                    if (map.get("offlineFlag") == null)
+                        list.add(LoginUser.builder()
                                 .userId((Integer) map.get("userId"))
                                 .username(map.get("username").toString())
                                 .loginTime((Date) map.get("loginTime"))
                                 .loginPlatform((Boolean) map.get("loginPlatform"))
-                                .build();
-                        list.add(loginUser);
-                    }
+                                .build());
                 }
             } catch (Exception e) {
                 throw new OperationStatusException();

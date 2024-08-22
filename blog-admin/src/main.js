@@ -88,7 +88,6 @@ axios.interceptors.response.use(
   function(response) {
     switch (response.data.code) {
       // case 40001:
-      // case 40002:
       case 40003:
       case 40005:
       case 50001:
@@ -100,6 +99,12 @@ axios.interceptors.response.use(
         });
         router.push({ path: "/login" }).then();
         store.commit("saveToken", null);
+        break;
+      case 40002:
+        Vue.prototype.$message({
+          type: "error",
+          message: response.data.message
+        });
         break;
       case 40004:
         Vue.prototype.$message({

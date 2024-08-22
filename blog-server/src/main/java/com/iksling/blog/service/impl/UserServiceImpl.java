@@ -550,7 +550,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         map.put("loginPlatform", loginUser.getLoginPlatform());
         map.put("roleIdList", loginUser.getRoleIdList());
         map.put("roleWeight", loginUser.getRoleWeight());
-        map.put("loginMethod", 2);
         RedisUtil.setMap(LOGIN_TOKEN + "_" + loginUserId, map);
         RedisUtil.expire(LOGIN_TOKEN + "_" + loginUserId, TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
         return dict.set("loginUserDTO", LoginUserDTO.builder()

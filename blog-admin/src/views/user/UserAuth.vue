@@ -599,7 +599,7 @@ export default {
       })
         .then(() => {
           let param = {
-            idList: [userAuth.userId]
+            idList: [userAuth.id]
           };
           if (flag) {
             param.type = 12;

@@ -28,8 +28,6 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,15 +89,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Autowired
     private RedisTemplate redisTemplate;
 
-    /**
-     * qq app-id
-     */
     @Value("${qq.app-id}")
     private String QQ_APP_ID;
 
-    /**
-     * qq user-info-url
-     */
     @Value("${qq.user-info-url}")
     private String QQ_USER_INFO_URL;
 
@@ -525,16 +517,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (roleList.isEmpty())
             throw new DisabledStatusException("您的角色已被禁用, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
         Boolean loginPlatform = Boolean.parseBoolean(request.getHeader("Login-Platform"));
-        LoginUser loginUser = LoginUser.builder()
-                .userId(loginUserId)
-                .username(dict.get("username").toString())
-                .loginTime(dateTime)
-                .loginPlatform(loginPlatform)
-                .roleWeight(roleList.get(0).getRoleWeight())
-                .roleIdList(roleList.stream().map(e -> e.getId().toString()).collect(Collectors.toList()))
-                .build();
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .select(User::getIntro, User::getEmail, User::getAvatar, User::getGender, User::getWebsite, User::getNickname, User::getModifiedFlag)
                 .eq(User::getId, loginUserId));
@@ -545,11 +527,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Map<String, Object> map = new HashMap<>();
         map.put("tokenId", tokenId);
         map.put("userId", loginUserId);
-        map.put("username", loginUser.getUsername());
-        map.put("loginTime", loginUser.getLoginTime());
-        map.put("loginPlatform", loginUser.getLoginPlatform());
-        map.put("roleIdList", loginUser.getRoleIdList());
-        map.put("roleWeight", loginUser.getRoleWeight());
+        map.put("username", dict.get("username").toString());
+        map.put("loginTime", dateTime);
+        map.put("loginPlatform", loginPlatform);
+        map.put("roleIdList", roleList.stream().map(e -> e.getId().toString()).collect(Collectors.toList()));
+        map.put("roleWeight", roleList.get(0).getRoleWeight());
         RedisUtil.setMap(LOGIN_TOKEN + "_" + loginUserId, map);
         RedisUtil.expire(LOGIN_TOKEN + "_" + loginUserId, TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
         return dict.set("loginUserDTO", LoginUserDTO.builder()
@@ -558,7 +540,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .email(user.getEmail())
                 .avatar(user.getAvatar())
                 .gender(user.getGender())
-                .weight(loginUser.getRoleWeight())
+                .weight(roleList.get(0).getRoleWeight())
                 .website(user.getWebsite())
                 .nickname(user.getNickname())
                 .modifiedFlag(user.getModifiedFlag())

@@ -1,7 +1,6 @@
 package com.iksling.blog.util;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +18,12 @@ public class JwtUtil {
     }
 
     public static String createJwtToken(String id, String subject) {
-        JwtBuilder builder = getJwtBuilder(id, subject);
-        return builder.compact();
+        return Jwts.builder()
+                .setId(id)
+                .setSubject(subject)
+                .setIssuedAt(new Date())
+                .signWith(SignatureAlgorithm.HS256, key)
+                .compact();
     }
 
     public static Claims parseJwtToken(String jwtToken) {
@@ -28,13 +31,5 @@ public class JwtUtil {
                 .setSigningKey(key)
                 .parseClaimsJws(jwtToken)
                 .getBody();
-    }
-
-    private static JwtBuilder getJwtBuilder(String id, String subject) {
-        return Jwts.builder()
-                .setId(id)
-                .setSubject(subject)
-                .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS256, key);
     }
 }

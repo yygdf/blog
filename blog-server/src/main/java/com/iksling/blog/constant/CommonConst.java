@@ -1,6 +1,7 @@
 package com.iksling.blog.constant;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class CommonConst {
     /**
      * 核心角色id组
      */
-    public static List<Integer> ROOT_ROLE_ID_LIST = Arrays.asList(1);
+    public static List<Integer> ROOT_ROLE_ID_LIST = Collections.singletonList(1);
 
     /**
      * 默认角色同步标志

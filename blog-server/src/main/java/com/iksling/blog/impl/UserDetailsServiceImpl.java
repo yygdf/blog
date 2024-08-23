@@ -1,12 +1,12 @@
 package com.iksling.blog.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.iksling.blog.entity.Role;
 import com.iksling.blog.entity.UserAuth;
 import com.iksling.blog.mapper.RoleMapper;
 import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.pojo.LoginUser;
+import com.iksling.blog.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
@@ -29,11 +29,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        if (StringUtils.isBlank(username))
+        if (CommonUtil.isEmpty(username))
             throw new UsernameNotFoundException("用户名为空!");
         UserAuth userAuth = userAuthMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
             .select(UserAuth::getUserId, UserAuth::getUsername, UserAuth::getPassword, UserAuth::getLockedFlag, UserAuth::getDisabledFlag)
-            .eq(UserAuth::getUsername, username.trim())
+            .eq(UserAuth::getUsername, username)
             .eq(UserAuth::getDeletedFlag, false));
         if (userAuth == null)
             throw new UsernameNotFoundException("用户名不存在!");

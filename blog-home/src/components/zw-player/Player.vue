@@ -1,21 +1,21 @@
 <template>
   <div>
     <transition name="dis_list">
-      <div class="list_box" v-if="listIsDis">
+      <div class="list_box" v-if="musicListState">
         <transition name="music_alert">
           <span class="music_alert" v-if="musicAlertState">
             {{ musicAlertVal }}
           </span>
         </transition>
-        <div class="list_close" @click="DisList">x</div>
+        <div class="list_close" @click="switchMusicListState">x</div>
         <div class="music_list">
           <div class="list_l">
             <ul class="music_type">
               <li
                 v-for="(item, index) in musicTypeList"
                 :key="index"
-                @click="_getMusicType(item.id)"
-                :class="{ type_active: item.id === thisMusicType }"
+                @click="switchMusicType(item.type)"
+                :class="{ type_active: item.type === currentMusicType }"
               >
                 {{ item.name }}
               </li>
@@ -23,10 +23,10 @@
             <div class="list_title">
               <span style="font-size: 14px;">歌曲列表</span>
               <img
-                :src="musicStateButton"
+                :src="playModeButton"
                 alt=""
                 class="music_state"
-                @click="MusicStateChange"
+                @click="switchPlayMode"
               />
               <div class="music_search_box">
                 <input
@@ -40,11 +40,13 @@
                     <li
                       v-for="(item, index) in musicSearchList"
                       :key="index"
-                      @click="ListAdd(item)"
+                      @click="listAddMusic(item)"
                     >
-                      <span class="music_search_name">{{ item.name }}</span>
+                      <span class="music_search_name">{{
+                        item.musicName
+                      }}</span>
                       <span class="music_search_ar">
-                        {{ item.artists[0].name }}
+                        {{ item.author }}
                       </span>
                     </li>
                   </ul>
@@ -56,37 +58,72 @@
             </div>
             <ul class="list">
               <li
-                v-for="(item, index) in thisMusicList"
+                v-for="(item, index) in currentPageMusicList"
                 :key="index"
-                @mouseover="buttonActive(index)"
-                @dblclick="ListPlay((thisListPage - 1) * pageSize + index)"
+                @mouseover="activeMusicIndexChange(index, item.id, false)"
+                @mouseleave="activeMusicIndexChange(null, null, true)"
+                @dblclick="
+                  listPlayMusic((currentListPage - 1) * pageSize + index)
+                "
               >
                 <div
                   class="this_music_shelter"
                   v-if="
-                    (thisListPage - 1) * pageSize + index === thisMusicIndex
+                    (currentListPage - 1) * pageSize + index ===
+                      currentMusicIndex
                   "
                 ></div>
-                <span>{{ item.name }}</span
-                ><span>{{ item.ar[0].name }}</span
-                ><span>{{ item.al.name }}</span>
+                <span>{{ item.musicName }}</span
+                ><span>{{ item.author }}</span
+                ><span>{{ item.album }}</span>
                 <transition name="list_button">
-                  <div
-                    class="music_button"
-                    v-if="listButtonActiveIndex === index"
-                  >
+                  <div class="music_button" v-if="activeMusicIndex === index">
                     <div
+                      v-if="
+                        (currentListPage - 1) * pageSize + index !==
+                          currentMusicIndex
+                      "
                       class="list_play"
                       title="播放这首歌"
                       :style="{ backgroundImage: 'url(' + listPlay + ')' }"
-                      @click="ListPlay((thisListPage - 1) * pageSize + index)"
+                      @click="
+                        listPlayMusic((currentListPage - 1) * pageSize + index)
+                      "
                     ></div>
                     <div
+                      v-else
                       class="list_play"
-                      title="添加到 My Songs"
+                      :title="playState ? '暂停播放' : '继续播放'"
+                      :style="{ backgroundImage: 'url(' + listPlay + ')' }"
+                      @click="controlButtonClick"
+                    ></div>
+                    <div
+                      v-if="currentMusicType !== 0"
+                      class="list_play"
+                      :title="musicAddStatus ? '已添加' : '添加到本地歌曲'"
                       :style="{ backgroundImage: 'url(' + add + ')' }"
-                      @click="ListAdd(item)"
-                      v-if="thisMusicType !== 0"
+                      @click="musicAddStatus ? '' : listAddMusic(item)"
+                    ></div>
+                    <div
+                      v-else
+                      class="list_play"
+                      title="移除"
+                      :style="{ backgroundImage: 'url(' + add + ')' }"
+                      @click="listRemoveMusic(item.id)"
+                    ></div>
+                    <div
+                      v-if="currentMusicType !== 2"
+                      class="list_play"
+                      :title="musicAddStatus ? '已收藏' : '收藏'"
+                      :style="{ backgroundImage: 'url(' + add + ')' }"
+                      @click="musicAddStatus ? '' : listAddMusic(item)"
+                    ></div>
+                    <div
+                      v-else
+                      class="list_play"
+                      title="移除"
+                      :style="{ backgroundImage: 'url(' + add + ')' }"
+                      @click="listRemoveMusic(item.id)"
                     ></div>
                   </div>
                 </transition>
@@ -95,16 +132,19 @@
             <div class="list_page">
               <div
                 class="page_last"
-                v-if="thisListPage !== 1"
-                @click="listChange(true)"
+                v-if="currentListPage !== 1"
+                @click="pageChange(true)"
               >
                 上一页&lt;
               </div>
-              <div class="page_middle">第 {{ thisListPage }} 页</div>
+              <div class="page_middle">第 {{ currentListPage }} 页</div>
               <div
                 class="page_next"
-                v-if="thisListPage < Math.ceil(musicList.length / pageSize)"
-                @click="listChange(false)"
+                v-if="
+                  currentListPage <
+                    Math.ceil(currentMusicList.length / pageSize)
+                "
+                @click="pageChange(false)"
               >
                 >下一页
               </div>
@@ -114,60 +154,43 @@
             <img class="music_list_bg" :src="musicImg" alt="" />
             <div
               class="music_list_shelter"
-              :style="{ backgroundImage: 'url(' + shelter + ')' }"
+              :style="{ backgroundImage: 'url(' + listPan + ')' }"
             ></div>
-            <ul class="music_talk_list">
-              <li v-for="(item, index) in hotTalkList" :key="index">
-                <div class="talk_head">
-                  <img
-                    :src="item.user.avatarUrl"
-                    alt=""
-                    class="talk_head_img"
-                  />
-                  <span class="talk_head_name">{{ item.user.nickname }}</span>
-                </div>
-                <p class="talk_content">
-                  <img class="talk_icon_l" :src="talkicon1" alt="" />
-                  {{ item.content.trim() }}
-                  <img class="talk_icon_r" :src="talkicon2" alt="" />
-                </p>
-              </li>
-            </ul>
           </div>
         </div>
       </div>
     </transition>
-    <div class="bbox" :class="{ bbox_active: disActive }">
+    <div class="bbox" :class="{ bbox_active: musicBoxState }">
       <div
         class="pan"
         :style="{ backgroundImage: 'url(' + pan + ')' }"
-        :class="{ pan_active: disActive }"
-        @click="DisActive"
+        :class="{ pan_active: musicBoxState }"
+        @click="switchMusicBoxState"
       >
         <img :src="musicImg" alt="" class="pan_c" />
       </div>
       <div
         class="box"
         :style="{ backgroundImage: 'url(' + musicImg + ')' }"
-        :class="{ box_active: disActive }"
-        @dblclick="DisList"
+        :class="{ box_active: musicBoxState }"
+        @dblclick="switchMusicListState"
       >
         <div
           class="music_shelter_2"
           :style="{ backgroundImage: 'url(' + musicImg + ')' }"
-          :class="{ shelter_active: disActive }"
+          :class="{ shelter_active: musicBoxState }"
         ></div>
         <div
           class="music_shelter"
           :style="{ backgroundImage: 'url(' + musicImg + ')' }"
-          :class="{ shelter_active: disActive }"
+          :class="{ shelter_active: musicBoxState }"
         ></div>
         <div class="music_shelter_3"></div>
         <div class="music_dis">
-          <div class="dis_list" @click="DisList">···</div>
-          <div class="dis_board" @click="DisActive">X</div>
-          <p class="music_title">{{ musicTitle }}</p>
-          <p class="music_intro">歌手: {{ musicName }}</p>
+          <div class="dis_list" @click="switchMusicListState">···</div>
+          <div class="dis_board" @click="switchMusicBoxState">X</div>
+          <p class="music_title">{{ musicName }}</p>
+          <p class="music_intro">{{ author }}</p>
           <ul class="music_words">
             <div class="music_words_box" :style="{ top: wordsTop + 'px' }">
               <li
@@ -211,28 +234,18 @@
   </div>
 </template>
 <script>
-import {
-  getWords,
-  getMusicInfo,
-  getMusicUrl,
-  getHotMusic,
-  getSearchSuggest,
-  getHotTalk,
-  getLocalMusic
-} from "./api/music";
+import { getSiteMusic, getDefaultMusic, getCollectionMusic } from "./api/music";
 import pan from "./img/pan.png";
 import play from "./img/play.png";
 import pause from "./img/pause.png";
 import prev from "./img/prev.png";
 import next from "./img/next.png";
 import add from "./img/add.png";
-import shelter from "./img/list_pan.png";
-import listPlay from "./img/list_play_hover.png";
+import listPan from "./img/list_pan.png";
+import listPlay from "./img/list_play.png";
 import state0 from "./img/state_0.png";
 import state1 from "./img/state_1.png";
 import state2 from "./img/state_2.png";
-import talkicon1 from "./img/talkicon1.png";
-import talkicon2 from "./img/talkicon2.png";
 import $ from "jquery";
 
 export default {
@@ -247,98 +260,63 @@ export default {
       prev,
       next,
       add,
-      shelter,
+      listPan,
       listPlay,
       state0,
       state1,
       state2,
-      talkicon1,
-      talkicon2,
-      playState: true,
-      playIcon: play,
       musicImg: "",
       musicUrl: "",
       musicWords: [],
-      musicTitle: "",
       musicName: "",
+      author: "",
+      playState: true,
+      playIcon: play,
       wordsTime: [],
       wordsTop: 0,
       wordIndex: 0,
       currentProgress: "0%",
-      musicList: [],
-      myMusicList: [],
-      thisMusicIndex: -1,
-      disActive: false,
-      listIsDis: false,
-      listButtonActiveIndex: -1,
-      thisListPage: -1,
+      localMusicList: [],
+      currentMusicList: [],
+      currentMusicIndex: -1,
+      activeMusicIndex: -1,
+      currentListPage: -1,
+      currentMusicType: -1,
       musicTypeList: [
-        { name: "热歌榜", id: 3778678 },
-        { name: "新歌榜", id: 3779629 },
-        { name: "飙升榜", id: 19723756 },
-        { name: "嘻哈榜", id: 991319590 },
-        { name: "My Songs", id: 0 }
+        { name: "热歌榜", type: 3778678 },
+        { name: "新歌榜", type: 3779629 },
+        { name: "飙升榜", type: 19723756 },
+        { name: "嘻哈榜", type: 991319590 },
+        { name: "站点歌曲", type: 1 },
+        { name: "我的收藏", type: 2 },
+        { name: "本地歌曲", type: 0 }
       ],
-      thisMusicType: -1,
-      notPlay: [],
-      musicState: 0,
-      musicStateButton: state0,
+      playMode: 0,
+      playModeButton: state0,
       musicSearchVal: "",
       musicSearchList: [],
       musicAlertVal: "",
-      musicAlertState: false,
       musicAlertTimer: "",
-      hotTalkList: [],
-      switchList: false
+      musicAlertState: false,
+      musicBoxState: false,
+      musicListState: false,
+      switchMusicTypeFlag: false,
+      musicAddStatus: false
     };
   },
   mounted() {
     this.Player();
   },
   created() {
-    this._getMusicType(0);
-    this.thisMusicIndex = 0;
-    this._getLocalInfo();
-    this.DisAuthorInfo();
-  },
-  computed: {
-    thisMusicList() {
-      return [...this.musicList].splice(
-        (this.thisListPage - 1) * this.pageSize,
-        this.pageSize
-      );
-    },
-    pageSize() {
-      const clientWidth = document.documentElement.clientWidth;
-      if (clientWidth > 960) {
-        return 10;
-      }
-      return 8;
+    if (localStorage.getItem("localMusicList") == null) {
+      localStorage.setItem("localMusicList", JSON.stringify(getDefaultMusic()));
     }
-  },
-  watch: {
-    musicSearchVal() {
-      if (this.musicSearchVal === "") {
-        this.musicSearchList = [];
-      } else {
-        getSearchSuggest(this.musicSearchVal).then(res => {
-          if (res.data.result.songs === undefined) {
-            this.musicSearchList = [];
-          } else {
-            this.musicSearchList = res.data.result.songs;
-          }
-        });
-      }
-    }
+    this.switchMusicType(0);
+    this.currentMusicIndex = 0;
+    this.getMusicInfo();
   },
   methods: {
-    DisAuthorInfo() {
-      console.log(
-        "%c音乐播放器PLUS---KS，博客地址: https://iksling.com",
-        "background-color:rgb(225,225,225);border-radius:4px;font-size:12px;padding:4px;color:rgb(30,30,30);"
-      );
-    },
-    MusicAlert(val) {
+    musicAlert(val) {
       this.musicAlertState = true;
       this.musicAlertVal = val;
       clearTimeout(this.musicAlertTimer);
@@ -347,165 +325,128 @@ export default {
         this.musicAlertVal = "";
       }, 2000);
     },
-    ListAdd(obj) {
-      getMusicInfo(obj.id).then(res => {
-        this.musicSearchVal = "";
-        if (this.myMusicList.length === 0) {
-          this.myMusicList = [res.data.songs[0]];
-          this.thisMusicType = -1;
-          this._getMusicType(0);
-          this.thisMusicIndex = 0;
-          this._getInfo();
-        } else {
-          this.myMusicList.push(res.data.songs[0]);
-        }
-        this.MusicAlert("添加成功");
-      });
+    listAddMusic(obj) {
+      this.musicSearchVal = "";
+      this.localMusicList.push(obj);
+      localStorage.setItem(
+        "localMusicList",
+        JSON.stringify(this.localMusicList)
+      );
+      this.musicAlert("添加成功");
+      this.musicAddStatus = true;
     },
-    MusicStateChange() {
-      if (this.musicState === 0) {
-        this.musicState = 1;
-        this.musicStateButton = this.state1;
-        this.MusicAlert("已切换为单曲循环模式");
-      } else if (this.musicState === 1) {
-        this.musicState = 2;
-        this.musicStateButton = this.state2;
-        this.MusicAlert("已切换为随机播放模式");
+    listRemoveMusic(id) {
+      let index = this.localMusicList.findIndex(item => item.id === id);
+      this.localMusicList.splice(index, 1);
+      localStorage.setItem(
+        "localMusicList",
+        JSON.stringify(this.localMusicList)
+      );
+      this.musicAlert("移除成功");
+    },
+    switchPlayMode() {
+      if (this.playMode === 0) {
+        this.playMode = 1;
+        this.playModeButton = this.state1;
+        this.musicAlert("已切换为单曲循环模式");
+      } else if (this.playMode === 1) {
+        this.playMode = 2;
+        this.playModeButton = this.state2;
+        this.musicAlert("已切换为随机播放模式");
       } else {
-        this.musicState = 0;
-        this.musicStateButton = this.state0;
-        this.MusicAlert("已切换为列表循环模式");
+        this.playMode = 0;
+        this.playModeButton = this.state0;
+        this.musicAlert("已切换为列表循环模式");
       }
     },
-    DisList() {
-      if (!this.listIsDis) {
-        this.disActive = false;
+    switchMusicListState() {
+      if (!this.musicListState) {
+        this.musicBoxState = false;
       }
-      this.listIsDis = !this.listIsDis;
+      this.musicListState = !this.musicListState;
     },
-    listChange(isLast) {
-      this.listButtonActiveIndex = -1;
+    pageChange(isLast) {
+      this.activeMusicIndex = -1;
       if (isLast) {
-        this.thisListPage--;
+        this.currentListPage--;
       } else {
-        this.thisListPage++;
+        this.currentListPage++;
       }
     },
     musicChange(isPrev) {
       if (isPrev) {
-        this.ListPlay(--this.thisMusicIndex);
+        this.listPlayMusic(--this.currentMusicIndex);
       } else {
-        this.ListPlay(++this.thisMusicIndex);
+        this.listPlayMusic(++this.currentMusicIndex);
       }
     },
-    ListPlay(id) {
-      this.thisMusicIndex = id > this.musicList.length - 1 || id < 0 ? 0 : id;
-      this._getInfo();
+    listPlayMusic(index) {
+      this.currentMusicIndex =
+        index > this.currentMusicList.length - 1 || index < 0 ? 0 : index;
+      this.getMusicInfo();
       this.top = 0;
       this.o = 0;
       this.wordIndex = 0;
       this.wordsTop = 0;
       this.currentProgress = "0%";
       let player = $("#music")[0];
-      this.switchList = false;
+      this.switchMusicTypeFlag = false;
       player.currentTime = 0;
       if (!this.playState) {
         $(".control_button").click();
       }
     },
-    buttonActive(id) {
-      this.listButtonActiveIndex = id;
-    },
-    DisActive() {
-      this.disActive = !this.disActive;
-    },
-    _getMusicType(id) {
-      if (this.thisMusicType !== id) {
-        this.notPlay = [];
-        this.switchList = true;
-        if (id === 0) {
-          if (this.myMusicList.length === 0) {
-            this.myMusicList = getLocalMusic(id).music.splice(0, 200);
-          }
-          this.musicList = this.myMusicList;
-          this.thisMusicType = 0;
-        } else {
-          getHotMusic(id).then(res => {
-            this.musicList = res.data.playlist.tracks.splice(0, 200);
-            this.thisMusicType = id;
-          });
-        }
-        this.thisListPage = 1;
-        this.thisMusicIndex = -1;
-        this.listButtonActiveIndex = -1;
-      }
-    },
-    _getInfo() {
-      if (!this.musicList[this.thisMusicIndex].resourceState) {
-        this._getLocalInfo();
+    activeMusicIndexChange(index, id, flag) {
+      if (flag) {
+        this.activeMusicIndex = -1;
       } else {
-        getMusicUrl(this.musicList[this.thisMusicIndex].id).then(res => {
-          if (
-            res.data.data[0].url === null ||
-            res.data.data[0].url === "" ||
-            res.data.data[0].url === undefined
-          ) {
-            if (this.notPlay.length !== this.musicList.length) {
-              let nextIndex = this.thisMusicIndex + 1;
-              if (this.notPlay.indexOf(this.thisMusicIndex) === -1) {
-                this.notPlay.push(this.thisMusicIndex);
-              }
-              this.MusicAlert(
-                `${
-                  this.musicList[this.thisMusicIndex].name
-                }因为一些原因不能播放`
-              );
-              this.ListPlay(nextIndex);
-            } else {
-              this.MusicAlert("此列表所有歌都不能播放");
-            }
-          } else {
-            this.musicUrl = res.data.data[0].url.replace("http://", "https://");
-            this.musicImg =
-              this.musicList[this.thisMusicIndex].al.picUrl.replace(
-                "http://",
-                "https://"
-              ) + "?param=300y300";
-            this.musicTitle = this.musicList[this.thisMusicIndex].name;
-            let name_arr = [];
-            this.musicList[this.thisMusicIndex].ar.forEach(i => {
-              name_arr.push(i.name);
-            });
-            this.musicName = name_arr.join("/");
-            getWords(this.musicList[this.thisMusicIndex].id).then(res => {
-              if (!res.data.nolyric) {
-                let info = this.Cut(res.data.lrc.lyric);
-                this.musicWords = info.wordArr;
-                this.wordsTime = info.timeArr;
-              }
-            });
-            getHotTalk(this.musicList[this.thisMusicIndex].id).then(res => {
-              let count = 0;
-              this.hotTalkList = res.data.hotComments.splice(0, 3);
-              this.hotTalkList.forEach(e => {
-                count += e.content.length;
-                e.user.avatarUrl = e.user.avatarUrl + "?param=50y50";
-              });
-              if (count >= 200) {
-                this.hotTalkList = this.hotTalkList.slice(0, 2);
-              }
-            });
-          }
-        });
+        this.activeMusicIndex = index;
+        this.musicAddStatus = this.localMusicList.some(e => e.id === id);
       }
     },
-    _getLocalInfo() {
-      this.hotTalkList = [];
-      this.musicUrl = this.musicList[this.thisMusicIndex].musicUrl;
-      this.musicImg = this.musicList[this.thisMusicIndex].musicImg;
-      this.musicTitle = this.musicList[this.thisMusicIndex].musicTitle;
-      this.musicName = this.musicList[this.thisMusicIndex].ar[0].name;
-      let info = this.Cut(this.musicList[this.thisMusicIndex].musicWords);
+    switchMusicBoxState() {
+      this.musicBoxState = !this.musicBoxState;
+    },
+    switchMusicType(type) {
+      if (this.currentMusicType !== type) {
+        this.switchMusicTypeFlag = true;
+        if (type === 0) {
+          if (this.localMusicList.length === 0) {
+            this.localMusicList = JSON.parse(
+              localStorage.getItem("localMusicList")
+            );
+          }
+          this.currentMusicList = this.localMusicList;
+          this.currentMusicType = 0;
+        } else if (type === 1) {
+          this.currentMusicList = getSiteMusic(
+            this.$store.state.bloggerId
+          ).splice(0, 200);
+          this.currentMusicType = 1;
+        } else if (type === 2) {
+          this.currentMusicList = getCollectionMusic(
+            this.$store.state.userId
+          ).splice(0, 200);
+          this.currentMusicType = 2;
+        }
+        this.currentListPage = 1;
+        this.currentMusicIndex = -1;
+        this.activeMusicIndex = -1;
+      }
+    },
+    getMusicInfo() {
+      if (this.currentMusicList[this.currentMusicIndex].flag) {
+        this.localSiteMusicInfo();
+      }
+    },
+    localSiteMusicInfo() {
+      this.musicUrl = this.currentMusicList[this.currentMusicIndex].musicUrl;
+      this.musicImg = this.currentMusicList[this.currentMusicIndex].musicImg;
+      this.musicName = this.currentMusicList[this.currentMusicIndex].musicName;
+      this.author = this.currentMusicList[this.currentMusicIndex].author;
+      let info = this.Cut(
+        this.currentMusicList[this.currentMusicIndex].musicWords
+      );
       this.musicWords = info.wordArr;
       this.wordsTime = info.timeArr;
     },
@@ -528,6 +469,9 @@ export default {
         wordArr[i] = this.Rtrim(this.Ltrim(cut[1]));
       }
       return { timeArr: timeArr, wordArr: wordArr };
+    },
+    controlButtonClick() {
+      $(".control_button").click();
     },
     Player() {
       let self = this;
@@ -583,29 +527,29 @@ export default {
           self.o++;
         }
         if (player.currentTime >= player.duration) {
-          if (self.musicList.length !== 1) {
-            if (self.musicState === 0) {
-              self.thisMusicIndex =
-                self.thisMusicIndex >= self.musicList.length - 1
+          if (self.currentMusicList.length !== 1) {
+            if (self.playMode === 0) {
+              self.currentMusicIndex =
+                self.currentMusicIndex >= self.currentMusicList.length - 1
                   ? 0
-                  : self.thisMusicIndex + 1;
-              if (self.switchList) {
-                self.thisMusicIndex = 0;
+                  : self.currentMusicIndex + 1;
+              if (self.switchMusicTypeFlag) {
+                self.currentMusicIndex = 0;
               }
             }
-            if (self.musicState === 2) {
-              self.thisMusicIndex = Math.floor(
-                Math.random() * self.musicList.length
+            if (self.playMode === 2) {
+              self.currentMusicIndex = Math.floor(
+                Math.random() * self.currentMusicList.length
               );
             }
-            if (self.musicState === 1) {
-              self.thisMusicIndex = 0;
+            if (self.playMode === 1) {
+              self.currentMusicIndex = 0;
             }
-            self.thisListPage = Math.ceil(
-              (self.thisMusicIndex + 1) / self.pageSize
+            self.currentListPage = Math.ceil(
+              (self.currentMusicIndex + 1) / self.pageSize
             );
-            self.switchList = false;
-            self._getInfo();
+            self.switchMusicTypeFlag = false;
+            self.getMusicInfo();
           }
           player.play();
           self.top = 0;
@@ -681,6 +625,51 @@ export default {
           $(document).unbind("mouseup");
         });
       });
+    }
+  },
+  computed: {
+    currentPageMusicList() {
+      return [...this.currentMusicList].splice(
+        (this.currentListPage - 1) * this.pageSize,
+        this.pageSize
+      );
+    },
+    pageSize() {
+      const clientWidth = document.documentElement.clientWidth;
+      if (clientWidth > 960) {
+        return 10;
+      }
+      return 8;
+    }
+  },
+  watch: {
+    musicSearchVal() {
+      if (this.musicSearchVal === "") {
+        this.musicSearchList = [];
+      } else {
+        if (this.currentMusicType === 0) {
+          this.musicSearchList = this.localMusicList.filter(e => {
+            return (
+              e.musicName.match(this.musicSearchVal) ||
+              e.author.match(this.musicSearchVal)
+            );
+          });
+        } else if (this.currentMusicType === 1) {
+          this.musicSearchList = this.currentMusicList.filter(e => {
+            return (
+              e.musicName.match(this.musicSearchVal) ||
+              e.author.match(this.musicSearchVal)
+            );
+          });
+        } else if (this.currentMusicType === 2) {
+          this.musicSearchList = this.currentMusicList.filter(e => {
+            return (
+              e.musicName.match(this.musicSearchVal) ||
+              e.author.match(this.musicSearchVal)
+            );
+          });
+        }
+      }
     }
   }
 };

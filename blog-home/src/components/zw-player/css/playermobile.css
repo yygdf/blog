@@ -30,9 +30,9 @@
     }
     .music_search_box{
         position: fixed;
-        left: 230px;
-        top: 308px;
-        width: 120px;
+        left: 233px;
+        top: 392px;
+        width: 117px;
         height: 25px;
         z-index: 500;
     }
@@ -54,13 +54,12 @@
         overflow: hidden;
     }
     .list{
-        width: 200px;
+        width: 230px;
         height: 620px;
         list-style: none;
         overflow: hidden;
     }
     .list li{
-        width: 200px;
         height: 50px;
         line-height: 60px;
         border-bottom: 1px solid rgba(150,150,150,0.1);

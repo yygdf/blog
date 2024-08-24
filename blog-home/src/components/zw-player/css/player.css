@@ -124,18 +124,18 @@
 }
 .music_title{
     width: 100%;
-    height: 40px;
+    height: 35px;
     text-align: center;
-    color: white;
-    line-height: 60px;
+    color: rgba(255,255,255,0.8);
+    line-height: 100px;
     font-size: 15px;
 }
 .music_intro{
     width: 100%;
     height: 40px;
     text-align: center;
-    color: rgba(255,255,255,0.6);
-    line-height: 30px;
+    color: rgba(255,255,255,0.7);
+    line-height: 50px;
     font-size: 12px;
 }
 .music_words_box{
@@ -552,66 +552,6 @@
     position: absolute;
     top: 90px;
     left: 0;
-}
-.music_talk_list{
-    width: 250px;
-    height: auto;
-    margin-top: 20px;
-    list-style: none;
-    font-size: 12px;
-}
-.music_talk_list li{
-    width: 100%;
-    height: auto;
-    margin-top: 10px;
-}
-.talk_head{
-    width: 100%;
-    height: 50px;
-    position: relative;
-}
-.talk_head_img{
-    width: 25px;
-    height: 25px;
-    float: left;
-    border-radius: 100%;
-    margin-top: 12px;
-}
-.talk_head_name{
-    float: left;
-    height: 50px;
-    line-height: 50px;
-    color: rgba(225,225,225,1);
-    margin-left: 10px;
-}
-.talk_content{
-    width: 100%;
-    height: auto;
-    color: rgba(225,225,225,0.8);
-    box-sizing: border-box;
-    padding: 15px;
-    position: relative;
-
-    word-break: break-all;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-}
-.talk_icon_l{
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    left: 0;
-    top: 0;
-}
-.talk_icon_r{
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    left: auto;
-    bottom: 0;
 }
 .music_type{
     width: 120px;

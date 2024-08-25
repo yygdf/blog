@@ -85,4 +85,9 @@ public class CommonConst {
      * 用户消息提醒设置
      */
     public static HashMap<String, HashMap<String, Integer>> USER_MESSAGE_CONFIG_MAP = new HashMap<>();
+
+    /**
+     * 角色权限变更是否强制下线该角色对应的用户
+     */
+    public static Boolean PERMISSION_MODIFY_OFFLINE_USER = true;
 }

@@ -248,7 +248,7 @@ CREATE TABLE `tb_menu`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 125 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 126 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_menu
@@ -287,6 +287,7 @@ INSERT INTO `tb_menu` VALUES (121, 2, 8, 'el-icon-warning-outline', 83, '/except
 INSERT INTO `tb_menu` VALUES (122, 2, 9, 'el-icon-folder-opened', 91, '/multiFile', '文件列表', '/file/MultiFile.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 INSERT INTO `tb_menu` VALUES (123, 2, 10, 'el-icon-postcard', 92, '/personal', '个人信息', '/personal/Personal.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 INSERT INTO `tb_menu` VALUES (124, 2, 10, 'el-icon-coin', 94, '/userConfig', '用户配置', '/personal/UserConfig.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (125, 2, 4, 'el-icon-headset', 42, '/music', '音乐管理', '/link/Music.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_message
@@ -396,6 +397,31 @@ INSERT INTO `tb_multi_file` VALUES (49, 7, 47, '', 0, -11, -1, '', '7/-1/-11', '
 INSERT INTO `tb_multi_file` VALUES (50, 7, 48, '', 0, -21, -1, '', '7/-2/-21', '', -1, 'chat', 0, 0, 0, 0, '', '', 7, '2023-11-13 06:18:17', NULL, NULL);
 
 -- ----------------------------
+-- Table structure for tb_music
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_music`;
+CREATE TABLE `tb_music`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `user_id` int(11) NOT NULL COMMENT '用户id',
+  `music_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '音乐链接',
+  `music_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '音乐名称',
+  `music_cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '音乐封面',
+  `music_words` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '音乐歌词',
+  `author` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '作者',
+  `album` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '专辑',
+  `deleted_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未删除, 1已删除, 默认0',
+  `create_user` int(11) NOT NULL COMMENT '创建人',
+  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
+  `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of tb_music
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for tb_notice
 -- ----------------------------
 DROP TABLE IF EXISTS `tb_notice`;
@@ -482,7 +508,7 @@ CREATE TABLE `tb_resource`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 229 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 236 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_resource
@@ -508,6 +534,7 @@ INSERT INTO `tb_resource` VALUES (18, 2, -1, '', '操作日志模块', '', 0, 0,
 INSERT INTO `tb_resource` VALUES (19, 2, -1, '', '博客模块', '', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (20, 2, -1, '', '聊天室模块', '', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (21, 2, -1, '', '通知模块', '', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (22, 2, -1, '', '音乐模块', '', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (101, 2, 1, '/back/menus/user', '查看用户菜单', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (102, 2, 1, '/back/menus', '查看后台菜单列表', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (103, 2, 1, '/back/menu/status', '修改菜单状态', 'PUT', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
@@ -634,6 +661,13 @@ INSERT INTO `tb_resource` VALUES (225, 2, 21, '/back/notices/status/read', '批�
 INSERT INTO `tb_resource` VALUES (226, 2, 19, '/back/blog/messageConfig', '查看后台用户消息提醒设置', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (227, 2, 19, '/back/blog/messageConfig', '修改后台用户消息提醒设置', 'PUT', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (228, 2, 21, '/back/notice', '发送通知', 'POST', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (229, 2, 22, '/back/music', '添加或修改音乐', 'POST', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (230, 2, 22, '/back/musics', '物理批量删除音乐', 'DELETE', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (231, 2, 22, '/back/musics/status', '批量更新音乐状态', 'PUT', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (232, 2, 22, '/back/musics', '查看后台音乐列表', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (233, 2, 22, '/musics', '查看音乐列表', 'GET', 0, 0, 1, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (234, 2, 22, '/music/collect/*', '收藏音乐', 'POST', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
+INSERT INTO `tb_resource` VALUES (235, 2, 22, '/musics/collection', '查看收藏音乐列表', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_role
@@ -673,7 +707,7 @@ CREATE TABLE `tb_role_menu`  (
   `role_id` int(11) NOT NULL COMMENT '角色id',
   `menu_id` int(11) NOT NULL COMMENT '菜单id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 101 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 105 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_role_menu
@@ -778,6 +812,10 @@ INSERT INTO `tb_role_menu` VALUES (97, 4, 123);
 INSERT INTO `tb_role_menu` VALUES (98, 4, 124);
 INSERT INTO `tb_role_menu` VALUES (99, 4, 3);
 INSERT INTO `tb_role_menu` VALUES (100, 4, 5);
+INSERT INTO `tb_role_menu` VALUES (101, 1, 125);
+INSERT INTO `tb_role_menu` VALUES (102, 2, 125);
+INSERT INTO `tb_role_menu` VALUES (103, 3, 125);
+INSERT INTO `tb_role_menu` VALUES (104, 4, 125);
 
 -- ----------------------------
 -- Table structure for tb_role_resource
@@ -788,7 +826,7 @@ CREATE TABLE `tb_role_resource`  (
   `role_id` int(11) NOT NULL COMMENT '角色id',
   `resource_id` int(11) NOT NULL COMMENT '资源id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 368 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 391 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_role_resource
@@ -1160,6 +1198,29 @@ INSERT INTO `tb_role_resource` VALUES (364, 4, 226);
 INSERT INTO `tb_role_resource` VALUES (365, 4, 227);
 INSERT INTO `tb_role_resource` VALUES (366, 5, 226);
 INSERT INTO `tb_role_resource` VALUES (367, 5, 227);
+INSERT INTO `tb_role_resource` VALUES (368, 1, 229);
+INSERT INTO `tb_role_resource` VALUES (369, 1, 230);
+INSERT INTO `tb_role_resource` VALUES (370, 1, 231);
+INSERT INTO `tb_role_resource` VALUES (371, 1, 232);
+INSERT INTO `tb_role_resource` VALUES (372, 1, 234);
+INSERT INTO `tb_role_resource` VALUES (373, 1, 235);
+INSERT INTO `tb_role_resource` VALUES (374, 2, 229);
+INSERT INTO `tb_role_resource` VALUES (375, 2, 231);
+INSERT INTO `tb_role_resource` VALUES (376, 2, 232);
+INSERT INTO `tb_role_resource` VALUES (377, 2, 234);
+INSERT INTO `tb_role_resource` VALUES (378, 2, 235);
+INSERT INTO `tb_role_resource` VALUES (379, 3, 229);
+INSERT INTO `tb_role_resource` VALUES (380, 3, 231);
+INSERT INTO `tb_role_resource` VALUES (381, 3, 232);
+INSERT INTO `tb_role_resource` VALUES (382, 3, 234);
+INSERT INTO `tb_role_resource` VALUES (383, 3, 235);
+INSERT INTO `tb_role_resource` VALUES (384, 4, 229);
+INSERT INTO `tb_role_resource` VALUES (385, 4, 231);
+INSERT INTO `tb_role_resource` VALUES (386, 4, 232);
+INSERT INTO `tb_role_resource` VALUES (387, 4, 234);
+INSERT INTO `tb_role_resource` VALUES (388, 4, 235);
+INSERT INTO `tb_role_resource` VALUES (389, 5, 234);
+INSERT INTO `tb_role_resource` VALUES (390, 5, 235);
 
 -- ----------------------------
 -- Table structure for tb_system_config
@@ -1177,7 +1238,7 @@ CREATE TABLE `tb_system_config`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_system_config
@@ -1196,6 +1257,7 @@ INSERT INTO `tb_system_config` VALUES (11, 2, '核心角色id组', 'root_role_id
 INSERT INTO `tb_system_config` VALUES (12, 2, '默认角色同步标志(true/false)', 'default_role_assimilate', 'false', 0, 2, '2024-01-08 10:00:38', NULL, NULL);
 INSERT INTO `tb_system_config` VALUES (13, 2, '前台首页博主id', 'home_blogger_id', '2', 0, 2, '2024-01-08 10:00:38', NULL, NULL);
 INSERT INTO `tb_system_config` VALUES (14, 2, '检查文件类型是否启用严格模式(true/false)', 'enable_file_type_strict', 'false', 0, 2, '2024-01-08 10:00:38', NULL, NULL);
+INSERT INTO `tb_system_config` VALUES (15, 2, '角色权限变更是否强制下线该角色对应的用户(true/false)', 'permission_modify_offline_user', 'true', 0, 2, '2024-01-08 10:00:38', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_tag

@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.iksling.blog.constant.CommonConst.PERMISSION_MODIFY_OFFLINE_USER;
 import static com.iksling.blog.constant.CommonConst.ROOT_ROLE_ID;
 import static com.iksling.blog.constant.RedisConst.LOGIN_TOKEN;
 
@@ -161,7 +162,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
                     .collect(Collectors.toList()));
             filterInvocationSecurityMetadataSource.loadResourceRoleList();
         }
-        offlineByRoleId(rolePermissionBackVO.getId());
+        if (PERMISSION_MODIFY_OFFLINE_USER)
+            offlineByRoleId(rolePermissionBackVO.getId());
     }
 
     @Override

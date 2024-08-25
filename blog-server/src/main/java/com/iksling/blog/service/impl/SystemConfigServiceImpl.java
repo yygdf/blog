@@ -57,6 +57,7 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
         HOME_BLOGGER_ID = Integer.valueOf(hashMap.get("home_blogger_id"));
         ENABLE_USER_CONFIG = Boolean.parseBoolean(hashMap.get("enable_user_config"));
         ENABLE_FILE_TYPE_STRICT = Boolean.parseBoolean(hashMap.get("enable_file_type_strict"));
+        PERMISSION_MODIFY_OFFLINE_USER = Boolean.parseBoolean(hashMap.get("permission_modify_offline_user"));
     }
 
     @Override

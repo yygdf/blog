@@ -90,4 +90,9 @@ public class RedisConst {
      * 登录令牌过期时间
      */
     public static final Integer TOKEN_EXPIRE_TIME = 60 * 60 * 1000;
+
+    /**
+     * 用户收藏音乐
+     */
+    public static final String MUSIC_USER_COLLECT = "music_user_collect";
 }

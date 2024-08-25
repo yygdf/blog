@@ -28,7 +28,7 @@
                 class="music_state"
                 @click="switchPlayMode"
               />
-              <div class="music_search_box">
+              <div class="music_search_box" v-if="false">
                 <input
                   type="text"
                   class="music_search"
@@ -109,21 +109,21 @@
                       class="list_play"
                       title="移除"
                       :style="{ backgroundImage: 'url(' + add + ')' }"
-                      @click="listRemoveMusic(item.id)"
+                      @click="listRemoveMusic(item.id, false)"
                     ></div>
                     <div
                       v-if="currentMusicType !== 2"
                       class="list_play"
-                      :title="musicAddStatus ? '已收藏' : '收藏'"
+                      :title="musicCollectStatus ? '已收藏' : '收藏'"
                       :style="{ backgroundImage: 'url(' + add + ')' }"
-                      @click="musicAddStatus ? '' : listAddMusic(item)"
+                      @click="musicCollectStatus ? '' : listCollectMusic(item)"
                     ></div>
                     <div
                       v-else
                       class="list_play"
                       title="移除"
                       :style="{ backgroundImage: 'url(' + add + ')' }"
-                      @click="listRemoveMusic(item.id)"
+                      @click="listRemoveMusic(item.id, true)"
                     ></div>
                   </div>
                 </transition>
@@ -151,7 +151,7 @@
             </div>
           </div>
           <div class="list_r">
-            <img class="music_list_bg" :src="musicImg" alt="" />
+            <img class="music_list_bg" :src="musicCover" alt="" />
             <div
               class="music_list_shelter"
               :style="{ backgroundImage: 'url(' + listPan + ')' }"
@@ -167,22 +167,22 @@
         :class="{ pan_active: musicBoxState }"
         @click="switchMusicBoxState"
       >
-        <img :src="musicImg" alt="" class="pan_c" />
+        <img :src="musicCover" alt="" class="pan_c" />
       </div>
       <div
         class="box"
-        :style="{ backgroundImage: 'url(' + musicImg + ')' }"
+        :style="{ backgroundImage: 'url(' + musicCover + ')' }"
         :class="{ box_active: musicBoxState }"
         @dblclick="switchMusicListState"
       >
         <div
           class="music_shelter_2"
-          :style="{ backgroundImage: 'url(' + musicImg + ')' }"
+          :style="{ backgroundImage: 'url(' + musicCover + ')' }"
           :class="{ shelter_active: musicBoxState }"
         ></div>
         <div
           class="music_shelter"
-          :style="{ backgroundImage: 'url(' + musicImg + ')' }"
+          :style="{ backgroundImage: 'url(' + musicCover + ')' }"
           :class="{ shelter_active: musicBoxState }"
         ></div>
         <div class="music_shelter_3"></div>
@@ -234,7 +234,12 @@
   </div>
 </template>
 <script>
-import { getSiteMusic, getDefaultMusic, getCollectionMusic } from "./api/music";
+import {
+  getSiteMusic,
+  getDefaultMusic,
+  getCollectionMusic,
+  collectMusic
+} from "./api/music";
 import pan from "./img/pan.png";
 import play from "./img/play.png";
 import pause from "./img/pause.png";
@@ -265,10 +270,10 @@ export default {
       state0,
       state1,
       state2,
-      musicImg: "",
-      musicUrl: "",
       musicWords: [],
+      musicCover: "",
       musicName: "",
+      musicUrl: "",
       author: "",
       playState: true,
       playIcon: play,
@@ -276,7 +281,9 @@ export default {
       wordsTop: 0,
       wordIndex: 0,
       currentProgress: "0%",
+      siteMusicList: [],
       localMusicList: [],
+      collectionMusicList: [],
       currentMusicList: [],
       currentMusicIndex: -1,
       activeMusicIndex: -1,
@@ -301,7 +308,8 @@ export default {
       musicBoxState: false,
       musicListState: false,
       switchMusicTypeFlag: false,
-      musicAddStatus: false
+      musicAddStatus: false,
+      musicCollectStatus: false
     };
   },
   mounted() {
@@ -325,24 +333,52 @@ export default {
         this.musicAlertVal = "";
       }, 2000);
     },
-    listAddMusic(obj) {
-      this.musicSearchVal = "";
-      this.localMusicList.push(obj);
+    listAddMusic(item) {
+      this.localMusicList.push(item);
       localStorage.setItem(
         "localMusicList",
         JSON.stringify(this.localMusicList)
       );
-      this.musicAlert("添加成功");
+      this.musicAlert("添加成功!");
       this.musicAddStatus = true;
     },
-    listRemoveMusic(id) {
-      let index = this.localMusicList.findIndex(item => item.id === id);
-      this.localMusicList.splice(index, 1);
-      localStorage.setItem(
-        "localMusicList",
-        JSON.stringify(this.localMusicList)
-      );
-      this.musicAlert("移除成功");
+    listCollectMusic(item) {
+      if (this.userId == null) {
+        this.musicAlert("该功能需要登录才能够使用哦!");
+        return;
+      }
+      collectMusic(item.id).then(({ data }) => {
+        if (data.flag) {
+          this.musicAlert("收藏成功!");
+          this.musicCollectStatus = true;
+          this.collectionMusicList.push(item);
+        } else {
+          this.musicAlert("收藏失败!");
+        }
+      });
+    },
+    listRemoveMusic(id, flag) {
+      if (flag) {
+        collectMusic(id).then(({ data }) => {
+          if (data.flag) {
+            this.musicAlert("移除成功!");
+            let index = this.collectionMusicList.findIndex(
+              item => item.id === id
+            );
+            this.collectionMusicList.splice(index, 1);
+          } else {
+            this.musicAlert("移除失败!");
+          }
+        });
+      } else {
+        let index = this.localMusicList.findIndex(item => item.id === id);
+        this.localMusicList.splice(index, 1);
+        localStorage.setItem(
+          "localMusicList",
+          JSON.stringify(this.localMusicList)
+        );
+        this.musicAlert("移除成功!");
+      }
     },
     switchPlayMode() {
       if (this.playMode === 0) {
@@ -401,13 +437,20 @@ export default {
         this.activeMusicIndex = -1;
       } else {
         this.activeMusicIndex = index;
-        this.musicAddStatus = this.localMusicList.some(e => e.id === id);
+        if (this.currentMusicType !== 0) {
+          this.musicAddStatus = this.localMusicList.some(e => e.id === id);
+        }
+        if (this.currentMusicType !== 2) {
+          this.musicCollectStatus = this.collectionMusicList.some(
+            e => e.id === id
+          );
+        }
       }
     },
     switchMusicBoxState() {
       this.musicBoxState = !this.musicBoxState;
     },
-    switchMusicType(type) {
+    async switchMusicType(type) {
       if (this.currentMusicType !== type) {
         this.switchMusicTypeFlag = true;
         if (type === 0) {
@@ -419,15 +462,31 @@ export default {
           this.currentMusicList = this.localMusicList;
           this.currentMusicType = 0;
         } else if (type === 1) {
-          this.currentMusicList = getSiteMusic(
-            this.$store.state.bloggerId
-          ).splice(0, 200);
+          if (this.siteMusicList.length === 0) {
+            await getSiteMusic().then(({ data }) => {
+              this.siteMusicList = data.data;
+              if (data.data.length === 0) {
+                this.musicAlert("暂无歌曲提供~");
+              }
+            });
+          }
+          this.currentMusicList = this.siteMusicList;
           this.currentMusicType = 1;
         } else if (type === 2) {
-          this.currentMusicList = getCollectionMusic(
-            this.$store.state.userId
-          ).splice(0, 200);
+          if (this.userId == null) {
+            this.musicAlert("该功能需要登录才能够使用哦!");
+            return;
+          }
+          if (this.collectionMusicList.length === 0) {
+            await getCollectionMusic().then(({ data }) => {
+              this.collectionMusicList = data.data;
+            });
+          }
+          this.currentMusicList = this.collectionMusicList;
           this.currentMusicType = 2;
+        } else {
+          this.musicAlert("该榜单暂未开放哦~");
+          return;
         }
         this.currentListPage = 1;
         this.currentMusicIndex = -1;
@@ -441,7 +500,9 @@ export default {
     },
     localSiteMusicInfo() {
       this.musicUrl = this.currentMusicList[this.currentMusicIndex].musicUrl;
-      this.musicImg = this.currentMusicList[this.currentMusicIndex].musicImg;
+      this.musicCover = this.currentMusicList[
+        this.currentMusicIndex
+      ].musicCover;
       this.musicName = this.currentMusicList[this.currentMusicIndex].musicName;
       this.author = this.currentMusicList[this.currentMusicIndex].author;
       let info = this.Cut(
@@ -640,6 +701,9 @@ export default {
         return 10;
       }
       return 8;
+    },
+    userId() {
+      return this.$store.state.userId;
     }
   },
   watch: {
@@ -649,20 +713,6 @@ export default {
       } else {
         if (this.currentMusicType === 0) {
           this.musicSearchList = this.localMusicList.filter(e => {
-            return (
-              e.musicName.match(this.musicSearchVal) ||
-              e.author.match(this.musicSearchVal)
-            );
-          });
-        } else if (this.currentMusicType === 1) {
-          this.musicSearchList = this.currentMusicList.filter(e => {
-            return (
-              e.musicName.match(this.musicSearchVal) ||
-              e.author.match(this.musicSearchVal)
-            );
-          });
-        } else if (this.currentMusicType === 2) {
-          this.musicSearchList = this.currentMusicList.filter(e => {
             return (
               e.musicName.match(this.musicSearchVal) ||
               e.author.match(this.musicSearchVal)

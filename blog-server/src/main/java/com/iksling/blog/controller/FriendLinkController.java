@@ -60,7 +60,6 @@ public class FriendLinkController {
     /****************************************************************************************************/
 
     @ApiOperation(value = "查看友链列表")
-    @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/friendLinks")
     public Result getFriendLinks() {
         return Result.success().message("查询成功").data(friendLinkService.getFriendLinksDTO());

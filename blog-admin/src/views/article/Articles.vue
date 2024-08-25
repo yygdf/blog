@@ -218,7 +218,7 @@
         prop="topFlag"
         label="置顶"
         align="center"
-        min-width="70"
+        width="80"
       >
         <template slot-scope="scope">
           <el-switch
@@ -237,7 +237,7 @@
         prop="publicFlag"
         label="公开"
         align="center"
-        min-width="70"
+        width="80"
       >
         <template slot-scope="scope">
           <el-switch
@@ -256,7 +256,7 @@
         prop="hiddenFlag"
         label="隐藏"
         align="center"
-        min-width="70"
+        width="80"
       >
         <template slot-scope="scope">
           <el-switch
@@ -275,7 +275,7 @@
         prop="commentableFlag"
         label="可评论"
         align="center"
-        min-width="70"
+        width="80"
       >
         <template slot-scope="scope">
           <el-switch

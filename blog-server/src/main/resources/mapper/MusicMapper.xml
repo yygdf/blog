@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.iksling.blog.mapper.MusicMapper">
+
+    <resultMap id="BaseResultMap" type="com.iksling.blog.entity.Music">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="musicUrl" column="music_url" jdbcType="VARCHAR"/>
+            <result property="musicName" column="music_name" jdbcType="VARCHAR"/>
+            <result property="musicCover" column="music_cover" jdbcType="VARCHAR"/>
+            <result property="musicWords" column="music_words" jdbcType="VARCHAR"/>
+            <result property="author" column="author" jdbcType="VARCHAR"/>
+            <result property="album" column="album" jdbcType="VARCHAR"/>
+            <result property="deletedFlag" column="deleted_flag" jdbcType="BOOLEAN"/>
+            <result property="createUser" column="create_user" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateUser" column="update_user" jdbcType="INTEGER"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,music_url,
+        music_name,music_cover,music_words,
+        author,album,deleted_flag,
+        create_user,create_time,update_user,
+        update_time
+    </sql>
+
+    <select id="selectMusicsBackDTOCount" resultType="java.lang.Integer">
+        SELECT
+            COUNT(1)
+        FROM
+            tb_music
+        <where>
+            <choose>
+                <when test="condition.type == 7">
+                    deleted_flag = true
+                </when>
+                <otherwise>
+                    deleted_flag = false
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="roleWeight > 200">
+                    AND user_id = #{userId}
+                </when>
+                <otherwise>
+                    <if test="condition.userId != null">
+                        AND user_id = #{condition.userId}
+                    </if>
+                </otherwise>
+            </choose>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND music_name LIKE concat('%', #{condition.keywords}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectMusicsBackDTO" resultType="com.iksling.blog.dto.MusicsBackDTO">
+        SELECT
+            m.id,m.user_id,ua.username,
+            m.music_url,m.music_name,m.music_cover,
+            m.music_words,m.author,m.album,
+            m.create_time
+        FROM
+            tb_music m
+        LEFT JOIN tb_user_auth ua ON m.user_id = ua.user_id
+        <where>
+            <choose>
+                <when test="condition.type == 7">
+                    m.deleted_flag = true
+                </when>
+                <otherwise>
+                    m.deleted_flag = false
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="roleWeight > 200">
+                    AND m.user_id = #{userId}
+                </when>
+                <otherwise>
+                    <if test="condition.userId != null">
+                        AND m.user_id = #{condition.userId}
+                    </if>
+                </otherwise>
+            </choose>
+            <if test="condition.keywords != null and condition.keywords != ''">
+                AND m.music_name LIKE concat('%', #{condition.keywords}, '%')
+            </if>
+        </where>
+        ORDER BY
+            m.id DESC
+        LIMIT
+            #{condition.current}, #{condition.size}
+    </select>
+</mapper>

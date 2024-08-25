@@ -251,6 +251,7 @@ import listPlay from "./img/list_play.png";
 import state0 from "./img/state_0.png";
 import state1 from "./img/state_1.png";
 import state2 from "./img/state_2.png";
+import music from "./img/music.jpg";
 import $ from "jquery";
 
 export default {
@@ -494,22 +495,22 @@ export default {
       }
     },
     getMusicInfo() {
-      if (this.currentMusicList[this.currentMusicIndex].flag) {
-        this.localSiteMusicInfo();
-      }
-    },
-    localSiteMusicInfo() {
       this.musicUrl = this.currentMusicList[this.currentMusicIndex].musicUrl;
-      this.musicCover = this.currentMusicList[
-        this.currentMusicIndex
-      ].musicCover;
+      this.musicCover = this.currentMusicList[this.currentMusicIndex].musicCover
+        ? this.currentMusicList[this.currentMusicIndex].musicCover
+        : music;
       this.musicName = this.currentMusicList[this.currentMusicIndex].musicName;
       this.author = this.currentMusicList[this.currentMusicIndex].author;
-      let info = this.Cut(
-        this.currentMusicList[this.currentMusicIndex].musicWords
-      );
-      this.musicWords = info.wordArr;
-      this.wordsTime = info.timeArr;
+      if (this.currentMusicList[this.currentMusicIndex].musicWords) {
+        let info = this.Cut(
+          this.currentMusicList[this.currentMusicIndex].musicWords
+        );
+        this.musicWords = info.wordArr;
+        this.wordsTime = info.timeArr;
+      } else {
+        this.musicWords = ["暂无歌词"];
+        this.wordsTime = [0];
+      }
     },
     Ltrim(s) {
       return s.replace(/(^\s*)/g, "");

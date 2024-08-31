@@ -35,14 +35,21 @@ public class BlogController {
     @ApiImplicitParam(name = "StatusBackVO", value = "状态后台VO", required = true, dataType = "StatusBackVO")
     @PutMapping("/back/blog/messageConfig")
     public Result updateBackMessageConfig(@Valid @RequestBody StatusBackVO statusBackVO) {
-        blogService.updateBlogMessageConfig(statusBackVO);
+        blogService.updateBackBlogMessageConfig(statusBackVO);
         return Result.success().message("操作成功");
     }
 
     @ApiOperation(value = "查看后台用户消息提醒设置")
     @GetMapping("/back/blog/messageConfig")
     public Result getBackMessageConfigs() {
-        return Result.success().message("查询成功").data(blogService.getBlogMessageConfig());
+        return Result.success().message("查询成功").data(blogService.getBackBlogMessageConfig());
+    }
+
+    @ApiOperation(value = "查看文章统计信息")
+    @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer")
+    @GetMapping("/back/blog/articleStatistic")
+    public Result getBackArticleStatistic(Integer userId, Integer days) {
+        return Result.success().message("查询成功").data(blogService.getBackArticleStatistic(userId, days));
     }
 
     /****************************************************************************************************/

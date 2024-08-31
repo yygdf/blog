@@ -2,9 +2,11 @@ package com.iksling.blog.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.iksling.blog.dto.StatisticBackDTO;
 import com.iksling.blog.entity.*;
 import com.iksling.blog.exception.OperationStatusException;
 import com.iksling.blog.mapper.*;
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.BlogService;
 import com.iksling.blog.util.RedisUtil;
@@ -17,13 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.iksling.blog.constant.CommonConst.*;
 import static com.iksling.blog.constant.RedisConst.*;
+import static com.iksling.blog.util.DateUtil.*;
 
 /**
  *
@@ -59,7 +60,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     @Transactional
-    public void updateBlogMessageConfig(StatusBackVO statusBackVO) {
+    public void updateBackBlogMessageConfig(StatusBackVO statusBackVO) {
         Integer type = statusBackVO.getIdList().get(0);
         if (type < 1 || type > 4)
             throw new OperationStatusException();
@@ -74,8 +75,37 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public HashMap<String, Integer> getBlogMessageConfig() {
+    public HashMap<String, Integer> getBackBlogMessageConfig() {
         return UserUtil.getUserMessageConfig(UserUtil.getLoginUser().getUserId());
+    }
+
+    @Override
+    public Dict getBackArticleStatistic(Integer userId, Integer days) {
+        LoginUser loginUser = UserUtil.getLoginUser();
+        if (loginUser.getRoleWeight() > 300)
+            userId = loginUser.getUserId();
+        if (days == null)
+            days = 7;
+        Dict dict = Dict.create();
+        Date now = new Date();
+        List<StatisticBackDTO> statisticBackDTOList = new ArrayList<>();
+        if (userId == null) {
+            while (--days > -1) {
+                String name = dateToStr(getSomeDay(now, -days), YYYY_MM_DD);
+                statisticBackDTOList.add(StatisticBackDTO.builder()
+                        .name(name)
+                        .value(RedisUtil.getMap(name + "_avc").values().stream().mapToInt(e -> (int) e).sum()).build());
+            }
+        } else {
+            while (--days > -1) {
+                String name = dateToStr(getSomeDay(now, -days), YYYY_MM_DD);
+                statisticBackDTOList.add(StatisticBackDTO.builder()
+                        .name(name)
+                        .value(RedisUtil.getMapValue( name + "_avc", userId.toString())).build());
+            }
+        }
+        dict.set("viewCount", statisticBackDTOList);
+        return dict;
     }
 
     @Override

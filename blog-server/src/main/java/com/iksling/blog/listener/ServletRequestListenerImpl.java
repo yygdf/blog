@@ -35,12 +35,12 @@ public class ServletRequestListenerImpl implements ServletRequestListener {
             bloggerIdSet.add(bloggerId);
             session.setAttribute("bloggerIdSet", bloggerIdSet);
             RedisUtil.increment(BLOG_VIEW_COUNT, bloggerId, 1);
-            RedisUtil.setSetValue(dateToStr(new Date(), YYYY_MM_DD), ipAddress + "_" + bloggerId);
+            RedisUtil.setSetValue(dateToStr(new Date(), YYYY_MM_DD) + "_ip", ipAddress + "_" + bloggerId);
         }
     }
 
     @Scheduled(cron = " 0 0 0 * * ?")
     private void clear() {
-        RedisUtil.delKey(dateToStr(getSomeDay(new Date(), -7), YYYY_MM_DD));
+        RedisUtil.delKey(dateToStr(getSomeDay(new Date(), -7), YYYY_MM_DD) + "_ip");
     }
 }

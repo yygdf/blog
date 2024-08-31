@@ -93,6 +93,13 @@
         :selectable="checkSelectable"
       />
       <el-table-column
+        v-if="showColumnConfig.id"
+        prop="id"
+        label="ID"
+        align="center"
+        width="80"
+      />
+      <el-table-column
         v-if="showColumnConfig.username"
         prop="username"
         label="用户"
@@ -183,6 +190,7 @@
         <template slot="header">
           <el-popover placement="bottom" title="选择显示列" width="160">
             <div>
+              <el-checkbox v-model="showColumnConfig.id">ID&nbsp;</el-checkbox>
               <el-checkbox v-model="showColumnConfig.username"
                 >用户</el-checkbox
               >
@@ -657,6 +665,7 @@ export default {
         );
       } else {
         this.showColumnConfig = {
+          id: true,
           username: true,
           avatar: true,
           nickname: true,

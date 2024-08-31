@@ -45,6 +45,7 @@ import static com.iksling.blog.constant.FlagConst.*;
 import static com.iksling.blog.constant.RedisConst.*;
 import static com.iksling.blog.enums.FileDirEnum.IMAGE_ARTICLE;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
+import static com.iksling.blog.util.DateUtil.*;
 
 /**
  *
@@ -485,7 +486,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 }
             }
         }
-        updateArticleViewCount(id.toString());
+        updateArticleViewCount(id.toString(), bloggerId.toString());
         List<ArticlesPaginationDTO> articlesPaginationDTOList = articleMapper.selectArticlesPaginationDTOById(id, bloggerId, flag);
         List<ArticlesRecommendDTO> articlesRecommendDTOList = articleMapper.selectArticlesRecommendDTOById(id, bloggerId, flag);
         if (articlesPaginationDTOList.size() == 2) {
@@ -697,7 +698,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     @Async
-    public void updateArticleViewCount(String id) {
+    public void updateArticleViewCount(String id, String bloggerId) {
         HttpSession session = request.getSession();
         Set<String> articleIdSet = (Set<String>) session.getAttribute("articleIdSet");
         if (articleIdSet == null) {
@@ -707,6 +708,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             articleIdSet.add(id);
             session.setAttribute("articleIdSet", articleIdSet);
             RedisUtil.increment(ARTICLE_VIEW_COUNT, id, 1);
+            RedisUtil.increment(dateToStr(new Date(), YYYY_MM_DD) + "_avc", bloggerId, 1);
         }
     }
 }

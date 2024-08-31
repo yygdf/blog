@@ -1,5 +1,6 @@
 package com.iksling.blog.service;
 
+import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.TokenVO;
 
@@ -11,9 +12,11 @@ import java.util.HashMap;
 public interface BlogService {
     void updateBackAbout(String aboutContent);
 
-    void updateBlogMessageConfig(StatusBackVO statusBackVO);
+    void updateBackBlogMessageConfig(StatusBackVO statusBackVO);
 
-    HashMap<String, Integer> getBlogMessageConfig();
+    HashMap<String, Integer> getBackBlogMessageConfig();
+
+    Dict getBackArticleStatistic(Integer userId, Integer days);
 
     Object saveTokenVO(TokenVO tokenVO);
 

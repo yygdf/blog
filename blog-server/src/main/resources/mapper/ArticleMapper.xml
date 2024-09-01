@@ -74,16 +74,9 @@
                     draft_flag = false
                 </otherwise>
             </choose>
-            <choose>
-                <when test="roleWeight > 300">
-                    AND user_id = #{userId}
-                </when>
-                <otherwise>
-                    <if test="condition.userId != null">
-                        AND user_id = #{condition.userId}
-                    </if>
-                </otherwise>
-            </choose>
+            <if test="condition.userId != null">
+                AND user_id = #{condition.userId}
+            </if>
             <if test="condition.categoryId != null">
                 AND category_id = #{condition.categoryId}
             </if>
@@ -133,16 +126,9 @@
                     a.draft_flag = false
                 </otherwise>
             </choose>
-            <choose>
-                <when test="roleWeight > 300">
-                    AND a.user_id = #{userId}
-                </when>
-                <otherwise>
-                    <if test="condition.userId != null">
-                        AND a.user_id = #{condition.userId}
-                    </if>
-                </otherwise>
-            </choose>
+            <if test="condition.userId != null">
+                AND user_id = #{condition.userId}
+            </if>
             <if test="condition.categoryId != null">
                 AND a.category_id = #{condition.categoryId}
             </if>

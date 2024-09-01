@@ -15,9 +15,9 @@ public interface ArticleMapper extends BaseMapper<Article> {
 
     ArticleBackDTO selectArticleBackDTOById(Integer id, Integer userId, Integer roleWeight);
 
-    Integer selectArticlesBackDTOCount(@Param("condition") Condition condition, Integer userId, Integer roleWeight);
+    Integer selectArticlesBackDTOCount(@Param("condition") Condition condition);
 
-    List<ArticlesBackDTO> selectArticlesBackDTO(@Param("condition") Condition condition, Integer userId, Integer roleWeight);
+    List<ArticlesBackDTO> selectArticlesBackDTO(@Param("condition") Condition condition);
 
     List<ArticlesDTO> selectArticlesDTO(@Param("condition") Condition condition);
 

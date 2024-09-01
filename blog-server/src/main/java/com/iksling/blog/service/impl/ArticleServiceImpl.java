@@ -45,7 +45,8 @@ import static com.iksling.blog.constant.FlagConst.*;
 import static com.iksling.blog.constant.RedisConst.*;
 import static com.iksling.blog.enums.FileDirEnum.IMAGE_ARTICLE;
 import static com.iksling.blog.util.CommonUtil.getSplitStringByIndex;
-import static com.iksling.blog.util.DateUtil.*;
+import static com.iksling.blog.util.DateUtil.YYYY_MM_DD;
+import static com.iksling.blog.util.DateUtil.dateToStr;
 
 /**
  *
@@ -393,15 +394,25 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         LoginUser loginUser = UserUtil.getLoginUser();
         if (DELETED.equals(condition.getType()) && loginUser.getRoleWeight() > 100)
             return new PagePojo<>();
-        Integer count = articleMapper.selectArticlesBackDTOCount(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        if (loginUser.getRoleWeight() > 300)
+            condition.setUserId(loginUser.getUserId());
+        Integer count = articleMapper.selectArticlesBackDTOCount(condition);
         if (count == 0)
             return new PagePojo<>();
         condition.setCurrent((condition.getCurrent() - 1) * condition.getSize());
-        List<ArticlesBackDTO> articlesBackDTOList = articleMapper.selectArticlesBackDTO(condition, loginUser.getUserId(), loginUser.getRoleWeight());
+        List<ArticlesBackDTO> articlesBackDTOList = articleMapper.selectArticlesBackDTO(condition);
         if (articlesBackDTOList.isEmpty())
             return new PagePojo<>(count, new ArrayList<>());
-        Map<String, Integer> viewCountMap = RedisUtil.getMap(ARTICLE_VIEW_COUNT);
-        Map<String, Integer> likeCountMap = RedisUtil.getMap(ARTICLE_LIKE_COUNT);
+        Map<String, Integer> viewCountMap;
+        Map<String, Integer> likeCountMap;
+        if (condition.getUserId() != null) {
+            viewCountMap = RedisUtil.getMap(ARTICLE_VIEW_COUNT + "_" + condition.getUserId());
+            likeCountMap = RedisUtil.getMap(ARTICLE_LIKE_COUNT + "_" + condition.getUserId());
+        } else {
+            //String suffix = String.join("|", articlesBackDTOList.stream().map(e -> e.getUserId().toString()).collect(Collectors.toSet()));
+            viewCountMap = RedisUtil.getMaps(ARTICLE_VIEW_COUNT + "_*");
+            likeCountMap = RedisUtil.getMaps(ARTICLE_LIKE_COUNT + "_*");
+        }
         articlesBackDTOList.forEach(e -> {
             e.setViewCount(viewCountMap.get(e.getId().toString()));
             e.setLikeCount(likeCountMap.get(e.getId().toString()));
@@ -431,15 +442,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (objectList.size() == 0)
             throw new OperationStatusException();
         HashSet<Integer> articleLikeSet = RedisUtil.getMapValue(ARTICLE_USER_LIKE, loginUserId.toString());
+        Integer userId = (Integer) objectList.get(0);
         if (articleLikeSet == null)
             articleLikeSet = new HashSet<>();
         if (articleLikeSet.contains(id)) {
             articleLikeSet.remove(id);
-            RedisUtil.increment(ARTICLE_LIKE_COUNT, id.toString(), -1);
+            RedisUtil.increment(ARTICLE_LIKE_COUNT + "_" + userId, id.toString(), -1);
         } else {
             articleLikeSet.add(id);
-            RedisUtil.increment(ARTICLE_LIKE_COUNT, id.toString(), 1);
-            Integer userId = (Integer) objectList.get(0);
+            RedisUtil.increment(ARTICLE_LIKE_COUNT + "_" + userId, id.toString(), 1);
             HashMap<String, Integer> map = UserUtil.getUserMessageConfig(userId);
             if (!loginUserId.equals(userId) && map.get("3") == 1)
                 noticeMapper.insert(Notice.builder()
@@ -499,8 +510,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 articleDTO.setNextArticle(articlesPaginationDTOList.get(0));
         }
         articleDTO.setArticlesRecommendDTOList(articlesRecommendDTOList);
-        articleDTO.setViewCount(RedisUtil.getMapValue(ARTICLE_VIEW_COUNT, id.toString()));
-        articleDTO.setLikeCount(RedisUtil.getMapValue(ARTICLE_LIKE_COUNT, id.toString()));
+        articleDTO.setViewCount(RedisUtil.getMapValue(ARTICLE_VIEW_COUNT + "_" + bloggerId, id.toString()));
+        articleDTO.setLikeCount(RedisUtil.getMapValue(ARTICLE_LIKE_COUNT + "_" + bloggerId, id.toString()));
         return articleDTO;
     }
 
@@ -707,7 +718,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         if (!articleIdSet.contains(id)) {
             articleIdSet.add(id);
             session.setAttribute("articleIdSet", articleIdSet);
-            RedisUtil.increment(ARTICLE_VIEW_COUNT, id, 1);
+            RedisUtil.increment(ARTICLE_VIEW_COUNT + "_" + bloggerId, id, 1);
             RedisUtil.increment(dateToStr(new Date(), YYYY_MM_DD) + "_avc", bloggerId, 1);
         }
     }

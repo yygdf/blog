@@ -121,7 +121,6 @@ export default {
             type: "cross"
           }
         },
-        color: ["#58AFFF"],
         grid: {
           left: "0%",
           right: "0%",
@@ -135,45 +134,69 @@ export default {
         yAxis: {},
         series: [
           {
-            name: ["浏览量"],
+            name: ["阅读量"],
             type: "bar",
             data: [],
             itemStyle: {
-              normal: {
-                color: function() {
-                  return (
-                    "#" +
-                    Math.floor(Math.random() * (256 * 256 * 256 - 1)).toString(
-                      16
-                    )
-                  );
-                }
+              color: function(params) {
+                const colorMap = [
+                  "#FF0000",
+                  "#FFA500",
+                  "#FFFF00",
+                  "#008000",
+                  "#00FFFF",
+                  "#0000FF",
+                  "#800080",
+                  "#C0FF3E",
+                  "#FFC0CB",
+                  "#FF9F7F"
+                ];
+                return colorMap[params.dataIndex];
               }
             }
           }
         ]
       },
       likeCountRank: {
-        color: [
-          "#7EC0EE",
-          "#FF9F7F",
-          "#FFD700",
-          "#C9C9C9",
-          "#E066FF",
-          "#C0FF3E"
-        ],
-        legend: {
-          data: [],
-          bottom: "bottom"
-        },
         tooltip: {
-          trigger: "item"
+          trigger: "axis",
+          axisPointer: {
+            type: "cross"
+          }
         },
+        grid: {
+          left: "0%",
+          right: "0%",
+          bottom: "0%",
+          top: "10%",
+          containLabel: true
+        },
+        xAxis: {
+          data: []
+        },
+        yAxis: {},
         series: [
           {
-            name: "文章分类",
-            type: "pie",
-            data: []
+            name: ["点赞量"],
+            type: "bar",
+            data: [],
+            itemStyle: {
+              color: function(params) {
+                const colorMap = [
+                  "#FF0000",
+                  "#FFA500",
+                  "#FFFF00",
+                  "#008000",
+                  "#00FFFF",
+                  "#0000FF",
+                  "#800080",
+                  "#C0FF3E",
+                  "#FFC0CB",
+                  "#FF9F7F"
+                ];
+                return colorMap[params.dataIndex];
+              }
+            }
           }
         ]
       },
@@ -221,7 +244,7 @@ export default {
               86400000
           ) + 1;
       }
-      if (this.userId != null) {
+      if (this.userId != null && this.userId !== "") {
         params.userId = this.userId;
       }
       this.axios
@@ -229,27 +252,28 @@ export default {
           params
         })
         .then(({ data }) => {
-          if (data.data.viewCount != null) {
+          if (data.data.viewCountDTOList != null) {
             this.viewCount.xAxis.data = [];
             this.viewCount.series[0].data = [];
-            data.data.viewCount.forEach(item => {
+            data.data.viewCountDTOList.forEach(item => {
               this.viewCount.xAxis.data.push(item.name);
               this.viewCount.series[0].data.push(item.value);
             });
           }
           if (data.data.viewCountRankDTOList != null) {
+            this.viewCountRank.xAxis.data = [];
+            this.viewCountRank.series[0].data = [];
             data.data.viewCountRankDTOList.forEach(item => {
-              this.viewCountRank.series[0].data.push(item.viewsCount);
-              this.viewCountRank.xAxis.data.push(item.articleTitle);
+              this.viewCountRank.xAxis.data.push(item.name);
+              this.viewCountRank.series[0].data.push(item.value);
             });
           }
           if (data.data.likeCountRankDTOList != null) {
+            this.likeCountRank.xAxis.data = [];
+            this.likeCountRank.series[0].data = [];
             data.data.likeCountRankDTOList.forEach(item => {
-              this.likeCountRank.series[0].data.push({
-                value: item.articleCount,
-                name: item.likeCountRankName
-              });
-              this.likeCountRank.legend.data.push(item.likeCountRankName);
+              this.likeCountRank.xAxis.data.push(item.name);
+              this.likeCountRank.series[0].data.push(item.value);
             });
           }
           this.loading = false;

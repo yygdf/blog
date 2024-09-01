@@ -1,9 +1,14 @@
 package com.iksling.blog.util;
 
+import com.iksling.blog.exception.OperationStatusException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -58,6 +63,20 @@ public class RedisUtil {
 
     public static <T> Map<String, T> getMap(String key) {
         return redisTemplate.opsForHash().entries(key);
+    }
+
+    public static <T> Map<String, T> getMaps(String keyPattern) {
+        return (Map<String, T>) redisTemplate.execute((RedisCallback<Map<String, T>>) connection -> {
+            Map<String, T> map = new HashMap<>();
+            try (Cursor<byte[]> cursor = connection.scan(new ScanOptions.ScanOptionsBuilder().match(keyPattern).count(10000).build())) {
+                while (cursor.hasNext()) {
+                    map.putAll(RedisUtil.getMap(new String(cursor.next(), StandardCharsets.UTF_8)));;
+                }
+            } catch (Exception e) {
+                throw new OperationStatusException();
+            }
+            return map;
+        });
     }
 
     public static <T> T getMapValue(String key, String hKey) {

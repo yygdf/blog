@@ -89,23 +89,31 @@ public class BlogServiceImpl implements BlogService {
         if (endDate == null)
             endDate = new Date();
         Dict dict = Dict.create();
-        List<StatisticBackDTO> statisticBackDTOList = new ArrayList<>();
+        List<StatisticBackDTO> viewCountDTOList = new ArrayList<>();
+        Map<String, Integer> viewCountMap;
+        Map<String, Integer> likeCountMap;
         if (userId == null) {
             while (--days > -1) {
                 String name = dateToStr(getSomeDay(endDate, -days), YYYY_MM_DD);
-                statisticBackDTOList.add(StatisticBackDTO.builder()
+                viewCountDTOList.add(StatisticBackDTO.builder()
                         .name(name)
                         .value(RedisUtil.getMap(name + "_avc").values().stream().mapToInt(e -> (int) e).sum()).build());
             }
+            viewCountMap = RedisUtil.getMaps(ARTICLE_VIEW_COUNT + "_*");
+            likeCountMap = RedisUtil.getMaps(ARTICLE_LIKE_COUNT + "_*");
         } else {
             while (--days > -1) {
                 String name = dateToStr(getSomeDay(endDate, -days), YYYY_MM_DD);
-                statisticBackDTOList.add(StatisticBackDTO.builder()
+                viewCountDTOList.add(StatisticBackDTO.builder()
                         .name(name)
                         .value(RedisUtil.getMapValue( name + "_avc", userId.toString())).build());
             }
+            viewCountMap = RedisUtil.getMap(ARTICLE_VIEW_COUNT + "_" + userId);
+            likeCountMap = RedisUtil.getMap(ARTICLE_LIKE_COUNT + "_" + userId);
         }
-        dict.set("viewCount", statisticBackDTOList);
+        dict.set("viewCountDTOList", viewCountDTOList);
+        dict.set("viewCountRankDTOList", getArticleNameMap(viewCountMap));
+        dict.set("likeCountRankDTOList", getArticleNameMap(likeCountMap));
         return dict;
     }
 
@@ -202,6 +210,31 @@ public class BlogServiceImpl implements BlogService {
         hashMap.put("blogConfig", blogConfigMap);
         hashMap.put("bloggerInfo", bloggerInfoMap);
         return hashMap;
+    }
+
+    private List<StatisticBackDTO> getArticleNameMap(Map<String, Integer> map) {
+        List<StatisticBackDTO> list = new ArrayList<>();
+        List<Integer> articleIdList = map.entrySet().stream()
+                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+                .map(item -> Integer.valueOf(item.getKey()))
+                .limit(10)
+                .collect(Collectors.toList());
+        if (articleIdList.size() != 0) {
+            Map<Integer, String> viewNameMap = articleMapper.selectList(new LambdaQueryWrapper<Article>()
+                    .select(Article::getId, Article::getArticleTitle)
+                    .in(Article::getId, articleIdList)
+                    .eq(Article::getDeletedFlag, false)).stream()
+                    .collect(Collectors.toMap(Article::getId, Article::getArticleTitle, (key1, key2) -> key2, HashMap::new));
+            articleIdList.forEach(e -> {
+                if (viewNameMap.get(e) != null) {
+                    list.add(StatisticBackDTO.builder()
+                            .name(viewNameMap.get(e))
+                            .value(map.get(e.toString()))
+                            .build());
+                }
+            });
+        }
+        return list;
     }
 }
 

@@ -140,21 +140,6 @@ CREATE TABLE `tb_comment`  (
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for tb_day_view
--- ----------------------------
-DROP TABLE IF EXISTS `tb_day_view`;
-CREATE TABLE `tb_day_view`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
-  `view_date` date NOT NULL COMMENT '日期',
-  `view_count` int(11) NOT NULL COMMENT '访问量',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of tb_day_view
--- ----------------------------
-
--- ----------------------------
 -- Table structure for tb_exception_log
 -- ----------------------------
 DROP TABLE IF EXISTS `tb_exception_log`;
@@ -271,9 +256,9 @@ INSERT INTO `tb_menu` VALUES (105, 2, 2, 'el-icon-document-add', 25, '/article/*
 INSERT INTO `tb_menu` VALUES (106, 2, 3, 'el-icon-chat-dot-square', 31, '/comment', '评论管理', '/message/Comment.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 INSERT INTO `tb_menu` VALUES (107, 2, 3, 'el-icon-chat-dot-round', 32, '/message', '留言管理', '/message/Message.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 INSERT INTO `tb_menu` VALUES (108, 2, 4, 'el-icon-connection', 41, '/friend', '友链管理', '/link/FriendLink.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (109, 2, 5, 'el-icon-tickets', 51, '/articleStatistic', '文章统计', '/statistic/ArticleStatistic.vue', 0, 0, 1, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (109, 2, 5, 'el-icon-tickets', 51, '/articleStatistic', '文章统计', '/statistic/ArticleStatistic.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 INSERT INTO `tb_menu` VALUES (110, 2, 5, 'el-icon-chat-line-square', 52, '/commentStatistic', '评论统计', '/statistic/CommentStatistic.vue', 0, 0, 1, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
-INSERT INTO `tb_menu` VALUES (111, 2, 5, 'el-icon-coordinate', 53, '/userStatistic', '用户统计', '/statistic/UserStatictic.vue', 0, 0, 1, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
+INSERT INTO `tb_menu` VALUES (111, 2, 5, 'el-icon-coordinate', 53, '/userStatistic', '用户统计', '/statistic/UserStatistic.vue', 0, 0, 1, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 INSERT INTO `tb_menu` VALUES (112, 2, 6, 'el-icon-s-tools', 61, '/systemConfig', '系统配置', '/system/SystemConfig.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 INSERT INTO `tb_menu` VALUES (113, 2, 6, 'el-icon-menu', 62, '/menu', '菜单管理', '/system/Menu.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
 INSERT INTO `tb_menu` VALUES (114, 2, 6, 'el-icon-s-grid', 63, '/resource', '资源管理', '/system/Resource.vue', 0, 0, 0, 0, 2, '2023-04-26 23:04:13', NULL, NULL);
@@ -509,7 +494,7 @@ CREATE TABLE `tb_resource`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 236 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 237 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_resource
@@ -669,7 +654,7 @@ INSERT INTO `tb_resource` VALUES (232, 2, 22, '/back/musics', '查看后台音�
 INSERT INTO `tb_resource` VALUES (233, 2, 22, '/musics', '查看音乐列表', 'GET', 0, 0, 1, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (234, 2, 22, '/music/collect/*', '收藏音乐', 'POST', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 INSERT INTO `tb_resource` VALUES (235, 2, 22, '/musics/collection', '查看收藏音乐列表', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
-
+INSERT INTO `tb_resource` VALUES (236, 2, 19, '/back/blog/articleStatistic', '查看文章统计信息', 'GET', 0, 0, 0, 2, '2023-04-25 23:27:55', NULL, NULL);
 -- ----------------------------
 -- Table structure for tb_role
 -- ----------------------------
@@ -827,7 +812,7 @@ CREATE TABLE `tb_role_resource`  (
   `role_id` int(11) NOT NULL COMMENT '角色id',
   `resource_id` int(11) NOT NULL COMMENT '资源id',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 391 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 395 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_role_resource
@@ -1222,6 +1207,10 @@ INSERT INTO `tb_role_resource` VALUES (387, 4, 234);
 INSERT INTO `tb_role_resource` VALUES (388, 4, 235);
 INSERT INTO `tb_role_resource` VALUES (389, 5, 234);
 INSERT INTO `tb_role_resource` VALUES (390, 5, 235);
+INSERT INTO `tb_role_resource` VALUES (391, 1, 236);
+INSERT INTO `tb_role_resource` VALUES (392, 2, 236);
+INSERT INTO `tb_role_resource` VALUES (393, 3, 236);
+INSERT INTO `tb_role_resource` VALUES (394, 4, 236);
 
 -- ----------------------------
 -- Table structure for tb_system_config

@@ -137,6 +137,7 @@ export default {
             name: ["阅读量"],
             type: "bar",
             data: [],
+            barWidth: 50,
             itemStyle: {
               color: function(params) {
                 const colorMap = [
@@ -180,6 +181,7 @@ export default {
             name: ["点赞量"],
             type: "bar",
             data: [],
+            barWidth: 50,
             itemStyle: {
               color: function(params) {
                 const colorMap = [

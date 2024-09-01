@@ -127,7 +127,7 @@
                 </otherwise>
             </choose>
             <if test="condition.userId != null">
-                AND user_id = #{condition.userId}
+                AND a.user_id = #{condition.userId}
             </if>
             <if test="condition.categoryId != null">
                 AND a.category_id = #{condition.categoryId}

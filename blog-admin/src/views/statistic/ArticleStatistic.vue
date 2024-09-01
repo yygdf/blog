@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card v-if="checkWeight(200)">
+    <el-card v-if="checkWeight(300)">
       <el-select
         v-model="userId"
         size="small"
@@ -20,6 +20,21 @@
       </el-select>
     </el-card>
     <el-card style="margin-top:1.25rem">
+      <el-date-picker
+        v-model="dateRange"
+        size="small"
+        type="daterange"
+        align="right"
+        range-separator="至"
+        value-format="yyyy-MM-dd"
+        style="margin-top:-0.5rem;float: right"
+        end-placeholder="结束日期"
+        start-placeholder="开始日期"
+        :picker-options="pickerOptions"
+        @change="getData()"
+        unlink-panels
+      >
+      </el-date-picker>
       <div class="e-title">阅读量趋势</div>
       <div style="height:300px">
         <v-chart :options="viewCount" v-loading="loading" />
@@ -55,8 +70,8 @@ export default {
     return {
       usernameList: [],
       userId: null,
+      dateRange: null,
       loading: true,
-      days: 7,
       viewCount: {
         tooltip: {
           trigger: "axis",
@@ -161,14 +176,51 @@ export default {
             data: []
           }
         ]
+      },
+      pickerOptions: {
+        shortcuts: [
+          {
+            text: "最近一周",
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 6);
+              picker.$emit("pick", [start, end]);
+            }
+          },
+          {
+            text: "最近半个月",
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 14);
+              picker.$emit("pick", [start, end]);
+            }
+          },
+          {
+            text: "最近一个月",
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 29);
+              picker.$emit("pick", [start, end]);
+            }
+          }
+        ]
       }
     };
   },
   methods: {
     getData() {
-      let params = {
-        days: this.days
-      };
+      let params = {};
+      if (this.dateRange != null) {
+        params.endDate = this.dateRange[1] + " 00:00:00";
+        params.days =
+          Math.floor(
+            (Date.parse(this.dateRange[1]) - Date.parse(this.dateRange[0])) /
+              86400000
+          ) + 1;
+      }
       if (this.userId != null) {
         params.userId = this.userId;
       }

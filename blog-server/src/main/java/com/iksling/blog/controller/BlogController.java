@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Date;
 
 import static com.iksling.blog.constant.LogConst.UPDATE;
 
@@ -48,8 +49,8 @@ public class BlogController {
     @ApiOperation(value = "查看文章统计信息")
     @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer")
     @GetMapping("/back/blog/articleStatistic")
-    public Result getBackArticleStatistic(Integer userId, Integer days) {
-        return Result.success().message("查询成功").data(blogService.getBackArticleStatistic(userId, days));
+    public Result getBackArticleStatistic(Integer userId, Date endDate, Integer days) {
+        return Result.success().message("查询成功").data(blogService.getBackArticleStatistic(userId, endDate, days));
     }
 
     /****************************************************************************************************/

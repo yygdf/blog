@@ -80,25 +80,26 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public Dict getBackArticleStatistic(Integer userId, Integer days) {
+    public Dict getBackArticleStatistic(Integer userId, Date endDate, Integer days) {
         LoginUser loginUser = UserUtil.getLoginUser();
         if (loginUser.getRoleWeight() > 300)
             userId = loginUser.getUserId();
         if (days == null)
             days = 7;
+        if (endDate == null)
+            endDate = new Date();
         Dict dict = Dict.create();
-        Date now = new Date();
         List<StatisticBackDTO> statisticBackDTOList = new ArrayList<>();
         if (userId == null) {
             while (--days > -1) {
-                String name = dateToStr(getSomeDay(now, -days), YYYY_MM_DD);
+                String name = dateToStr(getSomeDay(endDate, -days), YYYY_MM_DD);
                 statisticBackDTOList.add(StatisticBackDTO.builder()
                         .name(name)
                         .value(RedisUtil.getMap(name + "_avc").values().stream().mapToInt(e -> (int) e).sum()).build());
             }
         } else {
             while (--days > -1) {
-                String name = dateToStr(getSomeDay(now, -days), YYYY_MM_DD);
+                String name = dateToStr(getSomeDay(endDate, -days), YYYY_MM_DD);
                 statisticBackDTOList.add(StatisticBackDTO.builder()
                         .name(name)
                         .value(RedisUtil.getMapValue( name + "_avc", userId.toString())).build());

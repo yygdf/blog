@@ -7,7 +7,7 @@
       <timeline>
         <timeline-title> 目前共计{{ count }}篇文章，继续加油 </timeline-title>
         <timeline-item v-for="item of archiveList" :key="item.id">
-          <span class="time">{{ item.publicTime | date }}</span>
+          <span class="time">{{ item.publishTime | date }}</span>
           <router-link
             :to="rootUri + '/article/' + item.id"
             style="color:#666;text-decoration: none"

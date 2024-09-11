@@ -21,7 +21,7 @@
           <i class="el-icon-caret-bottom" />
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="personal">
-              <i class="el-icon-postcard" />个人中心
+              <i class="el-icon-postcard" />个人信息
             </el-dropdown-item>
             <el-dropdown-item command="logout" divided>
               <i class="el-icon-warning-outline" />退出登录

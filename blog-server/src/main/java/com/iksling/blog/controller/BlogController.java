@@ -7,6 +7,7 @@ import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.TokenVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +48,11 @@ public class BlogController {
     }
 
     @ApiOperation(value = "查看文章统计信息")
-    @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer"),
+            @ApiImplicitParam(name = "endDate", value = "结束日期", dataType = "Date"),
+            @ApiImplicitParam(name = "days", value = "天数", dataType = "Integer")
+    })
     @GetMapping("/back/blog/articleStatistic")
     public Result getBackArticleStatistic(Integer userId, Date endDate, Integer days) {
         return Result.success().message("查询成功").data(blogService.getBackArticleStatistic(userId, endDate, days));

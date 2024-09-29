@@ -340,6 +340,7 @@
     height: 40px;
     color: white;
     position: relative;
+    opacity: 0.6;
 }
 .music_state{
     width: 15px;
@@ -480,6 +481,7 @@
     bottom: 0;
     right: 100px;
     z-index: 9;
+    opacity: 0.6;
 }
 .page_last{
     position: absolute;
@@ -533,6 +535,7 @@
     position: relative;
     left: -39px;
     top:-39px;
+    opacity: 0.6;
 }
 .music_list_bg{
     width: 170px;

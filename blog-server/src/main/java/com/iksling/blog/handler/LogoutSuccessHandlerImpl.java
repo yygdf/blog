@@ -21,10 +21,11 @@ public class LogoutSuccessHandlerImpl implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException {
         String token = httpServletRequest.getHeader("Token");
+        String lang = httpServletRequest.getHeader("Lang");
         Claims claims = JwtUtil.parseJwtToken(token);
         String subject = claims.getSubject();
         RedisUtil.delKey(LOGIN_TOKEN + "_" + subject);
         httpServletResponse.setContentType("application/json;charset=UTF-8");
-        httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message(LocaleUtil.getMessage("H0006"))));
+        httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message(LocaleUtil.getMessageByLang("H0006", lang))));
     }
 }

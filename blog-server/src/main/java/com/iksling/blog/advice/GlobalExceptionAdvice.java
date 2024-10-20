@@ -8,6 +8,7 @@ import com.iksling.blog.mapper.QQAuthMapper;
 import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.Result;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.util.RedisUtil;
 import com.iksling.blog.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ public class GlobalExceptionAdvice {
                     .set(QQAuth::getLockedFlag, true)
                     .set(QQAuth::getDisabledFlag, true)
                     .eq(QQAuth::getUserId, loginUser.getUserId()));
-            return Result.failure().code(ACCOUNT_LOCKED).message("账号[" + loginUser.getUsername() + "]已被锁定, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
+            return Result.failure().code(ACCOUNT_LOCKED).message(LocaleUtil.getMessage("A0001", loginUser.getUsername(), ADMIN_CONTACT_QQ));
         }
         return Result.failure().code(ILLEGAL_REQUEST).message(e.getMessage());
     }
@@ -101,6 +102,6 @@ public class GlobalExceptionAdvice {
     /********** 未知异常 **********/
     @ExceptionHandler(value = Exception.class)
     public Result exceptionAdvice() {
-        return Result.failure().code(FAILURE).message("服务器繁忙, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
+        return Result.failure().code(FAILURE).message(LocaleUtil.getMessage("A0002", ADMIN_CONTACT_QQ));
     }
 }

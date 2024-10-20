@@ -10,6 +10,7 @@ import com.iksling.blog.mapper.OperationLogMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.util.EmailUtil;
 import com.iksling.blog.util.IpUtil;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.util.UserUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,6 +33,7 @@ import java.lang.reflect.Method;
 import java.util.Date;
 
 import static com.iksling.blog.constant.CommonConst.ADMIN_CONTACT_EMAIL;
+import static com.iksling.blog.constant.CommonConst.WEBSITE_URL_BACK;
 import static com.iksling.blog.constant.LogConst.QUERY;
 
 @Aspect
@@ -113,7 +115,7 @@ public class LogAspect {
             exceptionLog.setIllegalFlag(true);
             exceptionLogMapper.insert(exceptionLog);
             exceptionLog.setExceptionStackTrace(null);
-            EmailUtil.sendEmail(ADMIN_CONTACT_EMAIL, "用户[" + loginUser.getUsername() + "]的非法操作已被拦截,请登录后台查看更多信息!", JSON.toJSONString(exceptionLog));
+            EmailUtil.sendEmail(ADMIN_CONTACT_EMAIL, LocaleUtil.getMessage("A0003", loginUser.getUsername(), WEBSITE_URL_BACK), JSON.toJSONString(exceptionLog));
         } else
             exceptionLogMapper.insert(exceptionLog);
     }

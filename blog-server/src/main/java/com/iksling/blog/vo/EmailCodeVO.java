@@ -13,8 +13,8 @@ public class EmailCodeVO {
     /**
      * 用户邮箱
      */
-    @NotNull(message = "'email':'NotNull'")
-    @Size(min = 1, max = 50, message = "'email':{'minlength':1,'maxlength':50}")
+    @NotNull(message = "{V0009}")
+    @Size(min = 1, max = 50, message = "{V0010}")
     @ApiModelProperty(name = "email", value = "用户邮箱", dataType = "String")
     private String email;
 

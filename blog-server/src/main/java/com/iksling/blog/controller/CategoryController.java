@@ -1,11 +1,12 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.CategoryService;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.vo.CategoryBackVO;
 import com.iksling.blog.vo.StatusBackVO;
-import com.iksling.blog.pojo.Condition;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -29,7 +30,7 @@ public class CategoryController {
     @PostMapping("/back/category")
     public Result saveOrUpdateBackCategory(@Valid @RequestBody CategoryBackVO categoryBackVO) {
         categoryService.saveOrUpdateCategoryBackVO(categoryBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = REMOVE)
@@ -38,7 +39,7 @@ public class CategoryController {
     @DeleteMapping("/back/categories")
     public Result deleteBackCategories(@RequestBody List<Integer> idList) {
         categoryService.deleteBackCategoriesByIdList(idList);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -47,7 +48,7 @@ public class CategoryController {
     @PutMapping("/back/category/status")
     public Result updateBackCategoryStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         categoryService.updateCategoryStatusBackVO(statusBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -56,14 +57,14 @@ public class CategoryController {
     @PutMapping("/back/categories/status")
     public Result updateBackCategoriesStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         categoryService.updateCategoriesStatusBackVO(statusBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @ApiOperation(value = "查看后台分类列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/categories")
     public Result getBackCategories(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(categoryService.getCategoriesBackDTO(condition));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(categoryService.getCategoriesBackDTO(condition));
     }
 
     /****************************************************************************************************/
@@ -71,6 +72,6 @@ public class CategoryController {
     @ApiOperation(value = "查看分类列表")
     @GetMapping("/categories")
     public Result getCategories() {
-        return Result.success().message("查询成功").data(categoryService.getCategoriesDTO());
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(categoryService.getCategoriesDTO());
     }
 }

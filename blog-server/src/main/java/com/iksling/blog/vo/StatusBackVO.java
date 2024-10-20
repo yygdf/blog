@@ -13,7 +13,7 @@ public class StatusBackVO {
     /**
      * id列表
      */
-    @NotEmpty(message = "'idList':{'min':1}")
+    @NotEmpty(message = "{V0059}")
     @ApiModelProperty(name = "idList", value = "id列表", required = true, dataType = "List<Integer>")
     private List<Integer> idList;
 

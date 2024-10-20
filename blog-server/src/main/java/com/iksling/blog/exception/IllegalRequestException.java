@@ -1,8 +1,10 @@
 package com.iksling.blog.exception;
 
+import com.iksling.blog.util.LocaleUtil;
+
 public class IllegalRequestException extends RuntimeException {
     public IllegalRequestException() {
-        super("请不要瞎搞, 小心我顺着网线爬过去找你!");
+        super(LocaleUtil.getMessage("E0004"));
     }
 
     public IllegalRequestException(String message) {

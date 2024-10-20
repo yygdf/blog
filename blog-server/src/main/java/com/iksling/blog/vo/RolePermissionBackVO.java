@@ -18,21 +18,21 @@ public class RolePermissionBackVO {
     /**
      * id
      */
-    @NotNull(message = "'id':'NotNull'")
+    @NotNull(message = "{V0031}")
     @ApiModelProperty(name = "id", value = "角色id", dataType = "Integer")
     private Integer id;
 
     /**
-     * 菜单idList
+     * 菜单id列表
      */
-    @Size(min = 1, message = "'menuIdList':{'min':1}")
-    @ApiModelProperty(name = "menuIdList", value = "菜单idList", dataType = "List<Integer>")
+    @Size(min = 1, message = "{V0057}")
+    @ApiModelProperty(name = "menuIdList", value = "菜单id列表", dataType = "List<Integer>")
     private List<Integer> menuIdList;
 
     /**
-     * 资源idList
+     * 资源id列表
      */
-    @Size(min = 1, message = "'resourceIdList':{'min':1}")
-    @ApiModelProperty(name = "resourceIdList", value = "资源idList", dataType = "List<Integer>")
+    @Size(min = 1, message = "{V0058}")
+    @ApiModelProperty(name = "resourceIdList", value = "资源id列表", dataType = "List<Integer>")
     private List<Integer> resourceIdList;
 }

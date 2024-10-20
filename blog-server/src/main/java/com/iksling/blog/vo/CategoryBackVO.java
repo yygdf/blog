@@ -18,7 +18,7 @@ public class CategoryBackVO {
     /**
      * 分类名
      */
-    @Size(min = 1, max = 50, message = "'categoryName':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0006}")
     @ApiModelProperty(name = "categoryName", value = "分类名", dataType = "String")
     private String categoryName;
 

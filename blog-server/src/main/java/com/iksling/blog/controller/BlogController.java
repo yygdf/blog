@@ -3,6 +3,7 @@ package com.iksling.blog.controller;
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.BlogService;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.TokenVO;
 import io.swagger.annotations.Api;
@@ -29,7 +30,7 @@ public class BlogController {
     @PutMapping("/back/about")
     public Result updateBackAbout(@RequestBody String aboutContent) {
         blogService.updateBackAbout(aboutContent);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -38,13 +39,13 @@ public class BlogController {
     @PutMapping("/back/blog/messageConfig")
     public Result updateBackMessageConfig(@Valid @RequestBody StatusBackVO statusBackVO) {
         blogService.updateBackBlogMessageConfig(statusBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @ApiOperation(value = "查看后台用户消息提醒设置")
     @GetMapping("/back/blog/messageConfig")
     public Result getBackMessageConfigs() {
-        return Result.success().message("查询成功").data(blogService.getBackBlogMessageConfig());
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(blogService.getBackBlogMessageConfig());
     }
 
     @ApiOperation(value = "查看文章统计信息")
@@ -55,7 +56,7 @@ public class BlogController {
     })
     @GetMapping("/back/blog/articleStatistic")
     public Result getBackArticleStatistic(Integer userId, Date endDate, Integer days) {
-        return Result.success().message("查询成功").data(blogService.getBackArticleStatistic(userId, endDate, days));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(blogService.getBackArticleStatistic(userId, endDate, days));
     }
 
     /****************************************************************************************************/
@@ -64,25 +65,25 @@ public class BlogController {
     @ApiImplicitParam(name = "tokenVO", value = "令牌VO", required = true, dataType = "TokenVO")
     @PostMapping("/blog/token")
     public Result saveBlogTokenVO(@Valid @RequestBody TokenVO tokenVO) {
-        return Result.success().message("操作成功").data(blogService.saveTokenVO(tokenVO));
+        return Result.success().message(LocaleUtil.getMessage("C0001")).data(blogService.saveTokenVO(tokenVO));
     }
 
     @ApiOperation(value = "查看博主id")
     @ApiImplicitParam(name = "bloggerId", value = "博主id", dataType = "Integer")
     @GetMapping("/blog/id")
     public Result getBlogId(Integer bloggerId) {
-        return Result.success().message("查询成功").data(blogService.getBlogId(bloggerId));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(blogService.getBlogId(bloggerId));
     }
 
     @ApiOperation(value = "查看博客信息")
     @GetMapping("/blog/info")
     public Result getBlogInfo() {
-        return Result.success().message("查询成功").data(blogService.getBlogInfo());
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(blogService.getBlogInfo());
     }
 
     @ApiOperation(value = "查看关于我")
     @GetMapping("/about")
     public Result getAbout() {
-        return Result.success().message("查询成功").data(blogService.getAbout());
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(blogService.getAbout());
     }
 }

@@ -180,11 +180,11 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                             .userId(userId)
                             .noticeType(4)
                             .noticeTypeSub(2)
-                            .noticeTitle("用户等级提升")
-                            .noticeContent("快来<a href='" + WEBSITE_URL_BACK + "' target='_blank'>点击登录后台</a>发布您的第一篇文章吧!您的前台地址为: <a href='" + WEBSITE_URL + "/" + userId + "' target='_blank'>点击跳转前台</a>")
+                            .noticeTitle(LocaleUtil.getMessage("S0033"))
+                            .noticeContent(LocaleUtil.getMessage("S0034", WEBSITE_URL_BACK, WEBSITE_URL, userId))
                             .createUser(userId)
                             .createTime(createTime).build());
-                    EmailUtil.sendEmail(email, "用户等级提升", "快来<a href='" + WEBSITE_URL_BACK + "' target='_blank'>点击登录后台</a>发布您的第一篇文章吧!您的前台地址为: <a href='" + WEBSITE_URL + "/" + userId + "' target='_blank'>点击跳转前台</a>");
+                    EmailUtil.sendEmail(email, LocaleUtil.getMessage("S0033"), LocaleUtil.getMessage("S0034", WEBSITE_URL_BACK, WEBSITE_URL, userId));
                 }
             }
             offlineByUserId(userId);
@@ -260,12 +260,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
             throw new OperationStatusException();
         String usernameVal = o.toString().trim();
         if (usernameVal.length() < 1 || usernameVal.length() > 50)
-            throw new OperationStatusException("用户名长度不符合要求!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0018"));
         Integer count = userAuthMapper.selectCount(new LambdaQueryWrapper<UserAuth>()
                 .eq(UserAuth::getUsername, usernameVal)
                 .eq(UserAuth::getDeletedFlag, false));
         if (count != 0)
-            throw new OperationStatusException("该用户名已被使用!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0019"));
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
         count = userMapper.update(null, new LambdaUpdateWrapper<User>()
                 .set(User::getModifiedFlag, true)
@@ -303,7 +303,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         } else {
             passwordVO.setOldPassword(null);
             passwordVO.setNewPassword(null);
-            throw new OperationStatusException("密码错误!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0020"));
         }
     }
 
@@ -342,12 +342,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                 .eq(User::getEmail, email)
                 .exists("select id from tb_user_auth where user_id=id and deleted_flag=false"));
         if (objectList.isEmpty())
-            throw new OperationStatusException("该邮箱号不存在!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0021"));
         String code = RedisUtil.getValue(EMAIL_FORGET_CODE + "_" + email);
         if (code == null)
-            throw new OperationStatusException("验证码不存在或已失效!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0022"));
         if (!passwordForgetVO.getCode().equals(code))
-            throw new OperationStatusException("验证码错误!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0023"));
         userAuthMapper.update(null, new LambdaUpdateWrapper<UserAuth>()
                         .set(UserAuth::getPassword, passwordEncoder.encode(passwordForgetVO.getPassword()))
                         .set(UserAuth::getUpdateUser, objectList.get(0))

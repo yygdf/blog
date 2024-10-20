@@ -16,6 +16,7 @@ import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.TagService;
 import com.iksling.blog.util.BeanCopyUtil;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.StatusBackVO;
 import com.iksling.blog.vo.TagBackVO;
@@ -58,7 +59,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
                     .eq(Tag::getUserId, loginUserId)
                     .eq(Tag::getDeletedFlag, false));
             if (count > 0)
-                throw new OperationStatusException("标签名已存在!");
+                throw new OperationStatusException(LocaleUtil.getMessage("S0017"));
             tag.setUserId(loginUserId);
             tag.setCreateUser(loginUserId);
             tag.setCreateTime(new Date());
@@ -76,7 +77,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
                     .eq(Tag::getUserId, tagOrigin.getUserId())
                     .eq(Tag::getDeletedFlag, false));
             if (count > 0)
-                throw new OperationStatusException("标签名已存在!");
+                throw new OperationStatusException(LocaleUtil.getMessage("S0017"));
             tag.setUpdateUser(loginUserId);
             tag.setUpdateTime(new Date());
             tagMapper.updateById(tag);

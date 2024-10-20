@@ -2,6 +2,7 @@ package com.iksling.blog.handler;
 
 import com.iksling.blog.mapper.ResourceMapper;
 import com.iksling.blog.pojo.ResourceRole;
+import com.iksling.blog.util.LocaleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -37,15 +38,15 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
         for (ResourceRole resourceRole : resourceRoleList) {
             if (antPathMatcher.match(resourceRole.getResourceUri(), uri) && resourceRole.getResourceRequestMethod().equals(method)) {
                 if (resourceRole.getDisabledFlag())
-                    throw new AccessDeniedException("该请求已被禁用!");
+                    throw new AccessDeniedException(LocaleUtil.getMessage("H0003"));
                 if (resourceRole.getAnonymousFlag())
                     return null;
                 if (resourceRole.getRoleIdList() == null)
-                    throw new AccessDeniedException("该请求无法访问!");
+                    throw new AccessDeniedException(LocaleUtil.getMessage("H0004"));
                 return SecurityConfig.createList(resourceRole.getRoleIdList().split(","));
             }
         }
-        throw new AccessDeniedException("该请求已经被喵星人劫持了!");
+        throw new AccessDeniedException(LocaleUtil.getMessage("H0005"));
     }
 
     @Override

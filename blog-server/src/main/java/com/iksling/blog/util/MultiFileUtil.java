@@ -53,16 +53,16 @@ public class MultiFileUtil {
 
     public static void checkValidFile(MultipartFile file, FileDirEnum fileDirEnum, boolean checkSizeFlag) {
         if (file.isEmpty())
-            throw new FileStatusException("文件不存在!");
+            throw new FileStatusException(LocaleUtil.getMessage("U0001"));
         String originalFilename = file.getOriginalFilename();
         if (CommonUtil.isEmpty(originalFilename) || originalFilename.lastIndexOf(".") == -1)
-            throw new FileStatusException("文件名格式异常!");
+            throw new FileStatusException(LocaleUtil.getMessage("U0002"));
         String contentType = file.getContentType();
         byte[] fileByteArr;
         try {
             fileByteArr = file.getBytes();
         } catch (IOException e) {
-            throw new FileStatusException("文件IO异常!");
+            throw new FileStatusException(LocaleUtil.getMessage("U0003"));
         }
         switch (fileDirEnum) {
             case IMAGE_AVATAR:
@@ -86,7 +86,7 @@ public class MultiFileUtil {
                         checkValidFileHead(fileByteArr, fileDirEnum1);
                     }
                 else
-                    throw new FileStatusException("不支持的文件类型!");
+                    throw new FileStatusException(LocaleUtil.getMessage("U0004"));
                 break;
             case IMAGE_ALBUM:
                 if (JPG.getContentType().equals(contentType))
@@ -120,19 +120,19 @@ public class MultiFileUtil {
                         checkValidFileHead(fileByteArr, fileDirEnum2);
                     }
                 else
-                    throw new FileStatusException("不支持的文件类型!");
+                    throw new FileStatusException(LocaleUtil.getMessage("U0004"));
                 break;
             case AUDIO_CHAT:
                 if (WAV.getContentType().equals(contentType))
                     checkValidFileHead(fileByteArr, WAV.getByteHead());
                 else
-                    throw new FileStatusException("不支持的文件类型!");
+                    throw new FileStatusException(LocaleUtil.getMessage("U0004"));
                 break;
             case AUDIO_MUSIC:
                 if (MP3.getContentType().equals(contentType))
                     checkValidFileHead(fileByteArr, MP3.getByteHead());
                 else
-                    throw new FileStatusException("不支持的文件类型!");
+                    throw new FileStatusException(LocaleUtil.getMessage("U0004"));
                 break;
             default:
                 boolean flag = true;
@@ -149,16 +149,16 @@ public class MultiFileUtil {
                     }
                 }
                 if (flag)
-                    throw new FileStatusException("不支持的文件类型!");
+                    throw new FileStatusException(LocaleUtil.getMessage("U0004"));
         }
         if (checkSizeFlag && checkNotValidFileSize(file.getSize(), fileDirEnum.getSize(), fileDirEnum.getUnit()))
-            throw new FileStatusException("文件大小超出限制!");
+            throw new FileStatusException(LocaleUtil.getMessage("U0005"));
     }
 
     private static void checkValidFileHead(byte[] data, byte[] fileHead) {
         for (int i = 0; i < fileHead.length; i++) {
             if (data[i] != fileHead[i])
-                throw new FileStatusException("检查文件时发生错误!");
+                throw new FileStatusException(LocaleUtil.getMessage("U0006"));
         }
     }
 
@@ -175,6 +175,6 @@ public class MultiFileUtil {
                 return;
             }
         }
-        throw new FileStatusException("检查文件时发生错误!");
+        throw new FileStatusException(LocaleUtil.getMessage("U0006"));
     }
 }

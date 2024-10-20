@@ -106,7 +106,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             if (userBackVO.getUsername() == null || user.getNickname() == null || user.getEmail() == null || !RegexUtil.checkEmail(user.getEmail()))
                 throw new OperationStatusException();
             if (userMapper.selectBackUserAvatarById(user.getEmail(), userBackVO.getUsername(), null) != null)
-                throw new OperationStatusException("用户已存在!");
+                throw new OperationStatusException(LocaleUtil.getMessage("S0024"));
             Date createTime = new Date();
             user.setAvatar(null);
             user.setCreateUser(loginUserId);
@@ -123,7 +123,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 if (!RegexUtil.checkEmail(user.getEmail()))
                     throw new OperationStatusException();
                 if (userMapper.selectBackUserAvatarById(user.getEmail(), null, null) != null)
-                    throw new OperationStatusException("邮箱已存在!");
+                    throw new OperationStatusException(LocaleUtil.getMessage("S0025"));
             }
             Date updateTime = new Date();
             if (user.getAvatar() != null) {
@@ -162,7 +162,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String[] originalFilenameArr = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
         String fullFileName = fileName + "." + originalFilenameArr[1];
         if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
-            throw new FileStatusException("文件上传失败!");
+            throw new FileStatusException(LocaleUtil.getMessage("S0001"));
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(userId)
@@ -313,7 +313,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String targetAddr = multiFileList.get(0).getFileFullPath();
         String fullFileName = fileName + "." + originalFilenameArr[1];
         if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
-            throw new FileStatusException("文件上传失败!");
+            throw new FileStatusException(LocaleUtil.getMessage("S0001"));
         Date dateTime = new Date();
         String url = FtpUtil.address + loginUserId + "/" + IMAGE_AVATAR.getPath() + "/" + fullFileName;
         if (multiFileList.size() > 1)
@@ -413,19 +413,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             code.append(random.nextInt(10));
         if (emailCodeVO.getType() == null) {
             if (userMapper.selectBackUserAvatarById(email, null, null) != null)
-                throw new OperationStatusException("该邮箱号已被注册!");
+                throw new OperationStatusException(LocaleUtil.getMessage("S0026"));
             RedisUtil.setValue(EMAIL_REGISTER_CODE + "_" + email, code, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
-            EmailUtil.sendEmail(email, "邮箱注册验证码", "您的验证码为 " + code.toString() + " 有效期15分钟,请不要告诉他人哦!");
+            EmailUtil.sendEmail(email, LocaleUtil.getMessage("S0027"), LocaleUtil.getMessage("S0028", code.toString()));
         } else if (emailCodeVO.getType() == 2) {
             if (userMapper.selectBackUserAvatarById(email, null, null) == null)
-                throw new OperationStatusException("该邮箱号不存在!");
+                throw new OperationStatusException(LocaleUtil.getMessage("S0021"));
             RedisUtil.setValue(EMAIL_FORGET_CODE + "_" + email, code, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
-            EmailUtil.sendEmail(email, "重设密码验证码", "您的验证码为 " + code.toString() + " 有效期15分钟,如果非本人操作请忽略!");
+            EmailUtil.sendEmail(email, LocaleUtil.getMessage("S0029"), LocaleUtil.getMessage("S0030", code.toString()));
         } else {
             if (userMapper.selectBackUserAvatarById(email, null, null) != null)
-                throw new OperationStatusException("该邮箱号已被注册!");
+                throw new OperationStatusException(LocaleUtil.getMessage("S0026"));
             RedisUtil.setValue(EMAIL_MODIFY_CODE + "_" + email, code, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
-            EmailUtil.sendEmail(email, "邮箱换绑验证码", "您的验证码为 " + code.toString() + " 有效期15分钟,请不要告诉他人哦!");
+            EmailUtil.sendEmail(email, LocaleUtil.getMessage("S0031"), LocaleUtil.getMessage("S0028", code.toString()));
         }
     }
 
@@ -436,12 +436,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (!RegexUtil.checkEmail(email))
             throw new OperationStatusException();
         if (userMapper.selectBackUserAvatarById(email, userRegisterVO.getUsername(), null) != null)
-            throw new OperationStatusException("用户名或邮箱已注册!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0032"));
         String code = RedisUtil.getValue(EMAIL_REGISTER_CODE + "_" + email);
         if (code == null)
-            throw new OperationStatusException("验证码不存在或已失效!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0022"));
         if (!userRegisterVO.getCode().equals(code))
-            throw new OperationStatusException("验证码错误!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0023"));
         Date createTime = new Date();
         User user = User.builder()
                 .email(email)
@@ -493,9 +493,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             dict.set("username", username);
         } else {
             if (qqAuth.getLockedFlag())
-                throw new LockedStatusException("您的账号已被锁定, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
+                throw new LockedStatusException(LocaleUtil.getMessage("A0001", ADMIN_CONTACT_QQ));
             if (qqAuth.getDisabledFlag())
-                throw new DisabledStatusException("您的账号已被禁用, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
+                throw new DisabledStatusException(LocaleUtil.getMessage("I0002", ADMIN_CONTACT_QQ));
             loginUserId = qqAuth.getUserId();
             if (!passwordEncoder.matches(qqOauthVO.getAccessToken(), qqAuth.getAccessToken())) {
                 Map map = JSON.parseObject(restTemplate.getForObject(QQ_USER_INFO_URL, String.class, formData), Map.class);
@@ -515,7 +515,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         List<Role> roleList = roleMapper.selectLoginRoleByUserId(loginUserId);
         if (roleList.isEmpty())
-            throw new DisabledStatusException("您的角色已被禁用, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
+            throw new DisabledStatusException(LocaleUtil.getMessage("I0003", ADMIN_CONTACT_QQ));
         Boolean loginPlatform = Boolean.parseBoolean(request.getHeader("Login-Platform"));
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .select(User::getIntro, User::getEmail, User::getAvatar, User::getGender, User::getWebsite, User::getNickname, User::getModifiedFlag)
@@ -558,17 +558,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .select(UserAuth::getPassword)
                 .eq(UserAuth::getUserId, loginUserId));
         if (!passwordEncoder.matches(emailVO.getPassword(), objectList.get(0).toString()))
-            throw new OperationStatusException("密码错误!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0020"));
         String email = emailVO.getEmail();
         if (!RegexUtil.checkEmail(email))
             throw new OperationStatusException();
         if (userMapper.selectBackUserAvatarById(email, null, null) != null)
-            throw new OperationStatusException("邮箱已注册!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0026"));
         String code = RedisUtil.getValue(EMAIL_MODIFY_CODE + "_" + email);
         if (code == null)
-            throw new OperationStatusException("验证码不存在或已失效!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0022"));
         if (!emailVO.getCode().equals(code))
-            throw new OperationStatusException("验证码错误!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0023"));
         userMapper.update(null, new LambdaUpdateWrapper<User>()
                 .set(User::getEmail, emailVO.getEmail())
                 .set(User::getUpdateUser, loginUserId)
@@ -699,11 +699,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                         .userId(userId)
                         .noticeType(4)
                         .noticeTypeSub(2)
-                        .noticeTitle("用户等级提升")
-                        .noticeContent("快来<a href='" + WEBSITE_URL_BACK + "' target='_blank'>点击登录后台</a>发布您的第一篇文章吧!您的前台地址为: <a href='" + WEBSITE_URL + "/" + userId + "' target='_blank'>点击跳转前台</a>")
+                        .noticeTitle(LocaleUtil.getMessage("S0033"))
+                        .noticeContent(LocaleUtil.getMessage("S0034", WEBSITE_URL_BACK, WEBSITE_URL, userId))
                         .createUser(userId)
                         .createTime(createTime).build());
-                EmailUtil.sendEmail(email, "用户等级提升", "快来<a href='" + WEBSITE_URL_BACK + "' target='_blank'>点击登录后台</a>发布您的第一篇文章吧!您的前台地址为: <a href='" + WEBSITE_URL + "/" + userId + "' target='_blank'>点击跳转前台</a>");
+                EmailUtil.sendEmail(email, LocaleUtil.getMessage("S0033"), LocaleUtil.getMessage("S0034", WEBSITE_URL_BACK, WEBSITE_URL, userId));
             }
         }
     }

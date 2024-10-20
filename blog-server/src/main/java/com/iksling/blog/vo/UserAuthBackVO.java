@@ -14,14 +14,14 @@ public class UserAuthBackVO {
     /**
      * id
      */
-    @NotNull(message = "'id':'NotNull'")
+    @NotNull(message = "{V0031}")
     @ApiModelProperty(name = "id", value = "账号id", dataType = "Integer")
     private Integer id;
 
     /**
      * 用户密码
      */
-    @Size(min = 6, max = 255, message = "'password':{'minlength':6,'maxlength':255}")
+    @Size(min = 6, max = 255, message = "{V0012}")
     @ApiModelProperty(name = "password", value = "用户密码", dataType = "String")
     private String password;
 
@@ -38,9 +38,9 @@ public class UserAuthBackVO {
     private Boolean disabledFlag;
 
     /**
-     * 角色idList
+     * 角色id列表
      */
-    @Size(min = 1, message = "'roleIdList':{'min':1}")
-    @ApiModelProperty(name = "roleIdList", value = "角色idList", dataType = "List<Integer>")
+    @Size(min = 1, message = "{V0068}")
+    @ApiModelProperty(name = "roleIdList", value = "角色id列表", dataType = "List<Integer>")
     private List<Integer> roleIdList;
 }

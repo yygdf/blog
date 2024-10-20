@@ -4,6 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.RoleService;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.vo.RoleBackVO;
 import com.iksling.blog.vo.RolePermissionBackVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -31,7 +32,7 @@ public class RoleController {
     @PostMapping("/back/role")
     public Result saveOrUpdateBackRole(@Valid @RequestBody RoleBackVO roleBackVO) {
         roleService.saveOrUpdateRoleBackVO(roleBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = REMOVE)
@@ -40,7 +41,7 @@ public class RoleController {
     @DeleteMapping("/back/roles")
     public Result deleteBackRoles(@RequestBody List<Integer> idList) {
         roleService.deleteBackRolesByIdList(idList);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -49,7 +50,7 @@ public class RoleController {
     @PutMapping("/back/role/status")
     public Result updateBackRoleStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         roleService.updateRoleStatusBackVO(statusBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -58,14 +59,14 @@ public class RoleController {
     @PutMapping("/back/role/permission")
     public Result updateBackRolePermission(@Valid @RequestBody RolePermissionBackVO rolePermissionBackVO) {
         roleService.updateRolePermissionBackVO(rolePermissionBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @ApiOperation(value = "查看后台角色列表")
     @ApiImplicitParam(name = "keywords", value = "关键字(角色名称)", dataType = "String")
     @GetMapping("/back/roles")
     public Result getBackRoles(String keywords) {
-        return Result.success().message("查询成功").data(Dict.create()
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(Dict.create()
                 .set("rootRoleId", ROOT_ROLE_ID)
                 .set("dataList", roleService.getRolesBackDTO(keywords)));
     }
@@ -73,12 +74,12 @@ public class RoleController {
     @ApiOperation(value = "查看所有的角色名")
     @GetMapping("/back/role/roleNames")
     public Result getBackRoleNames() {
-        return Result.success().message("查询成功").data(roleService.getBackRoleNames());
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(roleService.getBackRoleNames());
     }
 
     @ApiOperation(value = "查看角色权限")
     @GetMapping("/back/role/permission")
     public Result getBackRolePermission() {
-        return Result.success().message("查询成功").data(roleService.getRolePermissionBackDTO());
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(roleService.getRolePermissionBackDTO());
     }
 }

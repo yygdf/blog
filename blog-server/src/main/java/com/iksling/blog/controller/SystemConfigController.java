@@ -1,9 +1,10 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.SystemConfigService;
-import com.iksling.blog.pojo.Condition;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.vo.SystemConfigBackVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -29,7 +30,7 @@ public class SystemConfigController {
     @PostMapping("/back/systemConfig")
     public Result saveOrUpdateBackSystemConfig(@Valid @RequestBody SystemConfigBackVO systemConfigBackVO) {
         systemConfigService.saveOrUpdateSystemConfigBackVO(systemConfigBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = REMOVE)
@@ -38,13 +39,13 @@ public class SystemConfigController {
     @DeleteMapping("/back/systemConfigs")
     public Result deleteBackSystemConfigs(@RequestBody List<Integer> idList) {
         systemConfigService.deleteBackSystemConfigsByIdList(idList);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @ApiOperation(value = "查看后台系统配置列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/systemConfigs")
     public Result getBackSystemConfigs(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(systemConfigService.getSystemConfigsBackDTO(condition));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(systemConfigService.getSystemConfigsBackDTO(condition));
     }
 }

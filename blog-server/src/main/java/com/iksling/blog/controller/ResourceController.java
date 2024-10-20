@@ -3,6 +3,7 @@ package com.iksling.blog.controller;
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ResourceService;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.vo.ResourceBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import io.swagger.annotations.Api;
@@ -28,7 +29,7 @@ public class ResourceController {
     @PostMapping("/back/resource")
     public Result saveOrUpdateBackResource(@Valid @RequestBody ResourceBackVO resourceBackVO) {
         resourceService.saveOrUpdateResourceBackVO(resourceBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = REMOVE)
@@ -37,7 +38,7 @@ public class ResourceController {
     @DeleteMapping("/back/resources")
     public Result deleteBackResources(@RequestBody List<Integer> idList) {
         resourceService.deleteBackResourcesByIdList(idList);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -46,19 +47,19 @@ public class ResourceController {
     @PutMapping("/back/resource/status")
     public Result updateResourceStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         resourceService.updateResourceStatusBackVO(statusBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @ApiOperation(value = "查看后台资源列表")
     @ApiImplicitParam(name = "keywords", value = "关键字(资源名称)", dataType = "String")
     @GetMapping("/back/resources")
     public Result getBackResources(String keywords) {
-        return Result.success().message("查询成功").data(resourceService.getResourcesBackDTO(keywords));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(resourceService.getResourcesBackDTO(keywords));
     }
 
     @ApiOperation(value = "查看资源模块名")
     @GetMapping("/back/resource/moduleNames")
     public Result getBackResourceModuleNames() {
-        return Result.success().message("查询成功").data(resourceService.getBackResourceModuleNames());
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(resourceService.getBackResourceModuleNames());
     }
 }

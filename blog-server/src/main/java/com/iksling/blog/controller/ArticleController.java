@@ -4,6 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ArticleService;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.vo.ArticleBackVO;
 import com.iksling.blog.vo.ArticleImageBackVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -30,7 +31,7 @@ public class ArticleController {
     @ApiImplicitParam(name = "articleBackVO", value = "文章后台VO", required = true, dataType = "ArticleBackVO")
     @PostMapping("/back/article")
     public Result saveOrUpdateBackArticle(@Valid @RequestBody ArticleBackVO articleBackVO) {
-        return Result.success().message("操作成功").data(articleService.saveOrUpdateArticleBackVO(articleBackVO));
+        return Result.success().message(LocaleUtil.getMessage("C0001")).data(articleService.saveOrUpdateArticleBackVO(articleBackVO));
     }
 
     @OptLog(optType = SAVE)
@@ -38,7 +39,7 @@ public class ArticleController {
     @ApiImplicitParam(name = "articleImageBackVO", value = "文章图片后台VO", required = true, dataType = "ArticleImageBackVO")
     @PostMapping("/back/article/image")
     public Result saveBackArticleImage(@Valid ArticleImageBackVO articleImageBackVO) {
-        return Result.success().message("上传成功").data(articleService.saveArticleImageBackVO(articleImageBackVO));
+        return Result.success().message(LocaleUtil.getMessage("C0002")).data(articleService.saveArticleImageBackVO(articleImageBackVO));
     }
 
     @OptLog(optType = SAVE_OR_UPDATE)
@@ -47,7 +48,7 @@ public class ArticleController {
     @PostMapping("/back/article/token")
     public Result saveOrUpdateBackArticleToken(@Valid @RequestBody TokenBackVO tokenBackVO) {
         articleService.saveOrUpdateArticleTokenBackVO(tokenBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = REMOVE)
@@ -56,7 +57,7 @@ public class ArticleController {
     @DeleteMapping("/back/articles")
     public Result deleteBackArticles(@RequestBody List<Integer> idList) {
         articleService.deleteBackArticlesByIdList(idList);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -65,7 +66,7 @@ public class ArticleController {
     @PutMapping("/back/article/status")
     public Result updateBackArticleStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         articleService.updateArticleStatusBackVO(statusBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -74,7 +75,7 @@ public class ArticleController {
     @PutMapping("/back/articles/status")
     public Result updateBackArticlesStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         articleService.updateArticlesStatusBackVO(statusBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -83,35 +84,35 @@ public class ArticleController {
     @PutMapping("/back/article/images")
     public Result updateBackArticleImages(@RequestBody List<Long> fileNameList) {
         articleService.updateBackArticleImagesByFileNameList(fileNameList);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @ApiOperation(value = "根据文章id查找文章")
     @ApiImplicitParam(name = "id", value = "文章id", required = true, dataType = "Integer")
     @GetMapping("/back/article/{id}")
     public Result getBackArticleById(@PathVariable Integer id) {
-        return Result.success().message("查询成功").data(articleService.getArticleBackDTOById(id));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(articleService.getArticleBackDTOById(id));
     }
 
     @ApiOperation(value = "查看文章选项")
     @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer")
     @GetMapping("/back/article/option")
     public Result getBackArticleOption(Integer userId) {
-        return Result.success().message("查询成功").data(articleService.getArticleOptionBackDTO(userId));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(articleService.getArticleOptionBackDTO(userId));
     }
 
     @ApiOperation(value = "查看后台文章列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/articles")
     public Result getBackArticles(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(articleService.getArticlesBackDTO(condition));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(articleService.getArticlesBackDTO(condition));
     }
 
     @ApiOperation(value = "根据文章id查找文章令牌")
     @ApiImplicitParam(name = "id", value = "文章id", required = true, dataType = "Integer")
     @GetMapping("/back/article/token/{id}")
     public Result getBackArticleTokenById(@PathVariable Integer id) {
-        return Result.success().message("操作成功").data(articleService.getArticleTokenById(id));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(articleService.getArticleTokenById(id));
     }
 
     /****************************************************************************************************/
@@ -122,46 +123,46 @@ public class ArticleController {
     @PostMapping("/article/like/{id}")
     public Result saveArticleLike(@PathVariable Integer id) {
         articleService.saveArticleLike(id);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @ApiOperation(value = "查看文章列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/articles")
     public Result getArticles(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(articleService.getArticlesDTO(condition));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(articleService.getArticlesDTO(condition));
     }
 
     @ApiOperation(value = "根据文章id查找文章")
     @ApiImplicitParam(name = "id", value = "文章id", required = true, dataType = "Integer")
     @GetMapping("/article/{id}")
     public Result getArticleById(@PathVariable Integer id) {
-        return Result.success().message("查询成功").data(articleService.getArticleDTOById(id));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(articleService.getArticleDTOById(id));
     }
 
     @ApiOperation(value = "查看最新文章列表")
     @GetMapping("/articles/newest")
     public Result getArticlesNewest() {
-        return Result.success().message("查询成功").data(articleService.getArticlesRecommendDTO());
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(articleService.getArticlesRecommendDTO());
     }
 
     @ApiOperation(value = "预览文章列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "ConditionVO")
     @GetMapping("/articles/preview")
     public Result getArticlesPreview(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(articleService.getArticlesPreviewDTO(condition));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(articleService.getArticlesPreviewDTO(condition));
     }
 
     @ApiOperation(value = "查看文章归档")
     @GetMapping("/articles/archive")
     public Result getArticlesArchive(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(articleService.getArticlesArchiveDTO(condition));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(articleService.getArticlesArchiveDTO(condition));
     }
 
     @ApiOperation(value = "搜索文章列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/articles/search")
     public Result getArticlesSearch(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(articleService.getArticlesSearchDTO(condition));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(articleService.getArticlesSearchDTO(condition));
     }
 }

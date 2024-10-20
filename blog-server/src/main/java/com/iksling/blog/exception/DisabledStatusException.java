@@ -1,8 +1,10 @@
 package com.iksling.blog.exception;
 
+import com.iksling.blog.util.LocaleUtil;
+
 public class DisabledStatusException extends AuthenticationStatusException {
     public DisabledStatusException() {
-        super("账号已被禁用!");
+        super(LocaleUtil.getMessage("E0002"));
     }
 
     public DisabledStatusException(String message) {

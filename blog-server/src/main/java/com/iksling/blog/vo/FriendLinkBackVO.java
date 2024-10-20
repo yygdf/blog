@@ -24,28 +24,28 @@ public class FriendLinkBackVO {
     /**
      * 友链地址
      */
-    @Size(min = 1, max = 255, message = "'linkUrl':{'minlength':1,'maxlength':255}")
+    @Size(min = 1, max = 255, message = "{V0015}")
     @ApiModelProperty(name = "linkUrl", value = "友链地址", dataType = "String")
     private String linkUrl;
 
     /**
      * 友链描述
      */
-    @Size(min = 1, max = 50, message = "'linkDesc':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0016}")
     @ApiModelProperty(name = "linkDesc", value = "友链描述", dataType = "String")
     private String linkDesc;
 
     /**
      * 友链图标
      */
-    @Size(min = 1, max = 255, message = "'linkLogo':{'minlength':1,'maxlength':255}")
+    @Size(min = 1, max = 255, message = "{V0017}")
     @ApiModelProperty(name = "linkLogo", value = "友链图标", dataType = "String")
     private String linkLogo;
 
     /**
      * 友链名称
      */
-    @Size(min = 1, max = 50, message = "'linkName':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0018}")
     @ApiModelProperty(name = "linkName", value = "友链名称", dataType = "String")
     private String linkName;
 }

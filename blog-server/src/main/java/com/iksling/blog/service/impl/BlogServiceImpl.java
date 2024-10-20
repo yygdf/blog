@@ -9,6 +9,7 @@ import com.iksling.blog.mapper.*;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.BlogService;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.util.RedisUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.StatusBackVO;
@@ -126,10 +127,10 @@ public class BlogServiceImpl implements BlogService {
         if (tokenVO.getType() == null) {
             Map<String, Object> map = RedisUtil.getMap(ARTICLE_TOKEN + "_" + id);
             if (!tokenVO.getAccessToken().equals(map.get("accessToken")))
-                throw new OperationStatusException("密令不存在!");
+                throw new OperationStatusException(LocaleUtil.getMessage("S0003"));
             Integer count = (Integer) map.get("effectiveCount");
             if (count == 0)
-                throw new OperationStatusException("密令已失效!");
+                throw new OperationStatusException(LocaleUtil.getMessage("S0004"));
             HashSet<Integer> articleTokenSet = RedisUtil.getMapValue(ARTICLE_TOKEN, loginUserId.toString());
             if (articleTokenSet == null)
                 articleTokenSet = new HashSet<>();

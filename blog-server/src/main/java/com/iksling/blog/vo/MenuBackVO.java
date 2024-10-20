@@ -25,35 +25,35 @@ public class MenuBackVO {
     /**
      * 菜单图标
      */
-    @Size(min = 1, max = 50, message = "'icon':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0019}")
     @ApiModelProperty(name = "icon", value = "菜单图标", dataType = "String")
     private String icon;
 
     /**
      * 排序指标
      */
-    @Range(min = 1, max = 100, message = "'rank':{'minvalue':1,'maxvalue':100}")
+    @Range(min = 1, max = 100, message = "{V0020}")
     @ApiModelProperty(name = "rank", value = "排序指标", dataType = "Integer")
     private Integer rank;
 
     /**
      * 菜单路径
      */
-    @Size(min = 1, max = 50, message = "'path':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0021}")
     @ApiModelProperty(name = "path", value = "菜单路径", dataType = "String")
     private String path;
 
     /**
      * 菜单名称
      */
-    @Size(min = 1, max = 50, message = "'name':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0022}")
     @ApiModelProperty(name = "name", value = "菜单名称", dataType = "String")
     private String name;
 
     /**
      * 菜单组件
      */
-    @Size(min = 1, max = 50, message = "'component':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0023}")
     @ApiModelProperty(name = "component", value = "菜单组件", dataType = "String")
     private String component;
 

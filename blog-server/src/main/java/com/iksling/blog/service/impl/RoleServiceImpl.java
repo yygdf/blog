@@ -18,6 +18,7 @@ import com.iksling.blog.mapper.RoleMenuMapper;
 import com.iksling.blog.mapper.RoleResourceMapper;
 import com.iksling.blog.service.*;
 import com.iksling.blog.util.BeanCopyUtil;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.util.RedisUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.RoleBackVO;
@@ -82,7 +83,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
             Integer count = roleMapper.selectCount(new LambdaQueryWrapper<Role>()
                     .eq(Role::getRoleName, role.getRoleName()));
             if (count > 0)
-                throw new OperationStatusException("角色名已存在!");
+                throw new OperationStatusException(LocaleUtil.getMessage("S0015"));
             role.setUserId(loginUserId);
             role.setCreateTime(new Date());
             role.setCreateUser(loginUserId);
@@ -97,7 +98,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
                 Integer count = roleMapper.selectCount(new LambdaQueryWrapper<Role>()
                         .eq(Role::getRoleName, role.getRoleName()));
                 if (count > 0)
-                    throw new OperationStatusException("角色名已存在!");
+                    throw new OperationStatusException(LocaleUtil.getMessage("S0015"));
             }
             role.setUpdateTime(new Date());
             role.setUpdateUser(loginUserId);

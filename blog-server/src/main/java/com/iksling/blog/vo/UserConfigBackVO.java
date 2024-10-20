@@ -13,21 +13,21 @@ public class UserConfigBackVO {
     /**
      * id
      */
-    @NotNull(message = "'id':'NotNull'")
+    @NotNull(message = "{V0031}")
     @ApiModelProperty(name = "id", value = "配置id", dataType = "Integer")
     private Integer id;
 
     /**
      * 配置描述
      */
-    @Size(max = 255, message = "'configDesc':{'maxlength':255}")
+    @Size(max = 255, message = "{V0060}")
     @ApiModelProperty(name = "configDesc", value = "配置描述", dataType = "String")
     private String configDesc;
 
     /**
      * 配置值
      */
-    @Size(max = 255, message = "'configValue':{'maxlength':255}")
+    @Size(max = 255, message = "{V0075}")
     @ApiModelProperty(name = "configValue", value = "配置值", dataType = "String")
     private String configValue;
 

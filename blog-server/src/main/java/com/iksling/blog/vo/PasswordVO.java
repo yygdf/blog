@@ -13,16 +13,16 @@ public class PasswordVO {
     /**
      * 旧密码
      */
-    @NotNull(message = "'oldPassword':'NotNull'")
-    @Size(min = 6, max = 255, message = "'oldPassword':{'minlength':6,'maxlength':255}")
+    @NotNull(message = "{V0045}")
+    @Size(min = 6, max = 255, message = "{V0046}")
     @ApiModelProperty(name = "oldPassword", value = "旧密码", dataType = "String")
     private String oldPassword;
 
     /**
      * 新密码
      */
-    @NotNull(message = "'newPassword':'NotNull'")
-    @Size(min = 6, max = 255, message = "'newPassword':{'minlength':6,'maxlength':255}")
+    @NotNull(message = "{V0047}")
+    @Size(min = 6, max = 255, message = "{V0048}")
     @ApiModelProperty(name = "newPassword", value = "新密码", dataType = "String")
     private String newPassword;
 }

@@ -1,8 +1,9 @@
 package com.iksling.blog.controller;
 
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ExceptionLogService;
-import com.iksling.blog.pojo.Condition;
+import com.iksling.blog.util.LocaleUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -22,6 +23,6 @@ public class ExceptionLogController {
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/exceptionLogs")
     public Result getBackExceptionLogs(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(exceptionLogService.getExceptionLogsBackDTO(condition));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(exceptionLogService.getExceptionLogsBackDTO(condition));
     }
 }

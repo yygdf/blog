@@ -18,21 +18,21 @@ public class MusicBackVO {
     /**
      * 音乐链接
      */
-    @Size(min = 1, max = 255, message = "'musicUrl':{'minlength':1,'maxlength':255}")
+    @Size(min = 1, max = 255, message = "{V0034}")
     @ApiModelProperty(name = "musicUrl", value = "音乐链接", dataType = "String")
     private String musicUrl;
 
     /**
      * 音乐名称
      */
-    @Size(min = 1, max = 50, message = "'musicName':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0035}")
     @ApiModelProperty(name = "musicName", value = "音乐名称", dataType = "String")
     private String musicName;
 
     /**
      * 音乐封面
      */
-    @Size(max = 255, message = "'musicCover':{'maxlength':255}")
+    @Size(max = 255, message = "{V0036}")
     @ApiModelProperty(name = "musicCover", value = "音乐封面", dataType = "String")
     private String musicCover;
 
@@ -45,14 +45,14 @@ public class MusicBackVO {
     /**
      * 作者
      */
-    @Size(max = 50, message = "'author':{'maxlength':50}")
+    @Size(max = 50, message = "{V0037}")
     @ApiModelProperty(name = "author", value = "作者", dataType = "String")
     private String author;
 
     /**
      * 专辑
      */
-    @Size(max = 50, message = "'album':{'maxlength':50}")
+    @Size(max = 50, message = "{V0038}")
     @ApiModelProperty(name = "album", value = "专辑", dataType = "String")
     private String album;
 }

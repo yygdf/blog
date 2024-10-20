@@ -13,24 +13,24 @@ public class PasswordForgetVO {
     /**
      * 用户密码
      */
-    @NotNull(message = "'password':'NotNull'")
-    @Size(min = 6, max = 255, message = "'password':{'minlength':6,'maxlength':255}")
+    @NotNull(message = "{V0011}")
+    @Size(min = 6, max = 255, message = "{V0012}")
     @ApiModelProperty(name = "password", value = "用户密码", dataType = "String")
     private String password;
 
     /**
      * 用户邮箱
      */
-    @NotNull(message = "'email':'NotNull'")
-    @Size(min = 1, max = 50, message = "'email':{'minlength':1,'maxlength':50}")
+    @NotNull(message = "{V0009}")
+    @Size(min = 1, max = 50, message = "{V0010}")
     @ApiModelProperty(name = "email", value = "用户邮箱", dataType = "String")
     private String email;
 
     /**
      * 验证码
      */
-    @NotNull(message = "'code':'NotNull'")
-    @Size(min = 6, max = 6, message = "'code':{'minlength':1,'maxlength':50}")
+    @NotNull(message = "{V0013}")
+    @Size(min = 6, max = 6, message = "{V0014}")
     @ApiModelProperty(name = "code", value = "验证码", dataType = "String")
     private String code;
 }

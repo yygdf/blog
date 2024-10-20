@@ -3,6 +3,7 @@ package com.iksling.blog.handler;
 import com.alibaba.fastjson.JSON;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.util.JwtUtil;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.util.RedisUtil;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,6 @@ public class LogoutSuccessHandlerImpl implements LogoutSuccessHandler {
         String subject = claims.getSubject();
         RedisUtil.delKey(LOGIN_TOKEN + "_" + subject);
         httpServletResponse.setContentType("application/json;charset=UTF-8");
-        httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message("注销成功!")));
+        httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message(LocaleUtil.getMessage("H0006"))));
     }
 }

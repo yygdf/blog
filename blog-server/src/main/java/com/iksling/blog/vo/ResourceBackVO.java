@@ -24,21 +24,21 @@ public class ResourceBackVO {
     /**
      * 资源路径
      */
-    @Size(min = 1, max = 50, message = "'resourceUri':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0051}")
     @ApiModelProperty(name = "resourceUri", value = "资源路径", dataType = "String")
     private String resourceUri;
 
     /**
      * 资源名称
      */
-    @Size(min = 1, max = 50, message = "'resourceName':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0052}")
     @ApiModelProperty(name = "resourceName", value = "资源名称", dataType = "String")
     private String resourceName;
 
     /**
      * 请求方式
      */
-    @Size(min = 1, max = 50, message = "'resourceRequestMethod':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0053}")
     @ApiModelProperty(name = "resourceRequestMethod", value = "请求方式", dataType = "String")
     private String resourceRequestMethod;
 

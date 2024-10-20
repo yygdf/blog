@@ -13,30 +13,30 @@ public class NoticeBackVO {
     /**
      * 通知类型
      */
-    @NotNull(message = "'type':'NotNull'")
+    @NotNull(message = "{V0039}")
     @ApiModelProperty(name = "type", value = "通知类型", dataType = "Integer")
     private Integer type;
 
     /**
      * 收件人id
      */
-    @NotNull(message = "'userId':'NotNull'")
+    @NotNull(message = "{V0040}")
     @ApiModelProperty(name = "userId", value = "收件人id", dataType = "Integer")
     private Integer userId;
 
     /**
      * 通知标题
      */
-    @NotNull(message = "'noticeTitle':'NotNull'")
-    @Size(min = 1, max = 50, message = "'noticeTitle':{'minlength':1,'maxlength':50}")
+    @NotNull(message = "{V0041}")
+    @Size(min = 1, max = 50, message = "{V0042}")
     @ApiModelProperty(name = "noticeTitle", value = "通知标题", dataType = "String")
     private String noticeTitle;
 
     /**
      * 通知内容
      */
-    @NotNull(message = "'noticeContent':'NotNull'")
-    @Size(min = 1, message = "'noticeContent':{'minlength':1}")
+    @NotNull(message = "{V0043}")
+    @Size(min = 1, message = "{V0044}")
     @ApiModelProperty(name = "noticeContent", value = "通知内容", dataType = "String")
     private String noticeContent;
 }

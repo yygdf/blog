@@ -25,21 +25,21 @@ public class ArticleBackVO {
     /**
      * 文章标题
      */
-    @Size(min = 1, max = 50, message = "'articleTitle':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0001}")
     @ApiModelProperty(name = "articleTitle", value = "文章标题", dataType = "String")
     private String articleTitle;
 
     /**
      * 文章封面
      */
-    @Size(max = 255, message = "'articleCover':{'maxlength':255}")
+    @Size(max = 255, message = "{V0002}")
     @ApiModelProperty(name = "articleCover", value = "文章封面", dataType = "String")
     private String articleCover;
 
     /**
      * 文章内容
      */
-    @Size(min = 1, message = "'articleContent':{'minlength':1}")
+    @Size(min = 1, message = "{V0003}")
     @ApiModelProperty(name = "articleContent", value = "文章内容", dataType = "String")
     private String articleContent;
 

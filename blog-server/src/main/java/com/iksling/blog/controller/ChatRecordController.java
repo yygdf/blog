@@ -3,6 +3,7 @@ package com.iksling.blog.controller;
 import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.ChatRecordService;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.vo.MultiFileVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -27,7 +28,7 @@ public class ChatRecordController {
     @PostMapping("/chatRecord")
     public Result saveChatRecord(@RequestBody String chatContent) {
         chatRecordService.saveChatRecord(chatContent);
-        return Result.success().message("发送成功");
+        return Result.success().message(LocaleUtil.getMessage("C0004"));
     }
 
     @OptLog(optType = SAVE)
@@ -36,7 +37,7 @@ public class ChatRecordController {
     @PostMapping("/chatRecord/voice")
     public Result saveChatRecordVoice(@Valid MultiFileVO multiFileVO) {
         chatRecordService.saveChatRecordVoice(multiFileVO);
-        return Result.success().message("发送成功");
+        return Result.success().message(LocaleUtil.getMessage("C0008"));
     }
 
     @OptLog(optType = UPDATE)
@@ -45,12 +46,12 @@ public class ChatRecordController {
     @PutMapping("/chatRecord/{id}")
     public Result updateChatRecord(@PathVariable Integer id) {
         chatRecordService.updateChatRecord(id);
-        return Result.success().message("撤回成功");
+        return Result.success().message(LocaleUtil.getMessage("C0005"));
     }
 
     @ApiOperation(value = "查看聊天记录")
     @GetMapping("/chatRecords")
     public Result getChatRecords() {
-        return Result.success().message("查询成功").data(chatRecordService.getChatRecordsDTO());
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(chatRecordService.getChatRecordsDTO());
     }
 }

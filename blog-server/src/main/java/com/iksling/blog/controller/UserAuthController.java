@@ -5,6 +5,7 @@ import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.UserAuthService;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.vo.PasswordForgetVO;
 import com.iksling.blog.vo.PasswordVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -36,7 +37,7 @@ public class UserAuthController {
     @PutMapping("/back/userAuth")
     public Result updateBackUserAuth(@Valid @RequestBody UserAuthBackVO userAuthBackVO) {
         userAuthService.updateUserAuthBackVO(userAuthBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -45,7 +46,7 @@ public class UserAuthController {
     @PutMapping("/back/userAuth/status")
     public Result updateBackUserAuthStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         userAuthService.updateUserAuthStatusBackVO(statusBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -54,14 +55,14 @@ public class UserAuthController {
     @PutMapping("/back/userAuth/username")
     public Result updateBackUsername(@RequestBody String username) {
         userAuthService.updateBackUsername(username);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @ApiOperation(value = "查看后台账号列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/userAuths")
     public Result getBackUserAuths(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(Dict.create()
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(Dict.create()
                 .set("rootUserIdList", ROOT_USER_ID_LIST)
                 .set("rootRoleIdList", ROOT_ROLE_ID_LIST)
                 .set("pagePojo", userAuthService.getUserAuthsBackDTO(condition)));
@@ -71,7 +72,7 @@ public class UserAuthController {
     @ApiImplicitParam(name = "keywords", value = "关键字(用户名)", dataType = "String")
     @GetMapping("/back/userAuth/usernames")
     public Result getBackUsernames(String keywords) {
-        return Result.success().message("查询成功").data(userAuthService.getBackUsernames(keywords));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(userAuthService.getBackUsernames(keywords));
     }
 
     /****************************************************************************************************/
@@ -82,7 +83,7 @@ public class UserAuthController {
     @PutMapping("/userAuth/forget")
     public Result updateUserForgetPassword(@Valid @RequestBody PasswordForgetVO passwordForgetVO) {
         userAuthService.updateUserForgetPasswordVO(passwordForgetVO);
-        return Result.success().message("重设成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -91,6 +92,6 @@ public class UserAuthController {
     @PutMapping("/userAuth/password")
     public Result updateUserPassword(@Valid @RequestBody PasswordVO passwordVO) {
         userAuthService.updateUserPasswordVO(passwordVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 }

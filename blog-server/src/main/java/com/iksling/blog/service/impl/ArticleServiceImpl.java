@@ -188,7 +188,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         String targetAddr = multiFile.getFileFullPath();
         String fullFileName = fileName + "." + originalFilenameArr[1];
         if (MultiFileUtil.upload(file, targetAddr, fullFileName) == null)
-            throw new FileStatusException("文件上传失败!");
+            throw new FileStatusException(LocaleUtil.getMessage("S0001"));
         String iPAddress = IpUtil.getIpAddress(request);
         multiFileMapper.insert(MultiFile.builder()
                 .userId(articleUserId)
@@ -604,7 +604,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         try {
             search = elasticsearchRestTemplate.search(nativeSearchQueryBuilder.build(), ArticlesSearchDTO.class);
         } catch (Exception e) {
-            throw new ServerStatusException("查询超时!");
+            throw new ServerStatusException(LocaleUtil.getMessage("S0002"));
         }
         return search.getSearchHits().stream().map(hit -> {
             ArticlesSearchDTO article = hit.getContent();

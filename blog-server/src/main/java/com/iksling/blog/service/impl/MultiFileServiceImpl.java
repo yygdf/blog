@@ -79,7 +79,7 @@ public class MultiFileServiceImpl extends ServiceImpl<MultiFileMapper, MultiFile
             String fullFileName = fileName + "." + originalFilenameArr[1];
             String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
             if (url == null)
-                throw new FileStatusException("文件上传失败!");
+                throw new FileStatusException(LocaleUtil.getMessage("S0001"));
             String iPAddress = IpUtil.getIpAddress(request);
             multiFileList.add(MultiFile.builder()
                     .userId(multiFileUserId)

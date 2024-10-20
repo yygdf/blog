@@ -13,7 +13,7 @@ public class TokenVO {
     /**
      * id
      */
-    @NotNull(message = "'id':'NotNull'")
+    @NotNull(message = "{V0031}")
     @ApiModelProperty(name = "id", value = "id", dataType = "Integer")
     private Integer id;
 
@@ -26,8 +26,8 @@ public class TokenVO {
     /**
      * 访问密令
      */
-    @NotNull(message = "'accessToken':'NotNull'")
-    @Size(min = 1, max = 100, message = "'accessToken':{'minlength':1,'maxlength':100}")
+    @NotNull(message = "{V0067}")
+    @Size(min = 1, max = 100, message = "{V0065}")
     @ApiModelProperty(name = "accessToken", value = "访问密令", dataType = "String")
     private String accessToken;
 }

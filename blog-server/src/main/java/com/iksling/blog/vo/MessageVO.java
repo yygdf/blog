@@ -12,16 +12,16 @@ public class MessageVO {
     /**
      * 留言速度
      */
-    @NotNull(message = "'messageSpeed':'NotNull'")
-    @Range(min = 1, max = 10, message = "'messageSpeed':{'minvalue':1,'maxvalue':10}")
+    @NotNull(message = "{V0024}")
+    @Range(min = 1, max = 10, message = "{V0025}")
     @ApiModelProperty(name = "messageSpeed", value = "留言速度", dataType = "Integer")
     private Integer messageSpeed;
 
     /**
      * 留言内容
      */
-    @NotNull(message = "'messageContent':'NotNull'")
-    @Size(min = 1, max = 100, message = "'messageContent':{'minlength':1,'maxlength':50}")
+    @NotNull(message = "{V0026}")
+    @Size(min = 1, max = 100, message = "{V0027}")
     @ApiModelProperty(name = "messageContent", value = "留言内容", dataType = "String")
     private String messageContent;
 }

@@ -4,6 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MenuService;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.vo.MenuBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import io.swagger.annotations.Api;
@@ -30,7 +31,7 @@ public class MenuController {
     @PostMapping("/back/menu")
     public Result saveOrUpdateBackMenu(@Valid @RequestBody MenuBackVO menuBackVO) {
         menuService.saveOrUpdateMenuBackVO(menuBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = REMOVE)
@@ -39,7 +40,7 @@ public class MenuController {
     @DeleteMapping("/back/menus")
     public Result deleteBackMenus(@RequestBody List<Integer> idList) {
         menuService.deleteBackMenusByIdList(idList);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -48,14 +49,14 @@ public class MenuController {
     @PutMapping("/back/menu/status")
     public Result updateBackMenuStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         menuService.updateMenuStatusBackVO(statusBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @ApiOperation(value = "查看后台菜单列表")
     @ApiImplicitParam(name = "keywords", value = "关键字(菜单名称)", dataType = "String")
     @GetMapping("/back/menus")
     public Result getBackMenus(String keywords) {
-        return Result.success().message("查询成功").data(Dict.create()
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(Dict.create()
                 .set("homeMenuId", HOME_MENU_ID)
                 .set("dataList", menuService.getMenusBackDTO(keywords)));
     }
@@ -63,6 +64,6 @@ public class MenuController {
     @ApiOperation(value = "查看用户菜单")
     @GetMapping("/back/menus/user")
     public Result getBackMenusUser() {
-        return Result.success().message("查询成功").data(menuService.getMenusUserBackDTO());
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(menuService.getMenusUserBackDTO());
     }
 }

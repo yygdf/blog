@@ -88,7 +88,7 @@ public class ChatRecordServiceImpl extends ServiceImpl<ChatRecordMapper, ChatRec
         try {
             webSocketListener.sendChatRecord(BeanCopyUtil.copyObject(chatRecord, ChatRecordsDTO.class));
         } catch (IOException e) {
-            throw new OperationStatusException("发送失败!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0006"));
         }
     }
 
@@ -112,7 +112,7 @@ public class ChatRecordServiceImpl extends ServiceImpl<ChatRecordMapper, ChatRec
         String fullFileName = fileName + "." + originalFilenameArr[1];
         String url = MultiFileUtil.upload(file, targetAddr, fullFileName);
         if (url == null)
-            throw new FileStatusException("文件上传失败!");
+            throw new FileStatusException(LocaleUtil.getMessage("S0001"));
         String ipAddress = IpUtil.getIpAddress(request);
         String ipSource = IpUtil.getIpSource(ipAddress);
         Date createTime = new Date();
@@ -134,12 +134,12 @@ public class ChatRecordServiceImpl extends ServiceImpl<ChatRecordMapper, ChatRec
         try {
             webSocketListener.sendChatRecordVoice(BeanCopyUtil.copyObject(chatRecord, ChatRecordsDTO.class));
         } catch (IOException e) {
-            throw new OperationStatusException("发送语音失败!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0007"));
         }
         multiFileMapper.insert(MultiFile.builder()
                 .userId(loginUserId)
                 .parentId(multiFile.getId())
-                .fileDesc("{'userId':"+loginUserId+",'info':'聊天室语音消息'}")
+                .fileDesc("{'userId':"+loginUserId+",'info':'ChatRecordVoice'}")
                 .fileMark(AUDIO_CHAT.getCurrentPath().intValue())
                 .fileName(fileName)
                 .fileSize(file.getSize())
@@ -176,7 +176,7 @@ public class ChatRecordServiceImpl extends ServiceImpl<ChatRecordMapper, ChatRec
         try {
             webSocketListener.sendChatRecordBack(id, chatRecord.getChatType());
         } catch (IOException e) {
-            throw new OperationStatusException("发送语音失败!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0008"));
         }
     }
 

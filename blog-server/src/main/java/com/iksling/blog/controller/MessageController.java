@@ -4,6 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MessageService;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.vo.MessageVO;
 import com.iksling.blog.vo.StatusBackVO;
 import io.swagger.annotations.Api;
@@ -29,7 +30,7 @@ public class MessageController {
     @DeleteMapping("/back/messages")
     public Result deleteBackMessages(@RequestBody List<Integer> idList) {
         messageService.deleteBackMessagesByIdList(idList);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -38,14 +39,14 @@ public class MessageController {
     @PutMapping("/back/messages/status")
     public Result updateBackMessagesStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         messageService.updateMessagesStatusBackVO(statusBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @ApiOperation(value = "查看后台留言列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/messages")
     public Result getBackMessages(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(messageService.getMessagesBackDTO(condition));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(messageService.getMessagesBackDTO(condition));
     }
 
     /****************************************************************************************************/
@@ -56,12 +57,12 @@ public class MessageController {
     @PostMapping("/message")
     public Result saveMessage(@Valid @RequestBody MessageVO messageVO) {
         messageService.saveMessageVO(messageVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @ApiOperation(value = "查看留言列表")
     @GetMapping("/messages")
     public Result getMessages() {
-        return Result.success().message("查询成功").data(messageService.getMessagesDTO());
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(messageService.getMessagesDTO());
     }
 }

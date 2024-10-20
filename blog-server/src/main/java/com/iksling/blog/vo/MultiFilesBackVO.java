@@ -15,7 +15,7 @@ public class MultiFilesBackVO {
     /**
      * id
      */
-    @NotNull(message = "'id':'NotNull'")
+    @NotNull(message = "{V0031}")
     @ApiModelProperty(name = "id", value = "文件id", required = true, dataType = "Integer")
     private Integer id;
 
@@ -28,8 +28,8 @@ public class MultiFilesBackVO {
     /**
      * 文件列表
      */
-    @NotNull(message = "'fileList':'NotNull'")
-    @Size(min = 1, max = 10, message = "'fileList':{'min':1,'max':10}")
+    @NotNull(message = "{V0032}")
+    @Size(min = 1, max = 10, message = "{V0033}")
     @ApiModelProperty(name = "fileList", value = "文件列表", required = true, dataType = "List<MultiPartFile>")
     private List<MultipartFile> fileList;
 }

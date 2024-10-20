@@ -16,6 +16,7 @@ import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.MenuService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.CommonUtil;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.MenuBackVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -56,7 +57,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
             Integer count = menuMapper.selectCount(new LambdaQueryWrapper<Menu>()
                     .eq(Menu::getPath, menu.getPath()));
             if (count > 0)
-                throw new OperationStatusException("该菜单路径已存在!");
+                throw new OperationStatusException(LocaleUtil.getMessage("S0012"));
             menu.setUserId(loginUserId);
             menu.setCreateUser(loginUserId);
             menu.setCreateTime(new Date());
@@ -66,7 +67,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                 Integer count = menuMapper.selectCount(new LambdaQueryWrapper<Menu>()
                         .eq(Menu::getPath, menu.getPath()));
                 if (count > 0)
-                    throw new OperationStatusException("该菜单路径已存在!");
+                    throw new OperationStatusException(LocaleUtil.getMessage("S0012"));
             }
             menu.setUpdateUser(loginUserId);
             menu.setUpdateTime(new Date());

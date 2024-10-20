@@ -4,6 +4,7 @@ import com.iksling.blog.annotation.OptLog;
 import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.MultiFileService;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.vo.MultiFileBackVO;
 import com.iksling.blog.vo.MultiFilesBackVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -31,7 +32,7 @@ public class MultiFileController {
     @PostMapping("/back/multiFiles")
     public Result saveBackMultiFiles(@Valid MultiFilesBackVO multiFilesBackVO) {
         multiFileService.saveMultiFilesBackVO(multiFilesBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0002"));
     }
 
     @OptLog(optType = SAVE_OR_UPDATE)
@@ -40,7 +41,7 @@ public class MultiFileController {
     @PostMapping("/back/multiFile")
     public Result saveOrUpdateBackMultiFile(@Valid @RequestBody MultiFileBackVO multiFileBackVO) {
         multiFileService.saveOrUpdateMultiFileBackVO(multiFileBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = SAVE_OR_UPDATE)
@@ -49,7 +50,7 @@ public class MultiFileController {
     @PostMapping("/back/multiFile/token")
     public Result saveOrUpdateBackMultiFileToken(@Valid @RequestBody TokenBackVO tokenBackVO) {
         multiFileService.saveOrUpdateMultiFileTokenBackVO(tokenBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = REMOVE)
@@ -58,7 +59,7 @@ public class MultiFileController {
     @DeleteMapping("/back/multiFiles")
     public Result deleteBackMultiFiles(@RequestBody List<Integer> idList) {
         multiFileService.deleteBackMultiFilesByIdList(idList);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -67,7 +68,7 @@ public class MultiFileController {
     @PutMapping("/back/multiFile/status")
     public Result updateBackMultiFileStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         multiFileService.updateMultiFileStatusBackVO(statusBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -76,20 +77,20 @@ public class MultiFileController {
     @PutMapping("/back/multiFiles/status")
     public Result updateMultiFilesStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         multiFileService.updateMultiFilesStatusBackVO(statusBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @ApiOperation(value = "查看后台文件列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/multiFiles")
     public Result getBackMultiFiles(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(multiFileService.getMultiFilesBackDTO(condition));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(multiFileService.getMultiFilesBackDTO(condition));
     }
 
     @ApiOperation(value = "根据文件id查找文件令牌")
     @ApiImplicitParam(name = "id", value = "文件id", required = true, dataType = "Integer")
     @GetMapping("/back/multiFile/token/{id}")
     public Result getBackMultiFileTokenById(@PathVariable Integer id) {
-        return Result.success().message("操作成功").data(multiFileService.getMultiFileTokenById(id));
+        return Result.success().message(LocaleUtil.getMessage("C0001")).data(multiFileService.getMultiFileTokenById(id));
     }
 }

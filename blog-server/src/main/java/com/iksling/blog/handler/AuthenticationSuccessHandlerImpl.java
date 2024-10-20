@@ -14,10 +14,7 @@ import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.Result;
-import com.iksling.blog.util.IpUtil;
-import com.iksling.blog.util.JwtUtil;
-import com.iksling.blog.util.RedisUtil;
-import com.iksling.blog.util.UserUtil;
+import com.iksling.blog.util.*;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -84,7 +81,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         RedisUtil.setMap(LOGIN_TOKEN + "_" + userId, map);
         RedisUtil.expire(LOGIN_TOKEN + "_" + userId, TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
         httpServletResponse.setContentType("application/json;charset=UTF-8");
-        httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message("登录成功!").data(Dict.create().set("loginUserDTO", loginUserDTO).set("token", JwtUtil.createJwtToken(tokenId, userId.toString())))));
+        httpServletResponse.getWriter().write(JSON.toJSONString(Result.success().message(LocaleUtil.getMessageByLang("C0007", httpServletRequest.getHeader("Lang"))).data(Dict.create().set("loginUserDTO", loginUserDTO).set("token", JwtUtil.createJwtToken(tokenId, userId.toString())))));
     }
 
     @Async

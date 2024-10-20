@@ -12,14 +12,14 @@ public class QQOauthVO {
     /**
      * openid
      */
-    @NotNull(message = "'openid':'NotNull'")
+    @NotNull(message = "{V0049}")
     @ApiModelProperty(name = "openid", value = "openid", dataType = "String")
     private String openid;
 
     /**
      * accessToken
      */
-    @NotNull(message = "'accessToken':'NotNull'")
+    @NotNull(message = "{V0050}")
     @ApiModelProperty(name = "accessToken", value = "accessToken", dataType = "String")
     private String accessToken;
 }

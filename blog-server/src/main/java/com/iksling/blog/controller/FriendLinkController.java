@@ -1,9 +1,10 @@
 package com.iksling.blog.controller;
 
 import com.iksling.blog.annotation.OptLog;
+import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.Result;
 import com.iksling.blog.service.FriendLinkService;
-import com.iksling.blog.pojo.Condition;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.vo.FriendLinkBackVO;
 import com.iksling.blog.vo.StatusBackVO;
 import io.swagger.annotations.Api;
@@ -29,7 +30,7 @@ public class FriendLinkController {
     @PostMapping("/back/friendLink")
     public Result saveOrUpdateBackFriendLink(@Valid @RequestBody FriendLinkBackVO friendLinkBackVO) {
         friendLinkService.saveOrUpdateFriendLinkBackVO(friendLinkBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = REMOVE)
@@ -38,7 +39,7 @@ public class FriendLinkController {
     @DeleteMapping("/back/friendLinks")
     public Result deleteBackFriendLinks(@RequestBody List<Integer> idList) {
         friendLinkService.deleteBackFriendLinksByIdList(idList);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @OptLog(optType = UPDATE)
@@ -47,14 +48,14 @@ public class FriendLinkController {
     @PutMapping("/back/friendLinks/status")
     public Result updateFriendLinksStatus(@Valid @RequestBody StatusBackVO statusBackVO) {
         friendLinkService.updateFriendLinksStatusBackVO(statusBackVO);
-        return Result.success().message("操作成功");
+        return Result.success().message(LocaleUtil.getMessage("C0001"));
     }
 
     @ApiOperation(value = "查看后台友链列表")
     @ApiImplicitParam(name = "condition", value = "查询条件", required = true, dataType = "Condition")
     @GetMapping("/back/friendLinks")
     public Result getBackFriendLinks(@Valid Condition condition) {
-        return Result.success().message("查询成功").data(friendLinkService.getFriendLinksBackDTO(condition));
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(friendLinkService.getFriendLinksBackDTO(condition));
     }
 
     /****************************************************************************************************/
@@ -62,6 +63,6 @@ public class FriendLinkController {
     @ApiOperation(value = "查看友链列表")
     @GetMapping("/friendLinks")
     public Result getFriendLinks() {
-        return Result.success().message("查询成功").data(friendLinkService.getFriendLinksDTO());
+        return Result.success().message(LocaleUtil.getMessage("C0003")).data(friendLinkService.getFriendLinksDTO());
     }
 }

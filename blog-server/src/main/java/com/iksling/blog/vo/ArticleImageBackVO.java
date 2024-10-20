@@ -13,7 +13,7 @@ public class ArticleImageBackVO {
     /**
      * 文件
      */
-    @NotNull(message = "'file':'NotNull'")
+    @NotNull(message = "{V0004}")
     @ApiModelProperty(name = "file", value = "文件", required = true, dataType = "MultiPartFile")
     private MultipartFile file;
 
@@ -26,7 +26,7 @@ public class ArticleImageBackVO {
     /**
      * 文章id
      */
-    @NotNull(message = "'articleId':'NotNull'")
+    @NotNull(message = "{V0005}")
     @ApiModelProperty(name = "articleId", value = "文章id", required = true, dataType = "Integer")
     private Integer articleId;
 }

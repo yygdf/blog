@@ -17,10 +17,10 @@ public class TagBackVO {
     private Integer id;
 
     /**
-     * 标签名
+     * 标签名称
      */
-    @NotNull(message = "'tagName':'NotNull'")
-    @Size(min = 1, max = 50, message = "'tagName':{'minlength':1,'maxlength':50}")
-    @ApiModelProperty(name = "tagName", value = "标签名", required = true, dataType = "String")
+    @NotNull(message = "{V0063}")
+    @Size(min = 1, max = 50, message = "{V0064}")
+    @ApiModelProperty(name = "tagName", value = "标签名称", required = true, dataType = "String")
     private String tagName;
 }

@@ -17,21 +17,21 @@ public class RoleBackVO {
     /**
      * 角色描述
      */
-    @Size(min = 1, max = 50, message = "'roleDesc':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0054}")
     @ApiModelProperty(name = "roleDesc", value = "角色描述", dataType = "String")
     private String roleDesc;
 
     /**
      * 角色名称
      */
-    @Size(min = 1, max = 50, message = "'roleName':{'minlength':1,'maxlength':50}")
+    @Size(min = 1, max = 50, message = "{V0055}")
     @ApiModelProperty(name = "roleName", value = "角色名称", dataType = "String")
     private String roleName;
 
     /**
      * 角色权重
      */
-    @Range(min = 1, max = 1000, message = "'roleWeight':{'minvalue':1,'maxvalue':1000}")
+    @Range(min = 1, max = 1000, message = "{V0056}")
     @ApiModelProperty(name = "roleWeight", value = "角色权重", dataType = "Integer")
     private Integer roleWeight;
 

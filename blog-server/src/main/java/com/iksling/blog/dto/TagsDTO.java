@@ -15,7 +15,7 @@ public class TagsDTO {
     private Integer userId;
 
     /**
-     * 标签名
+     * 标签名称
      */
     private String tagName;
 }

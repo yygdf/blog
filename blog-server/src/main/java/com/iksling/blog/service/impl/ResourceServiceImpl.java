@@ -16,6 +16,7 @@ import com.iksling.blog.mapper.RoleResourceMapper;
 import com.iksling.blog.service.ResourceService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.CommonUtil;
+import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.ResourceBackVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -57,7 +58,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                         .eq(Resource::getResourceName, resource.getResourceName())
                         .eq(Resource::getParentId, -1));
                 if (count > 0)
-                    throw new OperationStatusException("该资源名称已存在!");
+                    throw new OperationStatusException(LocaleUtil.getMessage("S0013"));
             } else {
                 if (resource.getResourceRequestMethod() == null)
                     resource.setResourceRequestMethod("GET");
@@ -67,7 +68,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                         .eq(Resource::getResourceUri, resource.getResourceUri())
                         .eq(Resource::getResourceRequestMethod, resource.getResourceRequestMethod()));
                 if (count > 0)
-                    throw new OperationStatusException("该资源已存在!");
+                    throw new OperationStatusException(LocaleUtil.getMessage("S0014"));
             }
             resource.setUserId(loginUserId);
             resource.setCreateUser(loginUserId);
@@ -86,7 +87,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                         .eq(Resource::getResourceName, resource.getResourceName())
                         .eq(Resource::getParentId, -1));
                 if (count > 0)
-                    throw new OperationStatusException("该资源名称已存在!");
+                    throw new OperationStatusException(LocaleUtil.getMessage("S0013"));
             } else {
                 boolean flag = false;
                 if (resource.getResourceUri() != null) {
@@ -102,7 +103,7 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource>
                             .eq(Resource::getResourceUri, resourceOrigin.getResourceUri())
                             .eq(Resource::getResourceRequestMethod, resourceOrigin.getResourceRequestMethod()));
                     if (count > 0)
-                        throw new OperationStatusException("该资源已存在!");
+                        throw new OperationStatusException(LocaleUtil.getMessage("S0014"));
                 }
             }
             resource.setUpdateUser(loginUserId);

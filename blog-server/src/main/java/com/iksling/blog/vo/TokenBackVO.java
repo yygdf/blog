@@ -15,7 +15,7 @@ public class TokenBackVO {
     /**
      * id
      */
-    @NotNull(message = "'id':'NotNull'")
+    @NotNull(message = "{V0031}")
     @ApiModelProperty(name = "id", value = "id", dataType = "Integer")
     private Integer id;
 
@@ -28,14 +28,14 @@ public class TokenBackVO {
     /**
      * 访问密令
      */
-    @Size(min = 1, max = 100, message = "'accessToken':{'minlength':1,'maxlength':100}")
+    @Size(min = 1, max = 100, message = "{V0065}")
     @ApiModelProperty(name = "accessToken", value = "访问密令", dataType = "String")
     private String accessToken;
 
     /**
      * 有效次数
      */
-    @Range(min = -1, max = Integer.MAX_VALUE, message = "'effectiveCount':{'minvalue':-1,'maxvalue':2147483647}")
+    @Range(min = -1, max = Integer.MAX_VALUE, message = "{V0066}")
     @ApiModelProperty(name = "effectiveCount", value = "有效次数", dataType = "Integer")
     private Integer effectiveCount;
 }

@@ -1,5 +1,6 @@
 package com.iksling.blog.handler;
 
+import com.iksling.blog.util.LocaleUtil;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -24,7 +25,7 @@ public class AccessDecisionManagerImpl implements AccessDecisionManager {
             if (permissionList.contains(e.getAttribute()))
                 return;
         }
-        throw new AccessDeniedException("没有操作权限!");
+        throw new AccessDeniedException(LocaleUtil.getMessage("H0001"));
     }
 
     @Override

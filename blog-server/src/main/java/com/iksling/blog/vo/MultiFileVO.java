@@ -13,7 +13,7 @@ public class MultiFileVO {
     /**
      * 文件
      */
-    @NotNull(message = "'file':'NotNull'")
+    @NotNull(message = "{V0004}")
     @ApiModelProperty(name = "file", value = "文件", required = true, dataType = "MultiPartFile")
     private MultipartFile file;
 }

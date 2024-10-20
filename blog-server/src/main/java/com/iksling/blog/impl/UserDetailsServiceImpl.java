@@ -7,6 +7,7 @@ import com.iksling.blog.mapper.RoleMapper;
 import com.iksling.blog.mapper.UserAuthMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.util.CommonUtil;
+import com.iksling.blog.util.LocaleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
@@ -30,20 +31,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         if (CommonUtil.isEmpty(username))
-            throw new UsernameNotFoundException("用户名为空!");
+            throw new UsernameNotFoundException(LocaleUtil.getMessage("I0001"));
         UserAuth userAuth = userAuthMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
             .select(UserAuth::getUserId, UserAuth::getUsername, UserAuth::getPassword, UserAuth::getLockedFlag, UserAuth::getDisabledFlag)
             .eq(UserAuth::getUsername, username)
             .eq(UserAuth::getDeletedFlag, false));
         if (userAuth == null)
-            throw new UsernameNotFoundException("用户名不存在!");
+            throw new UsernameNotFoundException(LocaleUtil.getMessage("I0001"));
         if (userAuth.getLockedFlag())
-            throw new LockedException("您的账号已被锁定, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
+            throw new LockedException(LocaleUtil.getMessage("A0001", username, ADMIN_CONTACT_QQ));
         if (userAuth.getDisabledFlag())
-            throw new DisabledException("您的账号已被禁用, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
+            throw new DisabledException(LocaleUtil.getMessage("I0002", username, ADMIN_CONTACT_QQ));
         List<Role> roleList = roleMapper.selectLoginRoleByUserId(userAuth.getUserId());
         if (roleList.isEmpty())
-            throw new DisabledException("您的角色已被禁用, 如有疑问请联系管理员[QQ: " + ADMIN_CONTACT_QQ + "]");
+            throw new DisabledException(LocaleUtil.getMessage("I0003", username, ADMIN_CONTACT_QQ));
         return LoginUser.builder()
                 .userId(userAuth.getUserId())
                 .username(userAuth.getUsername())

@@ -19,10 +19,7 @@ import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.CommentService;
-import com.iksling.blog.util.IpUtil;
-import com.iksling.blog.util.RedisUtil;
-import com.iksling.blog.util.RegexUtil;
-import com.iksling.blog.util.UserUtil;
+import com.iksling.blog.util.*;
 import com.iksling.blog.vo.CommentVO;
 import com.iksling.blog.vo.StatusBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.iksling.blog.constant.CommonConst.*;
+import static com.iksling.blog.constant.CommonConst.ROOT_USER_ID;
+import static com.iksling.blog.constant.CommonConst.WEBSITE_URL;
 import static com.iksling.blog.constant.FlagConst.DELETED;
 import static com.iksling.blog.constant.FlagConst.RECYCLE;
 import static com.iksling.blog.constant.RedisConst.COMMENT_LIKE_COUNT;
@@ -128,8 +126,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                 notice.setUserId(ROOT_USER_ID);
                 notice.setNoticeType(4);
                 notice.setNoticeTypeSub(1);
-                notice.setNoticeTitle("您收到一条新的友链评论!");
-                notice.setNoticeContent("该评论来自用户 "+loginUser.getUsername()+" ,点击 <a href='"+WEBSITE_URL+"/"+ROOT_USER_ID+"/friendLinks' target='_blank'>网页链接</a> 查看详情!");
+                notice.setNoticeTitle(LocaleUtil.getMessage("S0035"));
+                notice.setNoticeContent(LocaleUtil.getMessage("S0036", loginUser.getUsername(), WEBSITE_URL, ROOT_USER_ID));
             } else {
                 if (!loginUserId.equals(ROOT_USER_ID))
                     throw new OperationStatusException();
@@ -164,7 +162,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                         .eq(Comment::getParentId, -1)
                         .eq(Comment::getRecycleFlag, false));
                 if (count == 0)
-                    throw new OperationStatusException("该评论已被删除, 无法回复!");
+                    throw new OperationStatusException(LocaleUtil.getMessage("S0009"));
                 comment.setParentId(parentId);
             }
             if (replyId != null) {
@@ -173,7 +171,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                         .eq(Comment::getUserId, replyId)
                         .eq(Comment::getRecycleFlag, false));
                 if (count == 0)
-                    throw new OperationStatusException("该评论已被删除, 无法回复!");
+                    throw new OperationStatusException(LocaleUtil.getMessage("S0009"));
                 comment.setReplyId(replyId);
                 if (map.get("2") == 2)
                     sendNoticeFlag = false;
@@ -207,7 +205,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                 .eq(Comment::getId, id)
                 .eq(Comment::getRecycleFlag, false));
         if (mapList.size() == 0)
-            throw new OperationStatusException("该评论已被删除, 无法点赞!");
+            throw new OperationStatusException(LocaleUtil.getMessage("S0010"));
         Integer articleId = (Integer) mapList.get(0).get("article_id");
         if (articleId != -1) {
             int count = articleMapper.selectCount(new LambdaQueryWrapper<Article>()
@@ -215,7 +213,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                     .eq(Article::getDraftFlag, false)
                     .and(loginUser.getRoleWeight() > 300, e -> e.and(e2 -> e2.eq(Article::getHiddenFlag, false).eq(Article::getCommentableFlag, true)).or().eq(Article::getUserId, loginUser.getUserId())));
             if (count == 0)
-                throw new OperationStatusException("文章信息不可查询, 无法点赞!");
+                throw new OperationStatusException(LocaleUtil.getMessage("S0011"));
         }
         HashSet<Integer> commentLikeSet = RedisUtil.getMapValue(COMMENT_USER_LIKE, loginUserId.toString());
         if (commentLikeSet == null)

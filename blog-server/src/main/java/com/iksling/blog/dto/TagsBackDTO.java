@@ -22,7 +22,7 @@ public class TagsBackDTO {
     private String username;
 
     /**
-     * 标签名
+     * 标签名称
      */
     private String tagName;
 

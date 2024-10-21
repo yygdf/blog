@@ -7,7 +7,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     collapse: false,
-    tabList: [{ name: "首页", path: "/" }],
+    tabList: [{ name: "首页", path: "/", meta: { nameEn: "Home" } }],
     userId: null,
     email: "",
     intro: "",
@@ -21,13 +21,17 @@ export default new Vuex.Store({
     articleLikeSet: [],
     commentLikeSet: [],
     currentRoutePath: "/",
-    currentTab: { name: "首页", path: "/" },
+    currentTab: { name: "首页", path: "/", meta: { nameEn: "Home" } },
     token: null
   },
   mutations: {
     saveTab(state, tab) {
       if (state.tabList.findIndex(item => item.path === tab.path) === -1) {
-        state.tabList.push({ name: tab.name, path: tab.path });
+        state.tabList.push({
+          name: tab.name,
+          path: tab.path,
+          meta: tab.meta
+        });
       }
     },
     saveCurrentTab(state, tab) {
@@ -38,7 +42,7 @@ export default new Vuex.Store({
       state.tabList.splice(index, 1);
     },
     resetTab(state) {
-      state.tabList = [{ name: "首页", path: "/" }];
+      state.tabList = [{ name: "首页", path: "/", meta: { nameEn: "Home" } }];
     },
     trigger(state) {
       state.collapse = !state.collapse;

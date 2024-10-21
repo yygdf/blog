@@ -13,14 +13,17 @@ export async function generateMenu() {
             {
               name: item.name,
               path: "",
-              component: item.component
+              component: item.component,
+              nameEn: item.nameEn
             }
           ];
           item.name = "";
         }
+        item.meta = { nameEn: item.nameEn };
         item.component = Layout;
         item.children.forEach(route => {
           route.component = loadView(route.component);
+          route.meta = { nameEn: route.nameEn };
         });
       });
       store.commit("saveUserMenuList", userMenuList);

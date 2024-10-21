@@ -1,5 +1,8 @@
 export default {
   switchTip: "Switch to English",
+  switchTip2: "English",
+  success: "成功",
+  failure: "失败",
   login: {
     title: "欢迎登录",
     username: "用户名",
@@ -12,5 +15,44 @@ export default {
     login: "登录",
     rememberMe: "记住我",
     forgot: "忘记账号或密码?点击此处!"
+  },
+  navBar: {
+    personal: "个人中心",
+    logout: "退出登录",
+    closeAll: "全部关闭",
+    closeOther: "关闭其他"
+  },
+  article: {
+    title: "发表文章",
+    category: "文章分类",
+    tag: "文章标签",
+    cover: "文章封面",
+    coverLink: "封面链接",
+    top: "置顶",
+    public: "公开",
+    hidden: "隐藏",
+    commentable: "可评论",
+    tip1: "将文件拖到此处, 或",
+    tip2: "点击上传",
+    tip3: "支持 jpg/png/gif 文件, 且不超过5MB",
+    saveDraft: "保存草稿",
+    publishArticle: "发表文章",
+    exitWithoutSave: "不保存退出",
+    cancel: "取消",
+    publish: "发表",
+    articleTitle: "请输入文章标题",
+    selectCategory: "请选择分类",
+    selectTag: "请选择标签",
+    titleRule1: "文章标题不能为空!",
+    contentRule1: "文章内容不能为空!",
+    categoryRule1: "文章分类不能为空!",
+    confirmTip: "提示",
+    confirmContent: "确定退出吗?编辑的内容将不会保存!",
+    confirmYes: "确认",
+    confirmNo: "取消",
+    coverRule1: "上传的图片只能是jpg, png, gif格式!",
+    coverRule2: "上传图片的大小不能超过5MB!",
+    autoSaveSuccess: "自动保存成功!",
+    autoSaveFailure: "自动保存失败!"
   }
 };

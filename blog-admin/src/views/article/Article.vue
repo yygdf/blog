@@ -1,12 +1,14 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="article-title-container">
       <el-input
         v-model="article.articleTitle"
         maxlength="50"
         size="medium"
-        placeholder="输入文章标题"
+        :placeholder="$t('article.articleTitle')"
         show-word-limit
       />
       <el-button
@@ -15,7 +17,7 @@
         class="save-btn"
         @click="addOrEditArticleDraft(true)"
       >
-        保存草稿
+        {{ $t("article.saveDraft") }}
       </el-button>
       <el-button
         type="danger"
@@ -23,7 +25,7 @@
         style="margin-left:10px"
         @click="publicArticle"
       >
-        发表文章
+        {{ $t("article.publishArticle") }}
       </el-button>
       <el-button
         type="warning"
@@ -31,13 +33,14 @@
         style="margin-left:10px"
         @click="exitWithNoSave"
       >
-        不保存退出
+        {{ $t("article.exitWithoutSave") }}
       </el-button>
     </div>
     <mavon-editor
       v-model="article.articleContent"
       ref="md"
       style="height:calc(100vh - 260px)"
+      :language="isEn ? 'en' : 'zh-CN'"
       @imgAdd="uploadArticleImage"
       @imgDel="updateArticleImage"
       @save="addOrEditArticleDraft(true)"
@@ -49,13 +52,13 @@
       @close="cancelAddOrEditArticle"
     >
       <div class="dialog-title-container" slot="title">
-        发表文章
+        {{ $t("article.title") }}
       </div>
-      <el-form :model="article" size="medium" label-width="80">
-        <el-form-item label="文章分类">
+      <el-form :model="article" size="medium" label-width="auto">
+        <el-form-item :label="$t('article.category')">
           <el-select
             v-model="article.categoryId"
-            placeholder="请选择分类"
+            :placeholder="$t('article.selectCategory')"
             class="form-input-width2"
           >
             <el-option
@@ -67,10 +70,10 @@
           </el-select>
           <span style="color: red;"> *</span>
         </el-form-item>
-        <el-form-item label="文章标签">
+        <el-form-item :label="$t('article.tag')">
           <el-select
             v-model="article.tagIdList"
-            placeholder="请选择标签"
+            :placeholder="$t('article.selectTag')"
             class="form-input-width2"
             multiple
             clearable
@@ -83,7 +86,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="文章封面">
+        <el-form-item :label="$t('article.cover')">
           <el-upload
             ref="upload"
             action=""
@@ -95,13 +98,14 @@
           >
             <i class="el-icon-upload" v-if="!article.articleCover" />
             <div class="el-upload__text" v-if="!article.articleCover">
-              将文件拖到此处, 或<em>点击上传</em><br />
-              支持jpg/png/gif文件, 且不超过5MB
+              {{ $t("article.tip1") }} <em>{{ $t("article.tip2") }}</em
+              ><br />
+              {{ $t("article.tip3") }}
             </div>
             <img v-else :src="article.articleCover" width="384" height="216" />
           </el-upload>
         </el-form-item>
-        <el-form-item label="封面链接">
+        <el-form-item :label="$t('article.coverLink')">
           <el-input
             v-model="article.articleCover"
             :placeholder="staticResourceUrl"
@@ -113,8 +117,8 @@
           />
         </el-form-item>
       </el-form>
-      <el-form :model="article" :inline="true" size="medium" label-width="80">
-        <el-form-item label="置顶">
+      <el-form :model="article" :inline="true" size="medium" label-width="auto">
+        <el-form-item :label="$t('article.top')">
           <el-switch
             v-model="article.topFlag"
             :active-value="true"
@@ -123,7 +127,7 @@
             inactive-color="#F4F4F5"
           />
         </el-form-item>
-        <el-form-item label="公开">
+        <el-form-item :label="$t('article.public')">
           <el-switch
             v-model="article.publicFlag"
             :active-value="true"
@@ -132,7 +136,7 @@
             inactive-color="#F4F4F5"
           />
         </el-form-item>
-        <el-form-item label="隐藏">
+        <el-form-item :label="$t('article.hidden')">
           <el-switch
             v-model="article.hiddenFlag"
             :active-value="true"
@@ -141,7 +145,7 @@
             inactive-color="#F4F4F5"
           />
         </el-form-item>
-        <el-form-item label="可评论">
+        <el-form-item :label="$t('article.commentable')">
           <el-switch
             v-model="article.commentableFlag"
             :active-value="true"
@@ -152,9 +156,11 @@
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="addOrEditStatus = false">取 消</el-button>
+        <el-button @click="addOrEditStatus = false">{{
+          $t("article.cancel")
+        }}</el-button>
         <el-button type="danger" @click="addOrEditArticle">
-          发 表
+          {{ $t("article.publish") }}
         </el-button>
       </div>
     </el-dialog>
@@ -226,21 +232,25 @@ export default {
   methods: {
     publicArticle() {
       if (this.article.articleTitle.trim() === "") {
-        this.$message.error("文章标题不能为空");
+        this.$message.error(this.$t("article.titleRule1"));
         return false;
       }
       if (this.article.articleContent.trim() === "") {
-        this.$message.error("文章内容不能为空");
+        this.$message.error(this.$t("article.contentRule1"));
         return false;
       }
       this.addOrEditStatus = true;
     },
     exitWithNoSave() {
-      this.$confirm("确定关闭吗?编辑的内容将不会保存!", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
+      this.$confirm(
+        this.$t("article.confirmContent"),
+        this.$t("article.confirmTip"),
+        {
+          confirmButtonText: this.$t("article.confirmYes"),
+          cancelButtonText: this.$t("article.confirmNo"),
+          type: "warning"
+        }
+      )
         .then(() => {
           if (this.fileNameList.length !== 0) {
             this.updateImage(null);
@@ -280,12 +290,12 @@ export default {
     uploadImage(pos, file) {
       if (this.article.id == null) {
         if (this.article.articleTitle.trim() === "") {
-          this.$message.error("文章标题不能为空");
+          this.$message.error(this.$t("article.titleRule1"));
           this.$refs.md.$img2Url(pos, "");
           return false;
         }
         if (this.article.articleContent.trim() === "") {
-          this.$message.error("文章内容不能为空");
+          this.$message.error(this.$t("article.contentRule1"));
           return false;
         }
         this.axios
@@ -319,20 +329,20 @@ export default {
                     this.fileNameList.push(this.splitFileNameByUrl(data.data));
                   } else {
                     this.$notify.error({
-                      title: "失败",
+                      title: this.$t("failure"),
                       message: data.message
                     });
                     return false;
                   }
                 });
               this.$notify.success({
-                title: "成功",
-                message: "保存草稿成功"
+                title: this.$t("success"),
+                message: data.message
               });
             } else {
               this.$notify.error({
-                title: "失败",
-                message: "保存草稿失败"
+                title: this.$t("failure"),
+                message: data.message
               });
             }
           });
@@ -356,7 +366,7 @@ export default {
               this.fileNameList.push(this.splitFileNameByUrl(data.data));
             } else {
               this.$notify.error({
-                title: "失败",
+                title: this.$t("failure"),
                 message: data.message
               });
             }
@@ -390,11 +400,11 @@ export default {
         contentType !== "image/png" &&
         contentType !== "image/gif"
       ) {
-        this.$message.error("上传的图片只能是jpg, png, gif格式");
+        this.$message.error(this.$t("article.coverRule1"));
         return false;
       }
       if (file.size >>> 20 > 5) {
-        this.$message.error("上传图片的大小不能超过5MB");
+        this.$message.error(this.$t("article.coverRule2"));
         return false;
       }
       return true;
@@ -413,13 +423,13 @@ export default {
     addOrEditArticleDraft(flag) {
       if (this.article.articleTitle.trim() === "") {
         if (flag) {
-          this.$message.error("文章标题不能为空");
+          this.$message.error(this.$t("article.titleRule1"));
         }
         return false;
       }
       if (this.article.articleContent.trim() === "") {
         if (flag) {
-          this.$message.error("文章内容不能为空");
+          this.$message.error(this.$t("article.contentRule1"));
         }
         return false;
       }
@@ -446,15 +456,15 @@ export default {
           this.article.draftFlag = true;
           this.articleOrigin = JSON.parse(JSON.stringify(this.article));
           this.$notify.success({
-            title: "成功",
-            message: "保存草稿成功"
+            title: this.$t("success"),
+            message: flag ? data.message : this.$t("article.autoSaveSuccess")
           });
           this.fileNameList = [];
           this.articleCoverUploadFlag = false;
         } else {
           this.$notify.error({
-            title: "失败",
-            message: "保存草稿失败"
+            title: this.$t("failure"),
+            message: flag ? data.message : this.$t("article.autoSaveFailure")
           });
         }
       });
@@ -471,7 +481,7 @@ export default {
     },
     addOrEditArticle() {
       if (!this.article.categoryId) {
-        this.$message.error("文章分类不能为空");
+        this.$message.error(this.$t("article.categoryRule1"));
         this.$refs.upload.clearFiles();
         return false;
       }
@@ -494,19 +504,24 @@ export default {
           this.article.draftFlag = false;
           this.articleOrigin = JSON.parse(JSON.stringify(this.article));
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.fileNameList = [];
           this.articleCoverUploadFlag = false;
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
         this.addOrEditStatus = false;
       });
+    }
+  },
+  computed: {
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   }
 };

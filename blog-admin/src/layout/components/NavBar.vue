@@ -6,8 +6,7 @@
       </div>
       <el-breadcrumb>
         <el-breadcrumb-item v-for="item of breadcrumbList" :key="item.path">
-          <span v-if="item.redirect">{{ item.name }}</span>
-          <router-link v-else :to="item.path">{{ item.name }}</router-link>
+          <span>{{ isEn ? item.meta.nameEn : item.name }}</span>
         </el-breadcrumb-item>
       </el-breadcrumb>
       <div class="right-menu">
@@ -20,11 +19,14 @@
           /></a>
           <i class="el-icon-caret-bottom" />
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="personal">
-              <i class="el-icon-postcard" />个人信息
+            <el-dropdown-item command="change">
+              <i class="el-icon-refresh" />{{ $t("switchTip2") }}
+            </el-dropdown-item>
+            <el-dropdown-item command="personal" divided>
+              <i class="el-icon-postcard" />{{ $t("navBar.personal") }}
             </el-dropdown-item>
             <el-dropdown-item command="logout" divided>
-              <i class="el-icon-warning-outline" />退出登录
+              <i class="el-icon-warning-outline" />{{ $t("navBar.logout") }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -37,7 +39,7 @@
         :key="item.path"
         @click="goTo(item)"
       >
-        {{ item.name }}
+        {{ isEn ? item.meta.nameEn : item.name }}
         <i
           class="el-icon-close"
           v-if="item.path !== '/'"
@@ -45,10 +47,10 @@
         />
       </span>
       <span class="tabs-view-item" style="float:right" @click="closeAllTab">
-        全部关闭
+        {{ $t("navBar.closeAll") }}
       </span>
       <span class="tabs-view-item" style="float:right" @click="closeOtherTab">
-        关闭其他
+        {{ $t("navBar.closeOther") }}
       </span>
     </div>
   </div>
@@ -60,7 +62,8 @@ export default {
   created() {
     this.tab = {
       path: this.$route.path,
-      name: this.$route.name
+      name: this.$route.name,
+      mata: this.$route.meta
     };
     this.$store.commit("saveCurrentTab", this.tab);
     this.breadcrumbList = this.$route.matched.filter(item => item.name);
@@ -77,7 +80,8 @@ export default {
     goTo(tab) {
       this.tab = {
         path: tab.path,
-        name: tab.name
+        name: tab.name,
+        meta: tab.meta
       };
       this.$router.push({ path: tab.path });
       this.$store.commit("saveCurrentTab", tab);
@@ -126,15 +130,15 @@ export default {
       if (this.tab.path !== "/") {
         this.$store.state.tabList.push({
           name: this.tab.name,
-          path: this.tab.path
+          path: this.tab.path,
+          meta: this.tab.meta
         });
       }
     },
     handleCommand(command) {
       if (command === "personal") {
         this.$router.push({ path: "/personal" });
-      }
-      if (command === "logout") {
+      } else if (command === "logout") {
         this.axios.post("/api/logout").then(() => {
           this.$store.commit("removeToken");
         });
@@ -142,6 +146,14 @@ export default {
         this.$store.commit("resetTab");
         resetRouter();
         this.$router.push({ path: "/login" });
+      } else if (command === "change") {
+        if (this.$i18n.locale === "en_US") {
+          localStorage.setItem("lang", "zh_CN");
+          this.$i18n.locale = "zh_CN";
+        } else {
+          localStorage.setItem("lang", "en_US");
+          this.$i18n.locale = "en_US";
+        }
       }
     }
   },
@@ -181,6 +193,9 @@ export default {
               commentLikeSet: this.$store.state.commentLikeSet
             })
         : url;
+    },
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   }
 };

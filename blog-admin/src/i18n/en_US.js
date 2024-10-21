@@ -1,5 +1,8 @@
 export default {
   switchTip: "切换为中文",
+  switchTip2: "切换中文",
+  success: "success",
+  failure: "failure",
   login: {
     title: "Welcome to login",
     username: "Username",
@@ -12,5 +15,44 @@ export default {
     login: "Login",
     rememberMe: "Remember me",
     forgot: "Forgot u or p? Click this!"
+  },
+  navBar: {
+    personal: "personal",
+    logout: "logout",
+    closeAll: "close all",
+    closeOther: "close other"
+  },
+  article: {
+    title: "publish article",
+    category: "category",
+    tag: "tag",
+    cover: "cover",
+    coverLink: "cover link",
+    top: "top",
+    public: "public",
+    hidden: "hidden",
+    commentable: "commentable",
+    tip1: "drag file here, or",
+    tip2: "click here",
+    tip3: "accept jpg/png/gif, and not more than 5MB",
+    saveDraft: "save draft",
+    publishArticle: "publish article",
+    exitWithoutSave: "exit without save",
+    cancel: "cancer",
+    publish: "publish",
+    articleTitle: "please enter article title",
+    selectCategory: "please select category",
+    selectTag: "please select tag",
+    titleRule1: "Article title cannot be empty!",
+    contentRule1: "Article content cannot be empty!",
+    categoryRule1: "Article category cannot be empty!",
+    confirmTip: "Tip",
+    confirmContent: "Sure to exit? The content will not be saved!",
+    confirmYes: "Yes",
+    confirmNo: "No",
+    coverRule1: "Only accept jpg, png, gif.",
+    coverRule2: "The size of image cannot exceed 5MB.",
+    autoSaveSuccess: "Auto Save Success!",
+    autoSaveFailure: "Auto Save Failure!"
   }
 };

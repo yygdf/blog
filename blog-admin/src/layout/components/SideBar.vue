@@ -14,7 +14,7 @@
           <el-submenu :key="route.path" :index="route.path">
             <template slot="title">
               <i :class="route.icon" />
-              <span>{{ route.name }}</span>
+              <span>{{ isEn ? route.meta.nameEn : route.name }}</span>
             </template>
             <template v-for="(item, index) of route.children">
               <el-menu-item
@@ -25,7 +25,9 @@
                 :style="checkStyle(item.hiddenFlag, item.disabledFlag)"
               >
                 <i :class="item.icon" />
-                <span slot="title">{{ item.name }}</span>
+                <span slot="title">{{
+                  isEn ? item.meta.nameEn : item.name
+                }}</span>
               </el-menu-item>
             </template>
           </el-submenu>
@@ -38,9 +40,13 @@
             :style="checkStyle(route.hiddenFlag, route.disabledFlag)"
           >
             <i :class="route.icon" />
-            <span>{{ route.children[0].name }}</span>
+            <span>{{
+              isEn ? route.children[0].meta.nameEn : route.children[0].name
+            }}</span>
             <template slot="title">
-              <span v-show="isShow">{{ route.children[0].name }}</span>
+              <span v-show="isShow">{{
+                isEn ? route.children[0].meta.nameEn : route.children[0].name
+              }}</span>
             </template>
           </el-menu-item>
         </template>
@@ -97,6 +103,9 @@ export default {
   computed: {
     isShow() {
       return this.$store.state.collapse;
+    },
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   }
 };

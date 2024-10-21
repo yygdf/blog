@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,23 +30,27 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private RoleMapper roleMapper;
 
+    @Resource
+    private HttpServletRequest request;
+
     @Override
     public UserDetails loadUserByUsername(String username) {
+        String lang = request.getHeader("Lang");
         if (CommonUtil.isEmpty(username))
-            throw new UsernameNotFoundException(LocaleUtil.getMessage("I0001"));
+            throw new UsernameNotFoundException(LocaleUtil.getMessageByLang("I0001", lang));
         UserAuth userAuth = userAuthMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
             .select(UserAuth::getUserId, UserAuth::getUsername, UserAuth::getPassword, UserAuth::getLockedFlag, UserAuth::getDisabledFlag)
             .eq(UserAuth::getUsername, username)
             .eq(UserAuth::getDeletedFlag, false));
         if (userAuth == null)
-            throw new UsernameNotFoundException(LocaleUtil.getMessage("I0001"));
+            throw new UsernameNotFoundException(LocaleUtil.getMessageByLang("I0001", lang));
         if (userAuth.getLockedFlag())
-            throw new LockedException(LocaleUtil.getMessage("A0001", username, ADMIN_CONTACT_QQ));
+            throw new LockedException(LocaleUtil.getMessageByLang("A0001", lang, username, ADMIN_CONTACT_QQ));
         if (userAuth.getDisabledFlag())
-            throw new DisabledException(LocaleUtil.getMessage("I0002", username, ADMIN_CONTACT_QQ));
+            throw new DisabledException(LocaleUtil.getMessageByLang("I0002", lang, username, ADMIN_CONTACT_QQ));
         List<Role> roleList = roleMapper.selectLoginRoleByUserId(userAuth.getUserId());
         if (roleList.isEmpty())
-            throw new DisabledException(LocaleUtil.getMessage("I0003", username, ADMIN_CONTACT_QQ));
+            throw new DisabledException(LocaleUtil.getMessageByLang("I0003", lang, username, ADMIN_CONTACT_QQ));
         return LoginUser.builder()
                 .userId(userAuth.getUserId())
                 .username(userAuth.getUsername())

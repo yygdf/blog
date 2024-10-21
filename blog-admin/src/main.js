@@ -21,6 +21,9 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { generateMenu } from "./assets/js/menu";
 import commonMethod from "./assets/js/common";
+import VueI18n from "vue-i18n";
+import en_US from "./i18n/en_US";
+import zh_CN from "./i18n/zh_CN";
 
 Vue.use(mavonEditor);
 Vue.component("v-chart", ECharts);
@@ -29,6 +32,7 @@ Vue.use(ElementUI);
 Vue.config.productionTip = false;
 Vue.prototype.$moment = moment;
 Vue.prototype.$commonMethod = commonMethod;
+Vue.use(VueI18n);
 
 Vue.filter("date", function(value, formatStr = "yyyy-MM-DD") {
   return moment(value).format(formatStr);
@@ -40,6 +44,12 @@ Vue.filter("dateTime", function(value, formatStr = "yyyy-MM-DD HH:mm:ss") {
 
 Vue.filter("subStr", function(value, maxLen = 120) {
   return value.length > maxLen ? value.substr(0, maxLen) + "..." : value;
+});
+
+const messages = { en_US, zh_CN };
+const i18n = new VueI18n({
+  messages,
+  locale: localStorage.getItem("lang") || "zh_CN"
 });
 
 NProgress.configure({
@@ -77,6 +87,7 @@ axios.interceptors.request.use(
     if (store.state.token != null) {
       request.headers["Token"] = store.state.token;
     }
+    request.headers["Lang"] = i18n.locale;
     return request;
   },
   function(error) {
@@ -130,6 +141,7 @@ axios.interceptors.response.use(
 new Vue({
   router,
   store,
+  i18n,
   render: h => h(App),
   created() {
     if (store.state.userId) {

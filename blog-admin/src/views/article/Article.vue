@@ -54,7 +54,7 @@
       <div class="dialog-title-container" slot="title">
         {{ $t("article.dialogTitle1") }}
       </div>
-      <el-form :model="article" size="medium" label-width="auto">
+      <el-form :model="article" size="medium" label-width="90px">
         <el-form-item :label="$t('article.category')">
           <el-select
             v-model="article.categoryId"
@@ -117,7 +117,7 @@
           />
         </el-form-item>
       </el-form>
-      <el-form :model="article" :inline="true" size="medium" label-width="auto">
+      <el-form :model="article" :inline="true" size="medium" label-width="90px">
         <el-form-item :label="$t('article.top')">
           <el-switch
             v-model="article.topFlag"

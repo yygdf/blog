@@ -4,6 +4,9 @@ import router from "./router";
 import store from "./store";
 import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
+import ElementUILocale from "element-ui/lib/locale";
+import ElementUI_EN from "element-ui/lib/locale/lang/en";
+import ElementUI_ZH_CN from "element-ui/lib/locale/lang/zh-CN";
 import "./assets/css/index.css";
 import axios from "axios";
 import VueAxios from "vue-axios";
@@ -46,11 +49,15 @@ Vue.filter("subStr", function(value, maxLen = 120) {
   return value.length > maxLen ? value.substr(0, maxLen) + "..." : value;
 });
 
-const messages = { en_US, zh_CN };
+const messages = {
+  en_US: { ...en_US, ...ElementUI_EN },
+  zh_CN: { ...zh_CN, ...ElementUI_ZH_CN }
+};
 const i18n = new VueI18n({
   messages,
   locale: localStorage.getItem("lang") || "zh_CN"
 });
+ElementUILocale.i18n((key, value) => i18n.t(key, value));
 
 NProgress.configure({
   easing: "ease",

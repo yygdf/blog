@@ -474,7 +474,7 @@
       <div class="dialog-title-container" slot="title">
         {{ $t("article.dialogTitle2") }}
       </div>
-      <el-form :model="articleToken" size="medium" label-width="auto">
+      <el-form :model="articleToken" size="medium" label-width="120px">
         <el-form-item :label="$t('article.articleTitle')">
           <el-input
             v-model="articleToken.articleTitle"
@@ -715,7 +715,7 @@ export default {
       this.axios.delete("/api/back/articles", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.data.length === this.articleList.length) {
@@ -724,7 +724,7 @@ export default {
           this.getArticles();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -765,7 +765,7 @@ export default {
       this.axios.put("/api/back/article/status", param).then(({ data }) => {
         if (!data.flag) {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
           if (type === 2) {
@@ -796,7 +796,7 @@ export default {
       this.axios.put("/api/back/articles/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.idList.length === this.articleList.length) {
@@ -805,7 +805,7 @@ export default {
           this.getArticles();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -834,12 +834,12 @@ export default {
         if (data.flag) {
           this.tokenMap.set(this.articleToken.id, this.articleToken);
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }

@@ -1,6 +1,8 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <el-button
         v-if="type !== 7"
@@ -10,7 +12,7 @@
         icon="el-icon-minus"
         @click="editStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <el-button
         v-else
@@ -20,7 +22,7 @@
         icon="el-icon-minus"
         @click="removeStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <div style="margin-left:auto">
         <el-select
@@ -28,7 +30,7 @@
           v-model="userId"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择用户"
+          :placeholder="$t('input.selectUser')"
           remote
           clearable
           filterable
@@ -46,7 +48,7 @@
           v-model="flag"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择来源"
+          :placeholder="$t('input.selectSource')"
         >
           <el-option
             v-for="item in source"
@@ -60,7 +62,7 @@
           v-model="type"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择"
+          :placeholder="$t('input.select')"
         >
           <el-option
             v-for="item in options"
@@ -76,7 +78,7 @@
           size="small"
           style="width: 200px"
           prefix-icon="el-icon-search"
-          placeholder="请输入文章标题"
+          :placeholder="$t('article.inputTitle')"
           clearable
           @keyup.enter.native="getComments(false)"
         />
@@ -88,7 +90,7 @@
           style="margin-left:1rem"
           @click="getComments(false)"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
@@ -102,14 +104,14 @@
       <el-table-column
         v-if="checkWeight(400) && showColumnConfig.username"
         prop="username"
-        label="用户"
+        :label="$t('table.user')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.avatar"
         prop="avatar"
-        label="头像"
+        :label="$t('table.avatar')"
         align="center"
         width="80"
       >
@@ -126,14 +128,14 @@
       <el-table-column
         v-if="showColumnConfig.nickname"
         prop="nickname"
-        label="评论人"
+        :label="$t('comment.from')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.replyNickname"
         prop="replyNickname"
-        label="回复人"
+        :label="$t('comment.to')"
         align="center"
         min-width="120"
       >
@@ -146,7 +148,7 @@
       <el-table-column
         v-if="showColumnConfig.articleTitle"
         prop="articleTitle"
-        label="文章标题"
+        :label="$t('article.articleTitle')"
         align="center"
         min-width="120"
       >
@@ -159,7 +161,7 @@
       <el-table-column
         v-if="showColumnConfig.commentContent"
         prop="commentContent"
-        label="评论内容"
+        :label="$t('comment.content')"
         align="center"
         min-width="240"
       >
@@ -170,9 +172,9 @@
       <el-table-column
         v-if="showColumnConfig.likeCount"
         prop="likeCount"
-        label="点赞量"
+        :label="$t('article.likeCount')"
         align="center"
-        width="80"
+        width="120"
       >
         <template slot-scope="scope">
           <span v-if="scope.row.likeCount">
@@ -184,7 +186,7 @@
       <el-table-column
         v-if="showColumnConfig.createTime"
         prop="createTime"
-        label="评论时间"
+        :label="$t('comment.createTime')"
         align="center"
         width="200"
       >
@@ -193,32 +195,40 @@
           {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="160">
+      <el-table-column :label="$t('table.operate')" align="center" width="160">
         <template slot="header">
-          <el-popover placement="bottom" title="选择显示列" width="160">
+          <el-popover
+            placement="bottom"
+            :title="$t('table.showColumn')"
+            width="160"
+          >
             <div>
-              <el-checkbox v-model="showColumnConfig.username"
-                >用户</el-checkbox
+              <el-checkbox
+                v-if="checkWeight(400)"
+                v-model="showColumnConfig.username"
+                >{{ $t("table.user") }}</el-checkbox
               >
-              <el-checkbox v-model="showColumnConfig.avatar">头像</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.nickname"
-                >评论人</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.replyNickname"
-                >回复人</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.articleTitle"
-                >文章标题</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.commentContent"
-                >评论内容</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.likeCount"
-                >点赞量</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.createTime"
-                >评论时间</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.avatar">{{
+                $t("table.avatar")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.nickname">{{
+                $t("comment.from")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.replyNickname">{{
+                $t("comment.to")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.articleTitle">{{
+                $t("article.articleTitle")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.commentContent">{{
+                $t("comment.content")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.likeCount">{{
+                $t("article.likeCount")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.createTime">{{
+                $t("comment.createTime")
+              }}</el-checkbox>
               <div>
                 <el-button
                   type="primary"
@@ -227,7 +237,7 @@
                   plain
                   @click="saveColumnConfig"
                 >
-                  保存
+                  {{ $t("button.save") }}
                 </el-button>
               </div>
             </div>
@@ -237,7 +247,7 @@
         <template slot-scope="scope">
           <el-popconfirm
             v-if="checkWeight(300)"
-            title="确定恢复吗？"
+            :title="$t('confirm.content2')"
             @confirm="updateCommentsStatus(scope.row.id, type === 6)"
           >
             <el-button
@@ -247,12 +257,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-refresh-left" /> 恢复
+              <i class="el-icon-refresh-left" /> {{ $t("button.restore") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-if="type !== 7"
-            title="确定删除吗？"
+            :title="$t('confirm.content3')"
             style="margin-left:10px"
             @confirm="updateCommentsStatus(scope.row.id)"
           >
@@ -262,12 +272,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-else
-            title="确定彻底删除吗？"
+            :title="$t('confirm.content4')"
             style="margin-left:10px"
             @confirm="deleteComments(scope.row.id)"
           >
@@ -277,7 +287,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
         </template>
@@ -296,25 +306,33 @@
     />
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content5") }}</div>
       <div slot="footer">
-        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button @click="editStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="updateCommentsStatus(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="removeStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否彻底删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content6") }}</div>
       <div slot="footer">
-        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button @click="removeStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="deleteComments(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
@@ -326,38 +344,14 @@ export default {
   created() {
     this.loadColumnConfig();
     this.getComments();
-    if (this.checkWeight(100)) {
-      this.options.push({
-        value: 7,
-        label: "已删除"
-      });
-    }
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
   },
   data: function() {
     return {
-      source: [
-        {
-          value: null,
-          label: "文章"
-        },
-        {
-          value: true,
-          label: "友链"
-        }
-      ],
-      options: [
-        {
-          value: null,
-          label: "已发表"
-        },
-        {
-          value: 6,
-          label: "回收站"
-        }
-      ],
+      source: [],
+      options: [],
       commentList: [],
       usernameList: [],
       commentIdList: [],
@@ -463,7 +457,7 @@ export default {
       this.axios.delete("/api/back/comments", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.data.length === this.commentList.length) {
@@ -472,7 +466,7 @@ export default {
           this.getComments();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -495,7 +489,7 @@ export default {
       this.axios.put("/api/back/comments/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.idList.length === this.commentList.length) {
@@ -504,12 +498,17 @@ export default {
           this.getComments();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
       });
       this.editStatus = false;
+    }
+  },
+  computed: {
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   },
   watch: {
@@ -521,6 +520,37 @@ export default {
     },
     userId() {
       this.getComments(true);
+    },
+    isEn: {
+      handler() {
+        this.source = [
+          {
+            value: null,
+            label: this.$t("option.article")
+          },
+          {
+            value: true,
+            label: this.$t("option.friendLink")
+          }
+        ];
+        this.options = [
+          {
+            value: null,
+            label: this.$t("option.published")
+          },
+          {
+            value: 6,
+            label: this.$t("option.bin")
+          }
+        ];
+        if (this.checkWeight(100)) {
+          this.options.push({
+            value: 7,
+            label: this.$t("option.deleted")
+          });
+        }
+      },
+      immediate: true
     }
   }
 };

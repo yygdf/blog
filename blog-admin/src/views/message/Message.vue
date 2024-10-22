@@ -10,7 +10,7 @@
         icon="el-icon-minus"
         @click="editStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <el-button
         v-else
@@ -20,7 +20,7 @@
         icon="el-icon-minus"
         @click="removeStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <div style="margin-left:auto">
         <el-select
@@ -28,7 +28,7 @@
           v-model="type"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择"
+          :placeholder="$t('input.select')"
         >
           <el-option
             v-for="item in options"
@@ -43,7 +43,7 @@
           size="small"
           style="width: 200px"
           prefix-icon="el-icon-search"
-          placeholder="请输入用户昵称"
+          :placeholder="$t('message.inputNickname')"
           clearable
           @keyup.enter.native="getMessages(false)"
         />
@@ -54,7 +54,7 @@
           style="margin-left:1rem"
           @click="getMessages(false)"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
@@ -68,14 +68,14 @@
       <el-table-column
         v-if="showColumnConfig.nickname"
         prop="nickname"
-        label="留言人"
+        :label="$t('message.from')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.avatar"
         prop="avatar"
-        label="头像"
+        :label="$t('table.avatar')"
         align="center"
         width="80"
       >
@@ -92,28 +92,28 @@
       <el-table-column
         v-if="showColumnConfig.messageContent"
         prop="messageContent"
-        label="留言内容"
+        :label="$t('message.content')"
         align="center"
         min-width="240"
       />
       <el-table-column
         v-if="showColumnConfig.ipAddress"
         prop="ipAddress"
-        label="ip地址"
+        :label="$t('table.ipAddress')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.ipSource"
         prop="ipSource"
-        label="ip来源"
+        :label="$t('table.ipSource')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.createTime"
         prop="createTime"
-        label="留言时间"
+        :label="$t('message.createTime')"
         align="center"
         width="200"
       >
@@ -122,26 +122,32 @@
           {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="160">
+      <el-table-column :label="$t('table.operate')" align="center" width="160">
         <template slot="header">
-          <el-popover placement="bottom" title="选择显示列" width="160">
+          <el-popover
+            placement="bottom"
+            :title="$t('table.showColumn')"
+            width="160"
+          >
             <div>
-              <el-checkbox v-model="showColumnConfig.nickname"
-                >留言人</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.avatar">头像</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.messageContent"
-                >留言内容</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.ipAddress"
-                >ip地址</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.ipSource"
-                >ip来源</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.createTime"
-                >留言时间</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.nickname">{{
+                $t("message.from")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.avatar">{{
+                $t("table.avatar")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.messageContent">{{
+                $t("message.content")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.ipAddress">{{
+                $t("table.ipAddress")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.ipSource">{{
+                $t("table.ipSource")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.createTime">{{
+                $t("message.createTime")
+              }}</el-checkbox>
               <div>
                 <el-button
                   type="primary"
@@ -150,7 +156,7 @@
                   plain
                   @click="saveColumnConfig"
                 >
-                  保存
+                  {{ $t("button.save") }}
                 </el-button>
               </div>
             </div>
@@ -160,7 +166,7 @@
         <template slot-scope="scope">
           <el-popconfirm
             v-if="checkWeight(100)"
-            title="确定恢复吗？"
+            :title="$t('confirm.content2')"
             @confirm="updateMessagesStatus(scope.row.id)"
           >
             <el-button
@@ -170,12 +176,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-refresh-left" /> 恢复
+              <i class="el-icon-refresh-left" /> {{ $t("button.restore") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-if="type !== 7"
-            title="确定删除吗？"
+            :title="$t('confirm.content3')"
             style="margin-left:10px"
             @confirm="updateMessagesStatus(scope.row.id)"
           >
@@ -185,12 +191,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-else
-            title="确定彻底删除吗？"
+            :title="$t('confirm.content4')"
             style="margin-left:10px"
             @confirm="deleteMessages(scope.row.id)"
           >
@@ -200,7 +206,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
         </template>
@@ -219,25 +225,33 @@
     />
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content5") }}</div>
       <div slot="footer">
-        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button @click="editStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="updateMessagesStatus(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="removeStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否彻底删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content6") }}</div>
       <div slot="footer">
-        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button @click="removeStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="deleteMessages(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
@@ -255,16 +269,7 @@ export default {
   },
   data: function() {
     return {
-      options: [
-        {
-          value: null,
-          label: "已发送"
-        },
-        {
-          value: 7,
-          label: "已删除"
-        }
-      ],
+      options: [],
       messageList: [],
       messageIdList: [],
       showColumnConfig: {},
@@ -353,7 +358,7 @@ export default {
       this.axios.delete("/api/back/messages", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.data.length === this.messageList.length) {
@@ -362,7 +367,7 @@ export default {
           this.getMessages();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -382,7 +387,7 @@ export default {
       this.axios.put("/api/back/messages/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.idList.length === this.messageList.length) {
@@ -391,7 +396,7 @@ export default {
           this.getMessages();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -399,9 +404,29 @@ export default {
       this.editStatus = false;
     }
   },
+  computed: {
+    isEn() {
+      return this.$i18n.locale === "en_US";
+    }
+  },
   watch: {
     type() {
       this.getMessages(true);
+    },
+    isEn: {
+      handler() {
+        this.options = [
+          {
+            value: null,
+            label: this.$t("option.displayed")
+          },
+          {
+            value: 7,
+            label: this.$t("option.deleted")
+          }
+        ];
+      },
+      immediate: true
     }
   }
 };

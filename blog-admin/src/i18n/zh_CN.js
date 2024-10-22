@@ -47,7 +47,8 @@ export default {
   },
   input: {
     select: "请选择",
-    selectUser: "请选择用户"
+    selectUser: "请选择用户",
+    selectSource: "请选择来源"
   },
   table: {
     user: "用户",
@@ -55,14 +56,20 @@ export default {
     updateDate: "更新日期",
     operate: "操作",
     showColumn: "选择显示列",
-    createDate: "创建日期"
+    createDate: "创建日期",
+    avatar: "头像",
+    ipSource: "ip来源",
+    ipAddress: "ip地址"
   },
   option: {
     published: "已发表",
     drafts: "草稿箱",
     bin: "回收站",
     deleted: "已删除",
-    available: "未删除"
+    available: "未删除",
+    article: "文章",
+    friendLink: "友链",
+    displayed: "已发送"
   },
   switch: {
     top: "置顶",
@@ -118,5 +125,17 @@ export default {
     add: "添加标签",
     edit: "修改标签",
     nameRule1: "标签名不能为空!"
+  },
+  comment: {
+    from: "评论人",
+    to: "回复人",
+    content: "评论内容",
+    createTime: "评论时间"
+  },
+  message: {
+    inputNickname: "请输入用户昵称",
+    from: "留言人",
+    content: "评论内容",
+    createTime: "留言时间"
   }
 };

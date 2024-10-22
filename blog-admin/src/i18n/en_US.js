@@ -47,7 +47,8 @@ export default {
   },
   input: {
     select: "please select",
-    selectUser: "please select user"
+    selectUser: "please select user",
+    selectSource: "please select source"
   },
   table: {
     user: "user",
@@ -55,14 +56,20 @@ export default {
     updateDate: "update date",
     operate: "operate",
     showColumn: "show column",
-    createDate: "create date"
+    createDate: "create date",
+    avatar: "avatar",
+    ipSource: "ip source",
+    ipAddress: "ip address"
   },
   option: {
     published: "published",
     drafts: "drafts",
     bin: "bin",
     deleted: "deleted",
-    available: "available"
+    available: "available",
+    article: "article",
+    friendLink: "friendLink",
+    displayed: "displayed"
   },
   switch: {
     top: "top",
@@ -118,5 +125,17 @@ export default {
     add: "add tag",
     edit: "edit tag",
     nameRule1: "Tag name cannot be empty!"
+  },
+  comment: {
+    from: "from",
+    to: "to",
+    content: "content",
+    createTime: "create time"
+  },
+  message: {
+    inputNickname: "please input nickname",
+    from: "from",
+    content: "content",
+    createTime: "create time"
   }
 };

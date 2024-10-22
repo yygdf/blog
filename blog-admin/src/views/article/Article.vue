@@ -8,7 +8,7 @@
         v-model="article.articleTitle"
         maxlength="50"
         size="medium"
-        :placeholder="$t('article.articleTitle')"
+        :placeholder="$t('article.inputTitle')"
         show-word-limit
       />
       <el-button
@@ -52,7 +52,7 @@
       @close="cancelAddOrEditArticle"
     >
       <div class="dialog-title-container" slot="title">
-        {{ $t("article.title") }}
+        {{ $t("article.dialogTitle1") }}
       </div>
       <el-form :model="article" size="medium" label-width="auto">
         <el-form-item :label="$t('article.category')">
@@ -242,15 +242,11 @@ export default {
       this.addOrEditStatus = true;
     },
     exitWithNoSave() {
-      this.$confirm(
-        this.$t("article.confirmContent"),
-        this.$t("article.confirmTip"),
-        {
-          confirmButtonText: this.$t("article.confirmYes"),
-          cancelButtonText: this.$t("article.confirmNo"),
-          type: "warning"
-        }
-      )
+      this.$confirm(this.$t("confirm.content1"), this.$t("confirm.tip"), {
+        confirmButtonText: this.$t("confirm.yes"),
+        cancelButtonText: this.$t("confirm.no"),
+        type: "warning"
+      })
         .then(() => {
           if (this.fileNameList.length !== 0) {
             this.updateImage(null);

@@ -1,6 +1,8 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <el-button
         type="primary"
@@ -8,7 +10,7 @@
         icon="el-icon-plus"
         @click="addArticle"
       >
-        新增
+        {{ $t("button.add") }}
       </el-button>
       <el-button
         v-if="type !== 7"
@@ -18,7 +20,7 @@
         icon="el-icon-minus"
         @click="editStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <el-button
         v-else
@@ -28,7 +30,7 @@
         icon="el-icon-minus"
         @click="removeStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <div style="margin-left:auto">
         <el-select
@@ -36,7 +38,7 @@
           v-model="userId"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择用户"
+          :placeholder="$t('input.selectUser')"
           remote
           clearable
           filterable
@@ -53,7 +55,7 @@
           v-model="categoryId"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择分类"
+          :placeholder="$t('article.selectCategory')"
           clearable
           filterable
         >
@@ -68,7 +70,7 @@
           v-model="tagIdList"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择标签"
+          :placeholder="$t('article.selectTag')"
           multiple
           clearable
           filterable
@@ -84,7 +86,7 @@
           v-model="type"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择"
+          :placeholder="$t('input.select')"
         >
           <el-option
             v-for="item in options"
@@ -99,7 +101,7 @@
           size="small"
           style="width: 200px"
           prefix-icon="el-icon-search"
-          placeholder="请输入文章名"
+          :placeholder="$t('article.inputTitle')"
           clearable
           @keyup.enter.native="getArticles(false)"
         />
@@ -110,7 +112,7 @@
           style="margin-left:1rem"
           @click="getArticles(false)"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
@@ -124,28 +126,28 @@
       <el-table-column
         v-if="checkWeight(300) && showColumnConfig.username"
         prop="username"
-        label="用户"
+        :label="$t('table.user')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.articleTitle"
         prop="articleTitle"
-        label="标题"
+        :label="$t('article.title')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.categoryName"
         prop="categoryName"
-        label="分类"
+        :label="$t('article.category')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.tagNameList"
         prop="tagNameList"
-        label="标签"
+        :label="$t('article.tag')"
         align="center"
         min-width="240"
       >
@@ -164,9 +166,9 @@
       <el-table-column
         v-if="showColumnConfig.viewCount"
         prop="viewCount"
-        label="浏览量"
+        :label="$t('article.viewCount')"
         align="center"
-        width="80"
+        width="120"
       >
         <template slot-scope="scope">
           <span v-if="scope.row.viewCount">
@@ -178,9 +180,9 @@
       <el-table-column
         v-if="showColumnConfig.likeCount"
         prop="likeCount"
-        label="点赞量"
+        :label="$t('article.likeCount')"
         align="center"
-        width="80"
+        width="120"
       >
         <template slot-scope="scope">
           <span v-if="scope.row.likeCount">
@@ -192,7 +194,7 @@
       <el-table-column
         v-if="showColumnConfig.publishTime"
         prop="publishTime"
-        label="发表日期"
+        :label="$t('table.publishDate')"
         align="center"
         width="120"
       >
@@ -204,7 +206,7 @@
       <el-table-column
         v-if="showColumnConfig.updateTime"
         prop="updateTime"
-        label="更新日期"
+        :label="$t('table.updateDate')"
         align="center"
         width="120"
       >
@@ -216,7 +218,7 @@
       <el-table-column
         v-if="showColumnConfig.topFlag"
         prop="topFlag"
-        label="置顶"
+        :label="$t('article.top')"
         align="center"
         width="80"
       >
@@ -235,7 +237,7 @@
       <el-table-column
         v-if="showColumnConfig.publicFlag"
         prop="publicFlag"
-        label="公开"
+        :label="$t('article.public')"
         align="center"
         width="80"
       >
@@ -254,7 +256,7 @@
       <el-table-column
         v-if="showColumnConfig.hiddenFlag"
         prop="hiddenFlag"
-        label="隐藏"
+        :label="$t('article.hidden')"
         align="center"
         width="80"
       >
@@ -273,9 +275,9 @@
       <el-table-column
         v-if="showColumnConfig.commentableFlag"
         prop="commentableFlag"
-        label="可评论"
+        :label="$t('article.commentable')"
         align="center"
-        width="80"
+        width="120"
       >
         <template slot-scope="scope">
           <el-switch
@@ -289,45 +291,56 @@
           />
         </template>
       </el-table-column>
-      <el-table-column fixed="right" label="操作" align="center" width="200">
+      <el-table-column
+        fixed="right"
+        :label="$t('table.operate')"
+        align="center"
+        width="220"
+      >
         <template slot="header">
-          <el-popover placement="bottom" title="选择显示列" width="160">
+          <el-popover
+            placement="bottom"
+            :title="$t('table.showColumn')"
+            width="160"
+          >
             <div>
-              <el-checkbox v-model="showColumnConfig.username"
-                >用户</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.articleTitle"
-                >标题</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.categoryName"
-                >分类</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.tagNameList"
-                >标签</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.viewCount"
-                >浏览量</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.likeCount"
-                >点赞量</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.publishTime"
-                >发表日期</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.updateTime"
-                >更新日期</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.topFlag">置顶</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.publicFlag"
-                >公开</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.hiddenFlag"
-                >隐藏</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.username">{{
+                $t("table.user")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.articleTitle">{{
+                $t("article.title")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.categoryName">{{
+                $t("article.category")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.tagNameList">{{
+                $t("article.tag")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.viewCount">{{
+                $t("article.viewCount")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.likeCount">{{
+                $t("article.likeCount")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.publishTime">{{
+                $t("table.publishDate")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.updateTime">{{
+                $t("table.updateDate")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.topFlag">{{
+                $t("article.top")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.publicFlag">{{
+                $t("article.public")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.hiddenFlag">{{
+                $t("article.hidden")
+              }}</el-checkbox>
               <div />
-              <el-checkbox v-model="showColumnConfig.commentableFlag"
-                >可评论</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.commentableFlag">{{
+                $t("article.commentable")
+              }}</el-checkbox>
               <div>
                 <el-button
                   type="primary"
@@ -336,7 +349,7 @@
                   plain
                   @click="saveColumnConfig"
                 >
-                  保存
+                  {{ $t("button.save") }}
                 </el-button>
               </div>
             </div>
@@ -351,11 +364,11 @@
             class="smaller-btn"
             @click="editArticle(scope.row.id, scope.row.userId)"
           >
-            <i class="el-icon-edit" /> 编辑
+            <i class="el-icon-edit" /> {{ $t("button.edit") }}
           </el-button>
           <el-popconfirm
             v-else
-            title="确定恢复吗？"
+            :title="$t('confirm.content2')"
             @confirm="updateArticlesStatus(scope.row.id, type === 6)"
           >
             <el-button
@@ -364,12 +377,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-refresh-left" /> 恢复
+              <i class="el-icon-refresh-left" /> {{ $t("button.restore") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-if="type !== 7"
-            title="确定删除吗？"
+            :title="$t('confirm.content3')"
             style="margin-left:10px"
             @confirm="updateArticlesStatus(scope.row.id)"
           >
@@ -379,12 +392,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-else
-            title="确定彻底删除吗？"
+            :title="$t('confirm.content4')"
             style="margin-left:10px"
             @confirm="deleteArticles(scope.row.id)"
           >
@@ -394,7 +407,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
           <el-button
@@ -405,7 +418,7 @@
             style="margin-left:10px"
             @click="openOperateModel(scope.row)"
           >
-            <i class="el-icon-lock" /> 密令
+            <i class="el-icon-lock" /> {{ $t("button.key") }}
           </el-button>
         </template>
       </el-table-column>
@@ -423,25 +436,33 @@
     />
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content5") }}</div>
       <div slot="footer">
-        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button @click="editStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="updateArticlesStatus(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="removeStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否彻底删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content6") }}</div>
       <div slot="footer">
-        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button @click="removeStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="deleteArticles(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
@@ -451,23 +472,23 @@
       @close="cancelAddOrEditArticleToken"
     >
       <div class="dialog-title-container" slot="title">
-        密令设置
+        {{ $t("article.dialogTitle2") }}
       </div>
-      <el-form :model="articleToken" size="medium" label-width="80">
-        <el-form-item label="文章标题">
+      <el-form :model="articleToken" size="medium" label-width="auto">
+        <el-form-item :label="$t('article.articleTitle')">
           <el-input
             v-model="articleToken.articleTitle"
             style="width: 200px"
             disabled
           />
         </el-form-item>
-        <el-form-item label="访问密令">
+        <el-form-item :label="$t('article.accessKey')">
           <el-input
             v-model="articleToken.accessToken"
             ref="input"
             style="width: 200px"
             maxlength="100"
-            placeholder="请输入访问密令"
+            :placeholder="$t('article.inputAccessKey')"
             @keyup.native="tokenInputChange"
           />&nbsp;
           <span
@@ -480,10 +501,10 @@
             class="el-icon-error"
             style="color: red;"
           >
-            该密令不合法!</span
+            {{ $t("article.illegalKey") }}</span
           >
         </el-form-item>
-        <el-form-item label="有效次数">
+        <el-form-item :label="$t('article.effectiveCount')">
           <el-input-number
             v-model="articleToken.effectiveCount"
             :min="-1"
@@ -492,24 +513,26 @@
             controls-position="right"
           />
         </el-form-item>
-        <el-form-item label="过期时间">
+        <el-form-item :label="$t('article.expireTime')">
           <el-date-picker
             v-model="articleToken.expireTime"
             type="datetime"
             style="width: 200px"
-            placeholder="选择过期时间"
+            :placeholder="$t('article.selectExpireTime')"
           >
           </el-date-picker>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="articleTokenFlag = false">取 消</el-button>
+        <el-button @click="articleTokenFlag = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button
           :disabled="tokenValidStatus !== 2"
           type="primary"
           @click="addOrEditArticleToken"
         >
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </span>
     </el-dialog>
@@ -523,32 +546,13 @@ export default {
     this.loadColumnConfig();
     this.getArticles();
     this.getArticleOption();
-    if (this.checkWeight(100)) {
-      this.options.push({
-        value: 7,
-        label: "已删除"
-      });
-    }
     this.$nextTick(() => {
       this.$refs.input.focus();
     });
   },
   data: function() {
     return {
-      options: [
-        {
-          value: null,
-          label: "已发表"
-        },
-        {
-          value: 5,
-          label: "草稿箱"
-        },
-        {
-          value: 6,
-          label: "回收站"
-        }
-      ],
+      options: [],
       tagList: [],
       tagIdList: [],
       articleList: [],
@@ -843,6 +847,11 @@ export default {
       this.articleTokenFlag = false;
     }
   },
+  computed: {
+    isEn() {
+      return this.$i18n.locale === "en_US";
+    }
+  },
   watch: {
     type() {
       this.getArticles(true);
@@ -861,6 +870,31 @@ export default {
         }
       },
       deep: true
+    },
+    isEn: {
+      handler() {
+        this.options = [
+          {
+            value: null,
+            label: this.$t("option.published")
+          },
+          {
+            value: 5,
+            label: this.$t("option.drafts")
+          },
+          {
+            value: 6,
+            label: this.$t("option.bin")
+          }
+        ];
+        if (this.checkWeight(100)) {
+          this.options.push({
+            value: 7,
+            label: this.$t("option.deleted")
+          });
+        }
+      },
+      immediate: true
     }
   }
 };

@@ -111,5 +111,12 @@ export default {
     add: "添加分类",
     edit: "修改分类",
     nameRule1: "分类名不能为空!"
+  },
+  tag: {
+    inputName: "请输入标签名",
+    name: "标签名",
+    add: "添加标签",
+    edit: "修改标签",
+    nameRule1: "标签名不能为空!"
   }
 };

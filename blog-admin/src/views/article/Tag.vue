@@ -1,6 +1,8 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <el-button
         type="primary"
@@ -8,7 +10,7 @@
         icon="el-icon-plus"
         @click="openModel(null)"
       >
-        新增
+        {{ $t("button.add") }}
       </el-button>
       <el-button
         v-if="type !== 7"
@@ -18,7 +20,7 @@
         icon="el-icon-minus"
         @click="editStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <el-button
         v-else
@@ -28,7 +30,7 @@
         icon="el-icon-minus"
         @click="removeStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <div style="margin-left:auto">
         <el-select
@@ -36,7 +38,7 @@
           v-model="userId"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择用户"
+          :placeholder="$t('input.selectUser')"
           remote
           clearable
           filterable
@@ -54,7 +56,7 @@
           v-model="type"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择"
+          :placeholder="$t('input.select')"
         >
           <el-option
             v-for="item in options"
@@ -68,7 +70,7 @@
           ref="input"
           size="small"
           style="width: 200px"
-          placeholder="请输入标签名"
+          :placeholder="$t('tag.inputName')"
           prefix-icon="el-icon-search"
           clearable
           @keyup.enter.native="getTags(false)"
@@ -80,7 +82,7 @@
           style="margin-left:1rem"
           @click="getTags(false)"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
@@ -94,14 +96,14 @@
       <el-table-column
         v-if="checkWeight(300) && showColumnConfig.username"
         prop="username"
-        label="用户"
+        :label="$t('table.user')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.tagName"
         prop="tagName"
-        label="标签名"
+        :label="$t('tag.name')"
         align="center"
         min-width="240"
       >
@@ -114,7 +116,7 @@
       <el-table-column
         v-if="showColumnConfig.createTime"
         prop="createTime"
-        label="创建日期"
+        :label="$t('table.createDate')"
         align="center"
         width="120"
       >
@@ -126,7 +128,7 @@
       <el-table-column
         v-if="showColumnConfig.updateTime"
         prop="updateTime"
-        label="更新日期"
+        :label="$t('table.updateDate')"
         align="center"
         width="120"
       >
@@ -135,22 +137,28 @@
           {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="160">
+      <el-table-column :label="$t('table.operate')" align="center" width="160">
         <template slot="header">
-          <el-popover placement="bottom" title="选择显示列" width="160">
+          <el-popover
+            placement="bottom"
+            :title="$t('table.showColumn')"
+            width="160"
+          >
             <div>
-              <el-checkbox v-model="showColumnConfig.username"
-                >用户</el-checkbox
+              <el-checkbox
+                v-if="checkWeight(200)"
+                v-model="showColumnConfig.username"
+                >{{ $t("table.user") }}</el-checkbox
               >
-              <el-checkbox v-model="showColumnConfig.tagName"
-                >标签名</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.createTime"
-                >创建日期</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.updateTime"
-                >更新日期</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.tagName">{{
+                $t("tag.name")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.createTime">{{
+                $t("table.createDate")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.updateTime">{{
+                $t("table.updateDate")
+              }}</el-checkbox>
               <div>
                 <el-button
                   type="primary"
@@ -159,7 +167,7 @@
                   plain
                   @click="saveColumnConfig"
                 >
-                  保存
+                  {{ $t("button.save") }}
                 </el-button>
               </div>
             </div>
@@ -174,11 +182,11 @@
             class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            <i class="el-icon-edit" /> 编辑
+            <i class="el-icon-edit" /> {{ $t("button.edit") }}
           </el-button>
           <el-popconfirm
             v-if="type !== 7"
-            title="确定删除吗？"
+            :title="$t('confirm.content3')"
             style="margin-left:10px"
             @confirm="updateTagsStatus(scope.row.id)"
           >
@@ -188,12 +196,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-else
-            title="确定彻底删除吗？"
+            :title="$t('confirm.content4')"
             style="margin-left:10px"
             @confirm="deleteTags(scope.row.id)"
           >
@@ -203,7 +211,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
         </template>
@@ -222,46 +230,56 @@
     />
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content5") }}</div>
       <div slot="footer">
-        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button @click="editStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="updateTagsStatus(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="removeStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否彻底删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content6") }}</div>
       <div slot="footer">
-        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button @click="removeStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="deleteTags(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="tagTitle" />
-      <el-form :model="tag" size="medium" label-width="80">
-        <el-form-item label="标签名">
+      <el-form :model="tag" size="medium" label-width="90px">
+        <el-form-item :label="$t('tag.name')">
           <el-input
             v-model="tag.tagName"
             ref="input"
-            class="word-limit-input form-input-width2"
+            class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入标签名"
+            :placeholder="$t('tag.inputName')"
             show-word-limit
           />
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="addOrEditStatus = false">取 消</el-button>
+        <el-button @click="addOrEditStatus = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button type="primary" @click="addOrEditTag">
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </div>
     </el-dialog>
@@ -279,16 +297,7 @@ export default {
   },
   data: function() {
     return {
-      options: [
-        {
-          value: null,
-          label: "未删除"
-        },
-        {
-          value: 7,
-          label: "已删除"
-        }
-      ],
+      options: [],
       tagList: [],
       tagIdList: [],
       usernameList: [],
@@ -315,12 +324,12 @@ export default {
           id: tag.id,
           tagName: tag.tagName
         };
-        this.$refs.tagTitle.innerHTML = "修改标签";
+        this.$refs.tagTitle.innerHTML = this.$t("tag.edit");
       } else {
         this.tag = {
           tagName: ""
         };
-        this.$refs.tagTitle.innerHTML = "添加标签";
+        this.$refs.tagTitle.innerHTML = this.$t("tag.add");
       }
       this.tagOrigin = JSON.parse(JSON.stringify(this.tag));
       this.$nextTick(() => {
@@ -405,7 +414,7 @@ export default {
       this.axios.delete("/api/back/tags", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.data.length === this.tagList.length) {
@@ -414,7 +423,7 @@ export default {
           this.getTags();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -431,7 +440,7 @@ export default {
       this.axios.put("/api/back/tags/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.idList.length === this.tagList.length) {
@@ -440,7 +449,7 @@ export default {
           this.getTags();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -449,7 +458,7 @@ export default {
     },
     addOrEditTag() {
       if (this.tag.tagName.trim() === "") {
-        this.$message.error("标签名不能为空");
+        this.$message.error(this.$t("tag.nameRule1"));
         return false;
       }
       let param = this.$commonMethod.skipIdenticalValue(
@@ -465,18 +474,23 @@ export default {
       this.axios.post("/api/back/tag", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.getTags();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
       });
       this.addOrEditStatus = false;
+    }
+  },
+  computed: {
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   },
   watch: {
@@ -485,6 +499,21 @@ export default {
     },
     userId() {
       this.getTags(true);
+    },
+    isEn: {
+      handler() {
+        this.options = [
+          {
+            value: null,
+            label: this.$t("option.available")
+          },
+          {
+            value: 7,
+            label: this.$t("option.deleted")
+          }
+        ];
+      },
+      immediate: true
     }
   }
 };

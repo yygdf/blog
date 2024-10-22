@@ -111,5 +111,12 @@ export default {
     add: "add category",
     edit: "edit category",
     nameRule1: "Category name cannot be empty!"
+  },
+  tag: {
+    inputName: "please enter name",
+    name: "name",
+    add: "add tag",
+    edit: "edit tag",
+    nameRule1: "Tag name cannot be empty!"
   }
 };

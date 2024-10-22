@@ -31,7 +31,8 @@ export default {
     delete: "delete",
     key: "key",
     restore: "restore",
-    cancel: "cancel"
+    cancel: "cancel",
+    publish: "publish"
   },
   confirm: {
     tip: "Tip",
@@ -53,13 +54,21 @@ export default {
     publishDate: "publish date",
     updateDate: "update date",
     operate: "operate",
-    showColumn: "show column"
+    showColumn: "show column",
+    createDate: "create date"
   },
   option: {
     published: "published",
     drafts: "drafts",
     bin: "bin",
-    deleted: "deleted"
+    deleted: "deleted",
+    available: "available"
+  },
+  switch: {
+    top: "top",
+    public: "public",
+    hidden: "hidden",
+    commentable: "commentable"
   },
   article: {
     inputTitle: "please enter article title",
@@ -71,17 +80,11 @@ export default {
     tag: "tag",
     cover: "cover",
     coverLink: "cover link",
-    top: "top",
-    public: "public",
-    hidden: "hidden",
-    commentable: "commentable",
     selectCategory: "please select category",
     selectTag: "please select tag",
     tip1: "drag file here, or",
     tip2: "click here",
     tip3: "accept jpg/png/gif, and not more than 5MB",
-    cancel: "cancer",
-    publish: "publish",
     titleRule1: "Article title cannot be empty!",
     contentRule1: "Article content cannot be empty!",
     categoryRule1: "Article category cannot be empty!",
@@ -100,5 +103,13 @@ export default {
     inputAccessKey: "please enter access key",
     selectExpireTime: "select expire time",
     illegalKey: "Illegal key !"
+  },
+  category: {
+    inputName: "please enter name",
+    name: "name",
+    articleCount: "article count",
+    add: "add category",
+    edit: "edit category",
+    nameRule1: "Category name cannot be empty!"
   }
 };

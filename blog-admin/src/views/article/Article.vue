@@ -118,7 +118,7 @@
         </el-form-item>
       </el-form>
       <el-form :model="article" :inline="true" size="medium" label-width="90px">
-        <el-form-item :label="$t('article.top')">
+        <el-form-item :label="$t('switch.top')">
           <el-switch
             v-model="article.topFlag"
             :active-value="true"
@@ -127,7 +127,7 @@
             inactive-color="#F4F4F5"
           />
         </el-form-item>
-        <el-form-item :label="$t('article.public')">
+        <el-form-item :label="$t('switch.public')">
           <el-switch
             v-model="article.publicFlag"
             :active-value="true"
@@ -136,7 +136,7 @@
             inactive-color="#F4F4F5"
           />
         </el-form-item>
-        <el-form-item :label="$t('article.hidden')">
+        <el-form-item :label="$t('switch.hidden')">
           <el-switch
             v-model="article.hiddenFlag"
             :active-value="true"
@@ -145,7 +145,7 @@
             inactive-color="#F4F4F5"
           />
         </el-form-item>
-        <el-form-item :label="$t('article.commentable')">
+        <el-form-item :label="$t('switch.commentable')">
           <el-switch
             v-model="article.commentableFlag"
             :active-value="true"
@@ -157,10 +157,10 @@
       </el-form>
       <div slot="footer">
         <el-button @click="addOrEditStatus = false">{{
-          $t("article.cancel")
+          $t("button.cancel")
         }}</el-button>
         <el-button type="danger" @click="addOrEditArticle">
-          {{ $t("article.publish") }}
+          {{ $t("button.publish") }}
         </el-button>
       </div>
     </el-dialog>

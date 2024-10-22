@@ -121,7 +121,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                 .eq(loginUser.getRoleWeight() > 100, Category::getDeletedFlag, false)
                 .eq(loginUser.getRoleWeight() > 200, Category::getUserId, loginUser.getUserId())
                 .in(Category::getId, statusBackVO.getIdList())
-                .notInSql(Category::getId,"select distinct category_id from tb_article where deleted_flag = false")
+                .notInSql(Category::getId,"select distinct category_id from tb_article where draft_flag = false")
                 .set(Category::getUpdateUser, loginUser.getUserId())
                 .set(Category::getUpdateTime, new Date()));
         if (count != statusBackVO.getIdList().size())

@@ -218,7 +218,7 @@
       <el-table-column
         v-if="showColumnConfig.topFlag"
         prop="topFlag"
-        :label="$t('article.top')"
+        :label="$t('switch.top')"
         align="center"
         width="80"
       >
@@ -237,7 +237,7 @@
       <el-table-column
         v-if="showColumnConfig.publicFlag"
         prop="publicFlag"
-        :label="$t('article.public')"
+        :label="$t('switch.public')"
         align="center"
         width="80"
       >
@@ -256,7 +256,7 @@
       <el-table-column
         v-if="showColumnConfig.hiddenFlag"
         prop="hiddenFlag"
-        :label="$t('article.hidden')"
+        :label="$t('switch.hidden')"
         align="center"
         width="80"
       >
@@ -275,7 +275,7 @@
       <el-table-column
         v-if="showColumnConfig.commentableFlag"
         prop="commentableFlag"
-        :label="$t('article.commentable')"
+        :label="$t('switch.commentable')"
         align="center"
         width="120"
       >
@@ -304,9 +304,11 @@
             width="160"
           >
             <div>
-              <el-checkbox v-model="showColumnConfig.username">{{
-                $t("table.user")
-              }}</el-checkbox>
+              <el-checkbox
+                v-if="checkWeight(300)"
+                v-model="showColumnConfig.username"
+                >{{ $t("table.user") }}</el-checkbox
+              >
               <el-checkbox v-model="showColumnConfig.articleTitle">{{
                 $t("article.title")
               }}</el-checkbox>
@@ -329,17 +331,17 @@
                 $t("table.updateDate")
               }}</el-checkbox>
               <el-checkbox v-model="showColumnConfig.topFlag">{{
-                $t("article.top")
+                $t("switch.top")
               }}</el-checkbox>
               <el-checkbox v-model="showColumnConfig.publicFlag">{{
-                $t("article.public")
+                $t("switch.public")
               }}</el-checkbox>
               <el-checkbox v-model="showColumnConfig.hiddenFlag">{{
-                $t("article.hidden")
+                $t("switch.hidden")
               }}</el-checkbox>
               <div />
               <el-checkbox v-model="showColumnConfig.commentableFlag">{{
-                $t("article.commentable")
+                $t("switch.commentable")
               }}</el-checkbox>
               <div>
                 <el-button

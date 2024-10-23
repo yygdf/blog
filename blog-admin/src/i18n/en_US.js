@@ -48,7 +48,13 @@ export default {
   input: {
     select: "please select",
     selectUser: "please select user",
-    selectSource: "please select source"
+    selectSource: "please select source",
+    startDate: "start date",
+    endDate: "end date",
+    separator: "to",
+    lastWeek: "last week",
+    lastHalfMonth: "last half month",
+    lastMonth: "last month"
   },
   table: {
     user: "user",
@@ -174,5 +180,12 @@ export default {
     edit: "edit music",
     nameRule1: "Name cannot be empty!",
     urlRule1: "Url cannot be empty!"
+  },
+  statistic: {
+    viewCount: "view count",
+    likeCount: "like count",
+    viewCountRank: "view count rank",
+    likeCountRank: "like count rank",
+    viewCountTrend: "view count trend"
   }
 };

@@ -48,7 +48,13 @@ export default {
   input: {
     select: "请选择",
     selectUser: "请选择用户",
-    selectSource: "请选择来源"
+    selectSource: "请选择来源",
+    startDate: "开始日期",
+    endDate: "结束日期",
+    separator: "至",
+    lastWeek: "最近一周",
+    lastHalfMonth: "最近半个月",
+    lastMonth: "最近一个月"
   },
   table: {
     user: "用户",
@@ -174,5 +180,12 @@ export default {
     edit: "修改音乐",
     nameRule1: "音乐名称不能为空!",
     urlRule1: "音乐链接不能为空!"
+  },
+  statistic: {
+    viewCount: "阅读量",
+    likeCount: "点赞量",
+    viewCountRank: "阅读量排行",
+    likeCountRank: "点赞量排行",
+    viewCountTrend: "阅读量趋势"
   }
 };

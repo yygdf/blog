@@ -5,7 +5,7 @@
         v-model="userId"
         size="small"
         style="margin-right:1rem"
-        placeholder="请选择用户"
+        :placeholder="$t('input.selectUser')"
         remote
         clearable
         filterable
@@ -25,17 +25,17 @@
         size="small"
         type="daterange"
         align="right"
-        range-separator="至"
+        :range-separator="$t('input.separator')"
         value-format="yyyy-MM-dd"
         style="margin-top:-0.5rem;float: right"
-        end-placeholder="结束日期"
-        start-placeholder="开始日期"
+        :end-placeholder="$t('input.endDate')"
+        :start-placeholder="$t('input.startDate')"
         :picker-options="pickerOptions"
         @change="getData()"
         unlink-panels
       >
       </el-date-picker>
-      <div class="e-title">阅读量趋势</div>
+      <div class="e-title">{{ $t("statistic.viewCountTrend") }}</div>
       <div style="height:300px">
         <v-chart :options="viewCount" v-loading="loading" />
       </div>
@@ -43,7 +43,7 @@
     <el-row :gutter="30" style="margin-top:1.25rem">
       <el-col :span="12">
         <el-card>
-          <div class="e-title">阅读量排行</div>
+          <div class="e-title">{{ $t("statistic.viewCountRank") }}</div>
           <div style="height:300px">
             <v-chart :options="viewCountRank" v-loading="loading" />
           </div>
@@ -51,7 +51,7 @@
       </el-col>
       <el-col :span="12">
         <el-card>
-          <div class="e-title">点赞量排行</div>
+          <div class="e-title">{{ $t("statistic.likeCountRank") }}</div>
           <div style="height:300px">
             <v-chart :options="likeCountRank" v-loading="loading" />
           </div>
@@ -81,7 +81,7 @@ export default {
         },
         color: ["#3888fa"],
         legend: {
-          data: ["阅读量"]
+          data: []
         },
         grid: {
           left: "0%",
@@ -107,7 +107,7 @@ export default {
         },
         series: [
           {
-            name: "阅读量",
+            name: [],
             type: "line",
             data: [],
             smooth: true
@@ -134,7 +134,7 @@ export default {
         yAxis: {},
         series: [
           {
-            name: ["阅读量"],
+            name: [],
             type: "bar",
             data: [],
             barWidth: 50,
@@ -178,7 +178,7 @@ export default {
         yAxis: {},
         series: [
           {
-            name: ["点赞量"],
+            name: [""],
             type: "bar",
             data: [],
             barWidth: 50,
@@ -205,7 +205,7 @@ export default {
       pickerOptions: {
         shortcuts: [
           {
-            text: "最近一周",
+            text: "",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
@@ -214,7 +214,7 @@ export default {
             }
           },
           {
-            text: "最近半个月",
+            text: "",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
@@ -223,7 +223,7 @@ export default {
             }
           },
           {
-            text: "最近一个月",
+            text: "",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
@@ -295,9 +295,26 @@ export default {
         });
     }
   },
+  computed: {
+    isEn() {
+      return this.$i18n.locale === "en_US";
+    }
+  },
   watch: {
     userId() {
       this.getData();
+    },
+    isEn: {
+      handler() {
+        this.pickerOptions.shortcuts[0].text = this.$t("input.lastWeek");
+        this.pickerOptions.shortcuts[1].text = this.$t("input.lastHalfMonth");
+        this.pickerOptions.shortcuts[2].text = this.$t("input.lastMonth");
+        this.viewCount.legend.data = [this.$t("statistic.viewCount")];
+        this.viewCount.series[0].name = [this.$t("statistic.viewCount")];
+        this.viewCountRank.series[0].name = [this.$t("statistic.viewCount")];
+        this.likeCountRank.series[0].name = [this.$t("statistic.likeCount")];
+      },
+      immediate: true
     }
   }
 };

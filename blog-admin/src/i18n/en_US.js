@@ -43,7 +43,9 @@ export default {
     content3: "Sure to delete?",
     content4: "Sure to thorough delete?",
     content5: "Do you want to delete the selected item?",
-    content6: "Do you want to thorough delete the selected item?"
+    content6: "Do you want to thorough delete the selected item?",
+    content7: "Sure to enabled the role?",
+    content8: "Sure to disabled the role?"
   },
   input: {
     select: "please select",
@@ -81,7 +83,9 @@ export default {
     top: "top",
     public: "public",
     hidden: "hidden",
-    commentable: "commentable"
+    commentable: "commentable",
+    disabled: "disabled",
+    enabled: "enabled"
   },
   article: {
     inputTitle: "please enter article title",
@@ -178,8 +182,8 @@ export default {
       "please enter words(here is an example)\n[00:00.00]\n[00:02.70]入戏太深 - 马旭东\n[00:04.15]作词：马旭东\n[00:06.69]作曲：马旭东\n[00:24.50]One Two Three Go!\n[00:27.26]你的笑总是装作很天真\n...\n[03:32.31]谁能懂那些誓言多伤人",
     add: "add music",
     edit: "edit music",
-    nameRule1: "Name cannot be empty!",
-    urlRule1: "Url cannot be empty!"
+    nameRule1: "Music name cannot be empty!",
+    urlRule1: "Music url cannot be empty!"
   },
   statistic: {
     viewCount: "view count",
@@ -187,5 +191,34 @@ export default {
     viewCountRank: "view count rank",
     likeCountRank: "like count rank",
     viewCountTrend: "view count trend"
+  },
+  systemConfig: {
+    input: "please enter name or desc",
+    name: "name",
+    value: "value",
+    desc: "desc",
+    inputName: "please enter name",
+    inputValue: "please enter value",
+    inputDesc: "please enter desc",
+    add: "add config",
+    edit: "edit config",
+    nameRule1: "Config name cannot be empty!",
+    valueRule1: "Config value cannot be empty!"
+  },
+  role: {
+    inputName: "please enter name",
+    name: "name",
+    desc: "desc",
+    weight: "weight",
+    userCount: "user count",
+    menuPermission: "menu",
+    resourcePermission: "resource",
+    inputDesc: "please enter desc",
+    edit1: "edit role",
+    edit2: "edit menu permission",
+    edit3: "edit resource permission",
+    add: "add role",
+    nameRule1: "Role name cannot be empty!",
+    descRule1: "Role desc cannot be empty!"
   }
 };

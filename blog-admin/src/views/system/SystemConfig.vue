@@ -1,6 +1,12 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{
+        this.$i18n.locale === "en_US"
+          ? this.$route.meta.nameEn
+          : this.$route.name
+      }}
+    </div>
     <div class="operation-container">
       <el-button
         type="primary"
@@ -8,16 +14,16 @@
         icon="el-icon-plus"
         @click="openModel(null)"
       >
-        新增
+        {{ $t("button.add") }}
       </el-button>
       <div style="margin-left:auto">
         <el-input
           v-model="keywords"
           ref="input"
           size="small"
-          style="width: 200px"
+          style="width: 220px"
           prefix-icon="el-icon-search"
-          placeholder="请输入配置名或描述"
+          :placeholder="$t('systemConfig.input')"
           clearable
           @keyup.enter.native="getSystemConfigs(true)"
         />
@@ -28,7 +34,7 @@
           style="margin-left:1rem"
           @click="getSystemConfigs(true)"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
@@ -36,28 +42,28 @@
       <el-table-column
         v-if="showColumnConfig.configName"
         prop="configName"
-        label="配置名"
+        :label="$t('systemConfig.name')"
         align="center"
         width="200"
       />
       <el-table-column
         v-if="showColumnConfig.configValue"
         prop="configValue"
-        label="配置值"
+        :label="$t('systemConfig.value')"
         align="center"
         min-width="240"
       />
       <el-table-column
         v-if="showColumnConfig.configDesc"
         prop="configDesc"
-        label="配置描述"
+        :label="$t('systemConfig.desc')"
         align="center"
         min-width="240"
       />
       <el-table-column
         v-if="showColumnConfig.createTime"
         prop="createTime"
-        label="创建日期"
+        :label="$t('table.createDate')"
         align="center"
         width="120"
       >
@@ -69,7 +75,7 @@
       <el-table-column
         v-if="showColumnConfig.updateTime"
         prop="updateTime"
-        label="更新日期"
+        :label="$t('table.updateDate')"
         align="center"
         width="120"
       >
@@ -78,25 +84,29 @@
           {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="160">
+      <el-table-column :label="$t('table.operate')" align="center" width="160">
         <template slot="header">
-          <el-popover placement="bottom" title="选择显示列" width="160">
+          <el-popover
+            placement="bottom"
+            :title="$t('table.showColumn')"
+            width="160"
+          >
             <div>
-              <el-checkbox v-model="showColumnConfig.configName"
-                >配置名</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.configValue"
-                >配置值</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.configDesc"
-                >配置描述</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.createTime"
-                >创建日期</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.updateTime"
-                >更新日期</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.configName">{{
+                $t("systemConfig.name")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.configValue">{{
+                $t("systemConfig.value")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.configDesc">{{
+                $t("systemConfig.desc")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.createTime">{{
+                $t("table.createDate")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.updateTime">{{
+                $t("table.updateDate")
+              }}</el-checkbox>
               <div>
                 <el-button
                   type="primary"
@@ -105,7 +115,7 @@
                   plain
                   @click="saveColumnConfig"
                 >
-                  保存
+                  {{ $t("button.save") }}
                 </el-button>
               </div>
             </div>
@@ -119,10 +129,10 @@
             class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            <i class="el-icon-edit" /> 编辑
+            <i class="el-icon-edit" /> {{ $t("button.edit") }}
           </el-button>
           <el-popconfirm
-            title="确定彻底删除吗？"
+            :title="$t('confirm.content4')"
             style="margin-left:10px"
             @confirm="deleteSystemConfigs(scope.row.id)"
           >
@@ -133,7 +143,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
         </template>
@@ -156,42 +166,44 @@
         slot="title"
         ref="systemConfigTitle"
       />
-      <el-form :model="systemConfig" size="medium" label-width="80">
-        <el-form-item label="配 置 名">
+      <el-form :model="systemConfig" size="medium" label-width="90px">
+        <el-form-item :label="$t('systemConfig.name')">
           <el-input
             :disabled="systemConfig.id != null"
             v-model="systemConfig.configName"
             :ref="systemConfig.id ? '' : 'input'"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入配置名"
+            :placeholder="$t('systemConfig.inputName')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="配 置 值">
+        <el-form-item :label="$t('systemConfig.value')">
           <el-input
             v-model="systemConfig.configValue"
             :ref="systemConfig.id ? 'input' : ''"
             class="word-limit-input2 form-input-width"
             maxlength="255"
-            placeholder="请输入配置值"
+            :placeholder="$t('systemConfig.inputValue')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="配置描述">
+        <el-form-item :label="$t('systemConfig.desc')">
           <el-input
             v-model="systemConfig.configDesc"
             class="word-limit-input2 form-input-width"
             maxlength="255"
-            placeholder="请输入配置描述"
+            :placeholder="$t('systemConfig.inputDesc')"
             show-word-limit
           />
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="addOrEditStatus = false">取 消</el-button>
+        <el-button @click="addOrEditStatus = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button type="primary" @click="addOrEditSystemConfig">
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </div>
     </el-dialog>
@@ -231,14 +243,14 @@ export default {
           configValue: systemConfig.configValue,
           configDesc: systemConfig.configDesc
         };
-        this.$refs.systemConfigTitle.innerHTML = "修改配置";
+        this.$refs.systemConfigTitle.innerHTML = this.$t("systemConfig.edit");
       } else {
         this.systemConfig = {
           configName: "",
           configValue: "",
           configDesc: ""
         };
-        this.$refs.systemConfigTitle.innerHTML = "添加配置";
+        this.$refs.systemConfigTitle.innerHTML = this.$t("systemConfig.add");
       }
       this.systemConfigOrigin = JSON.parse(JSON.stringify(this.systemConfig));
       this.$nextTick(() => {
@@ -299,11 +311,11 @@ export default {
     },
     addOrEditSystemConfig() {
       if (this.systemConfig.configName.trim() === "") {
-        this.$message.error("配置名不能为空");
+        this.$message.error(this.$t("systemConfig.nameRule1"));
         return false;
       }
       if (this.systemConfig.configValue.trim() === "") {
-        this.$message.error("配置值不能为空");
+        this.$message.error(this.$t("systemConfig.valueRule1"));
         return false;
       }
       let param = this.$commonMethod.skipIdenticalValue(
@@ -319,13 +331,13 @@ export default {
       this.axios.post("/api/back/systemConfig", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.getSystemConfigs();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -337,7 +349,7 @@ export default {
       this.axios.delete("/api/back/systemConfigs", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (this.systemConfigList.length === 1) {
@@ -346,7 +358,7 @@ export default {
           this.getSystemConfigs();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }

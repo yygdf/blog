@@ -43,7 +43,9 @@ export default {
     content3: "确定删除吗?",
     content4: "确定彻底删除吗?",
     content5: "是否删除选中项?",
-    content6: "是否彻底删除选中项?"
+    content6: "是否彻底删除选中项?",
+    content7: "是否启用该角色?",
+    content8: "是否禁用该角色?"
   },
   input: {
     select: "请选择",
@@ -81,7 +83,9 @@ export default {
     top: "置顶",
     public: "公开",
     hidden: "隐藏",
-    commentable: "可评论"
+    commentable: "可评论",
+    disabled: "禁用",
+    enabled: "启用"
   },
   article: {
     inputTitle: "请输入文章标题",
@@ -187,5 +191,34 @@ export default {
     viewCountRank: "阅读量排行",
     likeCountRank: "点赞量排行",
     viewCountTrend: "阅读量趋势"
+  },
+  systemConfig: {
+    input: "请输入配置名或描述",
+    name: "配置名",
+    value: "配置值",
+    desc: "配置描述",
+    inputName: "请输入配置名",
+    inputValue: "请输入配置值",
+    inputDesc: "请输入配置描述",
+    add: "添加配置",
+    edit: "修改配置",
+    nameRule1: "配置名不能为空!",
+    valueRule1: "配置值不能为空!"
+  },
+  role: {
+    inputName: "请输入角色名称",
+    name: "角色名称",
+    desc: "角色描述",
+    weight: "角色权重",
+    userCount: "用户数",
+    menuPermission: "菜单权限",
+    resourcePermission: "资源权限",
+    inputDesc: "请输入角色描述",
+    edit1: "修改角色",
+    edit2: "修改菜单权限",
+    edit3: "修改资源权限",
+    add: "添加角色",
+    nameRule1: "角色名称不能为空!",
+    descRule1: "角色描述不能为空!"
   }
 };

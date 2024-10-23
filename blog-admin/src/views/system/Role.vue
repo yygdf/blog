@@ -1,6 +1,8 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <el-button
         type="primary"
@@ -8,7 +10,7 @@
         icon="el-icon-plus"
         @click="openModel(null)"
       >
-        新增
+        {{ $t("button.add") }}
       </el-button>
       <div style="margin-left:auto">
         <el-input
@@ -17,7 +19,7 @@
           size="small"
           style="width: 200px"
           prefix-icon="el-icon-search"
-          placeholder="请输入角色名"
+          :placeholder="$t('role.inputName')"
           clearable
           @keyup.enter.native="getRoles"
         />
@@ -28,28 +30,36 @@
           style="margin-left:1rem"
           @click="getRoles"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
     <el-table v-loading="loading" :data="roleList" height="720" border>
-      <el-table-column prop="roleName" label="角色名称" align="center" />
-      <el-table-column prop="roleDesc" label="角色描述" align="center" />
+      <el-table-column
+        prop="roleName"
+        :label="$t('role.name')"
+        align="center"
+      />
+      <el-table-column
+        prop="roleDesc"
+        :label="$t('role.desc')"
+        align="center"
+      />
       <el-table-column
         prop="roleWeight"
-        label="角色权重"
+        :label="$t('role.weight')"
         align="center"
         width="120"
       />
       <el-table-column
         prop="userCount"
-        label="用户数"
+        :label="$t('role.userCount')"
         align="center"
-        width="80"
+        width="120"
       />
       <el-table-column
         prop="disabledFlag"
-        label="禁用"
+        :label="$t('switch.disabled')"
         align="center"
         width="80"
       >
@@ -67,7 +77,7 @@
       </el-table-column>
       <el-table-column
         prop="createTime"
-        label="创建日期"
+        :label="$t('table.createDate')"
         align="center"
         width="160"
       >
@@ -76,7 +86,7 @@
           {{ scope.row.createTime | date }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="320">
+      <el-table-column :label="$t('table.operate')" align="center" width="320">
         <template slot-scope="scope">
           <el-button
             type="info"
@@ -84,7 +94,7 @@
             class="smaller-btn"
             @click="openMenuModel(scope.row)"
           >
-            <i class="el-icon-folder-opened" /> 菜单权限
+            <i class="el-icon-folder-opened" /> {{ $t("role.menuPermission") }}
           </el-button>
           <el-button
             type="info"
@@ -92,7 +102,8 @@
             class="smaller-btn"
             @click="openResourceModel(scope.row)"
           >
-            <i class="el-icon-folder-opened" /> 资源权限
+            <i class="el-icon-folder-opened" />
+            {{ $t("role.resourcePermission") }}
           </el-button>
           <el-button
             type="warning"
@@ -100,10 +111,10 @@
             class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            <i class="el-icon-edit" /> 编辑
+            <i class="el-icon-edit" /> {{ $t("button.edit") }}
           </el-button>
           <el-popconfirm
-            title="确定彻底删除吗？"
+            :title="$t('confirm.content4')"
             style="margin-left:10px"
             @confirm="deleteRoles(scope.row.id)"
           >
@@ -114,7 +125,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
         </template>
@@ -122,27 +133,27 @@
     </el-table>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="roleTitle" />
-      <el-form :model="role" size="medium" label-width="80">
-        <el-form-item label="角色名称">
+      <el-form :model="role" size="medium" label-width="90px">
+        <el-form-item :label="$t('role.name')">
           <el-input
             v-model="role.roleName"
             ref="input"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入角色名称"
+            :placeholder="$t('role.inputName')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="角色描述">
+        <el-form-item :label="$t('role.desc')">
           <el-input
             v-model="role.roleDesc"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入角色描述"
+            :placeholder="$t('role.inputDesc')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="角色权重">
+        <el-form-item :label="$t('role.weight')">
           <el-input-number
             v-model="role.roleWeight"
             class="form-input-width"
@@ -152,7 +163,7 @@
             controls-position="right"
           />
         </el-form-item>
-        <el-form-item label="禁用">
+        <el-form-item :label="$t('switch.disabled')">
           <el-switch
             v-model="role.disabledFlag"
             :disabled="role.id === rootRoleId"
@@ -164,19 +175,23 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="addOrEditStatus = false">取 消</el-button>
+        <el-button @click="addOrEditStatus = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button type="primary" @click="addOrEditRole">
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="editRoleMenuStatus" width="30%">
-      <div class="dialog-title-container" slot="title">修改菜单权限</div>
+      <div class="dialog-title-container" slot="title">
+        {{ $t("role.edit2") }}
+      </div>
       <el-form :model="role" size="medium" label-width="80px">
-        <el-form-item label="角色名称">
+        <el-form-item :label="$t('role.name')">
           <el-input v-model="role.roleName" style="width: 200px" disabled />
         </el-form-item>
-        <el-form-item label="菜单权限">
+        <el-form-item :label="$t('role.menuPermission')">
           <el-tree
             :data="menuList"
             :default-checked-keys="role.menuIdList"
@@ -187,19 +202,23 @@
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="editRoleMenuStatus = false">取 消</el-button>
+        <el-button @click="editRoleMenuStatus = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button type="primary" @click="editRoleMenu">
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="editRoleResourceStatus" width="30%">
-      <div class="dialog-title-container" slot="title">修改资源权限</div>
+      <div class="dialog-title-container" slot="title">
+        {{ $t("role.edit3") }}
+      </div>
       <el-form :model="role" size="medium" label-width="80px">
-        <el-form-item label="角色名称">
+        <el-form-item :label="$t('role.name')">
           <el-input v-model="role.roleName" style="width: 200px" disabled />
         </el-form-item>
-        <el-form-item label="资源权限">
+        <el-form-item :label="$t('role.resourcePermission')">
           <el-tree
             :data="resourceList"
             :default-checked-keys="role.resourceIdList"
@@ -210,9 +229,11 @@
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="editRoleResourceStatus = false">取 消</el-button>
+        <el-button @click="editRoleResourceStatus = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button type="primary" @click="editRoleResource">
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </div>
     </el-dialog>
@@ -252,7 +273,7 @@ export default {
           roleWeight: 1000,
           disabledFlag: false
         };
-        this.$refs.roleTitle.innerHTML = "新增角色";
+        this.$refs.roleTitle.innerHTML = this.$t("role.add");
       } else {
         this.role = {
           id: role.id,
@@ -261,7 +282,7 @@ export default {
           roleWeight: role.roleWeight,
           disabledFlag: role.disabledFlag
         };
-        this.$refs.roleTitle.innerHTML = "修改角色";
+        this.$refs.roleTitle.innerHTML = this.$t("role.edit1");
       }
       this.roleOrigin = JSON.parse(JSON.stringify(this.role));
       this.$nextTick(() => {
@@ -347,13 +368,13 @@ export default {
       this.axios.delete("/api/back/roles", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.getRoles();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -372,13 +393,13 @@ export default {
         .then(({ data }) => {
           if (data.flag) {
             this.$notify.success({
-              title: "成功",
+              title: this.$t("success"),
               message: data.message
             });
             this.getRoles();
           } else {
             this.$notify.error({
-              title: "失败",
+              title: this.$t("failure"),
               message: data.message
             });
           }
@@ -387,11 +408,11 @@ export default {
     },
     addOrEditRole() {
       if (this.role.roleName.trim() === "") {
-        this.$message.error("角色名称不能为空");
+        this.$message.error(this.$t("role.nameRule1"));
         return false;
       }
       if (this.role.roleDesc.trim() === "") {
-        this.$message.error("角色描述不能为空");
+        this.$message.error(this.$t("role.descRule1"));
         return false;
       }
       let param = this.$commonMethod.skipIdenticalValue(
@@ -407,13 +428,13 @@ export default {
       this.axios.post("/api/back/role", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.getRoles();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -422,12 +443,17 @@ export default {
     },
     updateRoleStatus(role) {
       let disabledFlag = role.disabledFlag;
-      let text = disabledFlag ? "启用" : "禁用";
-      this.$confirm("是否" + text + "该角色?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
+      this.$confirm(
+        disabledFlag
+          ? this.$t("confirm.content7")
+          : this.$t("confirm.content8"),
+        this.$t("confirm.tip"),
+        {
+          confirmButtonText: this.$t("confirm.yes"),
+          cancelButtonText: this.$t("confirm.no"),
+          type: "warning"
+        }
+      )
         .then(() => {
           let param = {
             idList: [role.id]
@@ -440,7 +466,7 @@ export default {
               role.disabledFlag = !disabledFlag;
             } else {
               this.$notify.error({
-                title: "失败",
+                title: this.$t("failure"),
                 message: data.message
               });
             }
@@ -461,18 +487,29 @@ export default {
         .then(({ data }) => {
           if (data.flag) {
             this.$notify.success({
-              title: "成功",
+              title: this.$t("success"),
               message: data.message
             });
             this.getRoles();
           } else {
             this.$notify.error({
-              title: "失败",
+              title: this.$t("failure"),
               message: data.message
             });
           }
         });
       this.editRoleResourceStatus = false;
+    }
+  },
+  computed: {
+    isEn() {
+      return this.$i18n.locale === "en_US";
+    }
+  },
+  watch: {
+    isEn: {
+      handler() {},
+      immediate: true
     }
   }
 };

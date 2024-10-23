@@ -1,6 +1,8 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <el-button
         type="primary"
@@ -8,7 +10,7 @@
         icon="el-icon-plus"
         @click="openModel(null)"
       >
-        新增
+        {{ $t("button.add") }}
       </el-button>
       <el-button
         v-if="type !== 7"
@@ -18,7 +20,7 @@
         icon="el-icon-minus"
         @click="editStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <el-button
         v-else
@@ -28,14 +30,14 @@
         icon="el-icon-minus"
         @click="removeStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <div style="margin-left:auto">
         <el-select
           v-model="userId"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择用户"
+          :placeholder="$t('input.selectUser')"
           remote
           clearable
           filterable
@@ -53,7 +55,7 @@
           v-model="type"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择"
+          :placeholder="$t('input.select')"
         >
           <el-option
             v-for="item in options"
@@ -68,7 +70,7 @@
           size="small"
           style="width: 200px"
           prefix-icon="el-icon-search"
-          placeholder="请输入友链名"
+          :placeholder="$t('friendLink.inputName')"
           clearable
           @keyup.enter.native="getFriendLinks(false)"
         />
@@ -79,7 +81,7 @@
           style="margin-left:1rem"
           @click="getFriendLinks(false)"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
@@ -93,14 +95,14 @@
       <el-table-column
         v-if="showColumnConfig.username"
         prop="username"
-        label="用户"
+        :label="$t('table.user')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.linkLogo"
         prop="linkLogo"
-        label="友链图标"
+        :label="$t('friendLink.logo')"
         align="center"
         width="80"
       >
@@ -115,28 +117,28 @@
       <el-table-column
         v-if="showColumnConfig.linkName"
         prop="linkName"
-        label="友链名称"
+        :label="$t('friendLink.name')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.linkUrl"
         prop="linkUrl"
-        label="友链地址"
+        :label="$t('friendLink.url')"
         align="center"
         min-width="240"
       />
       <el-table-column
         v-if="showColumnConfig.linkDesc"
         prop="linkDesc"
-        label="友链描述"
+        :label="$t('friendLink.desc')"
         align="center"
         min-width="240"
       />
       <el-table-column
         v-if="showColumnConfig.createTime"
         prop="createTime"
-        label="创建日期"
+        :label="$t('table.createDate')"
         align="center"
         width="120"
       >
@@ -145,28 +147,32 @@
           {{ scope.row.createTime | date }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="160">
+      <el-table-column :label="$t('table.operate')" align="center" width="160">
         <template slot="header">
-          <el-popover placement="bottom" title="选择显示列" width="160">
+          <el-popover
+            placement="bottom"
+            :title="$t('table.showColumn')"
+            width="160"
+          >
             <div>
-              <el-checkbox v-model="showColumnConfig.username"
-                >用户</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.linkLogo"
-                >友链图标</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.linkName"
-                >友链名称</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.linkUrl"
-                >友链地址</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.linkDesc"
-                >友链描述</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.createTime"
-                >创建日期</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.username">{{
+                $t("table.user")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.linkLogo">{{
+                $t("friendLink.logo")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.linkName">{{
+                $t("friendLink.name")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.linkUrl">{{
+                $t("friendLink.url")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.linkDesc">{{
+                $t("friendLink.desc")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.createTime">{{
+                $t("table.createDate")
+              }}</el-checkbox>
               <div>
                 <el-button
                   type="primary"
@@ -175,7 +181,7 @@
                   plain
                   @click="saveColumnConfig"
                 >
-                  保存
+                  {{ $t("button.save") }}
                 </el-button>
               </div>
             </div>
@@ -190,11 +196,11 @@
             class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            <i class="el-icon-edit" /> 编辑
+            <i class="el-icon-edit" /> {{ $t("button.edit") }}
           </el-button>
           <el-popconfirm
             v-else
-            title="确定恢复吗？"
+            :title="$t('confirm.content2')"
             @confirm="updateFriendLinksStatus(scope.row.id)"
           >
             <el-button
@@ -203,12 +209,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-refresh-left" /> 恢复
+              <i class="el-icon-refresh-left" /> {{ $t("button.restore") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-if="type !== 7"
-            title="确定删除吗？"
+            :title="$t('confirm.content3')"
             style="margin-left:10px"
             @confirm="updateFriendLinksStatus(scope.row.id)"
           >
@@ -218,12 +224,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-else
-            title="确定彻底删除吗？"
+            :title="$t('confirm.content4')"
             style="margin-left:10px"
             @confirm="deleteFriendLinks(scope.row.id)"
           >
@@ -233,7 +239,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
         </template>
@@ -252,38 +258,46 @@
     />
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content5") }}</div>
       <div slot="footer">
-        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button @click="editStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="updateFriendLinksStatus(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="removeStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否彻底删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content6") }}</div>
       <div slot="footer">
-        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button @click="removeStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="deleteFriendLinks(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="friendLinkTitle" />
-      <el-form :model="friendLink" size="medium" label-width="80">
-        <el-form-item label="所属用户">
+      <el-form :model="friendLink" size="medium" label-width="80px">
+        <el-form-item :label="$t('friendLink.user')">
           <el-select
             :disabled="friendLink.id != null"
             v-model="friendLink.userId"
             :ref="friendLink.id ? '' : 'input'"
             class="form-input-width"
-            placeholder="请选择用户"
+            :placeholder="$t('input.selectUser')"
             remote
             clearable
             filterable
@@ -298,48 +312,50 @@
           </el-select>
           <span style="color: red;"> *</span>
         </el-form-item>
-        <el-form-item label="友链名称">
+        <el-form-item :label="$t('friendLink.name')">
           <el-input
             v-model="friendLink.linkName"
             :ref="friendLink.id ? 'input' : ''"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入友链名称"
+            :placeholder="$t('friendLink.inputName')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="友链描述">
+        <el-form-item :label="$t('friendLink.desc')">
           <el-input
             v-model="friendLink.linkDesc"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入友链描述"
+            :placeholder="$t('friendLink.inputDesc')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="友链图标">
+        <el-form-item :label="$t('friendLink.logo')">
           <el-input
             v-model="friendLink.linkLogo"
             class="word-limit-input2 form-input-width"
             maxlength="255"
-            placeholder="请输入友链图标"
+            :placeholder="$t('friendLink.inputLogo')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="友链地址">
+        <el-form-item :label="$t('friendLink.url')">
           <el-input
             v-model="friendLink.linkUrl"
             class="word-limit-input2 form-input-width"
             maxlength="255"
-            placeholder="请输入友链地址"
+            :placeholder="$t('friendLink.inputUrl')"
             show-word-limit
           />
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="addOrEditStatus = false">取 消</el-button>
+        <el-button @click="addOrEditStatus = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button type="primary" @click="addOrEditFriendLink">
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </div>
     </el-dialog>
@@ -357,16 +373,7 @@ export default {
   },
   data: function() {
     return {
-      options: [
-        {
-          value: null,
-          label: "未删除"
-        },
-        {
-          value: 7,
-          label: "已删除"
-        }
-      ],
+      options: [],
       usernameList: [],
       friendLinkList: [],
       usernameListAdd: [],
@@ -398,7 +405,7 @@ export default {
           linkLogo: friendLink.linkLogo,
           linkName: friendLink.linkName
         };
-        this.$refs.friendLinkTitle.innerHTML = "修改友链";
+        this.$refs.friendLinkTitle.innerHTML = this.$t("friendLink.edit");
       } else {
         this.friendLink = {
           userId: null,
@@ -407,7 +414,7 @@ export default {
           linkLogo: "",
           linkName: ""
         };
-        this.$refs.friendLinkTitle.innerHTML = "添加友链";
+        this.$refs.friendLinkTitle.innerHTML = this.$t("friendLink.add");
       }
       this.friendLinkOrigin = JSON.parse(JSON.stringify(this.friendLink));
       this.$nextTick(() => {
@@ -494,23 +501,23 @@ export default {
     },
     addOrEditFriendLink() {
       if (!this.friendLink.userId) {
-        this.$message.error("所属用户不能为空");
+        this.$message.error(this.$t("friendLink.userRule1"));
         return false;
       }
       if (this.friendLink.linkName.trim() === "") {
-        this.$message.error("友链名称不能为空");
+        this.$message.error(this.$t("friendLink.nameRule1"));
         return false;
       }
       if (this.friendLink.linkDesc.trim() === "") {
-        this.$message.error("友链描述不能为空");
+        this.$message.error(this.$t("friendLink.descRule1"));
         return false;
       }
       if (this.friendLink.linkLogo.trim() === "") {
-        this.$message.error("友链图标不能为空");
+        this.$message.error(this.$t("friendLink.logoRule1"));
         return false;
       }
       if (this.friendLink.linkUrl.trim() === "") {
-        this.$message.error("友链地址不能为空");
+        this.$message.error(this.$t("friendLink.urlRule1"));
         return false;
       }
       let param = this.$commonMethod.skipIdenticalValue(
@@ -526,13 +533,13 @@ export default {
       this.axios.post("/api/back/friendLink", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.getFriendLinks();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -549,7 +556,7 @@ export default {
       this.axios.delete("/api/back/friendLinks", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.data.length === this.friendLinkList.length) {
@@ -558,7 +565,7 @@ export default {
           this.getFriendLinks();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -578,7 +585,7 @@ export default {
       this.axios.put("/api/back/friendLinks/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.idList.length === this.friendLinkList.length) {
@@ -587,12 +594,17 @@ export default {
           this.getFriendLinks();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
       });
       this.editStatus = false;
+    }
+  },
+  computed: {
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   },
   watch: {
@@ -601,6 +613,21 @@ export default {
     },
     userId() {
       this.getFriendLinks(true);
+    },
+    isEn: {
+      handler() {
+        this.options = [
+          {
+            value: null,
+            label: this.$t("option.available")
+          },
+          {
+            value: 7,
+            label: this.$t("option.deleted")
+          }
+        ];
+      },
+      immediate: true
     }
   }
 };

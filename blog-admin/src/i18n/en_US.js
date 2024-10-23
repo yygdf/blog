@@ -133,9 +133,46 @@ export default {
     createTime: "create time"
   },
   message: {
-    inputNickname: "please input nickname",
+    inputNickname: "please enter nickname",
     from: "from",
     content: "content",
     createTime: "create time"
+  },
+  friendLink: {
+    inputName: "please enter name",
+    logo: "logo",
+    name: "name",
+    url: "url",
+    desc: "desc",
+    user: "user",
+    inputDesc: "please enter desc",
+    inputLogo: "please enter logo",
+    inputUrl: "please enter url",
+    add: "add friend link",
+    edit: "edit friend link",
+    userRule1: "User cannot be empty!",
+    nameRule1: "Name cannot be empty!",
+    descRule1: "Desc cannot be empty!",
+    logoRule1: "Logo cannot be empty!",
+    urlRule1: "Url cannot be empty!"
+  },
+  music: {
+    inputName: "please enter name",
+    cover: "cover",
+    name: "name",
+    url: "url",
+    author: "author",
+    album: "album",
+    words: "words",
+    inputAuthor: "please enter author",
+    inputAlbum: "please enter album",
+    inputUrl: "please enter url",
+    inputCover: "please enter cover",
+    inputWords:
+      "please enter words(here is an example)\n[00:00.00]\n[00:02.70]入戏太深 - 马旭东\n[00:04.15]作词：马旭东\n[00:06.69]作曲：马旭东\n[00:24.50]One Two Three Go!\n[00:27.26]你的笑总是装作很天真\n...\n[03:32.31]谁能懂那些誓言多伤人",
+    add: "add music",
+    edit: "edit music",
+    nameRule1: "Name cannot be empty!",
+    urlRule1: "Url cannot be empty!"
   }
 };

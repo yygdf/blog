@@ -137,5 +137,42 @@ export default {
     from: "留言人",
     content: "评论内容",
     createTime: "留言时间"
+  },
+  friendLink: {
+    inputName: "请输入友链名称",
+    logo: "友链图标",
+    name: "友链名称",
+    url: "友链地址",
+    desc: "友链描述",
+    user: "所属用户",
+    inputDesc: "请输入友链描述",
+    inputLogo: "请输入图标链接",
+    inputUrl: "请输入友链地址",
+    add: "添加友链",
+    edit: "修改友链",
+    userRule1: "所属用户不能为空!",
+    nameRule1: "友链名称不能为空!",
+    descRule1: "友链描述不能为空!",
+    logoRule1: "友链图标不能为空!",
+    urlRule1: "友链地址不能为空!"
+  },
+  music: {
+    inputName: "请输入音乐名称",
+    cover: "音乐封面",
+    name: "音乐名称",
+    url: "音乐链接",
+    author: "音乐作者",
+    album: "音乐专辑",
+    words: "音乐歌词",
+    inputAuthor: "请输入音乐作者",
+    inputAlbum: "请输入音乐专辑",
+    inputUrl: "请输入音乐链接",
+    inputCover: "请输入封面链接",
+    inputWords:
+      "请输入音乐歌词(以下为示例)\n[00:00.00]\n[00:02.70]入戏太深 - 马旭东\n[00:04.15]作词：马旭东\n[00:06.69]作曲：马旭东\n[00:24.50]One Two Three Go!\n[00:27.26]你的笑总是装作很天真\n...\n[03:32.31]谁能懂那些誓言多伤人",
+    add: "添加音乐",
+    edit: "修改音乐",
+    nameRule1: "音乐名称不能为空!",
+    urlRule1: "音乐链接不能为空!"
   }
 };

@@ -1,6 +1,8 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <el-button
         type="primary"
@@ -8,7 +10,7 @@
         icon="el-icon-plus"
         @click="openModel(null)"
       >
-        新增
+        {{ $t("button.add") }}
       </el-button>
       <el-button
         v-if="type !== 7"
@@ -18,7 +20,7 @@
         icon="el-icon-minus"
         @click="editStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <el-button
         v-else
@@ -28,7 +30,7 @@
         icon="el-icon-minus"
         @click="removeStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <div style="margin-left:auto">
         <el-select
@@ -36,7 +38,7 @@
           v-model="userId"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择用户"
+          :placeholder="$t('input.selectUser')"
           remote
           clearable
           filterable
@@ -54,7 +56,7 @@
           v-model="type"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择"
+          :placeholder="$t('input.select')"
         >
           <el-option
             v-for="item in options"
@@ -69,7 +71,7 @@
           size="small"
           style="width: 200px"
           prefix-icon="el-icon-search"
-          placeholder="请输入音乐名"
+          :placeholder="$t('music.inputName')"
           clearable
           @keyup.enter.native="getMusics(false)"
         />
@@ -80,7 +82,7 @@
           style="margin-left:1rem"
           @click="getMusics(false)"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
@@ -94,14 +96,14 @@
       <el-table-column
         v-if="checkWeight(200) && showColumnConfig.username"
         prop="username"
-        label="用户"
+        :label="$t('table.user')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.musicCover"
         prop="musicCover"
-        label="音乐封面"
+        :label="$t('music.cover')"
         align="center"
         width="80"
       >
@@ -116,35 +118,35 @@
       <el-table-column
         v-if="showColumnConfig.musicName"
         prop="musicName"
-        label="音乐名称"
+        :label="$t('music.name')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.musicUrl"
         prop="musicUrl"
-        label="音乐链接"
+        :label="$t('music.url')"
         align="center"
         min-width="240"
       />
       <el-table-column
         v-if="showColumnConfig.author"
         prop="author"
-        label="作者"
+        :label="$t('music.author')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.album"
         prop="album"
-        label="专辑"
+        :label="$t('music.album')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.createTime"
         prop="createTime"
-        label="创建日期"
+        :label="$t('table.createDate')"
         align="center"
         width="120"
       >
@@ -153,27 +155,37 @@
           {{ scope.row.createTime | date }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="160">
+      <el-table-column :label="$t('table.operate')" align="center" width="160">
         <template slot="header">
-          <el-popover placement="bottom" title="选择显示列" width="160">
+          <el-popover
+            placement="bottom"
+            :title="$t('table.showColumn')"
+            width="160"
+          >
             <div>
-              <el-checkbox v-model="showColumnConfig.username"
-                >用户</el-checkbox
+              <el-checkbox
+                v-if="checkWeight(200)"
+                v-model="showColumnConfig.username"
+                >{{ $t("table.user") }}</el-checkbox
               >
-              <el-checkbox v-model="showColumnConfig.musicCover"
-                >音乐封面</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.musicName"
-                >音乐名称</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.musicUrl"
-                >音乐链接</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.author">作者</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.album">专辑</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.createTime"
-                >创建日期</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.musicCover">{{
+                $t("music.cover")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.musicName">{{
+                $t("music.name")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.musicUrl">{{
+                $t("music.url")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.author">{{
+                $t("music.author")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.album">{{
+                $t("music.album")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.createTime">{{
+                $t("table.createDate")
+              }}</el-checkbox>
               <div>
                 <el-button
                   type="primary"
@@ -182,7 +194,7 @@
                   plain
                   @click="saveColumnConfig"
                 >
-                  保存
+                  {{ $t("button.save") }}
                 </el-button>
               </div>
             </div>
@@ -197,11 +209,11 @@
             class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            <i class="el-icon-edit" /> 编辑
+            <i class="el-icon-edit" /> {{ $t("button.edit") }}
           </el-button>
           <el-popconfirm
             v-else
-            title="确定恢复吗？"
+            :title="$t('confirm.content2')"
             @confirm="updateMusicsStatus(scope.row.id)"
           >
             <el-button
@@ -210,12 +222,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-refresh-left" /> 恢复
+              <i class="el-icon-refresh-left" /> {{ $t("button.restore") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-if="type !== 7"
-            title="确定删除吗？"
+            :title="$t('confirm.content3')"
             style="margin-left:10px"
             @confirm="updateMusicsStatus(scope.row.id)"
           >
@@ -225,12 +237,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-else
-            title="确定彻底删除吗？"
+            :title="$t('confirm.content4')"
             style="margin-left:10px"
             @confirm="deleteMusics(scope.row.id)"
           >
@@ -240,7 +252,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
         </template>
@@ -259,93 +271,103 @@
     />
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content5") }}</div>
       <div slot="footer">
-        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button @click="editStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="updateMusicsStatus(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="removeStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否彻底删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content6") }}</div>
       <div slot="footer">
-        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button @click="removeStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="deleteMusics(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="musicTitle" />
-      <el-form :model="music" size="medium" label-width="80">
-        <el-form-item label="音乐名称">
+      <el-form :model="music" size="medium" label-width="80px">
+        <el-form-item :label="$t('music.name')">
           <el-input
             v-model="music.musicName"
             ref="input"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入音乐名称"
+            :placeholder="$t('music.inputName')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="音乐作者">
+        <el-form-item :label="$t('music.author')">
           <el-input
             v-model="music.author"
             ref="input"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入音乐作者"
+            :placeholder="$t('music.inputAuthor')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="音乐专辑">
+        <el-form-item :label="$t('music.album')">
           <el-input
             v-model="music.album"
             ref="input"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入音乐专辑"
+            :placeholder="$t('music.inputAlbum')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="音乐链接">
+        <el-form-item :label="$t('music.url')">
           <el-input
             v-model="music.musicUrl"
             class="word-limit-input2 form-input-width"
             maxlength="255"
-            placeholder="请输入音乐链接"
+            :placeholder="$t('music.inputUrl')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="封面链接">
+        <el-form-item :label="$t('music.cover')">
           <el-input
             v-model="music.musicCover"
             class="word-limit-input2 form-input-width"
             maxlength="255"
-            placeholder="请输入封面链接"
+            :placeholder="$t('music.inputCover')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="音乐歌词">
+        <el-form-item :label="$t('music.words')">
           <el-input
             v-model="music.musicWords"
             type="textarea"
             class="form-input-width"
             :rows="10"
-            :placeholder="example"
+            :placeholder="$t('music.inputWords')"
           />
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="addOrEditStatus = false">取 消</el-button>
+        <el-button @click="addOrEditStatus = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button type="primary" @click="addOrEditMusic">
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </div>
     </el-dialog>
@@ -363,16 +385,7 @@ export default {
   },
   data: function() {
     return {
-      options: [
-        {
-          value: null,
-          label: "未删除"
-        },
-        {
-          value: 7,
-          label: "已删除"
-        }
-      ],
+      options: [],
       usernameList: [],
       musicList: [],
       musicIdList: [],
@@ -389,9 +402,7 @@ export default {
       addOrEditStatus: false,
       size: 10,
       count: 0,
-      current: 1,
-      example:
-        "请输入音乐歌词(以下为示例)\n[00:00.00]\n[00:02.70]入戏太深 - 马旭东\n[00:04.15]作词：马旭东\n[00:06.69]作曲：马旭东\n[00:24.50]One Two Three Go!\n[00:27.26]你的笑总是装作很天真\n...\n[03:32.31]谁能懂那些誓言多伤人"
+      current: 1
     };
   },
   methods: {
@@ -406,7 +417,7 @@ export default {
           musicCover: music.musicCover,
           musicWords: music.musicWords
         };
-        this.$refs.musicTitle.innerHTML = "修改音乐";
+        this.$refs.musicTitle.innerHTML = this.$t("music.edit");
       } else {
         this.music = {
           author: "",
@@ -416,7 +427,7 @@ export default {
           musicCover: "",
           musicWords: ""
         };
-        this.$refs.musicTitle.innerHTML = "添加音乐";
+        this.$refs.musicTitle.innerHTML = this.$t("music.add");
       }
       this.musicOrigin = JSON.parse(JSON.stringify(this.music));
       this.$nextTick(() => {
@@ -500,11 +511,11 @@ export default {
     },
     addOrEditMusic() {
       if (this.music.musicName.trim() === "") {
-        this.$message.error("音乐名称不能为空");
+        this.$message.error(this.$t("music.nameRule1"));
         return false;
       }
       if (this.music.musicUrl.trim() === "") {
-        this.$message.error("音乐链接不能为空");
+        this.$message.error(this.$t("music.urlRule1"));
         return false;
       }
       let param = this.$commonMethod.skipIdenticalValue(
@@ -520,13 +531,13 @@ export default {
       this.axios.post("/api/back/music", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.getMusics();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -543,7 +554,7 @@ export default {
       this.axios.delete("/api/back/musics", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.data.length === this.musicList.length) {
@@ -552,7 +563,7 @@ export default {
           this.getMusics();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -572,7 +583,7 @@ export default {
       this.axios.put("/api/back/musics/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.idList.length === this.musicList.length) {
@@ -581,12 +592,17 @@ export default {
           this.getMusics();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
       });
       this.editStatus = false;
+    }
+  },
+  computed: {
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   },
   watch: {
@@ -595,6 +611,21 @@ export default {
     },
     userId() {
       this.getMusics(true);
+    },
+    isEn: {
+      handler() {
+        this.options = [
+          {
+            value: null,
+            label: this.$t("option.available")
+          },
+          {
+            value: 7,
+            label: this.$t("option.deleted")
+          }
+        ];
+      },
+      immediate: true
     }
   }
 };

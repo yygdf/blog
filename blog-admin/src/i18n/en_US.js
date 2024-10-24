@@ -85,7 +85,9 @@ export default {
     hidden: "hidden",
     commentable: "commentable",
     disabled: "disabled",
-    enabled: "enabled"
+    enabled: "enabled",
+    hide: "hide",
+    anonymous: "anonymous"
   },
   article: {
     inputTitle: "please enter article title",
@@ -220,5 +222,47 @@ export default {
     add: "add role",
     nameRule1: "Role name cannot be empty!",
     descRule1: "Role desc cannot be empty!"
+  },
+  menu: {
+    inputName: "please enter name",
+    name: "name",
+    icon: "icon",
+    rank: "rank",
+    path: "path",
+    component: "component",
+    parentMenu: "parent",
+    inputIcon: "please select icon",
+    inputPath: "please enter path",
+    inputComponent: "please enter component",
+    add1: "add menu",
+    add2: "add sub menu",
+    edit1: "edit menu",
+    edit2: "edit sub menu",
+    nameRule1: "Menu name cannot be empty!",
+    iconRule1: "Menu icon cannot be empty!",
+    pathRule1: "Menu path cannot be empty!",
+    componentRule1: "Menu component cannot be empty!",
+    nameEn: "name(en)",
+    inputNameEn: "please enter name(en)",
+    nameEnRule1: "Menu name(en) cannot be empty!"
+  },
+  resource: {
+    inputName: "please enter name",
+    name: "name",
+    uri: "uri",
+    requestMethod: "method",
+    moduleName: "module",
+    inputUri: "please enter uri",
+    add1: "add module",
+    add2: "add resource",
+    edit1: "edit module",
+    edit2: "edit resource",
+    nameRule1: "Resource name cannot be empty!",
+    moduleNameRule1: "Module name cannot be empty!",
+    uriRule1: "Resource uri cannot be empty!",
+    nameEn: "name(en)",
+    inputNameEn: "please enter name(en)",
+    nameEnRule1: "Resource name(en) cannot be empty!",
+    moduleNameEnRule1: "Module name(en) cannot be empty!"
   }
 };

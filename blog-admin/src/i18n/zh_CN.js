@@ -85,7 +85,9 @@ export default {
     hidden: "隐藏",
     commentable: "可评论",
     disabled: "禁用",
-    enabled: "启用"
+    enabled: "启用",
+    hide: "隐藏",
+    anonymous: "匿名"
   },
   article: {
     inputTitle: "请输入文章标题",
@@ -220,5 +222,47 @@ export default {
     add: "添加角色",
     nameRule1: "角色名称不能为空!",
     descRule1: "角色描述不能为空!"
+  },
+  menu: {
+    inputName: "请输入菜单名称",
+    name: "菜单名称",
+    icon: "菜单图标",
+    rank: "排序指标",
+    path: "菜单路径",
+    component: "菜单组件",
+    parentMenu: "父菜单",
+    inputIcon: "请选择菜单图标",
+    inputPath: "请输入菜单路径",
+    inputComponent: "请输入菜单组件",
+    add1: "添加菜单",
+    add2: "添加子菜单",
+    edit1: "修改菜单",
+    edit2: "修改子菜单",
+    nameRule1: "菜单名称不能为空!",
+    iconRule1: "菜单图标不能为空!",
+    pathRule1: "菜单路径不能为空!",
+    componentRule1: "菜单组件不能为空!",
+    nameEn: "菜单名称(en)",
+    inputNameEn: "请输入菜单名称(en)",
+    nameEnRule1: "菜单名称(en不能为空!"
+  },
+  resource: {
+    inputName: "请输入资源名称",
+    name: "资源名称",
+    uri: "资源路径",
+    requestMethod: "请求方式",
+    moduleName: "模块名称",
+    inputUri: "请输入资源路径",
+    add1: "添加模块",
+    add2: "添加资源",
+    edit1: "修改模块",
+    edit2: "修改资源",
+    nameRule1: "资源名称不能为空!",
+    moduleNameRule1: "模块名称不能为空!",
+    uriRule1: "资源路径不能为空!",
+    nameEn: "资源名称(en)",
+    inputNameEn: "请输入资源名称(en)",
+    nameEnRule1: "资源名称(en)不能为空!",
+    moduleNameEnRule1: "模块名称(en)不能为空!"
   }
 };

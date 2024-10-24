@@ -1,6 +1,8 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <el-button
         type="primary"
@@ -8,7 +10,7 @@
         icon="el-icon-plus"
         @click="openModel(null)"
       >
-        新增模块
+        {{ $t("button.add") }}
       </el-button>
       <div style="margin-left:auto">
         <el-input
@@ -17,7 +19,7 @@
           size="small"
           style="width: 200px"
           prefix-icon="el-icon-search"
-          placeholder="请输入资源名"
+          :placeholder="$t('resource.inputName')"
           clearable
           @keyup.enter.native="getResources"
         />
@@ -28,7 +30,7 @@
           style="margin-left:1rem"
           @click="getResources"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
@@ -39,12 +41,15 @@
       row-key="id"
       height="720"
     >
-      <el-table-column prop="resourceName" label="资源名称" />
-      <el-table-column prop="resourceUri" label="资源路径" />
+      <el-table-column
+        :prop="isEn ? 'resourceNameEn' : 'resourceName'"
+        :label="$t('resource.name')"
+      />
+      <el-table-column prop="resourceUri" :label="$t('resource.uri')" />
       <el-table-column
         prop="resourceRequestMethod"
-        label="请求方式"
-        width="120"
+        :label="$t('resource.requestMethod')"
+        width="160"
       >
         <template slot-scope="scope" v-if="scope.row.resourceRequestMethod">
           <el-tag :type="tagType(scope.row.resourceRequestMethod)">
@@ -54,7 +59,7 @@
       </el-table-column>
       <el-table-column
         prop="disabledFlag"
-        label="禁用"
+        :label="$t('switch.disabled')"
         align="center"
         width="80"
       >
@@ -71,9 +76,9 @@
       </el-table-column>
       <el-table-column
         prop="anonymousFlag"
-        label="匿名"
+        :label="$t('switch.anonymous')"
         align="center"
-        width="80"
+        width="120"
       >
         <template v-if="scope.row.parentId !== -1" slot-scope="scope">
           <el-switch
@@ -88,7 +93,7 @@
       </el-table-column>
       <el-table-column
         prop="createTime"
-        label="创建日期"
+        :label="$t('table.createDate')"
         align="center"
         width="120"
       >
@@ -99,7 +104,7 @@
       </el-table-column>
       <el-table-column
         prop="updateTime"
-        label="更新日期"
+        :label="$t('table.updateDate')"
         align="center"
         width="120"
       >
@@ -108,7 +113,7 @@
           {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="200">
+      <el-table-column :label="$t('table.operate')" align="center" width="200">
         <template slot-scope="scope">
           <el-button
             :disabled="scope.row.parentId !== -1"
@@ -117,7 +122,7 @@
             class="smaller-btn"
             @click="openModel(scope.row, true)"
           >
-            <i class="el-icon-plus" /> 新增
+            <i class="el-icon-plus" /> {{ $t("button.add") }}
           </el-button>
           <el-button
             type="warning"
@@ -125,10 +130,10 @@
             class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            <i class="el-icon-edit" /> 编辑
+            <i class="el-icon-edit" /> {{ $t("button.edit") }}
           </el-button>
           <el-popconfirm
-            title="确定彻底删除吗？"
+            :title="$t('confirm.content4')"
             style="margin-left:10px"
             @confirm="deleteResources(scope.row.id)"
           >
@@ -143,7 +148,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
         </template>
@@ -151,42 +156,58 @@
     </el-table>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="resourceTitle" />
-      <el-form :model="resource" size="medium" label-width="80">
-        <el-form-item v-if="resource.parentId" label="模块名称">
+      <el-form :model="resource" size="medium" label-width="100px">
+        <el-form-item
+          v-if="resource.parentId"
+          :label="$t('resource.moduleName')"
+        >
           <el-select
             v-model="resource.parentId"
             size="small"
             class="form-input-width"
-            placeholder="请选择"
+            :placeholder="$t('input.select')"
           >
             <el-option
               v-for="item in resourceList"
               :key="item.id"
               :value="item.id"
-              :label="item.resourceName"
+              :label="isEn ? item.resourceNameEn : item.resourceName"
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="资源名称">
+        <el-form-item :label="$t('resource.name')">
           <el-input
             v-model="resource.resourceName"
             ref="input"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入资源名称"
+            :placeholder="$t('resource.inputName')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item v-if="resource.parentId" label="资源路径">
+        <el-form-item :label="$t('resource.nameEn')">
+          <el-input
+            v-model="resource.resourceNameEn"
+            ref="input"
+            class="word-limit-input form-input-width"
+            maxlength="50"
+            :placeholder="$t('resource.inputNameEn')"
+            show-word-limit
+          />
+        </el-form-item>
+        <el-form-item v-if="resource.parentId" :label="$t('resource.uri')">
           <el-input
             v-model="resource.resourceUri"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入资源路径"
+            :placeholder="$t('resource.inputUri')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item v-if="resource.parentId" label="请求方式">
+        <el-form-item
+          v-if="resource.parentId"
+          :label="$t('resource.requestMethod')"
+        >
           <el-radio-group v-model="resource.resourceRequestMethod">
             <el-radio :label="'GET'">GET</el-radio>
             <el-radio :label="'POST'">POST</el-radio>
@@ -200,9 +221,9 @@
         :model="resource"
         :inline="true"
         size="medium"
-        label-width="80"
+        label-width="100px"
       >
-        <el-form-item label="禁用">
+        <el-form-item :label="$t('switch.disabled')">
           <el-switch
             v-model="resource.disabledFlag"
             :active-value="true"
@@ -211,7 +232,7 @@
             inactive-color="#F4F4F5"
           />
         </el-form-item>
-        <el-form-item label="匿名">
+        <el-form-item :label="$t('switch.anonymous')">
           <el-switch
             v-model="resource.anonymousFlag"
             :active-value="true"
@@ -222,9 +243,11 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addOrEditStatus = false">取 消</el-button>
+        <el-button @click="addOrEditStatus = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button type="primary" @click="addOrEditResource">
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </span>
     </el-dialog>
@@ -254,9 +277,10 @@ export default {
       if (resource == null) {
         this.resource = {
           parentId: null,
-          resourceName: ""
+          resourceName: "",
+          resourceNameEn: ""
         };
-        this.$refs.resourceTitle.innerHTML = "添加模块";
+        this.$refs.resourceTitle.innerHTML = this.$t("resource.add1");
       } else {
         if (resource.parentId !== -1) {
           this.resource = {
@@ -264,29 +288,32 @@ export default {
             parentId: resource.parentId,
             resourceUri: resource.resourceUri,
             resourceName: resource.resourceName,
+            resourceNameEn: resource.resourceNameEn,
             resourceRequestMethod: resource.resourceRequestMethod,
             disabledFlag: resource.disabledFlag,
             anonymousFlag: resource.anonymousFlag
           };
-          this.$refs.resourceTitle.innerHTML = "修改资源";
+          this.$refs.resourceTitle.innerHTML = this.$t("resource.edit2");
         } else {
           if (flag) {
             this.resource = {
               parentId: resource.id,
               resourceUri: "",
               resourceName: "",
+              resourceNameEn: "",
               resourceRequestMethod: "GET",
               disabledFlag: resource.disabledFlag,
               anonymousFlag: resource.anonymousFlag
             };
-            this.$refs.resourceTitle.innerHTML = "添加资源";
+            this.$refs.resourceTitle.innerHTML = this.$t("resource.add2");
           } else {
             this.resource = {
               id: resource.id,
               parentId: null,
-              resourceName: resource.resourceName
+              resourceName: resource.resourceName,
+              resourceNameEn: resource.resourceNameEn
             };
-            this.$refs.resourceTitle.innerHTML = "修改模块";
+            this.$refs.resourceTitle.innerHTML = this.$t("resource.edit1");
           }
         }
       }
@@ -315,13 +342,13 @@ export default {
       this.axios.delete("/api/back/resources", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.getResources();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -331,14 +358,22 @@ export default {
       let flag = this.resource.parentId == null;
       if (this.resource.resourceName.trim() === "") {
         if (flag) {
-          this.$message.error("模块名称不能为空");
+          this.$message.error(this.$t("resource.moduleNameRule1"));
           return false;
         }
-        this.$message.error("资源名称不能为空");
+        this.$message.error(this.$t("resource.nameRule1"));
+        return false;
+      }
+      if (this.resource.resourceNameEn.trim() === "") {
+        if (flag) {
+          this.$message.error(this.$t("resource.moduleNameEnRule1"));
+          return false;
+        }
+        this.$message.error(this.$t("resource.nameEnRule1"));
         return false;
       }
       if (!flag && this.resource.resourceUri.trim() === "") {
-        this.$message.error("资源路径不能为空");
+        this.$message.error(this.$t("resource.uriRule1"));
         return false;
       }
       let param = this.$commonMethod.skipIdenticalValue(
@@ -356,13 +391,13 @@ export default {
       this.axios.post("/api/back/resource", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.getResources();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -379,7 +414,7 @@ export default {
       this.axios.put("/api/back/resource/status", param).then(({ data }) => {
         if (!data.flag) {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
           if (type === 10) {
@@ -405,6 +440,9 @@ export default {
             return "danger";
         }
       };
+    },
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   }
 };

@@ -1,6 +1,8 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <el-button
         type="primary"
@@ -8,7 +10,7 @@
         icon="el-icon-plus"
         @click="openModel(null)"
       >
-        新增菜单
+        {{ $t("button.add") }}
       </el-button>
       <div style="margin-left:auto">
         <el-input
@@ -17,7 +19,7 @@
           size="small"
           style="width: 200px"
           prefix-icon="el-icon-search"
-          placeholder="请输入菜单名"
+          :placeholder="$t('menu.inputName')"
           clearable
           @keyup.enter.native="getMenus"
         />
@@ -28,7 +30,7 @@
           style="margin-left:1rem"
           @click="getMenus"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
@@ -39,16 +41,35 @@
       row-key="id"
       height="720"
     >
-      <el-table-column prop="name" label="菜单名称" width="120" />
-      <el-table-column prop="icon" label="菜单图标" align="center" width="80">
+      <el-table-column
+        :prop="isEn ? 'nameEn' : 'name'"
+        :label="$t('menu.name')"
+        width="120"
+      />
+      <el-table-column
+        prop="icon"
+        :label="$t('menu.icon')"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <i :class="scope.row.icon" />
         </template>
       </el-table-column>
-      <el-table-column prop="rank" label="排序指标" align="center" width="80" />
-      <el-table-column prop="path" label="菜单路径" />
-      <el-table-column prop="component" label="菜单组件" />
-      <el-table-column prop="hideFlag" label="隐藏" align="center" width="80">
+      <el-table-column
+        prop="rank"
+        :label="$t('menu.rank')"
+        align="center"
+        width="80"
+      />
+      <el-table-column prop="path" :label="$t('menu.path')" />
+      <el-table-column prop="component" :label="$t('menu.component')" />
+      <el-table-column
+        prop="hideFlag"
+        :label="$t('switch.hide')"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hideFlag"
@@ -60,7 +81,12 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
+      <el-table-column
+        prop="hiddenFlag"
+        :label="$t('switch.hidden')"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.hiddenFlag"
@@ -74,7 +100,7 @@
       </el-table-column>
       <el-table-column
         prop="disabledFlag"
-        label="禁用"
+        :label="$t('switch.disabled')"
         align="center"
         width="80"
       >
@@ -91,7 +117,7 @@
       </el-table-column>
       <el-table-column
         prop="createTime"
-        label="创建日期"
+        :label="$t('table.createDate')"
         align="center"
         width="120"
       >
@@ -102,7 +128,7 @@
       </el-table-column>
       <el-table-column
         prop="updateTime"
-        label="更新日期"
+        :label="$t('table.updateDate')"
         align="center"
         width="120"
       >
@@ -111,7 +137,7 @@
           {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="200">
+      <el-table-column :label="$t('table.operate')" align="center" width="200">
         <template slot-scope="scope">
           <el-button
             :disabled="scope.row.parentId !== -1 || scope.row.id === homeMenuId"
@@ -120,7 +146,7 @@
             class="smaller-btn"
             @click="openModel(scope.row, true)"
           >
-            <i class="el-icon-plus" /> 新增
+            <i class="el-icon-plus" /> {{ $t("button.add") }}
           </el-button>
           <el-button
             type="warning"
@@ -128,10 +154,10 @@
             class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            <i class="el-icon-edit" /> 编辑
+            <i class="el-icon-edit" /> {{ $t("button.edit") }}
           </el-button>
           <el-popconfirm
-            title="确定彻底删除吗？"
+            :title="$t('confirm.content4')"
             style="margin-left:10px"
             @confirm="deleteMenus(scope.row.id)"
           >
@@ -146,7 +172,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
         </template>
@@ -154,38 +180,48 @@
     </el-table>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="menuTitle" />
-      <el-form :model="menu" size="medium" label-width="80">
-        <el-form-item v-if="menu.parentId" label="父菜单名">
+      <el-form :model="menu" size="medium" label-width="100px">
+        <el-form-item v-if="menu.parentId" :label="$t('menu.parentMenu')">
           <el-select
             v-model="menu.parentId"
             size="small"
             class="form-input-width"
-            placeholder="请选择"
+            :placeholder="$t('input.select')"
           >
             <el-option
               v-for="item in menuList.filter(e => e.id !== homeMenuId)"
               :key="item.id"
               :value="item.id"
-              :label="item.name"
+              :label="isEn ? item.nameEn : item.name"
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="菜单名称">
+        <el-form-item :label="$t('menu.name')">
           <el-input
             v-model="menu.name"
             ref="input"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入菜单名称"
+            :placeholder="$t('menu.inputName')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="菜单图标">
+        <el-form-item :label="$t('menu.nameEn')">
+          <el-input
+            v-model="menu.nameEn"
+            ref="input"
+            class="word-limit-input form-input-width"
+            maxlength="50"
+            :placeholder="$t('menu.inputNameEn')"
+            show-word-limit
+          />
+        </el-form-item>
+        <el-form-item :label="$t('menu.icon')">
           <el-input
             v-model="menu.icon"
             :prefix-icon="menu.icon"
             class="form-input-width"
-            placeholder="请选择菜单图标"
+            :placeholder="$t('menu.inputIcon')"
             @focus="showIcon = true"
             @blur="showIcon = false"
           />
@@ -204,25 +240,25 @@
             </div>
           </div>
         </el-form-item>
-        <el-form-item label="菜单路径">
+        <el-form-item :label="$t('menu.path')">
           <el-input
             v-model="menu.path"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入菜单路径"
+            :placeholder="$t('menu.inputPath')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="菜单组件">
+        <el-form-item :label="$t('menu.component')">
           <el-input
             v-model="menu.component"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入菜单组件"
+            :placeholder="$t('menu.inputComponent')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="排序指标">
+        <el-form-item :label="$t('menu.rank')">
           <el-input-number
             v-model="menu.rank"
             class="form-input-width"
@@ -233,8 +269,8 @@
           />
         </el-form-item>
       </el-form>
-      <el-form :model="menu" :inline="true" size="medium" label-width="80">
-        <el-form-item label="隐藏">
+      <el-form :model="menu" :inline="true" size="medium" label-width="100px">
+        <el-form-item :label="$t('switch.hide')">
           <el-switch
             v-model="menu.hideFlag"
             :active-value="true"
@@ -243,7 +279,7 @@
             inactive-color="#F4F4F5"
           />
         </el-form-item>
-        <el-form-item label="隐藏">
+        <el-form-item :label="$t('switch.hidden')">
           <el-switch
             v-model="menu.hiddenFlag"
             :active-value="true"
@@ -252,7 +288,7 @@
             inactive-color="#F4F4F5"
           />
         </el-form-item>
-        <el-form-item label="禁用">
+        <el-form-item :label="$t('switch.disabled')">
           <el-switch
             v-model="menu.disabledFlag"
             :active-value="true"
@@ -263,9 +299,11 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="addOrEditStatus = false">取 消</el-button>
+        <el-button @click="addOrEditStatus = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button type="primary" @click="addOrEditMenu">
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </div>
     </el-dialog>
@@ -315,6 +353,7 @@ export default {
       if (menu == null) {
         this.menu = {
           name: "",
+          nameEn: "",
           icon: "",
           path: "",
           component: "Layout",
@@ -323,13 +362,14 @@ export default {
           hiddenFlag: false,
           disabledFlag: false
         };
-        this.$refs.menuTitle.innerHTML = "添加菜单";
+        this.$refs.menuTitle.innerHTML = this.$t("menu.add1");
       } else {
         if (menu.parentId !== -1) {
           this.menu = {
             id: menu.id,
             parentId: menu.parentId,
             name: menu.name,
+            nameEn: menu.nameEn,
             icon: menu.icon,
             path: menu.path,
             component: menu.component,
@@ -338,12 +378,13 @@ export default {
             hiddenFlag: menu.hiddenFlag,
             disabledFlag: menu.disabledFlag
           };
-          this.$refs.menuTitle.innerHTML = "修改子菜单";
+          this.$refs.menuTitle.innerHTML = this.$t("menu.edit2");
         } else {
           if (flag) {
             this.menu = {
               parentId: menu.id,
               name: "",
+              nameEn: "",
               icon: "",
               path: "",
               component: "",
@@ -352,12 +393,13 @@ export default {
               hiddenFlag: menu.hiddenFlag,
               disabledFlag: menu.disabledFlag
             };
-            this.$refs.menuTitle.innerHTML = "添加子菜单";
+            this.$refs.menuTitle.innerHTML = this.$t("menu.add2");
           } else {
             this.menu = {
               id: menu.id,
               parentId: null,
               name: menu.name,
+              nameEn: menu.nameEn,
               icon: menu.icon,
               path: menu.path,
               component: menu.component,
@@ -366,7 +408,7 @@ export default {
               hiddenFlag: menu.hiddenFlag,
               disabledFlag: menu.disabledFlag
             };
-            this.$refs.menuTitle.innerHTML = "修改菜单";
+            this.$refs.menuTitle.innerHTML = this.$t("menu.edit1");
           }
         }
       }
@@ -396,13 +438,13 @@ export default {
       this.axios.delete("/api/back/menus", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.getMenus();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -410,19 +452,23 @@ export default {
     },
     addOrEditMenu() {
       if (this.menu.name.trim() === "") {
-        this.$message.error("菜单名称不能为空");
+        this.$message.error(this.$t("menu.nameRule1"));
+        return false;
+      }
+      if (this.menu.nameEn.trim() === "") {
+        this.$message.error(this.$t("menu.nameEnRule1"));
         return false;
       }
       if (this.menu.icon.trim() === "") {
-        this.$message.error("菜单图标不能为空");
+        this.$message.error(this.$t("menu.iconRule1"));
         return false;
       }
       if (this.menu.path.trim() === "") {
-        this.$message.error("菜单路径不能为空");
+        this.$message.error(this.$t("menu.pathRule1"));
         return false;
       }
       if (this.menu.component.trim() === "") {
-        this.$message.error("菜单组件不能为空");
+        this.$message.error(this.$t("menu.componentRule1"));
         return false;
       }
       let param = this.$commonMethod.skipIdenticalValue(
@@ -440,13 +486,13 @@ export default {
       this.axios.post("/api/back/menu", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.getMenus();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -463,7 +509,7 @@ export default {
       this.axios.put("/api/back/menu/status", param).then(({ data }) => {
         if (!data.flag) {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
           if (type === 8) {
@@ -475,6 +521,11 @@ export default {
           }
         }
       });
+    }
+  },
+  computed: {
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   }
 };

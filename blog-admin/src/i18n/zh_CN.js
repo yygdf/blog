@@ -32,7 +32,9 @@ export default {
     key: "密令",
     restore: "恢复",
     cancel: "取消",
-    publish: "发表"
+    publish: "发表",
+    batchOffline: "批量下线",
+    offline: "下线"
   },
   confirm: {
     tip: "提示",
@@ -45,7 +47,13 @@ export default {
     content5: "是否删除选中项?",
     content6: "是否彻底删除选中项?",
     content7: "是否启用该角色?",
-    content8: "是否禁用该角色?"
+    content8: "是否禁用该角色?",
+    content9: "确定下线该用户吗?",
+    content10: "是否强制下线选中用户?",
+    content11: "是否解锁该用户?",
+    content12: "是否锁定该用户?",
+    content13: "是否启用该用户?",
+    content14: "是否禁用该用户?"
   },
   input: {
     select: "请选择",
@@ -56,7 +64,13 @@ export default {
     separator: "至",
     lastWeek: "最近一周",
     lastHalfMonth: "最近半个月",
-    lastMonth: "最近一个月"
+    lastMonth: "最近一个月",
+    selectCategory: "请选择分类",
+    selectTag: "请选择标签",
+    selectGender: "请选择性别",
+    selectRole: "请选择角色",
+    selectDisabled: "请选择禁用状态",
+    selectLocked: "请选择锁定状态"
   },
   table: {
     user: "用户",
@@ -67,7 +81,14 @@ export default {
     createDate: "创建日期",
     avatar: "头像",
     ipSource: "ip来源",
-    ipAddress: "ip地址"
+    ipAddress: "ip地址",
+    createTime: "创建时间",
+    updateTime: "更新时间",
+    loginMethod: "登录方式",
+    nickname: "昵称",
+    loginDevice: "登录设备",
+    loginPlatform: "登录平台",
+    loginTime: "登录时间"
   },
   option: {
     published: "已发表",
@@ -77,7 +98,21 @@ export default {
     available: "未删除",
     article: "文章",
     friendLink: "友链",
-    displayed: "已发送"
+    displayed: "已发送",
+    frontend: "前台",
+    backend: "后台",
+    gender1: "男",
+    gender2: "女",
+    gender3: "可男可女",
+    gender4: "非男非女",
+    locked: "已锁定",
+    unlocked: "未锁定",
+    disabled: "已禁用",
+    enabled: "已启用",
+    email: "邮箱",
+    qq: "QQ",
+    wx: "微信",
+    phone: "手机"
   },
   switch: {
     top: "置顶",
@@ -87,7 +122,8 @@ export default {
     disabled: "禁用",
     enabled: "启用",
     hide: "隐藏",
-    anonymous: "匿名"
+    anonymous: "匿名",
+    locked: "锁定"
   },
   article: {
     inputTitle: "请输入文章标题",
@@ -99,8 +135,6 @@ export default {
     tag: "标签",
     cover: "封面",
     coverLink: "封面链接",
-    selectCategory: "请选择分类",
-    selectTag: "请选择标签",
     tip1: "将文件拖到此处, 或",
     tip2: "点击上传",
     tip3: "支持 jpg/png/gif 文件, 且不超过5MB",
@@ -231,7 +265,7 @@ export default {
     path: "菜单路径",
     component: "菜单组件",
     parentMenu: "父菜单",
-    inputIcon: "请选择菜单图标",
+    selectIcon: "请选择菜单图标",
     inputPath: "请输入菜单路径",
     inputComponent: "请输入菜单组件",
     add1: "添加菜单",
@@ -264,5 +298,32 @@ export default {
     inputNameEn: "请输入资源名称(en)",
     nameEnRule1: "资源名称(en)不能为空!",
     moduleNameEnRule1: "模块名称(en)不能为空!"
+  },
+  user: {
+    input: "请输入用户名或昵称",
+    gender: "性别",
+    email: "邮箱",
+    intro: "介绍",
+    website: "网站",
+    username: "用户名",
+    usernameRule1: "该用户名已存在!",
+    inputNickname: "请输入昵称",
+    emailRule1: "该邮箱不合法!",
+    emailRule2: "该邮箱已存在!",
+    inputIntro: "请输入介绍",
+    inputWebsite: "请输入网站",
+    inputEmail: "请输入邮箱",
+    add: "添加用户",
+    edit: "修改用户",
+    nicknameRule1: "用户昵称不能为空!"
+  },
+  auth: {
+    inputUsername: "请输入用户名",
+    role: "角色",
+    lastLoginTime: "上次登录时间",
+    password: "密码",
+    password2: "确认密码",
+    passwordRule1: "前后密码不一致",
+    edit: "修改账号"
   }
 };

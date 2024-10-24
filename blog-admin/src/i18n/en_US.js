@@ -32,7 +32,9 @@ export default {
     key: "key",
     restore: "restore",
     cancel: "cancel",
-    publish: "publish"
+    publish: "publish",
+    batchOffline: "batch offline",
+    offline: "offline"
   },
   confirm: {
     tip: "Tip",
@@ -44,8 +46,14 @@ export default {
     content4: "Sure to thorough delete?",
     content5: "Do you want to delete the selected item?",
     content6: "Do you want to thorough delete the selected item?",
-    content7: "Sure to enabled the role?",
-    content8: "Sure to disabled the role?"
+    content7: "Sure to enable the role?",
+    content8: "Sure to disable the role?",
+    content9: "Sure to offline the user?",
+    content10: "Do you want to offline the selected item?",
+    content11: "Sure to unlock the user?",
+    content12: "Sure to lock the user?",
+    content13: "Sure to enable the user?",
+    content14: "Sure to disable the user?"
   },
   input: {
     select: "please select",
@@ -56,7 +64,13 @@ export default {
     separator: "to",
     lastWeek: "last week",
     lastHalfMonth: "last half month",
-    lastMonth: "last month"
+    lastMonth: "last month",
+    selectCategory: "please select category",
+    selectTag: "please select tag",
+    selectGender: "please select gender",
+    selectRole: "please select role",
+    selectDisabled: "please select disabled",
+    selectLocked: "please select locked"
   },
   table: {
     user: "user",
@@ -67,7 +81,14 @@ export default {
     createDate: "create date",
     avatar: "avatar",
     ipSource: "ip source",
-    ipAddress: "ip address"
+    ipAddress: "ip address",
+    createTime: "create time",
+    updateTime: "update time",
+    loginMethod: "login method",
+    nickname: "nickname",
+    loginDevice: "login device",
+    loginPlatform: "login platform",
+    loginTime: "login time"
   },
   option: {
     published: "published",
@@ -77,7 +98,21 @@ export default {
     available: "available",
     article: "article",
     friendLink: "friendLink",
-    displayed: "displayed"
+    displayed: "displayed",
+    frontend: "frontend",
+    backend: "backend",
+    gender1: "male",
+    gender2: "female",
+    gender3: "male and female",
+    gender4: "male or female",
+    locked: "locked",
+    unlocked: "unlocked",
+    disabled: "disabled",
+    enabled: "enabled",
+    email: "Email",
+    qq: "QQ",
+    wx: "WeChat",
+    phone: "Phone"
   },
   switch: {
     top: "top",
@@ -87,7 +122,8 @@ export default {
     disabled: "disabled",
     enabled: "enabled",
     hide: "hide",
-    anonymous: "anonymous"
+    anonymous: "anonymous",
+    locked: "locked"
   },
   article: {
     inputTitle: "please enter article title",
@@ -99,11 +135,9 @@ export default {
     tag: "tag",
     cover: "cover",
     coverLink: "cover link",
-    selectCategory: "please select category",
-    selectTag: "please select tag",
     tip1: "drag file here, or",
     tip2: "click here",
-    tip3: "accept jpg/png/gif, and not more than 5MB",
+    tip3: "accept jpg/png/gif, not more than 5MB",
     titleRule1: "Article title cannot be empty!",
     contentRule1: "Article content cannot be empty!",
     categoryRule1: "Article category cannot be empty!",
@@ -231,7 +265,7 @@ export default {
     path: "path",
     component: "component",
     parentMenu: "parent",
-    inputIcon: "please select icon",
+    selectIcon: "please select icon",
     inputPath: "please enter path",
     inputComponent: "please enter component",
     add1: "add menu",
@@ -264,5 +298,32 @@ export default {
     inputNameEn: "please enter name(en)",
     nameEnRule1: "Resource name(en) cannot be empty!",
     moduleNameEnRule1: "Module name(en) cannot be empty!"
+  },
+  user: {
+    input: "please enter username or nickname",
+    gender: "gender",
+    email: "email",
+    intro: "intro",
+    website: "website",
+    username: "username",
+    usernameRule1: "The username already exists!",
+    inputNickname: "please enter nickname",
+    emailRule1: "The email is illegal!",
+    emailRule2: "The email already exists!",
+    inputIntro: "please enter intro",
+    inputWebsite: "please enter website",
+    inputEmail: "please enter email",
+    add: "add user",
+    edit: "edit user",
+    nicknameRule1: "User nickname cannot be empty!"
+  },
+  auth: {
+    inputUsername: "please enter username",
+    role: "role",
+    lastLoginTime: "last login time",
+    password: "password",
+    password2: "confirm",
+    passwordRule1: "The password is inconsistent.",
+    edit: "edit auth"
   }
 };

@@ -1,6 +1,8 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <el-button
         :disabled="userOnlineIdList.length === 0"
@@ -9,14 +11,14 @@
         icon="el-icon-minus"
         @click="removeStatus = true"
       >
-        批量下线
+        {{ $t("button.batchOffline") }}
       </el-button>
       <div style="margin-left:auto">
         <el-select
           v-model="flag"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择"
+          :placeholder="$t('input.select')"
           clearable
         >
           <el-option
@@ -31,7 +33,7 @@
           ref="input"
           size="small"
           prefix-icon="el-icon-search"
-          placeholder="请输入用户名"
+          :placeholder="$t('auth.inputUsername')"
           style="width: 200px"
           @keyup.enter.native="getUserOnlines(true)"
         />
@@ -42,7 +44,7 @@
           style="margin-left:1rem"
           @click="getUserOnlines(true)"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
@@ -61,14 +63,14 @@
       <el-table-column
         v-if="showColumnConfig.username"
         prop="username"
-        label="用户"
+        :label="$t('table.user')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.avatar"
         prop="avatar"
-        label="头像"
+        :label="$t('table.avatar')"
         align="center"
         width="80"
       >
@@ -85,14 +87,14 @@
       <el-table-column
         v-if="showColumnConfig.nickname"
         prop="nickname"
-        label="昵称"
+        :label="$t('table.nickname')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.loginDevice"
         prop="loginDevice"
-        label="登录设备"
+        :label="$t('table.loginDevice')"
         align="center"
         width="120"
       >
@@ -105,7 +107,7 @@
       <el-table-column
         v-if="showColumnConfig.loginMethod"
         prop="loginMethod"
-        label="登录方式"
+        :label="$t('table.loginMethod')"
         align="center"
         width="120"
       >
@@ -118,34 +120,38 @@
       <el-table-column
         v-if="showColumnConfig.loginPlatform"
         prop="loginPlatform"
-        label="登录平台"
+        :label="$t('table.loginPlatform')"
         align="center"
-        width="120"
+        width="160"
       >
         <template slot-scope="scope">
           <el-tag style="margin-right:4px;margin-top:4px">
-            {{ scope.row.loginPlatform ? "后台" : "前台" }}
+            {{
+              scope.row.loginPlatform
+                ? $t("option.backend")
+                : $t("option.frontend")
+            }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column
         v-if="showColumnConfig.ipAddress"
         prop="ipAddress"
-        label="ip地址"
+        :label="$t('table.ipAddress')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.ipSource"
         prop="ipSource"
-        label="ip来源"
+        :label="$t('table.ipSource')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.loginTime"
         prop="loginTime"
-        label="登录时间"
+        :label="$t('table.loginTime')"
         align="center"
         width="200"
       >
@@ -154,35 +160,41 @@
           {{ scope.row.loginTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="80">
+      <el-table-column :label="$t('table.operate')" align="center" width="80">
         <template slot="header">
-          <el-popover placement="bottom" title="选择显示列" width="160">
+          <el-popover
+            placement="bottom"
+            :title="$t('table.showColumn')"
+            width="160"
+          >
             <div>
-              <el-checkbox v-model="showColumnConfig.username"
-                >用户</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.avatar">头像</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.nickname"
-                >昵称</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.loginDevice"
-                >登录设备</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.loginMethod"
-                >登录方式</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.loginPlatform"
-                >登录平台</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.ipAddress"
-                >ip地址</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.ipSource"
-                >ip来源</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.loginTime"
-                >登录时间</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.username">{{
+                $t("table.user")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.avatar">{{
+                $t("table.avatar")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.nickname">{{
+                $t("table.nickname")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.loginDevice">{{
+                $t("table.loginDevice")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.loginMethod">{{
+                $t("table.loginMethod")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.loginPlatform">{{
+                $t("table.loginPlatform")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.ipAddress">{{
+                $t("table.ipAddress")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.ipSource">{{
+                $t("table.ipSource")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.loginTime">{{
+                $t("table.loginTime")
+              }}</el-checkbox>
               <div>
                 <el-button
                   type="primary"
@@ -191,7 +203,7 @@
                   plain
                   @click="saveColumnConfig"
                 >
-                  保存
+                  {{ $t("button.save") }}
                 </el-button>
               </div>
             </div>
@@ -200,7 +212,7 @@
         </template>
         <template slot-scope="scope">
           <el-popconfirm
-            title="确定强制下线该用户吗？"
+            :title="$t('confirm.content9')"
             @confirm="deleteUserOnlines(scope.row.id)"
           >
             <el-button
@@ -210,7 +222,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-warning-outline" /> 下线
+              <i class="el-icon-warning-outline" /> {{ $t("button.offline") }}
             </el-button>
           </el-popconfirm>
         </template>
@@ -229,13 +241,17 @@
     />
     <el-dialog :visible.sync="removeStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否强制下线选中用户？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content10") }}</div>
       <div slot="footer">
-        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button @click="removeStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="deleteUserOnlines(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
@@ -253,16 +269,7 @@ export default {
   },
   data() {
     return {
-      options: [
-        {
-          value: false,
-          label: "前台"
-        },
-        {
-          value: true,
-          label: "后台"
-        }
-      ],
+      options: [],
       rootUserIdList: [],
       userOnlineList: [],
       userOnlineIdList: [],
@@ -355,7 +362,7 @@ export default {
       this.axios.delete("/api/back/user/onlines", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.data.length === this.userOnlineList.length) {
@@ -364,7 +371,7 @@ export default {
           this.getUserOnlines();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -377,20 +384,38 @@ export default {
       return function(method) {
         switch (method) {
           case 1:
-            return "邮箱";
+            return this.$t("option.email");
           case 2:
-            return "QQ";
+            return this.$t("option.qq");
           case 3:
-            return "微信";
+            return this.$t("option.wx");
           case 4:
-            return "手机号";
+            return this.$t("option.phone");
         }
       };
+    },
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   },
   watch: {
     flag() {
       this.getUserOnlines(true);
+    },
+    isEn: {
+      handler() {
+        this.options = [
+          {
+            value: false,
+            label: this.$t("option.frontend")
+          },
+          {
+            value: true,
+            label: this.$t("option.backend")
+          }
+        ];
+      },
+      immediate: true
     }
   }
 };

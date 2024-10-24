@@ -55,7 +55,7 @@
           v-model="categoryId"
           size="small"
           style="margin-right:1rem"
-          :placeholder="$t('article.selectCategory')"
+          :placeholder="$t('input.selectCategory')"
           clearable
           filterable
         >
@@ -70,7 +70,7 @@
           v-model="tagIdList"
           size="small"
           style="margin-right:1rem"
-          :placeholder="$t('article.selectTag')"
+          :placeholder="$t('input.selectTag')"
           multiple
           clearable
           filterable

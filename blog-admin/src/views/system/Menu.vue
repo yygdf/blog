@@ -221,7 +221,7 @@
             v-model="menu.icon"
             :prefix-icon="menu.icon"
             class="form-input-width"
-            :placeholder="$t('menu.inputIcon')"
+            :placeholder="$t('menu.selectIcon')"
             @focus="showIcon = true"
             @blur="showIcon = false"
           />

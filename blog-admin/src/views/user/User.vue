@@ -1,6 +1,8 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <el-button
         type="primary"
@@ -8,7 +10,7 @@
         icon="el-icon-plus"
         @click="openModel(null)"
       >
-        新增
+        {{ $t("button.add") }}
       </el-button>
       <el-button
         v-if="type !== 7"
@@ -18,7 +20,7 @@
         icon="el-icon-minus"
         @click="editStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <el-button
         v-else
@@ -28,14 +30,14 @@
         icon="el-icon-minus"
         @click="removeStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <div style="margin-left:auto">
         <el-select
           v-model="gender"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择性别"
+          :placeholder="$t('input.selectGender')"
           clearable
         >
           <el-option
@@ -50,7 +52,7 @@
           v-model="type"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择"
+          :placeholder="$t('input.select')"
         >
           <el-option
             v-for="item in options"
@@ -63,9 +65,9 @@
           v-model="keywords"
           ref="input"
           size="small"
-          style="width: 200px"
+          style="width: 280px"
           prefix-icon="el-icon-search"
-          placeholder="请输入用户名或昵称"
+          :placeholder="$t('user.input')"
           clearable
           @keyup.enter.native="getUsers(true)"
         />
@@ -76,7 +78,7 @@
           style="margin-left:1rem"
           @click="getUsers(true)"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
@@ -102,14 +104,14 @@
       <el-table-column
         v-if="showColumnConfig.username"
         prop="username"
-        label="用户"
+        :label="$t('table.user')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.avatar"
         prop="avatar"
-        label="头像"
+        :label="$t('table.avatar')"
         align="center"
         width="80"
       >
@@ -126,14 +128,14 @@
       <el-table-column
         v-if="showColumnConfig.nickname"
         prop="nickname"
-        label="昵称"
+        :label="$t('table.nickname')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.gender"
         prop="gender"
-        label="性别"
+        :label="$t('user.gender')"
         align="center"
         width="80"
       >
@@ -144,28 +146,28 @@
       <el-table-column
         v-if="showColumnConfig.email"
         prop="email"
-        label="邮箱"
+        :label="$t('user.email')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.intro"
         prop="intro"
-        label="介绍"
+        :label="$t('user.intro')"
         align="center"
         min-width="240"
       />
       <el-table-column
         v-if="showColumnConfig.website"
         prop="website"
-        label="网站"
+        :label="$t('user.website')"
         align="center"
         min-width="240"
       />
       <el-table-column
         v-if="showColumnConfig.createTime"
         prop="createTime"
-        label="创建时间"
+        :label="$t('table.createTime')"
         align="center"
         width="200"
       >
@@ -177,7 +179,7 @@
       <el-table-column
         v-if="showColumnConfig.updateTime"
         prop="updateTime"
-        label="更新时间"
+        :label="$t('table.updateTime')"
         align="center"
         width="200"
       >
@@ -186,28 +188,47 @@
           {{ scope.row.updateTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column fixed="right" label="操作" align="center" width="160">
+      <el-table-column
+        fixed="right"
+        :label="$t('table.operate')"
+        align="center"
+        width="160"
+      >
         <template slot="header">
-          <el-popover placement="bottom" title="选择显示列" width="160">
+          <el-popover
+            placement="bottom"
+            :title="$t('table.showColumn')"
+            width="160"
+          >
             <div>
               <el-checkbox v-model="showColumnConfig.id">ID&nbsp;</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.username"
-                >用户</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.avatar">头像</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.nickname"
-                >昵称</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.gender">性别</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.email">邮箱</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.intro">介绍</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.website">网站</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.createTime"
-                >创建时间</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.updateTime"
-                >更新时间</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.username">{{
+                $t("table.user")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.avatar">{{
+                $t("table.avatar")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.nickname">{{
+                $t("table.nickname")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.gender">{{
+                $t("user.gender")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.email">{{
+                $t("user.email")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.intro">{{
+                $t("user.intro")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.website">{{
+                $t("user.website")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.createTime">{{
+                $t("table.createTime")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.updateTime">{{
+                $t("table.updateTime")
+              }}</el-checkbox>
               <div>
                 <el-button
                   type="primary"
@@ -216,7 +237,7 @@
                   plain
                   @click="saveColumnConfig"
                 >
-                  保存
+                  {{ $t("button.save") }}
                 </el-button>
               </div>
             </div>
@@ -232,11 +253,11 @@
             class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            <i class="el-icon-edit" /> 编辑
+            <i class="el-icon-edit" /> {{ $t("button.edit") }}
           </el-button>
           <el-popconfirm
             v-else
-            title="确定恢复吗？"
+            :title="$t('confirm.content2')"
             @confirm="updateUsersStatus(scope.row.id)"
           >
             <el-button
@@ -245,12 +266,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-refresh-left" /> 恢复
+              <i class="el-icon-refresh-left" /> {{ $t("button.restore") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-if="type !== 7"
-            title="确定删除吗？"
+            :title="$t('confirm.content3')"
             style="margin-left:10px"
             @confirm="updateUsersStatus(scope.row.id)"
           >
@@ -261,12 +282,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-else
-            title="确定彻底删除吗？"
+            :title="$t('confirm.content4')"
             style="margin-left:10px"
             @confirm="deleteUsers(scope.row.id)"
           >
@@ -276,7 +297,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
         </template>
@@ -295,42 +316,52 @@
     />
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content5") }}</div>
       <div slot="footer">
-        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button @click="editStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="updateUsersStatus(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="removeStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否彻底删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content6") }}</div>
       <div slot="footer">
-        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button @click="removeStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="deleteUsers(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog
       :visible.sync="addOrEditStatus"
-      width="30%"
+      width="35%"
+      style="margin-top: -10vh"
       @close="cancelAddOrEditUser"
     >
       <div class="dialog-title-container" slot="title" ref="userTitle" />
-      <el-form :model="user" size="medium" label-width="80">
-        <el-form-item label="账号">
+      <el-form :model="user" size="medium" label-width="90px">
+        <el-form-item :label="$t('user.username')">
           <el-input
             :disabled="user.id != null"
             v-model="user.username"
             :ref="user.id != null ? '' : 'input'"
             class="form-input-width"
             maxlength="50"
+            :placeholder="$t('auth.inputUsername')"
             @keyup.native="usernameInputChange($event)"
             @keyup.enter.native="getUsernameExistFlag"
           />&nbsp;
@@ -339,7 +370,7 @@
             class="el-icon-error"
             style="color: red;"
           >
-            该账号已存在!</span
+            {{ $t("user.usernameRule1") }}</span
           >
           <span
             v-if="usernameExistStatus === 2"
@@ -347,21 +378,22 @@
             style="color: green;"
           ></span>
         </el-form-item>
-        <el-form-item label="昵称">
+        <el-form-item :label="$t('table.nickname')">
           <el-input
             v-model="user.nickname"
             :ref="user.id != null ? 'input' : ''"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入昵称"
+            :placeholder="$t('user.inputNickname')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="邮箱">
+        <el-form-item :label="$t('user.email')">
           <el-input
             v-model="user.email"
             class="form-input-width"
             maxlength="50"
+            :placeholder="$t('user.inputEmail')"
             @keyup.native="emailInputChange($event)"
             @keyup.enter.native="getEmailExistFlag"
           />&nbsp;
@@ -370,14 +402,14 @@
             class="el-icon-error"
             style="color: red;"
           >
-            该邮箱不合法!</span
+            {{ $t("user.emailRule1") }}</span
           >
           <span
             v-if="emailExistStatus === 1"
             class="el-icon-error"
             style="color: red;"
           >
-            该邮箱已存在!</span
+            {{ $t("user.emailRule2") }}</span
           >
           <span
             v-if="emailExistStatus === 2"
@@ -385,25 +417,25 @@
             style="color: green;"
           ></span>
         </el-form-item>
-        <el-form-item label="介绍">
+        <el-form-item :label="$t('user.intro')">
           <el-input
             v-model="user.intro"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入介绍(可为空)"
+            :placeholder="$t('user.inputIntro')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="网站">
+        <el-form-item :label="$t('user.website')">
           <el-input
             v-model="user.website"
             class="word-limit-input2 form-input-width"
             maxlength="255"
-            placeholder="请输入网站(可为空)"
+            :placeholder="$t('user.inputWebsite')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="头像" v-if="user.id != null">
+        <el-form-item :label="$t('table.avatar')" v-if="user.id != null">
           <el-upload
             ref="upload"
             action=""
@@ -415,29 +447,32 @@
           >
             <i class="el-icon-upload" v-if="!user.avatar" />
             <div class="el-upload__text" v-if="!user.avatar">
-              将文件拖到此处, 或<em>点击上传</em><br />
-              支持jpg/png/gif文件, 且不超过5MB
+              {{ $t("article.tip1") }} <em>{{ $t("article.tip2") }}</em
+              ><br />
+              {{ $t("article.tip3") }}
             </div>
-            <img v-else :src="user.avatar" width="240" height="240" />
+            <img v-else :src="user.avatar" width="280" height="280" />
           </el-upload>
         </el-form-item>
-        <el-form-item>
+        <el-form-item :label="$t('user.gender')">
           <el-radio-group v-model="user.gender">
-            <el-radio :label="1">男</el-radio>
-            <el-radio :label="2">女</el-radio>
-            <el-radio :label="3">可男可女</el-radio>
-            <el-radio :label="4">非男非女</el-radio>
+            <el-radio :label="1">{{ $t("option.gender1") }}</el-radio>
+            <el-radio :label="2">{{ $t("option.gender2") }}</el-radio>
+            <el-radio :label="3">{{ $t("option.gender3") }}</el-radio>
+            <el-radio :label="4">{{ $t("option.gender4") }}</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="addOrEditStatus = false">取 消</el-button>
+        <el-button @click="addOrEditStatus = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button
           type="primary"
           :disabled="usernameExistStatus !== 2 || emailExistStatus !== 2"
           @click="addOrEditUser"
         >
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </div>
     </el-dialog>
@@ -455,34 +490,8 @@ export default {
   },
   data: function() {
     return {
-      options: [
-        {
-          value: null,
-          label: "未删除"
-        },
-        {
-          value: 7,
-          label: "已删除"
-        }
-      ],
-      options2: [
-        {
-          value: 1,
-          label: "男"
-        },
-        {
-          value: 2,
-          label: "女"
-        },
-        {
-          value: 3,
-          label: "可男可女"
-        },
-        {
-          value: 4,
-          label: "非男非女"
-        }
-      ],
+      options: [],
+      options2: [],
       userList: [],
       userIdList: [],
       rootUserIdList: [],
@@ -529,7 +538,7 @@ export default {
         this.oldEmail = user.email;
         this.emailExistStatus = 2;
         this.usernameExistStatus = 2;
-        this.$refs.userTitle.innerHTML = "修改用户";
+        this.$refs.userTitle.innerHTML = this.$t("user.edit");
       } else {
         this.user = {
           id: null,
@@ -542,7 +551,7 @@ export default {
         };
         this.emailExistStatus = 0;
         this.usernameExistStatus = 0;
-        this.$refs.userTitle.innerHTML = "添加用户";
+        this.$refs.userTitle.innerHTML = this.$t("user.add");
       }
       this.userOrigin = JSON.parse(JSON.stringify(this.user));
       this.$nextTick(() => {
@@ -712,7 +721,7 @@ export default {
       this.axios.delete("/api/back/users", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.data.length === this.userList.length) {
@@ -721,7 +730,7 @@ export default {
           this.getUsers();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -752,11 +761,11 @@ export default {
         contentType !== "image/png" &&
         contentType !== "image/gif"
       ) {
-        this.$message.error("上传的图片只能是jpg, png, gif格式");
+        this.$message.error(this.$t("article.coverRule1"));
         return false;
       }
       if (file.size >>> 20 > 5) {
-        this.$message.error("上传图片的大小不能超过5MB");
+        this.$message.error(this.$t("article.coverRule2"));
         return false;
       }
       return true;
@@ -774,7 +783,7 @@ export default {
           this.avatarUploadFlag = true;
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -782,7 +791,7 @@ export default {
     },
     addOrEditUser() {
       if (this.user.nickname.trim() === "") {
-        this.$message.error("昵称不能为空");
+        this.$message.error(this.$t("user.nicknameRule1"));
         return false;
       }
       let param = this.$commonMethod.skipIdenticalValue(
@@ -798,14 +807,14 @@ export default {
       this.axios.post("/api/back/user", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.avatarUploadFlag = false;
           this.getUsers();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -825,7 +834,7 @@ export default {
       this.axios.put("/api/back/users/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.idList.length === this.userList.length) {
@@ -834,7 +843,7 @@ export default {
           this.getUsers();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -848,6 +857,39 @@ export default {
     },
     gender() {
       this.getUsers(true);
+    },
+    isEn: {
+      handler() {
+        this.options = [
+          {
+            value: null,
+            label: this.$t("option.available")
+          },
+          {
+            value: 7,
+            label: this.$t("option.deleted")
+          }
+        ];
+        this.options2 = [
+          {
+            value: 1,
+            label: this.$t("option.gender1")
+          },
+          {
+            value: 2,
+            label: this.$t("option.gender2")
+          },
+          {
+            value: 3,
+            label: this.$t("option.gender3")
+          },
+          {
+            value: 4,
+            label: this.$t("option.gender4")
+          }
+        ];
+      },
+      immediate: true
     }
   },
   computed: {
@@ -866,6 +908,9 @@ export default {
             return this.gender5;
         }
       };
+    },
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   }
 };
@@ -873,7 +918,7 @@ export default {
 
 <style scoped>
 /deep/ .el-upload .el-upload-dragger {
-  width: 240px;
-  height: 240px;
+  width: 280px;
+  height: 280px;
 }
 </style>

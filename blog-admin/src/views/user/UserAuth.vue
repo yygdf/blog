@@ -1,13 +1,15 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <div style="margin-left:auto">
         <el-select
           v-model="roleId"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择角色"
+          :placeholder="$t('input.selectRole')"
           clearable
           filterable
         >
@@ -22,7 +24,7 @@
           v-model="disabledFlag"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择禁用状态"
+          :placeholder="$t('input.selectDisabled')"
           clearable
         >
           <el-option
@@ -36,7 +38,7 @@
           v-model="lockedFlag"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择锁定状态"
+          :placeholder="$t('input.selectLocked')"
           clearable
         >
           <el-option
@@ -51,7 +53,7 @@
           v-model="type"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择"
+          :placeholder="$t('input.select')"
         >
           <el-option
             v-for="item in options"
@@ -66,7 +68,7 @@
           size="small"
           style="width: 200px"
           prefix-icon="el-icon-search"
-          placeholder="请输入用户名"
+          :placeholder="$t('auth.inputUsername')"
           clearable
           @keyup.enter.native="getUserAuths(true)"
         />
@@ -77,7 +79,7 @@
           style="margin-left:1rem"
           @click="getUserAuths(true)"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
@@ -85,14 +87,14 @@
       <el-table-column
         v-if="showColumnConfig.username"
         prop="username"
-        label="用户"
+        :label="$t('table.user')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.roleDTOList"
         prop="roleDTOList"
-        label="角色"
+        :label="$t('auth.role')"
         align="center"
         min-width="240"
       >
@@ -113,7 +115,7 @@
       <el-table-column
         v-if="showColumnConfig.disabledFlag"
         prop="disabledFlag"
-        label="禁用"
+        :label="$t('switch.disabled')"
         align="center"
         width="80"
       >
@@ -132,7 +134,7 @@
       <el-table-column
         v-if="showColumnConfig.lockedFlag"
         prop="lockedFlag"
-        label="锁定"
+        :label="$t('switch.locked')"
         align="center"
         width="80"
       >
@@ -151,7 +153,7 @@
       <el-table-column
         v-if="showColumnConfig.loginMethod"
         prop="loginMethod"
-        label="登录方式"
+        :label="$t('table.loginMethod')"
         align="center"
         min-width="240"
       >
@@ -168,21 +170,21 @@
       <el-table-column
         v-if="showColumnConfig.ipAddress"
         prop="ipAddress"
-        label="ip地址"
+        :label="$t('table.ipAddress')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.ipSource"
         prop="ipSource"
-        label="ip来源"
+        :label="$t('table.ipSource')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.loginTime"
         prop="loginTime"
-        label="上次登录时间"
+        :label="$t('auth.lastLoginTime')"
         width="200"
         align="center"
       >
@@ -191,34 +193,38 @@
           {{ scope.row.loginTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="80">
+      <el-table-column :label="$t('table.operate')" align="center" width="80">
         <template slot="header">
-          <el-popover placement="bottom" title="选择显示列" width="160">
+          <el-popover
+            placement="bottom"
+            :title="$t('table.showColumn')"
+            width="160"
+          >
             <div>
-              <el-checkbox v-model="showColumnConfig.username"
-                >用户</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.roleDTOList"
-                >角色</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.disabledFlag"
-                >禁用</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.lockedFlag"
-                >锁定</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.loginMethod"
-                >登录方式</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.ipAddress"
-                >ip地址</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.ipSource"
-                >ip来源</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.loginTime"
-                >上次登录时间</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.username">{{
+                $t("table.user")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.roleDTOList">{{
+                $t("auth.role")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.disabledFlag">{{
+                $t("switch.disabled")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.lockedFlag">{{
+                $t("switch.locked")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.loginMethod">{{
+                $t("table.loginMethod")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.ipAddress">{{
+                $t("table.ipAddress")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.ipSource">{{
+                $t("table.ipSource")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.loginTime">{{
+                $t("auth.lastLoginTime")
+              }}</el-checkbox>
               <div>
                 <el-button
                   type="primary"
@@ -227,7 +233,7 @@
                   plain
                   @click="saveColumnConfig"
                 >
-                  保存
+                  {{ $t("button.save") }}
                 </el-button>
               </div>
             </div>
@@ -242,7 +248,7 @@
             class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            <i class="el-icon-edit" /> 编辑
+            <i class="el-icon-edit" /> {{ $t("button.edit") }}
           </el-button>
         </template>
       </el-table-column>
@@ -258,17 +264,17 @@
       @size-change="sizeChange"
       @current-change="currentChange"
     />
-    <el-dialog :visible.sync="editStatus" width="30%">
+    <el-dialog :visible.sync="editStatus" width="35%">
       <div class="dialog-title-container" slot="title" ref="userAuthTitle" />
-      <el-form :model="userAuth" size="medium" label-width="80">
-        <el-form-item label="账号">
+      <el-form :model="userAuth" size="medium" label-width="90px">
+        <el-form-item :label="$t('user.username')">
           <el-input
             v-model="userAuth.username"
             class="form-input-width"
             disabled
           />
         </el-form-item>
-        <el-form-item label="密码">
+        <el-form-item :label="$t('auth.password')">
           <el-input
             v-model="userAuth.password"
             ref="input"
@@ -281,7 +287,7 @@
             class="el-icon-error"
             style="color: red;"
           >
-            密码长度至少6位!</span
+            {{ $t("login.passwordRule2") }}</span
           >
           <span
             v-if="passwordStatus === 2"
@@ -289,7 +295,7 @@
             style="color: green;"
           ></span>
         </el-form-item>
-        <el-form-item label="重复">
+        <el-form-item :label="$t('auth.password2')">
           <el-input
             v-model="confirmPassword"
             class="form-input-width"
@@ -306,12 +312,17 @@
             class="el-icon-error"
             style="color: red;"
           >
-            前后密码不一致!</span
+            {{ $t("auth.passwordRule1") }}</span
           >
         </el-form-item>
       </el-form>
-      <el-form :model="userAuth" :inline="true" size="medium" label-width="80">
-        <el-form-item label="禁用">
+      <el-form
+        :model="userAuth"
+        :inline="true"
+        size="medium"
+        label-width="90px"
+      >
+        <el-form-item :label="$t('switch.disabled')">
           <el-switch
             v-model="userAuth.disabledFlag"
             :active-value="true"
@@ -320,7 +331,7 @@
             inactive-color="#F4F4F5"
           />
         </el-form-item>
-        <el-form-item label="锁定">
+        <el-form-item :label="$t('switch.locked')">
           <el-switch
             v-model="userAuth.lockedFlag"
             :active-value="true"
@@ -345,13 +356,15 @@
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button @click="editStatus = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button
           type="primary"
           :disabled="passwordStatus === 1 || confirmPasswordStatus === 1"
           @click="editUserAuth"
         >
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </div>
     </el-dialog>
@@ -371,36 +384,9 @@ export default {
   },
   data: function() {
     return {
-      options: [
-        {
-          value: null,
-          label: "未删除"
-        },
-        {
-          value: 7,
-          label: "已删除"
-        }
-      ],
-      options2: [
-        {
-          value: false,
-          label: "未锁定"
-        },
-        {
-          value: true,
-          label: "已锁定"
-        }
-      ],
-      options3: [
-        {
-          value: false,
-          label: "未禁用"
-        },
-        {
-          value: true,
-          label: "已禁用"
-        }
-      ],
+      options: [],
+      options2: [],
+      options3: [],
       userAuthList: [],
       roleNameList: [],
       rootUserIdList: [],
@@ -438,7 +424,7 @@ export default {
       this.passwordStatus = 0;
       this.confirmPasswordStatus = 0;
       this.userAuthOrigin = JSON.parse(JSON.stringify(this.userAuth));
-      this.$refs.userAuthTitle.innerHTML = "修改账号";
+      this.$refs.userAuthTitle.innerHTML = this.$t("auth.edit");
       this.$nextTick(() => {
         this.$refs.input.focus();
       });
@@ -464,16 +450,16 @@ export default {
       let loginMethods = [];
       loginMethod = parseInt(loginMethod, 2);
       if (loginMethod & 1) {
-        loginMethods.push("邮箱");
+        loginMethods.push(this.$t("option.email"));
       }
       if (loginMethod & 2) {
-        loginMethods.push("QQ");
+        loginMethods.push(this.$t("option.qq"));
       }
       if (loginMethod & 4) {
-        loginMethods.push("微信");
+        loginMethods.push(this.$t("option.wx"));
       }
       if (loginMethod & 8) {
-        loginMethods.push("手机号");
+        loginMethods.push(this.$t("option.phone"));
       }
       return loginMethods;
     },
@@ -571,13 +557,13 @@ export default {
       this.axios.put("/api/back/userAuth", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.getUserAuths();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -587,14 +573,14 @@ export default {
     updateUserAuthStatus(userAuth, flag) {
       let text = flag
         ? userAuth.lockedFlag
-          ? "解锁"
-          : "锁定"
+          ? this.$t("confirm.content11")
+          : this.$t("confirm.content12")
         : userAuth.disabledFlag
-        ? "启用"
-        : "禁用";
-      this.$confirm("是否" + text + "该用户?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+        ? this.$t("confirm.content13")
+        : this.$t("confirm.content14");
+      this.$confirm(text, this.$t("confirm.tip"), {
+        confirmButtonText: this.$t("confirm.yes"),
+        cancelButtonText: this.$t("confirm.no"),
         type: "warning"
       })
         .then(() => {
@@ -622,13 +608,18 @@ export default {
                 }
               } else {
                 this.$notify.error({
-                  title: "失败",
+                  title: this.$t("failure"),
                   message: data.message
                 });
               }
             });
         })
         .catch(() => {});
+    }
+  },
+  computed: {
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   },
   watch: {
@@ -643,6 +634,41 @@ export default {
     },
     disabledFlag() {
       this.getUserAuths(true);
+    },
+    isEn: {
+      handler() {
+        this.options = [
+          {
+            value: null,
+            label: this.$t("option.available")
+          },
+          {
+            value: 7,
+            label: this.$t("option.deleted")
+          }
+        ];
+        this.options2 = [
+          {
+            value: false,
+            label: this.$t("option.unlocked")
+          },
+          {
+            value: true,
+            label: this.$t("option.locked")
+          }
+        ];
+        this.options3 = [
+          {
+            value: false,
+            label: this.$t("option.enabled")
+          },
+          {
+            value: true,
+            label: this.$t("option.disabled")
+          }
+        ];
+      },
+      immediate: true
     }
   }
 };

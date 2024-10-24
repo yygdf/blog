@@ -43,6 +43,11 @@ public class MenusBackDTO {
     private String name;
 
     /**
+     * 菜单名称(en)
+     */
+    private String nameEn;
+
+    /**
      * 菜单组件
      */
     private String component;

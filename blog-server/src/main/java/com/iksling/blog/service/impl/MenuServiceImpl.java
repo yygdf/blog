@@ -52,7 +52,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
         Menu menu = BeanCopyUtil.copyObject(menuBackVO, Menu.class);
         if (menu.getId() == null) {
-            if (menu.getIcon() == null || menu.getPath() == null || menu.getName() == null)
+            if (menu.getIcon() == null || menu.getPath() == null || menu.getName() == null || menu.getNameEn() == null)
                 throw new IllegalRequestException();
             Integer count = menuMapper.selectCount(new LambdaQueryWrapper<Menu>()
                     .eq(Menu::getPath, menu.getPath()));
@@ -111,8 +111,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     public List<MenusBackDTO> getMenusBackDTO(String keywords) {
         List<Menu> menuList = menuMapper.selectList(new LambdaQueryWrapper<Menu>()
                 .select(Menu::getId, Menu::getUserId, Menu::getParentId, Menu::getIcon, Menu::getRank, Menu::getPath,
-                        Menu::getName, Menu::getComponent, Menu::getHideFlag, Menu::getHiddenFlag, Menu::getDisabledFlag,
-                        Menu::getDeletableFlag, Menu::getCreateTime, Menu::getUpdateTime)
+                        Menu::getName, Menu::getNameEn, Menu::getComponent, Menu::getHideFlag, Menu::getHiddenFlag,
+                        Menu::getDisabledFlag, Menu::getDeletableFlag, Menu::getCreateTime, Menu::getUpdateTime)
                 .and(CommonUtil.isNotEmpty(keywords), e -> e.like(Menu::getName, keywords)
                         .or()
                         .inSql(Menu::getId, "select distinct parent_id from tb_menu where name like '%"+keywords+"%'"))
@@ -135,7 +135,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     @Override
     public List<LabelsBackDTO> getMenusRoleBackDTO() {
         List<Menu> menuList = menuMapper.selectList(new LambdaQueryWrapper<Menu>()
-                .select(Menu::getId, Menu::getUserId, Menu::getParentId, Menu::getName)
+                .select(Menu::getId, Menu::getUserId, Menu::getParentId, Menu::getName, Menu::getNameEn)
                 .orderByAsc(Menu::getId));
         List<Menu> parentMenuList = getParentMenuList(menuList);
         Map<Integer, List<Menu>> childrenMenuMap = getChildrenMenuMap(menuList);
@@ -180,11 +180,13 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                     LabelsBackDTO labelsBackDTO = LabelsBackDTO.builder()
                             .id(parentMenu.getId())
                             .label(parentMenu.getName())
+                            .label2(parentMenu.getNameEn())
                             .build();
                     if (childrenMenuMap.get(parentMenu.getId())  != null)
                         labelsBackDTO.setChildren(childrenMenuMap.get(parentMenu.getId()).stream().map(childrenMenu -> LabelsBackDTO.builder()
                                 .id(childrenMenu.getId())
                                 .label(childrenMenu.getName())
+                                .label2(childrenMenu.getNameEn())
                                 .build()).collect(Collectors.toList()));
                     return labelsBackDTO;
                 })

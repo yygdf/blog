@@ -23,6 +23,11 @@ public class LabelsBackDTO {
     private String label;
 
     /**
+     * 标签名2
+     */
+    private String label2;
+
+    /**
      * 子标签list
      */
     private List<LabelsBackDTO> children;

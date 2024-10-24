@@ -33,6 +33,11 @@ public class ResourcesBackDTO {
     private String resourceName;
 
     /**
+     * 资源名称(en)
+     */
+    private String resourceNameEn;
+
+    /**
      * 请求方式
      */
     private String resourceRequestMethod;

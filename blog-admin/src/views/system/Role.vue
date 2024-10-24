@@ -261,7 +261,11 @@ export default {
       loading: true,
       addOrEditStatus: false,
       editRoleMenuStatus: false,
-      editRoleResourceStatus: false
+      editRoleResourceStatus: false,
+      menuList2: [],
+      menuList3: [],
+      resourceList2: [],
+      resourceList3: []
     };
   },
   methods: {
@@ -359,8 +363,51 @@ export default {
     },
     getRolePermission() {
       this.axios.get("/api/back/role/permission").then(({ data }) => {
-        this.menuList = data.data.menusRoleDTOList;
-        this.resourceList = data.data.resourcesRoleDTOList;
+        this.menuList2 = data.data.menusRoleDTOList.map(e => {
+          return { id: e.id, label: e.label, children: e.children };
+        });
+        this.menuList3 = data.data.menusRoleDTOList.map(e => {
+          return {
+            id: e.id,
+            label: e.label2,
+            children:
+              e.children == null
+                ? null
+                : e.children.map(item => {
+                    return {
+                      id: item.id,
+                      label: item.label2,
+                      children: item.children
+                    };
+                  })
+          };
+        });
+        this.resourceList2 = data.data.resourcesRoleDTOList.map(e => {
+          return { id: e.id, label: e.label, children: e.children };
+        });
+        this.resourceList3 = data.data.resourcesRoleDTOList.map(e => {
+          return {
+            id: e.id,
+            label: e.label2,
+            children:
+              e.children == null
+                ? null
+                : e.children.map(item => {
+                    return {
+                      id: item.id,
+                      label: item.label2,
+                      children: item.children
+                    };
+                  })
+          };
+        });
+        if (this.isEn) {
+          this.menuList = this.menuList3;
+          this.resourceList = this.resourceList3;
+        } else {
+          this.menuList = this.menuList2;
+          this.resourceList = this.resourceList2;
+        }
       });
     },
     deleteRoles(id) {
@@ -507,9 +554,14 @@ export default {
     }
   },
   watch: {
-    isEn: {
-      handler() {},
-      immediate: true
+    isEn(newVal) {
+      if (newVal) {
+        this.menuList = this.menuList3;
+        this.resourceList = this.resourceList3;
+      } else {
+        this.menuList = this.menuList2;
+        this.resourceList = this.resourceList2;
+      }
     }
   }
 };

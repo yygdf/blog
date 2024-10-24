@@ -49,6 +49,11 @@ public class Resource implements Serializable {
     private String resourceName;
 
     /**
+     * 资源名称(en)
+     */
+    private String resourceNameEn;
+
+    /**
      * 请求方式, 默认空串
      */
     private String resourceRequestMethod;

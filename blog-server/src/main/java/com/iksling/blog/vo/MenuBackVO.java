@@ -51,6 +51,13 @@ public class MenuBackVO {
     private String name;
 
     /**
+     * 菜单名称(en)
+     */
+    @Size(min = 1, max = 50, message = "{V0077}")
+    @ApiModelProperty(name = "nameEn", value = "菜单名称(en)", dataType = "String")
+    private String nameEn;
+
+    /**
      * 菜单组件
      */
     @Size(min = 1, max = 50, message = "{V0023}")

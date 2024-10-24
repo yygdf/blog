@@ -36,6 +36,13 @@ public class ResourceBackVO {
     private String resourceName;
 
     /**
+     * 资源名称(en)
+     */
+    @Size(min = 1, max = 50, message = "{V0052}")
+    @ApiModelProperty(name = "resourceNameEn", value = "资源名称(en)", dataType = "String")
+    private String resourceNameEn;
+
+    /**
      * 请求方式
      */
     @Size(min = 1, max = 50, message = "{V0053}")

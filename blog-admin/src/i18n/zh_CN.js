@@ -35,7 +35,13 @@ export default {
     publish: "发表",
     batchOffline: "批量下线",
     offline: "下线",
-    view: "查看"
+    view: "查看",
+    batchRestore: "批量恢复",
+    deepSearch: "深度搜索",
+    more: "更多操作",
+    upload: "上传",
+    copy: "复制",
+    pick: "选取文件"
   },
   confirm: {
     tip: "提示",
@@ -54,7 +60,9 @@ export default {
     content11: "是否解锁该用户?",
     content12: "是否锁定该用户?",
     content13: "是否启用该用户?",
-    content14: "是否禁用该用户?"
+    content14: "是否禁用该用户?",
+    content15: "是否恢复选中项?",
+    content16: "确定移除"
   },
   input: {
     select: "请选择",
@@ -359,5 +367,25 @@ export default {
   },
   operation: {
     responseData: "响应数据"
+  },
+  multiFile: {
+    inputName: "请输入文件名",
+    name: "文件名",
+    type: "类型",
+    size: "大小",
+    desc: "描述",
+    inputDesc: "请输入文件描述",
+    dirName: "目录名称",
+    tip1:
+      "目前支持的文件类型有{jpg,png,gif,pdf,xlsx,docx,pptx,wav,mp3,mp4,avi}",
+    tip2: "其他文件类型请压缩为zip/rar进行上传",
+    tip3: "单个文件不超过100MB",
+    add1: "添加目录",
+    add2: "添加子目录",
+    edit1: "修改目录",
+    edit2: "修改文件",
+    copy: "复制成功!",
+    nameRule1: "名称不能为空",
+    directory: "文件夹"
   }
 };

@@ -35,7 +35,13 @@ export default {
     publish: "publish",
     batchOffline: "batch offline",
     offline: "offline",
-    view: "view"
+    view: "view",
+    batchRestore: "batch restore",
+    deepSearch: "deep search",
+    more: "more",
+    upload: "upload",
+    copy: "copy",
+    pick: "pick"
   },
   confirm: {
     tip: "Tip",
@@ -54,7 +60,9 @@ export default {
     content11: "Sure to unlock the user?",
     content12: "Sure to lock the user?",
     content13: "Sure to enable the user?",
-    content14: "Sure to disable the user?"
+    content14: "Sure to disable the user?",
+    content15: "Do you want to restore the selected item?",
+    content16: "Sure to remove"
   },
   input: {
     select: "please select",
@@ -359,5 +367,25 @@ export default {
   },
   operation: {
     responseData: "response data"
+  },
+  multiFile: {
+    inputName: "please enter name",
+    name: "name",
+    type: "type",
+    size: "size",
+    desc: "desc",
+    inputDesc: "please enter desc",
+    dirName: "directory name",
+    tip1:
+      "only accept file type {jpg,png,gif,pdf,xlsx,docx,pptx,wav,mp3,mp4,avi}",
+    tip2: "please compress other file type to zip/rar",
+    tip3: "each file no more than 100MB",
+    add1: "add directory",
+    add2: "add sub directory",
+    edit1: "edit directory",
+    edit2: "edit file",
+    copy: "copy success!",
+    nameRule1: "File name cannot be empty!",
+    directory: "folder"
   }
 };

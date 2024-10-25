@@ -583,9 +583,13 @@ export default {
   methods: {
     openOperateModel(article) {
       if (this.tokenMap.get(article.id)) {
-        this.tokenValidStatus = 2;
         this.articleToken = this.tokenMap.get(article.id);
         this.articleTokenOrigin = JSON.parse(JSON.stringify(this.articleToken));
+        if (this.articleToken.accessToken !== "") {
+          this.tokenValidStatus = 2;
+        } else {
+          this.tokenValidStatus = 0;
+        }
         this.$nextTick(() => {
           this.$refs.input.focus();
         });

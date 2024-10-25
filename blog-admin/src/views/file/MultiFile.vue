@@ -1,6 +1,8 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <el-button
         type="primary"
@@ -8,7 +10,7 @@
         icon="el-icon-plus"
         @click="openModel(null)"
       >
-        新增目录
+        {{ $t("button.add") }}
       </el-button>
       <el-button
         v-if="type !== 7"
@@ -18,7 +20,7 @@
         icon="el-icon-minus"
         @click="editStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <el-button
         v-else
@@ -28,7 +30,7 @@
         icon="el-icon-minus"
         @click="removeStatus = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <el-button
         v-if="type === 7"
@@ -38,7 +40,7 @@
         icon="el-icon-refresh-left"
         @click="editStatus = true"
       >
-        批量恢复
+        {{ $t("button.batchRestore") }}
       </el-button>
       <div style="margin-left:auto">
         <el-select
@@ -46,7 +48,7 @@
           v-model="userId"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择用户"
+          :placeholder="$t('input.selectUser')"
           remote
           clearable
           filterable
@@ -64,7 +66,7 @@
           v-model="type"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择"
+          :placeholder="$t('input.select')"
         >
           <el-option
             v-for="item in options"
@@ -79,7 +81,7 @@
           size="small"
           style="width: 200px"
           prefix-icon="el-icon-search"
-          placeholder="请输入文件名"
+          :placeholder="$t('multiFile.inputName')"
           clearable
           @keyup.enter.native="refreshLoad(multiFileParentId)"
         />
@@ -90,7 +92,7 @@
           style="margin-left: 1rem"
           @click="refreshLoad(multiFileParentId)"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
         <el-button
           type="primary"
@@ -98,7 +100,7 @@
           style="margin-left: 5px"
           @click="getMultiFiles(2)"
         >
-          深度搜索
+          {{ $t("button.deepSearch") }}
         </el-button>
       </div>
     </div>
@@ -123,20 +125,28 @@
         width="40"
         :selectable="checkSelectable"
       />
-      <el-table-column prop="fileNameOrigin" label="名称" />
-      <el-table-column prop="fileExtension" label="类型" width="80">
+      <el-table-column prop="fileNameOrigin" :label="$t('multiFile.name')" />
+      <el-table-column
+        prop="fileExtension"
+        :label="$t('multiFile.type')"
+        width="80"
+      >
         <template slot-scope="scope">
-          {{ scope.row.fileExtension ? scope.row.fileExtension : "文件夹" }}
+          {{
+            scope.row.fileExtension
+              ? scope.row.fileExtension
+              : $t("multiFile.directory")
+          }}
         </template>
       </el-table-column>
-      <el-table-column prop="fileSize" label="大小" width="80">
+      <el-table-column prop="fileSize" :label="$t('multiFile.size')" width="80">
         <template slot-scope="scope">
           {{ switchFileSize(scope.row.fileSize) }}
         </template>
       </el-table-column>
       <el-table-column
         prop="createTime"
-        label="创建时间"
+        :label="$t('table.createDate')"
         align="center"
         width="120"
       >
@@ -147,7 +157,7 @@
       </el-table-column>
       <el-table-column
         prop="updateTime"
-        label="更新时间"
+        :label="$t('table.updateDate')"
         align="center"
         width="120"
       >
@@ -156,7 +166,12 @@
           {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
-      <el-table-column prop="publicFlag" label="公开" align="center" width="80">
+      <el-table-column
+        prop="publicFlag"
+        :label="$t('switch.public')"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <div @click.stop="">
             <el-switch
@@ -170,7 +185,12 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="hiddenFlag" label="隐藏" align="center" width="80">
+      <el-table-column
+        prop="hiddenFlag"
+        :label="$t('switch.hidden')"
+        align="center"
+        width="80"
+      >
         <template slot-scope="scope">
           <div @click.stop="">
             <el-switch
@@ -184,7 +204,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="240">
+      <el-table-column :label="$t('table.operate')" align="center" width="240">
         <template slot-scope="scope">
           <el-button
             v-if="type !== 7"
@@ -194,11 +214,11 @@
             class="smaller-btn"
             @click.stop="openModel(scope.row)"
           >
-            <i class="el-icon-edit" /> 编辑
+            <i class="el-icon-edit" /> {{ $t("button.edit") }}
           </el-button>
           <el-popconfirm
             v-else
-            title="确定恢复吗？"
+            :title="$t('confirm.content2')"
             @confirm="updateMultiFilesStatus(scope.row)"
           >
             <el-button
@@ -209,12 +229,12 @@
               class="smaller-btn"
               @click.stop=""
             >
-              <i class="el-icon-refresh-left" /> 恢复
+              <i class="el-icon-refresh-left" /> {{ $t("button.restore") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-if="type !== 7"
-            title="确定删除吗？"
+            :title="$t('confirm.content3')"
             style="margin-left:10px"
             @confirm="updateMultiFilesStatus(scope.row)"
           >
@@ -226,12 +246,12 @@
               class="smaller-btn"
               @click.stop=""
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-else
-            title="确定彻底删除吗？"
+            :title="$t('confirm.content4')"
             style="margin-left:10px"
             @confirm="deleteMultiFiles(scope.row)"
           >
@@ -242,7 +262,7 @@
               class="smaller-btn"
               @click.stop=""
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
           <el-dropdown style="margin-left:10px">
@@ -252,7 +272,8 @@
               class="smaller-btn"
               @click.stop=""
             >
-              更多操作<i class="el-icon-arrow-down el-icon--right"></i>
+              {{ $t("button.more")
+              }}<i class="el-icon-arrow-down el-icon--right"></i>
             </el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item
@@ -261,7 +282,7 @@
                 icon="el-icon-plus"
                 @click.native="openModel(scope.row, true)"
               >
-                新增
+                {{ $t("button.add") }}
               </el-dropdown-item>
               <el-dropdown-item
                 v-if="!scope.row.fileExtension"
@@ -269,14 +290,14 @@
                 icon="el-icon-upload2"
                 @click.native="openOperateModel(scope.row, true)"
               >
-                上传
+                {{ $t("button.upload") }}
               </el-dropdown-item>
               <el-dropdown-item
                 v-else
                 icon="el-icon-link"
                 @click.native="copyUrl(scope.row.fileFullPath)"
               >
-                复制
+                {{ $t("button.copy") }}
               </el-dropdown-item>
               <el-dropdown-item
                 v-if="!scope.row.fileExtension"
@@ -286,7 +307,7 @@
                 icon="el-icon-lock"
                 @click.native="openOperateModel(scope.row, false)"
               >
-                密令
+                {{ $t("button.key") }}
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -295,53 +316,64 @@
     </el-table>
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
       <div style="font-size:1rem">
-        是否{{ type === 7 ? "恢复" : "删除" }}选中项？
+        {{ type === 7 ? $t("confirm.content15") : $t("confirm.content5") }}
       </div>
       <div slot="footer">
-        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button @click="editStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="updateMultiFilesStatus(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="removeStatus" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否彻底删除选中项？</div>
+      <div style="font-size:1rem">{{ $t("confirm.content6") }}</div>
       <div slot="footer">
-        <el-button @click="removeStatus = false">取 消</el-button>
+        <el-button @click="removeStatus = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="deleteMultiFiles(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="addOrEditStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="multiFileTitle" />
-      <el-form :model="multiFile" size="medium" label-width="80">
-        <el-form-item label="名称">
+      <el-form :model="multiFile" size="medium" label-width="60px">
+        <el-form-item :label="$t('multiFile.name')">
           <el-input
             v-model="multiFile.fileNameOrigin"
             ref="input"
             class="word-limit-input form-input-width2"
             maxlength="50"
-            placeholder="请输入名称"
+            :placeholder="$t('multiFile.inputName')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="描述">
+        <el-form-item :label="$t('multiFile.desc')">
           <el-input
             v-model="multiFile.fileDesc"
             class="word-limit-input form-input-width2"
             maxlength="50"
-            placeholder="请输入描述"
+            :placeholder="$t('multiFile.inputDesc')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item v-if="multiFile.fileCover != null" label="封面">
+        <el-form-item
+          v-if="multiFile.fileCover != null"
+          :label="$t('article.cover')"
+        >
           <el-input
             v-model="multiFile.fileCover"
             class="word-limit-input2 form-input-width2"
@@ -352,18 +384,20 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="addOrEditStatus = false">取 消</el-button>
+        <el-button @click="addOrEditStatus = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button type="primary" @click="addOrEditMultiFile">
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </span>
     </el-dialog>
     <el-dialog :visible.sync="multiFileUploadFlag" width="30%">
       <div class="dialog-title-container" slot="title">
-        上传文件
+        {{ $t("button.upload") }}
       </div>
       <div style="margin-top: -1.5rem;margin-bottom: 0.5rem;">
-        目录名称: {{ multiFile.fileNameOrigin }}
+        {{ $t("multiFile.dirName") }}: {{ multiFile.fileNameOrigin }}
       </div>
       <el-upload
         ref="upload"
@@ -375,21 +409,25 @@
         :on-change="changeMultiFiles"
         multiple
       >
-        <el-button slot="trigger" size="small" type="primary"
-          >选取文件</el-button
-        >
+        <el-button slot="trigger" size="small" type="primary">{{
+          $t("button.pick")
+        }}</el-button>
         <div slot="tip" class="el-upload__tip">
-          目前支持的文件类型有{jpg,png,gif,pdf,xlsx,docx,pptx,wav,mp3,mp4,avi}<br />其他文件类型请压缩为zip/rar进行上传<br />单个文件不超过100MB
+          {{ $t("multiFile.tip1") }}<br />{{ $t("multiFile.tip2") }}<br />{{
+            $t("multiFile.tip3")
+          }}
         </div>
       </el-upload>
       <div slot="footer">
-        <el-button @click="multiFileUploadFlag = false">取 消</el-button>
+        <el-button @click="multiFileUploadFlag = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button
           :disabled="uploadFileList.length === 0"
           type="danger"
           @click="submitUpload"
         >
-          上 传
+          {{ $t("button.upload") }}
         </el-button>
       </div>
     </el-dialog>
@@ -399,23 +437,23 @@
       @close="cancelAddOrEditMultiFileToken"
     >
       <div class="dialog-title-container" slot="title">
-        密令设置
+        {{ $t("article.dialogTitle2") }}
       </div>
-      <el-form :model="multiFileToken" size="medium" label-width="80">
-        <el-form-item label="目录名称">
+      <el-form :model="multiFileToken" size="medium" label-width="120px">
+        <el-form-item :label="$t('multiFile.dirName')">
           <el-input
             v-model="multiFileToken.fileNameOrigin"
-            class="form-input-width"
+            style="width: 200px"
             disabled
           />
         </el-form-item>
-        <el-form-item label="访问密令">
+        <el-form-item :label="$t('article.accessKey')">
           <el-input
             v-model="multiFileToken.accessToken"
             ref="input"
-            class="form-input-width"
+            style="width: 200px"
             maxlength="100"
-            placeholder="请输入访问密令"
+            :placeholder="$t('article.inputAccessKey')"
             @keyup.native="tokenInputChange"
           />&nbsp;
           <span
@@ -428,37 +466,39 @@
             class="el-icon-error"
             style="color: red;"
           >
-            该密令不合法!</span
+            {{ $t("article.illegalKey") }}</span
           >
         </el-form-item>
-        <el-form-item label="有效次数">
+        <el-form-item :label="$t('article.effectiveCount')">
           <el-input-number
             v-model="multiFileToken.effectiveCount"
-            class="form-input-width"
+            style="width: 200px"
             :min="-1"
             :max="2147483647"
             value="-1"
             controls-position="right"
           />
         </el-form-item>
-        <el-form-item label="过期时间">
+        <el-form-item :label="$t('article.expireTime')">
           <el-date-picker
             v-model="multiFileToken.expireTime"
             type="datetime"
-            class="form-input-width"
-            placeholder="选择过期时间"
+            style="width: 200px"
+            :placeholder="$t('article.selectExpireTime')"
           >
           </el-date-picker>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="multiFileTokenFlag = false">取 消</el-button>
+        <el-button @click="multiFileTokenFlag = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button
           :disabled="tokenValidStatus !== 2"
           type="primary"
           @click="addOrEditMultiFileToken"
         >
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </span>
     </el-dialog>
@@ -476,16 +516,7 @@ export default {
   },
   data() {
     return {
-      options: [
-        {
-          value: null,
-          label: "未删除"
-        },
-        {
-          value: 7,
-          label: "已删除"
-        }
-      ],
+      options: [],
       usernameList: [],
       multiFileList: [],
       uploadFileList: [],
@@ -658,7 +689,7 @@ export default {
             fileCover: "",
             fileNameOrigin: ""
           };
-          this.$refs.multiFileTitle.innerHTML = "添加子目录";
+          this.$refs.multiFileTitle.innerHTML = this.$t("multiFile.add2");
         } else {
           this.multiFile = {
             id: multiFile.id,
@@ -667,10 +698,10 @@ export default {
             fileNameOrigin: multiFile.fileNameOrigin
           };
           if (multiFile.fileExtension) {
-            this.$refs.multiFileTitle.innerHTML = "修改文件";
+            this.$refs.multiFileTitle.innerHTML = this.$t("multiFile.edit2");
           } else {
             this.multiFile.fileCover = multiFile.fileCover;
-            this.$refs.multiFileTitle.innerHTML = "修改目录";
+            this.$refs.multiFileTitle.innerHTML = this.$t("multiFile.edit1");
           }
         }
       } else {
@@ -679,7 +710,7 @@ export default {
           fileCover: "",
           fileNameOrigin: ""
         };
-        this.$refs.multiFileTitle.innerHTML = "添加目录";
+        this.$refs.multiFileTitle.innerHTML = this.$t("multiFile.add1");
       }
       this.multiFileOrigin = JSON.parse(JSON.stringify(this.multiFile));
       this.$nextTick(() => {
@@ -696,11 +727,15 @@ export default {
         this.multiFileUploadFlag = true;
       } else {
         if (this.tokenMap.get(multiFile.id)) {
-          this.tokenValidStatus = 2;
           this.multiFileToken = this.tokenMap.get(multiFile.id);
           this.multiFileTokenOrigin = JSON.parse(
             JSON.stringify(this.multiFileToken)
           );
+          if (this.multiFileToken.accessToken !== "") {
+            this.tokenValidStatus = 2;
+          } else {
+            this.tokenValidStatus = 0;
+          }
           this.$nextTick(() => {
             this.$refs.input.focus();
           });
@@ -743,7 +778,7 @@ export default {
       input.select();
       document.execCommand("copy");
       document.body.removeChild(input);
-      this.$message.success("复制成功");
+      this.$message.success(this.$t("multiFile.copy"));
     },
     handleRemove(file) {
       this.uploadFileList = this.uploadFileList.filter(
@@ -751,7 +786,7 @@ export default {
       );
     },
     beforeRemove(file) {
-      return this.$confirm(`确定移除 ${file.name} ?`);
+      return this.$confirm(this.$t("confirm.content16") + ` ${file.name} ?`);
     },
     tokenInputChange() {
       if (this.multiFileToken.accessToken.trim() !== "") {
@@ -799,7 +834,7 @@ export default {
       this.axios.post("/api/back/multiFiles", formData).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (this.treeNodeMap.get(this.multiFile.id)) {
@@ -811,7 +846,7 @@ export default {
           }
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -903,12 +938,12 @@ export default {
             this.getMultiFiles(1);
           }
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -917,7 +952,7 @@ export default {
     },
     addOrEditMultiFile() {
       if (this.multiFile.fileNameOrigin.trim() === "") {
-        this.$message.error("名称不能为空");
+        this.$message.error(this.$t("multiFile.nameRule1"));
         return false;
       }
       let param = this.$commonMethod.skipIdenticalValue(
@@ -942,12 +977,12 @@ export default {
             this.refreshLoad(this.multiFile.parentId);
           }
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -977,12 +1012,12 @@ export default {
         if (data.flag) {
           this.tokenMap.set(this.multiFileToken.id, this.multiFileToken);
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -1009,7 +1044,7 @@ export default {
           }
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
           if (type === 3) {
@@ -1049,12 +1084,12 @@ export default {
             this.getMultiFiles(1);
           }
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -1076,6 +1111,21 @@ export default {
       this.deepSearchFlag = false;
       this.multiFileParentId = null;
       this.getMultiFiles();
+    },
+    isEn: {
+      handler() {
+        this.options = [
+          {
+            value: null,
+            label: this.$t("option.available")
+          },
+          {
+            value: 7,
+            label: this.$t("option.deleted")
+          }
+        ];
+      },
+      immediate: true
     }
   },
   computed: {
@@ -1094,6 +1144,9 @@ export default {
           return size + "B";
         }
       };
+    },
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   }
 };

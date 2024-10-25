@@ -1,45 +1,45 @@
 <template>
   <el-card class="main-card">
     <el-tabs v-model="activeName" @tab-click="handleTabClick">
-      <el-tab-pane label="基本信息" name="info">
+      <el-tab-pane :label="$t('personal.profile')" name="info">
         <el-form label-width="80px" :model="userForm">
-          <el-form-item label="昵称">
+          <el-form-item :label="$t('table.nickname')">
             <el-input
               v-model="userForm.nickname"
               ref="input"
               size="small"
               class="word-limit-input form-input-width"
               maxlength="50"
-              placeholder="请输入昵称"
+              :placeholder="$t('user.inputNickname')"
               show-word-limit
             />
           </el-form-item>
-          <el-form-item label="介绍">
+          <el-form-item :label="$t('user.intro')">
             <el-input
               v-model="userForm.intro"
               size="small"
               class="word-limit-input form-input-width"
               maxlength="50"
-              placeholder="请输入介绍(可为空)"
+              :placeholder="$t('user.inputIntro')"
               show-word-limit
             />
           </el-form-item>
-          <el-form-item label="网站">
+          <el-form-item :label="$t('user.website')">
             <el-input
               v-model="userForm.website"
               size="small"
               class="word-limit-input2 form-input-width"
               maxlength="255"
-              placeholder="请输入网站(可为空)"
+              :placeholder="$t('user.inputWebsite')"
               show-word-limit
             />
           </el-form-item>
-          <el-form-item label="性别">
+          <el-form-item :label="$t('user.gender')">
             <el-radio-group v-model="userForm.gender">
-              <el-radio :label="1">男</el-radio>
-              <el-radio :label="2">女</el-radio>
-              <el-radio :label="3">可男可女</el-radio>
-              <el-radio :label="4">非男非女</el-radio>
+              <el-radio :label="1">{{ $t("option.gender1") }}</el-radio>
+              <el-radio :label="2">{{ $t("option.gender2") }}</el-radio>
+              <el-radio :label="3">{{ $t("option.gender3") }}</el-radio>
+              <el-radio :label="4">{{ $t("option.gender4") }}</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-button
@@ -48,17 +48,17 @@
             size="medium"
             style="margin-left:12rem"
           >
-            修改
+            {{ $t("button.edit") }}
           </el-button>
         </el-form>
       </el-tab-pane>
       <el-tab-pane
-        label="修改用户名"
+        :label="$t('personal.edit1')"
         name="username"
         v-if="!this.$store.state.modifiedFlag"
       >
-        <el-form label-width="80px" :model="usernameForm">
-          <el-form-item label="旧用户名">
+        <el-form label-width="120px" :model="usernameForm">
+          <el-form-item :label="$t('personal.oldUsername')">
             <el-input
               v-model="usernameForm.usernameOrigin"
               size="small"
@@ -66,30 +66,30 @@
               disabled
             />
           </el-form-item>
-          <el-form-item label="新用户名">
+          <el-form-item :label="$t('personal.newUsername')">
             <el-input
               v-model="usernameForm.username"
               ref="input"
               size="small"
               class="word-limit-input form-input-width"
               maxlength="50"
-              placeholder="每位用户仅可修改一次!"
+              :placeholder="$t('personal.tip1')"
               show-word-limit
             />
           </el-form-item>
           <el-button
-            type="danger"
+            type="warning"
             size="medium"
-            style="margin-left:12rem"
+            style="margin-left:14rem"
             @click="updateUsername"
           >
-            修改
+            {{ $t("button.edit") }}
           </el-button>
         </el-form>
       </el-tab-pane>
-      <el-tab-pane label="修改密码" name="password">
-        <el-form label-width="80px" :model="passwordForm">
-          <el-form-item label="旧密码">
+      <el-tab-pane :label="$t('personal.edit2')" name="password">
+        <el-form label-width="120px" :model="passwordForm">
+          <el-form-item :label="$t('personal.oldPassword')">
             <el-input
               v-model="passwordForm.oldPassword"
               ref="input"
@@ -103,7 +103,7 @@
               class="el-icon-error"
               style="color: red;"
             >
-              密码长度至少6位!</span
+              {{ $t("login.passwordRule2") }}</span
             >
             <span
               v-if="oldPasswordStatus === 2"
@@ -111,7 +111,7 @@
               style="color: green;"
             ></span>
           </el-form-item>
-          <el-form-item label="新密码">
+          <el-form-item :label="$t('personal.newPassword')">
             <el-input
               v-model="passwordForm.newPassword"
               size="small"
@@ -124,7 +124,7 @@
               class="el-icon-error"
               style="color: red;"
             >
-              密码长度至少6位!</span
+              {{ $t("login.passwordRule2") }}</span
             >
             <span
               v-if="newPasswordStatus === 2"
@@ -132,7 +132,7 @@
               style="color: green;"
             ></span>
           </el-form-item>
-          <el-form-item label="确认密码">
+          <el-form-item :label="$t('auth.password2')">
             <el-input
               v-model="passwordForm.confirmPassword"
               size="small"
@@ -150,7 +150,7 @@
               class="el-icon-error"
               style="color: red;"
             >
-              前后密码不一致!</span
+              {{ $t("auth.passwordRule1") }}</span
             >
           </el-form-item>
           <el-button
@@ -159,18 +159,18 @@
                 newPasswordStatus !== 2 ||
                 confirmPasswordStatus !== 2
             "
-            type="danger"
+            type="warning"
             size="medium"
-            style="margin-left:12rem"
+            style="margin-left:14rem"
             @click="updatePassword"
           >
-            修改
+            {{ $t("button.edit") }}
           </el-button>
         </el-form>
       </el-tab-pane>
-      <el-tab-pane label="修改头像" name="avatar">
+      <el-tab-pane :label="$t('personal.edit3')" name="avatar">
         <el-form label-width="80px" :model="avatarForm" style="width: 200px">
-          <el-form-item label="头像">
+          <el-form-item :label="$t('table.avatar')">
             <el-button
               id="pick-avatar"
               style="border: none;background-color: white;"
@@ -187,13 +187,14 @@
         </el-form>
       </el-tab-pane>
       <el-tab-pane
-        label="关于我"
+        :label="$t('personal.aboutMe')"
         name="about"
         v-if="this.$store.state.weight <= 400"
       >
         <mavon-editor
           :toolbars="toolbars"
           v-model="aboutContent"
+          :language="this.$i18n.locale === 'en_US' ? 'en' : 'zh-CN'"
           style="height:calc(100vh - 300px);"
         />
         <el-button
@@ -202,7 +203,7 @@
           class="edit-btn"
           @click="updateAbout"
         >
-          修改
+          {{ $t("button.edit") }}
         </el-button>
       </el-tab-pane>
     </el-tabs>
@@ -284,7 +285,7 @@ export default {
   methods: {
     updateInfo() {
       if (this.userForm.nickname.trim() === "") {
-        this.$message.error("昵称不能为空");
+        this.$message.error(this.$t("user.nicknameRule1"));
         return false;
       }
       let param = this.$commonMethod.skipIdenticalValue(
@@ -299,12 +300,12 @@ export default {
           this.$store.commit("updateUserInfo", this.userForm);
           this.userFormOrigin = JSON.parse(JSON.stringify(this.userForm));
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -315,12 +316,12 @@ export default {
         this.avatarForm.avatar = data.data;
         this.$store.commit("updateAvatar", data.data);
         this.$notify.success({
-          title: "成功",
+          title: this.$t("success"),
           message: data.message
         });
       } else {
         this.$notify.error({
-          title: "失败",
+          title: this.$t("failure"),
           message: data.message
         });
       }
@@ -332,12 +333,12 @@ export default {
         contentType !== "image/png" &&
         contentType !== "image/gif"
       ) {
-        this.$message.error("上传的图片只能是jpg, png, gif格式");
+        this.$message.error(this.$t("article.coverRule1"));
         return false;
       }
       if (file.size >>> 20 > 5) {
         file.status = false;
-        this.$message.error("上传图片的大小不能超过5MB");
+        this.$message.error(this.$t("article.coverRule2"));
         return false;
       }
       return true;
@@ -356,12 +357,12 @@ export default {
           this.newPasswordStatus = 0;
           this.confirmPasswordStatus = 0;
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -425,12 +426,12 @@ export default {
           if (data.flag) {
             this.aboutContentOrigin = this.aboutContent;
             this.$notify.success({
-              title: "成功",
+              title: this.$t("success"),
               message: data.message
             });
           } else {
             this.$notify.error({
-              title: "失败",
+              title: this.$t("failure"),
               message: data.message
             });
           }
@@ -456,12 +457,12 @@ export default {
             resetRouter();
             this.$router.push({ path: "/login" });
             this.$notify.success({
-              title: "成功",
+              title: this.$t("success"),
               message: data.message
             });
           } else {
             this.$notify.error({
-              title: "失败",
+              title: this.$t("failure"),
               message: data.message
             });
           }

@@ -1,6 +1,6 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
     <div class="operation-container">
       <el-button
         v-if="checkWeight(200) && type !== 7"
@@ -10,7 +10,7 @@
         icon="el-icon-minus"
         @click="editStatusBatch = true"
       >
-        批量删除
+        {{ $t("button.batchDelete") }}
       </el-button>
       <el-button
         v-if="type === 7"
@@ -20,7 +20,7 @@
         icon="el-icon-minus"
         @click="editStatusBatch = true"
       >
-        批量恢复
+        {{ $t("button.batchRestore") }}
       </el-button>
       <div style="margin-left:auto">
         <el-select
@@ -28,7 +28,7 @@
           v-model="userId"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择用户"
+          :placeholder="$t('input.selectUser')"
           remote
           clearable
           filterable
@@ -46,7 +46,7 @@
           v-model="type"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择"
+          :placeholder="$t('input.select')"
         >
           <el-option
             v-for="item in options"
@@ -59,9 +59,9 @@
           v-model="keywords"
           ref="input"
           size="small"
-          style="width: 200px"
+          style="width: 220px"
           prefix-icon="el-icon-search"
-          placeholder="请输入配置名或描述"
+          :placeholder="$t('systemConfig.input')"
           clearable
           @keyup.enter.native="getUserConfigs(true)"
         />
@@ -72,7 +72,7 @@
           style="margin-left:1rem"
           @click="getUserConfigs(true)"
         >
-          搜索
+          {{ $t("button.search") }}
         </el-button>
       </div>
     </div>
@@ -92,35 +92,35 @@
       <el-table-column
         v-if="checkWeight(200) && showColumnConfig.username"
         prop="username"
-        label="用户"
+        :label="$t('table.user')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.configName"
         prop="configName"
-        label="配置名"
+        :label="$t('tag.name')"
         align="center"
         width="200"
       />
       <el-table-column
         v-if="showColumnConfig.configValue"
         prop="configValue"
-        label="配置值"
+        :label="$t('systemConfig.value')"
         align="center"
         min-width="240"
       />
       <el-table-column
         v-if="showColumnConfig.configDesc"
         prop="configDesc"
-        label="配置描述"
+        :label="$t('systemConfig.desc')"
         align="center"
         min-width="240"
       />
       <el-table-column
         v-if="showColumnConfig.createTime"
         prop="createTime"
-        label="创建日期"
+        :label="$t('table.createDate')"
         align="center"
         width="120"
       >
@@ -132,7 +132,7 @@
       <el-table-column
         v-if="showColumnConfig.updateTime"
         prop="updateTime"
-        label="更新日期"
+        :label="$t('table.updateDate')"
         align="center"
         width="120"
       >
@@ -141,28 +141,34 @@
           {{ scope.row.updateTime | date }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="160">
+      <el-table-column :label="$t('table.operate')" align="center" width="160">
         <template slot="header">
-          <el-popover placement="bottom" title="选择显示列" width="160">
+          <el-popover
+            placement="bottom"
+            :title="$t('table.showColumn')"
+            width="160"
+          >
             <div>
-              <el-checkbox v-model="showColumnConfig.username"
-                >用户</el-checkbox
+              <el-checkbox
+                v-if="checkWeight(200)"
+                v-model="showColumnConfig.username"
+                >{{ $t("table.user") }}</el-checkbox
               >
-              <el-checkbox v-model="showColumnConfig.configName"
-                >配置名</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.configValue"
-                >配置值</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.configDesc"
-                >配置描述</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.createTime"
-                >创建日期</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.updateTime"
-                >更新日期</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.configName">{{
+                $t("systemConfig.name")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.configValue">{{
+                $t("systemConfig.value")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.configDesc">{{
+                $t("systemConfig.desc")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.createTime">{{
+                $t("table.createDate")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.updateTime">{{
+                $t("table.updateDate")
+              }}</el-checkbox>
               <div>
                 <el-button
                   type="primary"
@@ -171,7 +177,7 @@
                   plain
                   @click="saveColumnConfig"
                 >
-                  保存
+                  {{ $t("button.save") }}
                 </el-button>
               </div>
             </div>
@@ -186,11 +192,11 @@
             class="smaller-btn"
             @click="openModel(scope.row)"
           >
-            <i class="el-icon-edit" /> 编辑
+            <i class="el-icon-edit" /> {{ $t("button.edit") }}
           </el-button>
           <el-popconfirm
             v-if="type === 7"
-            title="确定恢复吗？"
+            :title="$t('confirm.content2')"
             style="margin-left:10px"
             @confirm="updateUserConfigsStatus(scope.row.id)"
           >
@@ -201,12 +207,12 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-refresh-left" /> 恢复
+              <i class="el-icon-refresh-left" /> {{ $t("button.restore") }}
             </el-button>
           </el-popconfirm>
           <el-popconfirm
             v-if="checkWeight(200) && type !== 7"
-            title="确定删除吗？"
+            :title="$t('confirm.content3')"
             style="margin-left:10px"
             @confirm="updateUserConfigsStatus(scope.row.id)"
           >
@@ -217,7 +223,7 @@
               slot="reference"
               class="smaller-btn"
             >
-              <i class="el-icon-delete" /> 删除
+              <i class="el-icon-delete" /> {{ $t("button.delete") }}
             </el-button>
           </el-popconfirm>
         </template>
@@ -236,49 +242,55 @@
     />
     <el-dialog :visible.sync="editStatusBatch" width="30%">
       <div class="dialog-title-container" slot="title">
-        <i class="el-icon-warning" style="color:#ff9900" />提示
+        <i class="el-icon-warning" style="color:#ff9900" />{{
+          $t("confirm.tip")
+        }}
       </div>
-      <div style="font-size:1rem">是否{{ type ? "恢复" : "删除" }}选中项？</div>
+      <div style="font-size:1rem">
+        {{ type ? $t("confirm.content15") : $t("confirm.content5") }}
+      </div>
       <div slot="footer">
-        <el-button @click="editStatusBatch = false">取 消</el-button>
+        <el-button @click="editStatusBatch = false">{{
+          $t("confirm.no")
+        }}</el-button>
         <el-button type="primary" @click="updateUserConfigsStatus(null)">
-          确 定
+          {{ $t("confirm.yes") }}
         </el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="editStatus" width="30%">
       <div class="dialog-title-container" slot="title" ref="userConfigTitle" />
-      <el-form :model="userConfig" size="medium" label-width="80">
-        <el-form-item label="配 置 名">
+      <el-form :model="userConfig" size="medium" label-width="90px">
+        <el-form-item :label="$t('systemConfig.name')">
           <el-input
             :disabled="true"
             v-model="userConfig.configName"
             class="word-limit-input form-input-width"
             maxlength="50"
-            placeholder="请输入配置名"
+            :placeholder="$t('systemConfig.inputName')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="配 置 值">
+        <el-form-item :label="$t('systemConfig.value')">
           <el-input
             v-model="userConfig.configValue"
             ref="input"
             class="word-limit-input2 form-input-width"
             maxlength="255"
-            placeholder="请输入配置值"
+            :placeholder="$t('systemConfig.inputValue')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="配置描述">
+        <el-form-item :label="$t('systemConfig.desc')">
           <el-input
             v-model="userConfig.configDesc"
             class="word-limit-input2 form-input-width"
             maxlength="255"
-            placeholder="请输入配置描述"
+            :placeholder="$t('systemConfig.inputDesc')"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item v-if="assimilateStatus" label="开启同步">
+        <el-form-item v-if="assimilateStatus" :label="$t('switch.assimilate')">
           <el-switch
             v-model="userConfig.assimilateFlag"
             :active-value="true"
@@ -289,9 +301,11 @@
         </el-form-item>
       </el-form>
       <div slot="footer">
-        <el-button @click="editStatus = false">取 消</el-button>
+        <el-button @click="editStatus = false">{{
+          $t("button.cancel")
+        }}</el-button>
         <el-button type="primary" @click="editUserConfig">
-          确 定
+          {{ $t("button.save") }}
         </el-button>
       </div>
     </el-dialog>
@@ -309,16 +323,7 @@ export default {
   },
   data: function() {
     return {
-      options: [
-        {
-          value: null,
-          label: "未删除"
-        },
-        {
-          value: 7,
-          label: "已删除"
-        }
-      ],
+      options: [],
       usernameList: [],
       rootUserIdList: [],
       userConfigList: [],
@@ -348,7 +353,7 @@ export default {
         configValue: userConfig.configValue,
         configDesc: userConfig.configDesc
       };
-      this.$refs.userConfigTitle.innerHTML = "修改配置";
+      this.$refs.userConfigTitle.innerHTML = this.$t("systemConfig.edit");
       this.assimilateStatus =
         userConfig.userId === this.rootUserId &&
         this.$store.state.userId === this.rootUserId;
@@ -451,13 +456,13 @@ export default {
       this.axios.put("/api/back/userConfig", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           this.getUserConfigs();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -477,7 +482,7 @@ export default {
       this.axios.put("/api/back/userConfigs/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           if (param.idList.length === this.userConfigList.length) {
@@ -486,7 +491,7 @@ export default {
           this.getUserConfigs();
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -500,6 +505,26 @@ export default {
     },
     userId() {
       this.getUserConfigs(true);
+    },
+    isEn: {
+      handler() {
+        this.options = [
+          {
+            value: null,
+            label: this.$t("option.available")
+          },
+          {
+            value: 7,
+            label: this.$t("option.deleted")
+          }
+        ];
+      },
+      immediate: true
+    }
+  },
+  computed: {
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   }
 };

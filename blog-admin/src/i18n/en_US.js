@@ -154,7 +154,8 @@ export default {
     enabled: "enabled",
     hide: "hide",
     anonymous: "anonymous",
-    locked: "locked"
+    locked: "locked",
+    assimilate: "assimilate"
   },
   article: {
     inputTitle: "please enter article title",
@@ -387,5 +388,17 @@ export default {
     copy: "copy success!",
     nameRule1: "File name cannot be empty!",
     directory: "folder"
+  },
+  personal: {
+    profile: "profile",
+    edit1: "edit username",
+    oldUsername: "old username",
+    newUsername: "new username",
+    tip1: "Each user can only make one modification!",
+    edit2: "edit password",
+    oldPassword: "old password",
+    newPassword: "new password",
+    edit3: "edit avatar",
+    aboutMe: "about me"
   }
 };

@@ -154,7 +154,8 @@ export default {
     enabled: "启用",
     hide: "隐藏",
     anonymous: "匿名",
-    locked: "锁定"
+    locked: "锁定",
+    assimilate: "同步"
   },
   article: {
     inputTitle: "请输入文章标题",
@@ -387,5 +388,17 @@ export default {
     copy: "复制成功!",
     nameRule1: "名称不能为空",
     directory: "文件夹"
+  },
+  personal: {
+    profile: "基本信息",
+    edit1: "修改用户名",
+    oldUsername: "旧用户名",
+    newUsername: "新用户名",
+    tip1: "每位用户仅可修改一次!",
+    edit2: "修改密码",
+    oldPassword: "旧密码",
+    newPassword: "新密码",
+    edit3: "修改头像",
+    aboutMe: "关于我"
   }
 };

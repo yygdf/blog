@@ -1,13 +1,15 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <div style="margin-left:auto">
         <el-select
           v-model="userId"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择用户"
+          :placeholder="$t('input.selectUser')"
           remote
           clearable
           filterable
@@ -24,7 +26,7 @@
           v-model="loginMethod"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择登录方式"
+          :placeholder="$t('input.selectMethod')"
           clearable
         >
           <el-option
@@ -38,7 +40,7 @@
           v-model="loginPlatform"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择登录平台"
+          :placeholder="$t('input.selectPlatform')"
           clearable
         >
           <el-option
@@ -54,7 +56,7 @@
           type="datetime"
           align="center"
           style="margin-right:1rem"
-          placeholder="起始时间"
+          :placeholder="$t('input.startTime')"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
           @change="getLoginLogs(true)"
@@ -66,7 +68,7 @@
           type="datetime"
           align="right"
           style="margin-right:1rem"
-          placeholder="结束时间"
+          :placeholder="$t('input.endTime')"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
           @change="getLoginLogs(true)"
@@ -78,14 +80,14 @@
       <el-table-column
         v-if="showColumnConfig.username"
         prop="username"
-        label="登录用户"
+        :label="$t('table.user')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.loginMethod"
         prop="loginMethod"
-        label="登录方式"
+        :label="$t('table.loginMethod')"
         align="center"
         width="120"
       >
@@ -98,55 +100,59 @@
       <el-table-column
         v-if="showColumnConfig.loginPlatform"
         prop="loginPlatform"
-        label="登录平台"
+        :label="$t('table.loginPlatform')"
         align="center"
-        width="120"
+        width="160"
       >
         <template slot-scope="scope">
           <el-tag>
-            {{ scope.row.loginPlatform ? "后台" : "前台" }}
+            {{
+              scope.row.loginPlatform
+                ? $t("option.backend")
+                : $t("option.frontend")
+            }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column
         v-if="showColumnConfig.loginDevice"
         prop="loginDevice"
-        label="登录设备"
+        :label="$t('table.loginDevice')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.loginSystem"
         prop="loginSystem"
-        label="操作系统"
+        :label="$t('loginLog.system')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.loginBrowser"
         prop="loginBrowser"
-        label="浏览器类型"
+        :label="$t('loginLog.browser')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.ipAddress"
         prop="ipAddress"
-        label="ip地址"
+        :label="$t('table.ipAddress')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.ipSource"
         prop="ipSource"
-        label="ip来源"
+        :label="$t('table.ipSource')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.loginTime"
         prop="loginTime"
-        label="登录时间"
+        :label="$t('table.loginTime')"
         align="center"
         width="200"
       >
@@ -155,37 +161,37 @@
           {{ scope.row.loginTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="80">
+      <el-table-column :label="$t('table.operate')" align="center" width="80">
         <template slot="header">
           <el-popover placement="bottom" title="选择显示列" width="160">
             <div>
-              <el-checkbox v-model="showColumnConfig.username"
-                >登录用户</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.loginMethod"
-                >登录方式</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.loginPlatform"
-                >登录平台</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.loginDevice"
-                >登录设备</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.loginSystem"
-                >操作系统</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.loginBrowser"
-                >浏览器类型</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.ipAddress"
-                >ip地址</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.ipSource"
-                >ip来源</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.loginTime"
-                >登录时间</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.username">{{
+                $t("table.user")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.loginMethod">{{
+                $t("table.loginMethod")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.loginPlatform">{{
+                $t("table.loginPlatform")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.loginDevice">{{
+                $t("table.loginDevice")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.loginSystem">{{
+                $t("loginLog.system")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.loginBrowser">{{
+                $t("loginLog.browser")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.ipAddress">{{
+                $t("table.ipAddress")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.ipSource">{{
+                $t("table.ipSource")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.loginTime">{{
+                $t("table.loginTime")
+              }}</el-checkbox>
               <div>
                 <el-button
                   type="primary"
@@ -194,7 +200,7 @@
                   plain
                   @click="saveColumnConfig"
                 >
-                  保存
+                  {{ $t("button.save") }}
                 </el-button>
               </div>
             </div>
@@ -225,44 +231,18 @@ export default {
   },
   data: function() {
     return {
-      options: [
-        {
-          value: false,
-          label: "前台"
-        },
-        {
-          value: true,
-          label: "后台"
-        }
-      ],
-      options2: [
-        {
-          value: 1,
-          label: "邮箱"
-        },
-        {
-          value: 2,
-          label: "QQ"
-        },
-        {
-          value: 3,
-          label: "微信"
-        },
-        {
-          value: 4,
-          label: "手机号"
-        }
-      ],
+      options: [],
+      options2: [],
       pickerOptions: {
         shortcuts: [
           {
-            text: "今天",
+            text: "",
             onClick(picker) {
               picker.$emit("pick", new Date());
             }
           },
           {
-            text: "昨天",
+            text: "",
             onClick(picker) {
               const date = new Date();
               date.setTime(date.getTime() - 3600 * 1000 * 24);
@@ -270,7 +250,7 @@ export default {
             }
           },
           {
-            text: "一周前",
+            text: "",
             onClick(picker) {
               const date = new Date();
               date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
@@ -374,6 +354,42 @@ export default {
     },
     loginPlatform() {
       this.getLoginLogs(true);
+    },
+    isEn: {
+      handler() {
+        this.options = [
+          {
+            value: false,
+            label: this.$t("option.frontend")
+          },
+          {
+            value: true,
+            label: this.$t("option.backend")
+          }
+        ];
+        this.options2 = [
+          {
+            value: 1,
+            label: this.$t("option.email")
+          },
+          {
+            value: 2,
+            label: this.$t("option.qq")
+          },
+          {
+            value: 3,
+            label: this.$t("option.wx")
+          },
+          {
+            value: 4,
+            label: this.$t("option.phone")
+          }
+        ];
+        this.pickerOptions.shortcuts[0].text = this.$t("input.today");
+        this.pickerOptions.shortcuts[1].text = this.$t("input.yesterday");
+        this.pickerOptions.shortcuts[2].text = this.$t("input.lastWeek");
+      },
+      immediate: true
     }
   },
   computed: {
@@ -381,15 +397,18 @@ export default {
       return function(type) {
         switch (type) {
           case 1:
-            return "邮箱";
+            return this.$t("option.email");
           case 2:
-            return "QQ";
+            return this.$t("option.qq");
           case 3:
-            return "微信";
+            return this.$t("option.wx");
           case 4:
-            return "手机号";
+            return this.$t("option.phone");
         }
       };
+    },
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   }
 };

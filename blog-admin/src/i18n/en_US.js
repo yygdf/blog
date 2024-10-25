@@ -34,7 +34,8 @@ export default {
     cancel: "cancel",
     publish: "publish",
     batchOffline: "batch offline",
-    offline: "offline"
+    offline: "offline",
+    view: "view"
   },
   confirm: {
     tip: "Tip",
@@ -70,7 +71,16 @@ export default {
     selectGender: "please select gender",
     selectRole: "please select role",
     selectDisabled: "please select disabled",
-    selectLocked: "please select locked"
+    selectLocked: "please select locked",
+    selectModule: "please select module",
+    selectType: "please select type",
+    selectExceptionType: "please select exception type",
+    startTime: "start time",
+    endTime: "end time",
+    selectMethod: "please select method",
+    selectPlatform: "please select platform",
+    today: "today",
+    yesterday: "yesterday"
   },
   table: {
     user: "user",
@@ -88,7 +98,13 @@ export default {
     nickname: "nickname",
     loginDevice: "login device",
     loginPlatform: "login platform",
-    loginTime: "login time"
+    loginTime: "login time",
+    optModule: "opt module",
+    optType: "opt type",
+    optDesc: "opt desc",
+    optUri: "opt uri",
+    optMethod: "opt method",
+    requestParam: "request param"
   },
   option: {
     published: "published",
@@ -112,7 +128,14 @@ export default {
     email: "Email",
     qq: "QQ",
     wx: "WeChat",
-    phone: "Phone"
+    phone: "Phone",
+    insert: "insert",
+    update: "update",
+    delete: "delete",
+    select: "select",
+    insertOrUpdate: "insert or update",
+    common: "common",
+    illegal: "illegal"
   },
   switch: {
     top: "top",
@@ -325,5 +348,16 @@ export default {
     password2: "confirm",
     passwordRule1: "The password is inconsistent.",
     edit: "edit auth"
+  },
+  exception: {
+    summary: "summary",
+    detail: "detail"
+  },
+  loginLog: {
+    system: "login system",
+    browser: "browser"
+  },
+  operation: {
+    responseData: "response data"
   }
 };

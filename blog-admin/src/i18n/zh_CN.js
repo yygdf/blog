@@ -34,7 +34,8 @@ export default {
     cancel: "取消",
     publish: "发表",
     batchOffline: "批量下线",
-    offline: "下线"
+    offline: "下线",
+    view: "查看"
   },
   confirm: {
     tip: "提示",
@@ -70,7 +71,16 @@ export default {
     selectGender: "请选择性别",
     selectRole: "请选择角色",
     selectDisabled: "请选择禁用状态",
-    selectLocked: "请选择锁定状态"
+    selectLocked: "请选择锁定状态",
+    selectModule: "请选择模块",
+    selectType: "请选择类型",
+    selectExceptionType: "请选择异常类型",
+    startTime: "起始时间",
+    endTime: "结束时间",
+    selectMethod: "请选择登录方式",
+    selectPlatform: "请选择登录平台",
+    today: "今天",
+    yesterday: "昨天"
   },
   table: {
     user: "用户",
@@ -88,7 +98,13 @@ export default {
     nickname: "昵称",
     loginDevice: "登录设备",
     loginPlatform: "登录平台",
-    loginTime: "登录时间"
+    loginTime: "登录时间",
+    optModule: "操作模块",
+    optType: "操作类型",
+    optDesc: "操作描述",
+    optUri: "操作路径",
+    optMethod: "操作方法",
+    requestParam: "请求参数"
   },
   option: {
     published: "已发表",
@@ -112,7 +128,14 @@ export default {
     email: "邮箱",
     qq: "QQ",
     wx: "微信",
-    phone: "手机"
+    phone: "手机",
+    insert: "新增",
+    update: "更新",
+    delete: "删除",
+    select: "查询",
+    insertOrUpdate: "新增或修改",
+    common: "普通异常",
+    illegal: "非法请求"
   },
   switch: {
     top: "置顶",
@@ -325,5 +348,16 @@ export default {
     password2: "确认密码",
     passwordRule1: "前后密码不一致",
     edit: "修改账号"
+  },
+  exception: {
+    summary: "简要信息",
+    detail: "详细信息"
+  },
+  loginLog: {
+    system: "登录系统",
+    browser: "浏览器"
+  },
+  operation: {
+    responseData: "响应数据"
   }
 };

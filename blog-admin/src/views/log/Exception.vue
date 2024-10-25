@@ -1,13 +1,15 @@
 <template>
   <el-card class="main-card">
-    <div class="title">{{ this.$route.name }}</div>
+    <div class="title">
+      {{ isEn ? this.$route.meta.nameEn : this.$route.name }}
+    </div>
     <div class="operation-container">
       <div style="margin-left:auto">
         <el-select
           v-model="userId"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择用户"
+          :placeholder="$t('input.selectUser')"
           remote
           clearable
           filterable
@@ -24,21 +26,21 @@
           v-model="optModule"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择模块"
+          :placeholder="$t('input.selectModule')"
           clearable
         >
           <el-option
             v-for="item in moduleNameList"
             :key="item.label"
             :value="item.label"
-            :label="item.label"
+            :label="isEn ? item.label2 : item.label"
           />
         </el-select>
         <el-select
           v-model="optType"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择类型"
+          :placeholder="$t('input.selectType')"
           clearable
         >
           <el-option
@@ -52,7 +54,7 @@
           v-model="illegalFlag"
           size="small"
           style="margin-right:1rem"
-          placeholder="请选择异常类型"
+          :placeholder="$t('input.selectExceptionType')"
           clearable
         >
           <el-option
@@ -68,7 +70,7 @@
           type="datetime"
           align="center"
           style="margin-right:1rem"
-          placeholder="起始时间"
+          :placeholder="$t('input.startTime')"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
           @change="getExceptionLogs(true)"
@@ -80,7 +82,7 @@
           type="datetime"
           align="right"
           style="margin-right:1rem"
-          placeholder="结束时间"
+          :placeholder="$t('input.endTime')"
           value-format="yyyy-MM-dd HH:mm:ss"
           :picker-options="pickerOptions"
           @change="getExceptionLogs(true)"
@@ -92,14 +94,14 @@
       <el-table-column
         v-if="showColumnConfig.username"
         prop="username"
-        label="操作人员"
+        :label="$t('table.user')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.optModule"
         prop="optModule"
-        label="操作模块"
+        :label="$t('table.optModule')"
         align="center"
         width="120"
       >
@@ -112,9 +114,9 @@
       <el-table-column
         v-if="showColumnConfig.optType"
         prop="optType"
-        label="操作类型"
+        :label="$t('table.optType')"
         align="center"
-        width="120"
+        width="160"
       >
         <template slot-scope="scope">
           <el-tag>
@@ -125,14 +127,14 @@
       <el-table-column
         v-if="showColumnConfig.optDesc"
         prop="optDesc"
-        label="操作描述"
+        :label="$t('table.optDesc')"
         align="center"
         min-width="120"
       />
       <el-table-column
         v-if="showColumnConfig.exceptionMessage"
         prop="exceptionMessage"
-        label="简略信息"
+        :label="$t('exception.summary')"
         align="center"
         min-width="240"
       >
@@ -143,21 +145,21 @@
       <el-table-column
         v-if="showColumnConfig.ipAddress"
         prop="ipAddress"
-        label="ip地址"
+        :label="$t('table.ipAddress')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.ipSource"
         prop="ipSource"
-        label="ip来源"
+        :label="$t('table.ipSource')"
         align="center"
         width="120"
       />
       <el-table-column
         v-if="showColumnConfig.createTime"
         prop="createTime"
-        label="发生时间"
+        :label="$t('table.createTime')"
         align="center"
         width="200"
       >
@@ -166,34 +168,38 @@
           {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="120">
+      <el-table-column :label="$t('table.operate')" align="center" width="120">
         <template slot="header">
-          <el-popover placement="bottom" title="选择显示列" width="160">
+          <el-popover
+            placement="bottom"
+            :title="$t('table.showColumn')"
+            width="160"
+          >
             <div>
-              <el-checkbox v-model="showColumnConfig.username"
-                >操作人员</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.optModule"
-                >操作模块</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.optType"
-                >操作类型</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.optDesc"
-                >操作描述</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.exceptionMessage"
-                >简略信息</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.ipAddress"
-                >ip地址</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.ipSource"
-                >ip来源</el-checkbox
-              >
-              <el-checkbox v-model="showColumnConfig.createTime"
-                >发生时间</el-checkbox
-              >
+              <el-checkbox v-model="showColumnConfig.username">{{
+                $t("table.user")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.optModule">{{
+                $t("table.optModule")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.optType">{{
+                $t("table.optType")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.optDesc">{{
+                $t("table.optDesc")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.exceptionMessage">{{
+                $t("exception.summary")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.ipAddress">{{
+                $t("table.ipAddress")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.ipSource">{{
+                $t("table.ipSource")
+              }}</el-checkbox>
+              <el-checkbox v-model="showColumnConfig.createTime">{{
+                $t("table.createTime")
+              }}</el-checkbox>
               <div>
                 <el-button
                   type="primary"
@@ -202,7 +208,7 @@
                   plain
                   @click="saveColumnConfig"
                 >
-                  保存
+                  {{ $t("button.save") }}
                 </el-button>
               </div>
             </div>
@@ -211,7 +217,7 @@
         </template>
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="check(scope.row)">
-            <i class="el-icon-view" /> 查看
+            <i class="el-icon-view" /> {{ $t("button.view") }}
           </el-button>
         </template>
       </el-table-column>
@@ -229,47 +235,56 @@
     />
     <el-dialog :visible.sync="checkFlag" width="60%">
       <div class="dialog-title-container" slot="title">
-        详细信息
+        {{ $t("exception.detail") }}
       </div>
-      <el-form size="medium" label-width="80">
-        <el-form-item label="操作人员: ">
+      <el-form size="medium" label-width="120px">
+        <el-form-item :label="$t('table.user')">
           {{ exceptionLog.username }}
         </el-form-item>
-        <el-form-item label="操作模块: ">
+        <el-form-item :label="$t('table.optModule')">
           <el-tag>
             {{ exceptionLog.optModule }}
           </el-tag>
         </el-form-item>
-        <el-form-item label="操作类型: ">
+        <el-form-item :label="$t('table.optType')">
           <el-tag>
             {{ switchOptType(exceptionLog.optType) }}
           </el-tag>
         </el-form-item>
-        <el-form-item label="操作路径: ">
+        <el-form-item :label="$t('table.optUri')">
           {{ exceptionLog.optUri }}
         </el-form-item>
-        <el-form-item label="操作方法: ">
+        <el-form-item :label="$t('table.optMethod')">
           {{ exceptionLog.optMethod }}
         </el-form-item>
-        <el-form-item label="操作描述: ">
+        <el-form-item :label="$t('table.optDesc')">
           {{ exceptionLog.optDesc }}
         </el-form-item>
-        <el-form-item label="ip地址: ">
+        <el-form-item :label="$t('table.ipAddress')">
           {{ exceptionLog.ipAddress }}
         </el-form-item>
-        <el-form-item label="ip来源: ">
+        <el-form-item :label="$t('table.ipSource')">
           {{ exceptionLog.ipSource }}
         </el-form-item>
-        <el-form-item label="发生时间: ">
+        <el-form-item :label="$t('table.createTime')">
           {{ exceptionLog.createTime | dateTime }}
         </el-form-item>
-        <el-form-item label="请求参数: " style="white-space: pre-line">
+        <el-form-item
+          :label="$t('table.requestParam')"
+          style="white-space: pre-line"
+        >
           {{ exceptionLog.requestParam }}
         </el-form-item>
-        <el-form-item label="简略信息: " style="white-space: pre-line">
+        <el-form-item
+          :label="$t('exception.summary')"
+          style="white-space: pre-line"
+        >
           {{ exceptionLog.exceptionMessage }}
         </el-form-item>
-        <el-form-item label="详细信息: " style="white-space: pre-line">
+        <el-form-item
+          :label="$t('exception.detail')"
+          style="white-space: pre-line"
+        >
           {{ exceptionLog.exceptionStackTrace }}
         </el-form-item>
       </el-form>
@@ -286,48 +301,18 @@ export default {
   },
   data: function() {
     return {
-      options: [
-        {
-          value: false,
-          label: "普通异常"
-        },
-        {
-          value: true,
-          label: "非法请求"
-        }
-      ],
-      options2: [
-        {
-          value: 1,
-          label: "新增"
-        },
-        {
-          value: 2,
-          label: "删除"
-        },
-        {
-          value: 3,
-          label: "修改"
-        },
-        {
-          value: 4,
-          label: "查询"
-        },
-        {
-          value: 5,
-          label: "新增或修改"
-        }
-      ],
+      options: [],
+      options2: [],
       pickerOptions: {
         shortcuts: [
           {
-            text: "今天",
+            text: "",
             onClick(picker) {
               picker.$emit("pick", new Date());
             }
           },
           {
-            text: "昨天",
+            text: "",
             onClick(picker) {
               const date = new Date();
               date.setTime(date.getTime() - 3600 * 1000 * 24);
@@ -335,7 +320,7 @@ export default {
             }
           },
           {
-            text: "一周前",
+            text: "",
             onClick(picker) {
               const date = new Date();
               date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
@@ -453,6 +438,46 @@ export default {
     },
     illegalFlag() {
       this.getExceptionLogs(true);
+    },
+    isEn: {
+      handler() {
+        this.options = [
+          {
+            value: false,
+            label: this.$t("option.common")
+          },
+          {
+            value: true,
+            label: this.$t("option.illegal")
+          }
+        ];
+        this.options2 = [
+          {
+            value: 1,
+            label: this.$t("option.insert")
+          },
+          {
+            value: 2,
+            label: this.$t("option.delete")
+          },
+          {
+            value: 3,
+            label: this.$t("option.update")
+          },
+          {
+            value: 4,
+            label: this.$t("option.select")
+          },
+          {
+            value: 5,
+            label: this.$t("option.insertOrUpdate")
+          }
+        ];
+        this.pickerOptions.shortcuts[0].text = this.$t("input.today");
+        this.pickerOptions.shortcuts[1].text = this.$t("input.yesterday");
+        this.pickerOptions.shortcuts[2].text = this.$t("input.lastWeek");
+      },
+      immediate: true
     }
   },
   computed: {
@@ -460,17 +485,20 @@ export default {
       return function(type) {
         switch (type) {
           case 1:
-            return "新增";
+            return this.$t("option.insert");
           case 2:
-            return "删除";
+            return this.$t("option.delete");
           case 3:
-            return "修改";
+            return this.$t("option.update");
           case 4:
-            return "查询";
+            return this.$t("option.select");
           case 5:
-            return "新增或修改";
+            return this.$t("option.insertOrUpdate");
         }
       };
+    },
+    isEn() {
+      return this.$i18n.locale === "en_US";
     }
   }
 };

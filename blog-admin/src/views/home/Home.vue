@@ -8,7 +8,7 @@
     >
       <el-tab-pane name="reply">
         <span slot="label" style="font-weight: bold;"
-          ><i class="el-icon-s-comment"></i> 回复我的
+          ><i class="el-icon-s-comment"></i> {{ $t("home.replyToMe") }}
           <sup
             :style="
               replyCommentIdUnReadCount > 0 ? 'color: red;' : 'color: gray;'
@@ -62,7 +62,7 @@
                   target="_blank"
                 >
                   <span>
-                    对我的文章发表了评论
+                    {{ $t("home.commentMyArticle") }}
                     <sup
                       v-show="replyCommentIdUnReadStatus(item.id)"
                       style="color: red"
@@ -86,23 +86,24 @@
                   item.createTime | dateTime
                 }}</span>
                 <span class="reply-btn" @click="replyComment(index, item)">
-                  <i class="el-icon-chat-square"></i>回复
+                  <i class="el-icon-chat-square"></i>{{ $t("home.reply") }}
                 </span>
                 <span
                   v-if="isLike(item.commentId)"
                   class="like-active"
                   @click="like(item)"
-                  ><i class="el-icon-thumb"></i>已赞</span
+                  ><i class="el-icon-thumb"></i>{{ $t("home.liked") }}</span
                 >
                 <span v-else class="like" @click="like(item)"
-                  ><i class="el-icon-thumb"></i>点赞</span
+                  ><i class="el-icon-thumb"></i>{{ $t("home.like") }}</span
                 >
                 <span
                   ref="replyDelTip"
                   class="del-btn"
                   style="display: none;"
                   @click="updateNoticesStatus(item.id)"
-                  ><i class="el-icon-delete"></i>删除该通知</span
+                  ><i class="el-icon-delete"></i
+                  >{{ $t("home.deleteNotice") }}</span
                 >
               </div>
               <Reply ref="reply" />
@@ -112,7 +113,7 @@
       </el-tab-pane>
       <el-tab-pane name="at">
         <span slot="label" style="font-weight: bold;"
-          ><i class="el-icon-s-comment"></i> &nbsp;@ 我的
+          ><i class="el-icon-s-comment"></i> &nbsp;{{ $t("home.mine") }}
           <sup
             :style="atCommentIdUnReadCount > 0 ? 'color: red;' : 'color: gray;'"
             >{{ "NEW(" + atCommentIdUnReadCount + ")" }}</sup
@@ -164,7 +165,7 @@
                   target="_blank"
                 >
                   <span>
-                    @了我
+                    {{ $t("home.me") }}
                     <sup
                       v-show="atCommentIdUnReadStatus(item.id)"
                       style="color: red"
@@ -188,23 +189,24 @@
                   item.createTime | dateTime
                 }}</span>
                 <span class="reply-btn" @click="replyComment(index, item)">
-                  <i class="el-icon-chat-square"></i>回复
+                  <i class="el-icon-chat-square"></i>{{ $t("home.reply") }}
                 </span>
                 <span
                   v-if="isLike(item.commentId)"
                   class="like-active"
                   @click="like(item)"
-                  ><i class="el-icon-thumb"></i>已赞</span
+                  ><i class="el-icon-thumb"></i>{{ $t("home.liked") }}</span
                 >
                 <span v-else class="like" @click="like(item)"
-                  ><i class="el-icon-thumb"></i>点赞</span
+                  ><i class="el-icon-thumb"></i>{{ $t("home.like") }}</span
                 >
                 <span
                   ref="atDelTip"
                   class="del-btn"
                   style="display: none;"
                   @click="updateNoticesStatus(item.id)"
-                  ><i class="el-icon-delete"></i>删除该通知</span
+                  ><i class="el-icon-delete"></i
+                  >{{ $t("home.deleteNotice") }}</span
                 >
               </div>
               <Reply ref="at" />
@@ -214,7 +216,7 @@
       </el-tab-pane>
       <el-tab-pane name="like">
         <span slot="label" style="font-weight: bold;"
-          ><i class="el-icon-star-on"></i> 收到的赞
+          ><i class="el-icon-star-on"></i> {{ $t("home.ownLike") }}
           <sup
             :style="likeIdUnReadCount > 0 ? 'color: red;' : 'color: gray;'"
             >{{ "NEW(" + likeIdUnReadCount + ")" }}</sup
@@ -280,7 +282,9 @@
                 >
                   <span>
                     {{
-                      item.noticeTypeSub === 1 ? "赞了我的文章" : "赞了我的评论"
+                      item.noticeTypeSub === 1
+                        ? $t("home.likedArticle")
+                        : $t("home.likedComment")
                     }}
                     <sup v-show="likeIdUnReadStatus(item.id)" style="color: red"
                       >·</sup
@@ -309,14 +313,16 @@
                   item.createTime | dateTime
                 }}</span>
                 <span class="reply-btn">
-                  <i class="el-icon-chat-square"></i>私信
+                  <i class="el-icon-chat-square"></i
+                  >{{ $t("home.privateMessage") }}
                 </span>
                 <span
                   ref="likeDelTip"
                   class="del-btn"
                   style="display: none;"
                   @click="updateNoticesStatus(item.id)"
-                  ><i class="el-icon-delete"></i>删除该通知</span
+                  ><i class="el-icon-delete"></i
+                  >{{ $t("home.deleteNotice") }}</span
                 >
               </div>
             </div>
@@ -325,7 +331,7 @@
       </el-tab-pane>
       <el-tab-pane name="systemNotice">
         <span slot="label" style="font-weight: bold;"
-          ><i class="el-icon-message-solid"></i> 系统通知
+          ><i class="el-icon-message-solid"></i> {{ $t("home.systemNotice") }}
           <sup
             :style="
               systemNoticeIdUnReadCount > 0 ? 'color: red;' : 'color: gray;'
@@ -361,14 +367,16 @@
                   item.createTime | dateTime
                 }}</span>
                 <span class="reply-btn">
-                  <i class="el-icon-close-notification"></i>不再通知
+                  <i class="el-icon-close-notification"></i
+                  >{{ $t("home.noMoreNotice") }}
                 </span>
                 <span
                   ref="systemNoticeDelTip"
                   class="del-btn"
                   style="display: none;"
                   @click="updateNoticesStatus(item.id)"
-                  ><i class="el-icon-delete"></i>删除该通知</span
+                  ><i class="el-icon-delete"></i
+                  >{{ $t("home.deleteNotice") }}</span
                 >
               </div>
             </div>
@@ -377,7 +385,7 @@
       </el-tab-pane>
       <el-tab-pane name="myMessage">
         <span slot="label" style="font-weight: bold;"
-          ><i class="el-icon-message-solid"></i> 我的消息
+          ><i class="el-icon-message-solid"></i> {{ $t("home.myMessage") }}
           <sup
             :style="myMessageIdUnReadCount > 0 ? 'color: red;' : 'color: gray;'"
             >{{ "NEW(" + myMessageIdUnReadCount + ")" }}</sup
@@ -386,71 +394,75 @@
       </el-tab-pane>
       <el-tab-pane name="messageConfig">
         <span slot="label" style="font-weight: bold;"
-          ><i class="el-icon-setting"></i> 消息设置</span
+          ><i class="el-icon-setting"></i> {{ $t("home.setting") }}</span
         >
         <el-card>
           <div slot="header">
-            <span>回复我的消息提醒</span>
+            <span>{{ $t("home.replyToMe") }}</span>
           </div>
           <el-radio-group
             v-model="replyCommentSetting"
             @change="updateMessageConfigStatus(1)"
           >
-            <el-radio :label="1">开启</el-radio>
-            <el-radio :label="2">关闭</el-radio>
+            <el-radio :label="1">{{ $t("switch.enabled") }}</el-radio>
+            <el-radio :label="2">{{ $t("switch.disabled") }}</el-radio>
           </el-radio-group>
         </el-card>
         <el-card>
           <div slot="header">
-            <span>@我的消息提醒</span>
+            <span>{{ $t("home.mine") }}</span>
           </div>
           <el-radio-group
             v-model="atCommentSetting"
             @change="updateMessageConfigStatus(2)"
           >
-            <el-radio :label="1">开启</el-radio>
-            <el-radio :label="2">关闭</el-radio>
+            <el-radio :label="1">{{ $t("switch.enabled") }}</el-radio>
+            <el-radio :label="2">{{ $t("switch.disabled") }}</el-radio>
           </el-radio-group>
         </el-card>
         <el-card>
           <div slot="header">
-            <span>收到的赞消息提醒</span>
+            <span>{{ $t("home.ownLike") }}</span>
           </div>
           <el-radio-group
             v-model="likeSetting"
             @change="updateMessageConfigStatus(3)"
           >
-            <el-radio :label="1">开启</el-radio>
-            <el-radio :label="2">关闭</el-radio>
+            <el-radio :label="1">{{ $t("switch.enabled") }}</el-radio>
+            <el-radio :label="2">{{ $t("switch.disabled") }}</el-radio>
           </el-radio-group>
         </el-card>
         <el-card>
           <div slot="header">
-            <span>私信提醒</span>
+            <span>{{ $t("home.privateMessage") }}</span>
           </div>
           <el-radio-group
             v-model="myMessageSetting"
             @change="updateMessageConfigStatus(4)"
           >
-            <el-radio :label="1">开启</el-radio>
-            <el-radio :label="2">关闭</el-radio>
+            <el-radio :label="1">{{ $t("switch.enabled") }}</el-radio>
+            <el-radio :label="2">{{ $t("switch.disabled") }}</el-radio>
           </el-radio-group>
         </el-card>
       </el-tab-pane>
       <el-tab-pane name="sendMessage" v-if="checkWeight(200)">
         <span slot="label" style="font-weight: bold;"
-          ><i class="el-icon-message"></i> 发送消息</span
+          ><i class="el-icon-message"></i> {{ $t("home.sendMessage") }}</span
         >
         <el-tabs v-model="activeNameSendMessage">
-          <el-tab-pane label="系统通知" name="system" style="height:60vh;">
+          <el-tab-pane
+            :label="$t('home.systemNotice')"
+            name="system"
+            style="height:60vh;"
+          >
             <el-form label-width="80px" :model="systemNoticeForm">
-              <el-form-item label="收件人">
+              <el-form-item :label="$t('home.recipient')">
                 <el-select
                   v-model="systemNoticeForm.userId"
                   ref="input"
                   size="small"
                   class="word-limit-input form-input-width"
-                  placeholder="请选择收件人"
+                  :placeholder="$t('home.selectRecipient')"
                   remote
                   clearable
                   filterable
@@ -464,23 +476,23 @@
                   />
                 </el-select>
               </el-form-item>
-              <el-form-item label="标题">
+              <el-form-item :label="$t('home.title')">
                 <el-input
                   v-model="systemNoticeForm.noticeTitle"
                   size="small"
                   class="word-limit-input form-input-width"
                   maxlength="50"
-                  placeholder="请输入标题"
+                  :placeholder="$t('home.inputTitle')"
                   show-word-limit
                 />
               </el-form-item>
-              <el-form-item label="内容">
+              <el-form-item :label="$t('home.content')">
                 <el-input
                   v-model="systemNoticeForm.noticeContent"
                   size="small"
                   type="textarea"
                   style="width: 320px;"
-                  placeholder="请输入内容"
+                  :placeholder="$t('home.inputContent')"
                   show-word-limit
                 />
               </el-form-item>
@@ -490,19 +502,23 @@
                 size="medium"
                 style="margin-left:12rem"
               >
-                发送
+                {{ $t("home.send") }}
               </el-button>
             </el-form>
           </el-tab-pane>
-          <el-tab-pane label="邮件通知" name="email" style="height:60vh;">
+          <el-tab-pane
+            :label="$t('home.emailNotice')"
+            name="email"
+            style="height:60vh;"
+          >
             <el-form label-width="80px" :model="emailNoticeForm">
-              <el-form-item label="收件人">
+              <el-form-item :label="$t('home.recipient')">
                 <el-select
                   v-model="emailNoticeForm.userId"
                   ref="input"
                   size="small"
                   class="word-limit-input form-input-width"
-                  placeholder="请选择收件人"
+                  :placeholder="$t('home.selectRecipient')"
                   remote
                   clearable
                   filterable
@@ -516,23 +532,23 @@
                   />
                 </el-select>
               </el-form-item>
-              <el-form-item label="主题">
+              <el-form-item :label="$t('home.theme')">
                 <el-input
                   v-model="emailNoticeForm.noticeTitle"
                   size="small"
                   class="word-limit-input form-input-width"
                   maxlength="50"
-                  placeholder="请输入标题"
+                  :placeholder="$t('home.inputTheme')"
                   show-word-limit
                 />
               </el-form-item>
-              <el-form-item label="内容">
+              <el-form-item :label="$t('home.content')">
                 <el-input
                   v-model="emailNoticeForm.noticeContent"
                   size="small"
                   type="textarea"
                   style="width: 320px;"
-                  placeholder="请输入内容"
+                  :placeholder="$t('home.inputContent')"
                   show-word-limit
                 />
               </el-form-item>
@@ -542,7 +558,7 @@
                 size="medium"
                 style="margin-left:12rem"
               >
-                发送
+                {{ $t("home.send") }}
               </el-button>
             </el-form>
           </el-tab-pane>
@@ -739,7 +755,7 @@ export default {
       this.axios.put("/api/back/notices/status", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
           let commentList;
@@ -756,7 +772,7 @@ export default {
           commentList.splice(index, 1);
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }
@@ -900,29 +916,29 @@ export default {
       let param;
       if (type === 1) {
         if (!this.systemNoticeForm.userId) {
-          this.$message.error("收件人不能为空");
+          this.$message.error(this.$t("home.recipientRule1"));
           return false;
         }
         if (this.systemNoticeForm.noticeTitle.trim() === "") {
-          this.$message.error("标题不能为空");
+          this.$message.error(this.$t("home.titleRule1"));
           return false;
         }
         if (this.systemNoticeForm.noticeContent.trim() === "") {
-          this.$message.error("内容不能为空");
+          this.$message.error(this.$t("home.contentRule1"));
           return false;
         }
         param = this.systemNoticeForm;
       } else if (type === 2) {
         if (!this.emailNoticeForm.userId) {
-          this.$message.error("收件人不能为空");
+          this.$message.error(this.$t("home.recipientRule1"));
           return false;
         }
         if (this.emailNoticeForm.noticeTitle.trim() === "") {
-          this.$message.error("主题不能为空");
+          this.$message.error(this.$t("home.themeRule1"));
           return false;
         }
         if (this.emailNoticeForm.noticeContent.trim() === "") {
-          this.$message.error("内容不能为空");
+          this.$message.error(this.$t("home.contentRule1"));
           return false;
         }
         param = this.emailNoticeForm;
@@ -930,12 +946,12 @@ export default {
       this.axios.post("/api/back/notice", param).then(({ data }) => {
         if (data.flag) {
           this.$notify.success({
-            title: "成功",
+            title: this.$t("success"),
             message: data.message
           });
         } else {
           this.$notify.error({
-            title: "失败",
+            title: this.$t("failure"),
             message: data.message
           });
         }

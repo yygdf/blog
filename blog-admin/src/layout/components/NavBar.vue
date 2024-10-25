@@ -139,13 +139,18 @@ export default {
       if (command === "personal") {
         this.$router.push({ path: "/personal" });
       } else if (command === "logout") {
-        this.axios.post("/api/logout").then(() => {
-          this.$store.commit("removeToken");
+        this.axios.post("/api/logout").then(({ data }) => {
+          if (data.flag) {
+            this.$store.commit("removeToken");
+            this.$store.commit("logout");
+            this.$store.commit("resetTab");
+            resetRouter();
+            this.$router.push({ path: "/login" });
+            this.$message.success(data.message);
+          } else {
+            this.$message.error(data.message);
+          }
         });
-        this.$store.commit("logout");
-        this.$store.commit("resetTab");
-        resetRouter();
-        this.$router.push({ path: "/login" });
       } else if (command === "change") {
         if (this.$i18n.locale === "en_US") {
           localStorage.setItem("lang", "zh_CN");

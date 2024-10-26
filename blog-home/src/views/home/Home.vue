@@ -61,19 +61,21 @@
             <div class="article-info">
               <span v-if="item.topFlag">
                 <span style="color:#ff7242">
-                  <i class="iconfont my-icon-top" /> 置顶
+                  <i class="iconfont my-icon-top" /> {{ $t("home.top") }}
                 </span>
                 <span class="separator">|</span>
               </span>
               <span v-if="item.hiddenFlag">
                 <span style="color:#444444">
-                  <i class="iconfont my-icon-open-eye" /> 已隐藏
+                  <i class="iconfont my-icon-open-eye" />
+                  {{ $t("home.hidden") }}
                 </span>
                 <span class="separator">|</span>
               </span>
               <span v-else-if="!item.publicFlag">
                 <span style="color:#555555">
-                  <i class="iconfont my-icon-open-eye" /> 已锁定
+                  <i class="iconfont my-icon-open-eye" />
+                  {{ $t("home.locked") }}
                 </span>
                 <span class="separator">|</span>
               </span>
@@ -125,7 +127,9 @@
             <div class="blog-info-wrapper">
               <div class="blog-info-data">
                 <router-link :to="rootUri + '/archives'">
-                  <div style="font-size: 0.875rem">文章</div>
+                  <div style="font-size: 0.875rem">
+                    {{ $t("navBar.article") }}
+                  </div>
                   <div style="font-size: 1.25rem">
                     {{ bloggerInfo.articleCount }}
                   </div>
@@ -133,7 +137,9 @@
               </div>
               <div class="blog-info-data">
                 <router-link :to="rootUri + '/categories'">
-                  <div style="font-size: 0.875rem">分类</div>
+                  <div style="font-size: 0.875rem">
+                    {{ $t("navBar.category") }}
+                  </div>
                   <div style="font-size: 1.25rem">
                     {{ bloggerInfo.categoryCount }}
                   </div>
@@ -141,7 +147,7 @@
               </div>
               <div class="blog-info-data">
                 <router-link :to="rootUri + '/tags'">
-                  <div style="font-size: 0.875rem">标签</div>
+                  <div style="font-size: 0.875rem">{{ $t("navBar.tag") }}</div>
                   <div style="font-size: 1.25rem">
                     {{ bloggerInfo.tagCount }}
                   </div>
@@ -150,7 +156,7 @@
             </div>
             <a class="collection-btn" @click="tip = true">
               <v-icon color="#fff" size="18" class="mr-1">mdi-bookmark</v-icon>
-              加入书签
+              {{ $t("home.bookmark") }}
             </a>
             <div class="card-info-social">
               <a
@@ -173,7 +179,7 @@
           <v-card class="blog-card animated zoomIn mt-5 big">
             <div class="web-info-title">
               <v-icon size="18">mdi-bell</v-icon>
-              公告
+              {{ $t("home.notice") }}
             </div>
             <div style="font-size:0.875rem">
               {{ blogConfig.home_notice }}
@@ -182,14 +188,16 @@
           <v-card class="blog-card animated zoomIn mt-5">
             <div class="web-info-title">
               <v-icon size="18">mdi-chart-line</v-icon>
-              网站资讯
+              {{ $t("home.websiteInfo") }}
             </div>
             <div class="web-info">
               <div style="padding:4px 0 0">
-                运行时间:<span class="float-right">{{ time }}</span>
+                {{ $t("home.runtime") }}:<span class="float-right">{{
+                  time
+                }}</span>
               </div>
               <div style="padding:4px 0 0">
-                总访问量:<span class="float-right">
+                {{ $t("home.totalVisits") }}:<span class="float-right">
                   {{ bloggerInfo.viewCount }}
                 </span>
               </div>
@@ -199,7 +207,7 @@
       </v-col>
     </v-row>
     <v-snackbar v-model="tip" top color="#49b1f5" :timeout="2000">
-      按CTRL+D 键将本页加入书签
+      {{ $t("home.tip") }}
     </v-snackbar>
   </div>
 </template>
@@ -209,6 +217,7 @@ import EasyTyper from "easy-typer-js";
 export default {
   created() {
     this.init();
+    document.title = this.$t("navBar.home");
     setInterval(this.runTime, 1000);
   },
   data: function() {
@@ -259,10 +268,10 @@ export default {
       let daysOld = Math.floor(timeOld / msPerDay);
       let str = "";
       let day = new Date();
-      str += daysOld + "天";
-      str += day.getHours() + "时";
-      str += day.getMinutes() + "分";
-      str += day.getSeconds() + "秒";
+      str += daysOld + this.$t("home.day") + " ";
+      str += day.getHours() + this.$t("home.hour") + " ";
+      str += day.getMinutes() + this.$t("home.minute") + " ";
+      str += day.getSeconds() + this.$t("home.second");
       this.time = str;
     },
     infiniteHandler($state) {
@@ -315,6 +324,11 @@ export default {
     },
     rootUri() {
       return this.$store.state.rootUri;
+    }
+  },
+  watch: {
+    "$i18n.locale"() {
+      document.title = this.$t("navBar.home");
     }
   }
 };

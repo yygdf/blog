@@ -35,5 +35,69 @@ export default {
     newPwdRule1: "new password must be at least 6 characters.",
     newPwdRule2: "The password is inconsistent.",
     passwordRule1: "password at least 6 characters"
+  },
+  home: {
+    top: "top",
+    hidden: "hidden",
+    locked: "locked",
+    bookmark: "bookmark",
+    notice: "Notice",
+    websiteInfo: "Website Info",
+    runtime: "run time",
+    totalVisits: "total visits",
+    tip: "Please press CTRL+D to bookmark this page!",
+    day: "d",
+    hour: "h",
+    minute: "m",
+    second: "s"
+  },
+  archive: {
+    text1: "total",
+    text2: "articles, keep going"
+  },
+  friendLink: {
+    links: "Links",
+    add: "Add link",
+    name: "name",
+    desc: "desc",
+    logo: "logo",
+    link: "link",
+    text1: "Leave a message below to exchange link"
+  },
+  message: {
+    board: "Message board",
+    say: "say something",
+    send: "send",
+    inputRule1: "Message content cannot be empty!",
+    guest: "guest"
+  },
+  article: {
+    publish: "published in",
+    update: "updated in",
+    word: "word count",
+    read: "reading time",
+    view: "view count",
+    comment: "comment count",
+    author: "author",
+    link: "link",
+    copyright: "copyright",
+    text1: "",
+    text2: "",
+    like: "like",
+    reward: "reward",
+    unlock: "unlock",
+    wx: "WeChat",
+    pay: "AliPay",
+    prev: "Prev",
+    next: "Next",
+    recommendation: "recommendation",
+    contents: "Contents",
+    latest: "Latest",
+    key: "key",
+    inputKey: "please enter key",
+    minutes: "minutes",
+    copy: "Copy success!",
+    text3: "Your browser does not support automatic copying!",
+    text4: "Unlock success!"
   }
 };

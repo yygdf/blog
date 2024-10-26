@@ -7,12 +7,12 @@
           <div class="first-line">
             <span>
               <i class="iconfont my-icon-calendar" />
-              发表于 {{ article.publishTime | date }}
+              {{ $t("article.publish") }} {{ article.publishTime | date }}
             </span>
             <span class="separator">|</span>
             <span>
               <i class="iconfont my-icon-update-time" />
-              更新于
+              {{ $t("article.update") }}
               <template v-if="article.updateTime">
                 {{ article.updateTime | date }}
               </template>
@@ -31,23 +31,25 @@
           <div class="second-line">
             <span>
               <i class="iconfont my-icon-word" />
-              字数统计: {{ wordNum | num }}
+              {{ $t("article.word") }}: {{ wordNum | num }}
             </span>
             <span class="separator">|</span>
             <span>
               <i class="iconfont my-icon-time" />
-              阅读时长: {{ readTime }}
+              {{ $t("article.read") }}: {{ readTime }}
             </span>
           </div>
           <div class="third-line">
             <span class="separator">|</span>
             <span>
-              <i class="iconfont my-icon-open-eye" /> 阅读量:
+              <i class="iconfont my-icon-open-eye" /> {{ $t("article.view") }}:
               {{ article.viewCount }}
             </span>
             <span class="separator">|</span>
             <span>
-              <i class="iconfont my-icon-comment-group-1" />评论数:
+              <i class="iconfont my-icon-comment-group-1" />{{
+                $t("article.comment")
+              }}:
               <template v-if="count">{{ count }}</template>
               <template v-else>0</template>
             </span>
@@ -66,24 +68,25 @@
           />
           <div class="article-copyright">
             <div>
-              <span>文章作者：</span>
+              <span>{{ $t("article.author") }}: </span>
               <a :href="bloggerHref" target="_blank">{{
                 bloggerInfo.nickname
               }}</a>
             </div>
             <div>
-              <span>文章链接：</span>
+              <span>{{ $t("article.link") }}: </span>
               <a :href="articleHref" target="_blank">{{ articleHref }} </a>
             </div>
             <div>
-              <span>版权声明：</span>本博客所有文章除特别声明外，均采用
+              <span>{{ $t("article.copyright") }}: </span
+              >{{ $t("article.text1") }}
               <a
                 href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
                 target="_blank"
               >
                 CC BY-NC-SA 4.0
               </a>
-              许可协议。转载请注明文章出处。
+              {{ $t("article.text2") }}
             </div>
           </div>
           <div class="article-operation">
@@ -108,13 +111,14 @@
           </div>
           <div class="article-reward">
             <a :class="isLike" @click="like">
-              <v-icon size="14" color="#fff">mdi-thumb-up</v-icon> 点赞
+              <v-icon size="14" color="#fff">mdi-thumb-up</v-icon>
+              {{ $t("article.like") }}
               <span v-show="article.likeCount > 0">{{
                 article.likeCount
               }}</span>
             </a>
             <a class="reward-btn">
-              <i class="iconfont my-icon-QR-code" /> 打赏
+              <i class="iconfont my-icon-QR-code" /> {{ $t("article.reward") }}
               <div class="animated fadeIn reward-main">
                 <ul class="reward-all">
                   <li class="reward-item">
@@ -123,7 +127,7 @@
                       :src="blogConfig.wx_pay_code"
                       alt=""
                     />
-                    <div class="reward-desc">微信</div>
+                    <div class="reward-desc">{{ $t("article.wx") }}</div>
                   </li>
                   <li class="reward-item">
                     <img
@@ -131,7 +135,7 @@
                       :src="blogConfig.ali_pay_code"
                       alt=""
                     />
-                    <div class="reward-desc">支付宝</div>
+                    <div class="reward-desc">{{ $t("article.pay") }}</div>
                   </li>
                 </ul>
               </div>
@@ -141,7 +145,8 @@
               class="unlock-btn"
               @click="openUnlockModel"
             >
-              <v-icon size="16" color="#fff">mdi-archive-lock-open</v-icon> 解锁
+              <v-icon size="16" color="#fff">mdi-archive-lock-open</v-icon>
+              {{ $t("article.unlock") }}
             </a>
           </div>
           <div class="pagination-post">
@@ -160,7 +165,7 @@
                   alt=""
                 />
                 <div class="post-info">
-                  <div class="label">上一篇</div>
+                  <div class="label">{{ $t("article.prev") }}</div>
                   <div class="post-title">
                     {{ article.lastArticle.articleTitle }}
                   </div>
@@ -182,7 +187,7 @@
                   alt=""
                 />
                 <div class="post-info" style="text-align: right">
-                  <div class="label">下一篇</div>
+                  <div class="label">{{ $t("article.next") }}</div>
                   <div class="post-title">
                     {{ article.nextArticle.articleTitle }}
                   </div>
@@ -195,7 +200,8 @@
             v-if="article.articlesRecommendDTOList"
           >
             <div class="recommend-title">
-              <v-icon size="20" color="#4c4948">mdi-thumb-up</v-icon> 相关推荐
+              <v-icon size="20" color="#4c4948">mdi-thumb-up</v-icon>
+              {{ $t("article.recommendation") }}
             </div>
             <div class="recommend-list">
               <div
@@ -237,14 +243,14 @@
           <v-card class="right-container">
             <div class="right-title">
               <i class="iconfont my-icon-hamburger" style="font-size:16px" />
-              <span style="margin-left:10px">目录</span>
+              <span style="margin-left:10px">{{ $t("article.contents") }}</span>
             </div>
             <div id="toc" />
           </v-card>
           <v-card class="right-container" style="margin-top:20px">
             <div class="right-title">
               <i class="iconfont my-icon-update-time" style="font-size:16px" />
-              <span style="margin-left:10px">最新文章</span>
+              <span style="margin-left:10px">{{ $t("article.latest") }}</span>
             </div>
             <div class="article-list">
               <div
@@ -291,9 +297,9 @@
         <div class="login-wrapper">
           <v-text-field
             v-model="token"
-            label="密令"
+            :label="$t('article.key')"
             autofocus="autofocus"
-            placeholder="请输入密令"
+            :placeholder="$t('article.inputKey')"
             @keyup.enter="unlockArticle"
             clearable
           />
@@ -304,7 +310,7 @@
             @click="unlockArticle"
             block
           >
-            解锁
+            {{ $t("article.unlock") }}
           </v-btn>
         </div>
       </v-card>
@@ -465,15 +471,16 @@ export default {
     articleRender() {
       this.$nextTick(() => {
         this.wordNum = this.deleteHTMLTag(this.article.articleContent).length;
-        this.readTime = Math.round(this.wordNum / 400) + "分钟";
+        this.readTime =
+          Math.round(this.wordNum / 400) + this.$t("article.minutes");
         this.clipboard = new Clipboard(".copy-btn");
         this.clipboard.on("success", () => {
-          this.$toast({ type: "success", message: "复制成功" });
+          this.$toast({ type: "success", message: this.$t("article.copy") });
         });
         this.clipboard.on("error", () => {
           this.$toast({
             type: "error",
-            message: "该浏览器不支持自动复制"
+            message: this.$t("article.text3")
           });
         });
         let nodes = this.$refs.article.children;
@@ -527,7 +534,7 @@ export default {
           this.article.articleContent = data.data.toString();
           this.markdownToHtml();
           this.articleRender();
-          this.$toast({ type: "success", message: "解锁成功" });
+          this.$toast({ type: "success", message: this.$t("article.text4") });
           this.unlockModelFlag = false;
           this.article.permitFlag = true;
         }

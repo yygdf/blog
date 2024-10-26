@@ -1,11 +1,13 @@
 <template>
   <div>
     <div class="archive-banner banner" :style="cover">
-      <h1 class="banner-title">归档</h1>
+      <h1 class="banner-title">{{ $t("navBar.archive") }}</h1>
     </div>
     <v-card class="blog-container">
       <timeline>
-        <timeline-title> 目前共计{{ count }}篇文章，继续加油 </timeline-title>
+        <timeline-title>{{
+          $t("archive.text1") + " " + count + " " + $t("archive.text2")
+        }}</timeline-title>
         <timeline-item v-for="item of archiveList" :key="item.id">
           <span class="time">{{ item.publishTime | date }}</span>
           <router-link
@@ -30,6 +32,7 @@
 import { Timeline, TimelineItem, TimelineTitle } from "vue-cute-timeline";
 export default {
   created() {
+    document.title = this.$t("navBar.archive");
     this.getArchives();
   },
   components: {
@@ -78,6 +81,9 @@ export default {
           this.archiveList = data.data.pageList;
           this.count = data.data.count;
         });
+    },
+    "$i18n.locale"() {
+      document.title = this.$t("navBar.archive");
     }
   }
 };

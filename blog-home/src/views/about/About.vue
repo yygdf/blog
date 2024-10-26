@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="about-banner banner" :style="cover">
-      <h1 class="banner-title">关于我</h1>
+      <h1 class="banner-title">{{ $t("navBar.about") }}</h1>
     </div>
     <v-card class="blog-container">
       <div class="my-wrapper">
@@ -21,6 +21,7 @@
 <script>
 export default {
   created() {
+    document.title = this.$t("navBar.about");
     this.getAboutContent();
   },
   data: function() {
@@ -44,6 +45,11 @@ export default {
         this.$store.state.blogConfig.about_banner_cover +
         ") center center / cover no-repeat"
       );
+    }
+  },
+  watch: {
+    "$i18n.locale"() {
+      document.title = this.$t("navBar.about");
     }
   }
 };

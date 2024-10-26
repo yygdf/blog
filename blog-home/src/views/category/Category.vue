@@ -1,10 +1,12 @@
 <template>
   <div>
     <div class="category-banner banner" :style="cover">
-      <h1 class="banner-title">分类</h1>
+      <h1 class="banner-title">{{ $t("navBar.category") }}</h1>
     </div>
     <v-card class="blog-container">
-      <div class="category-title">分类 - {{ count }}</div>
+      <div class="category-title">
+        {{ $t("navBar.category") }} - {{ count }}
+      </div>
       <ul class="category-list">
         <li
           class="category-list-item"
@@ -24,6 +26,7 @@
 <script>
 export default {
   created() {
+    document.title = this.$t("navBar.category");
     this.getCategories();
   },
   data: function() {
@@ -50,6 +53,11 @@ export default {
     },
     rootUri() {
       return this.$store.state.rootUri;
+    }
+  },
+  watch: {
+    "$i18n.locale"() {
+      document.title = this.$t("navBar.category");
     }
   }
 };

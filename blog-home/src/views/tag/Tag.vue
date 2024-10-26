@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="tag-banner banner" :style="cover">
-      <h1 class="banner-title">标签</h1>
+      <h1 class="banner-title">{{ $t("navBar.tag") }}</h1>
     </div>
     <v-card class="blog-container">
-      <div class="tag-cloud-title">标签 - {{ count }}</div>
+      <div class="tag-cloud-title">{{ $t("navBar.tag") }} - {{ count }}</div>
       <div class="tag-cloud">
         <router-link
           :style="{ 'font-size': Math.floor(Math.random() * 10) + 18 + 'px' }"
@@ -22,6 +22,7 @@
 <script>
 export default {
   created() {
+    document.title = this.$t("navBar.tag");
     this.getTags();
   },
   data: function() {
@@ -48,6 +49,11 @@ export default {
     },
     rootUri() {
       return this.$store.state.rootUri;
+    }
+  },
+  watch: {
+    "$i18n.locale"() {
+      document.title = this.$t("navBar.tag");
     }
   }
 };

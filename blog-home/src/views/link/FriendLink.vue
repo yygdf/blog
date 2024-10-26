@@ -1,11 +1,12 @@
 <template>
   <div>
     <div class="link-banner banner" :style="cover">
-      <h1 class="banner-title">友情链接</h1>
+      <h1 class="banner-title">{{ $t("navBar.friendLink") }}</h1>
     </div>
     <v-card class="blog-container">
       <div class="link-title mb-1">
-        <v-icon color="blue">mdi-link-variant</v-icon> 大佬链接
+        <v-icon color="blue">mdi-link-variant</v-icon>
+        {{ $t("friendLink.links") }}
       </div>
       <v-row class="link-container">
         <v-col
@@ -27,20 +28,18 @@
         </v-col>
       </v-row>
       <div class="link-title mt-4 mb-4">
-        <v-icon color="blue">mdi-dots-horizontal-circle</v-icon> 添加友链
+        <v-icon color="blue">mdi-dots-horizontal-circle</v-icon>
+        {{ $t("friendLink.add") }}
       </div>
       <blockquote>
-        <div>名称：有一个地方, 只有你知道</div>
-        <div>描述：溺水三千, 只救一个</div>
-        <div>图标：https://iksling.com/static/img/logo.png</div>
-        <div>链接：https://iksling.com</div>
+        <div>{{ $t("friendLink.name") }}: 有一个地方, 只有你知道</div>
+        <div>{{ $t("friendLink.desc") }}: 溺水三千, 只救一个</div>
+        <div>
+          {{ $t("friendLink.logo") }}: https://iksling.com/static/img/logo.png
+        </div>
+        <div>{{ $t("friendLink.link") }}: https://iksling.com</div>
       </blockquote>
-      <div class="mt-5 mb-5">
-        需要交换友链的可在下方留言💖
-      </div>
-      <blockquote class="mb-10">
-        友链信息展示需要，你的信息格式要包含：名称、描述、图标、链接
-      </blockquote>
+      <div class="mt-5 mb-5">{{ $t("friendLink.text1") }}💖</div>
       <Comment
         :commentList="commentList"
         :count="count"
@@ -57,6 +56,7 @@ export default {
     Comment
   },
   created() {
+    document.title = this.$t("navBar.friendLink");
     this.getFriendLinks();
     this.getComments();
   },
@@ -91,6 +91,11 @@ export default {
         this.$store.state.blogConfig.link_banner_cover +
         ") center center / cover no-repeat"
       );
+    }
+  },
+  watch: {
+    "$i18n.locale"() {
+      document.title = this.$t("navBar.friendLink");
     }
   }
 };

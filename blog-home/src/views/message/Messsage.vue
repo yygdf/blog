@@ -2,17 +2,17 @@
   <div>
     <div class="message-banner" :style="cover">
       <div class="message-container">
-        <h1 class="message-title">留言板</h1>
+        <h1 class="message-title">{{ $t("message.board") }}</h1>
         <div class="message-input-wrapper">
           <input
             v-model="messageContent"
             @click="show = true"
             @keyup.enter="addToList"
             maxlength="100"
-            placeholder="说点什么吧"
+            :placeholder="$t('message.say')"
           />
           <button @click="addToList" v-show="show">
-            发送
+            {{ $t("message.send") }}
           </button>
         </div>
       </div>
@@ -31,7 +31,9 @@
               />
               <span class="ml-2"
                 >{{
-                  slotProps.item.nickname ? slotProps.item.nickname : "游客"
+                  slotProps.item.nickname
+                    ? slotProps.item.nickname
+                    : $t("message.guest")
                 }}
                 :</span
               >
@@ -47,6 +49,7 @@
 <script>
 export default {
   mounted() {
+    document.title = this.$t("navBar.message");
     this.getMessages();
   },
   data() {
@@ -60,7 +63,7 @@ export default {
   methods: {
     addToList() {
       if (this.messageContent.trim() === "") {
-        this.$toast({ type: "error", message: "留言不能为空" });
+        this.$toast({ type: "error", message: this.$t("message.inputRule1") });
         return false;
       }
       let message = {
@@ -97,6 +100,11 @@ export default {
         this.$store.state.blogConfig.message_banner_cover +
         ") center center / cover no-repeat"
       );
+    }
+  },
+  watch: {
+    "$i18n.locale"() {
+      document.title = this.$t("navBar.message");
     }
   }
 };

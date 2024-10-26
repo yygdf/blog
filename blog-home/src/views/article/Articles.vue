@@ -70,14 +70,14 @@ export default {
   created() {
     if (this.$route.path.indexOf("/category") !== -1) {
       this.type = 1;
-      this.title = "分类";
+      this.title = this.$t("navBar.category");
       this.categoryOrTag = "category-banner";
       this.cover =
         "background: url(" +
         this.$store.state.blogConfig.category_banner_cover +
         ") center center / cover no-repeat";
     } else {
-      this.title = "标签";
+      this.title = this.$t("navBar.tag");
       this.categoryOrTag = "tag-banner";
       this.cover =
         "background: url(" +

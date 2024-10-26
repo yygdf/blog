@@ -295,16 +295,11 @@ export default {
         });
     }
   },
-  computed: {
-    isEn() {
-      return this.$i18n.locale === "en_US";
-    }
-  },
   watch: {
     userId() {
       this.getData();
     },
-    isEn: {
+    "$i18n.locale": {
       handler() {
         this.pickerOptions.shortcuts[0].text = this.$t("input.lastWeek");
         this.pickerOptions.shortcuts[1].text = this.$t("input.lastHalfMonth");

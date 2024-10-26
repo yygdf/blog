@@ -24,6 +24,7 @@ import "nprogress/nprogress.css";
 import { getBloggerId, getBlogInfo } from "./assets/js/base";
 import "./assets/js/ribbon";
 import confirm from "./plugins/confirm";
+import { i18n } from "@/i18n/i18n";
 
 Vue.prototype.$confirm = confirm;
 Vue.config.productionTip = false;
@@ -117,6 +118,7 @@ new Vue({
   router,
   store,
   vuetify,
+  i18n,
   render: h => h(App),
   created() {
     store.commit("closeModel");

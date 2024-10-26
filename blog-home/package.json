@@ -29,6 +29,7 @@
     "vue-axios": "^2.1.5",
     "vue-baberrage": "^3.2.4",
     "vue-cute-timeline": "^1.2.8",
+    "vue-i18n": "^8.28.2",
     "vue-image-swipe": "^1.0.5",
     "vue-infinite-loading": "^2.4.5",
     "vue-router": "^3.1.6",

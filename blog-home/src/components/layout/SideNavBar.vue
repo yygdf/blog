@@ -15,7 +15,7 @@
     <div class="blog-info-wrapper">
       <div class="blog-info-data">
         <router-link :to="rootUri + '/archives'">
-          <div style="font-size: 0.875rem">文章</div>
+          <div style="font-size: 0.875rem">{{ $t("navBar.article") }}</div>
           <div style="font-size: 1.125rem;">
             {{ bloggerInfo.articleCount }}
           </div>
@@ -23,7 +23,7 @@
       </div>
       <div class="blog-info-data">
         <router-link :to="rootUri + '/categories'">
-          <div style="font-size: 0.875rem">分类</div>
+          <div style="font-size: 0.875rem">{{ $t("navBar.category") }}</div>
           <div style="font-size: 1.125rem">
             {{ bloggerInfo.categoryCount }}
           </div>
@@ -31,7 +31,7 @@
       </div>
       <div class="blog-info-data">
         <router-link :to="rootUri + '/tags'">
-          <div style="font-size: 0.875rem">标签</div>
+          <div style="font-size: 0.875rem">{{ $t("navBar.tag") }}</div>
           <div style="font-size: 1.125rem">
             {{ bloggerInfo.tagCount }}
           </div>
@@ -42,60 +42,66 @@
     <div class="menu-container">
       <div class="menus-item">
         <router-link :to="rootUri === '' ? '/' : rootUri">
-          <i class="iconfont my-icon-home" /> 首页
+          <i class="iconfont my-icon-home" /> {{ $t("navBar.home") }}
         </router-link>
       </div>
       <div class="menus-item">
         <router-link :to="rootUri + '/archives'">
-          <i class="iconfont my-icon-archives" /> 归档
+          <i class="iconfont my-icon-archives" /> {{ $t("navBar.archive") }}
         </router-link>
       </div>
       <div class="menus-item">
         <router-link :to="rootUri + '/categories'">
-          <i class="iconfont my-icon-sort" /> 分类
+          <i class="iconfont my-icon-sort" /> {{ $t("navBar.category") }}
         </router-link>
       </div>
       <div class="menus-item">
         <router-link :to="rootUri + '/tags'">
-          <i class="iconfont my-icon-label" /> 标签
+          <i class="iconfont my-icon-label" /> {{ $t("navBar.tag") }}
         </router-link>
       </div>
       <div class="menus-item">
         <router-link :to="rootUri + '/friendLinks'">
-          <i class="iconfont my-icon-link" /> 友链
+          <i class="iconfont my-icon-link" /> {{ $t("navBar.friendLink") }}
         </router-link>
       </div>
       <div class="menus-item">
         <router-link :to="rootUri + '/about'">
-          <i class="iconfont my-icon-paper-plane" /> 关于
+          <i class="iconfont my-icon-paper-plane" /> {{ $t("navBar.about") }}
         </router-link>
       </div>
       <div class="menus-item">
         <router-link :to="rootUri + '/messages'">
-          <i class="iconfont my-icon-comment-group" /> 留言
+          <i class="iconfont my-icon-comment-group" />
+          {{ $t("navBar.message") }}
         </router-link>
       </div>
       <div class="menus-item" v-if="this.$store.state.userId == null">
-        <a @click="openLogin"><i class="iconfont my-icon-login" /> 登录 </a>
+        <a @click="openLogin"
+          ><i class="iconfont my-icon-login" /> {{ $t("navBar.login") }}
+        </a>
       </div>
       <div v-else>
         <div class="menus-item">
           <router-link :to="rootUri + '/personal'">
-            <i class="iconfont my-icon-personal" /> 个人中心
+            <i class="iconfont my-icon-personal" /> {{ $t("navBar.personal") }}
           </router-link>
         </div>
         <div class="menus-item">
           <a @click="openReset">
-            <i class="iconfont my-icon-success" /> 修改密码
+            <i class="iconfont my-icon-success" /> {{ $t("navBar.resetPWD") }}
           </a>
         </div>
         <div class="menus-item">
           <a @click="openEmailModel">
-            <i class="iconfont my-icon-success" /> 换绑邮箱
+            <i class="iconfont my-icon-success" />
+            {{ $t("navBar.changeEmail") }}
           </a>
         </div>
         <div class="menus-item">
-          <a @click="logout"><i class="iconfont my-icon-exit" /> 退出</a>
+          <a @click="logout"
+            ><i class="iconfont my-icon-exit" /> {{ $t("navBar.logout") }}</a
+          >
         </div>
       </div>
     </div>

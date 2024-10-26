@@ -17,46 +17,49 @@
       </div>
       <div class="float-right nav-title">
         <div class="menus-btn">
-          <a @click="openSearch"><i class="iconfont my-icon-search" /> 搜索</a>
+          <a @click="openSearch"
+            ><i class="iconfont my-icon-search" /> {{ $t("navBar.search") }}</a
+          >
         </div>
         <div class="menus-item">
           <router-link :to="rootUri === '' ? '/' : rootUri">
-            <i class="iconfont my-icon-home" /> 首页
+            <i class="iconfont my-icon-home" /> {{ $t("navBar.home") }}
           </router-link>
         </div>
         <div class="menus-item">
           <router-link :to="rootUri + '/archives'">
-            <i class="iconfont my-icon-archives" /> 归档
+            <i class="iconfont my-icon-archives" /> {{ $t("navBar.archive") }}
           </router-link>
         </div>
         <div class="menus-item">
           <router-link :to="rootUri + '/categories'">
-            <i class="iconfont my-icon-sort" /> 分类
+            <i class="iconfont my-icon-sort" /> {{ $t("navBar.category") }}
           </router-link>
         </div>
         <div class="menus-item">
           <router-link :to="rootUri + '/tags'">
-            <i class="iconfont my-icon-label" /> 标签
+            <i class="iconfont my-icon-label" /> {{ $t("navBar.tag") }}
           </router-link>
         </div>
         <div class="menus-item">
           <router-link :to="rootUri + '/friendLinks'">
-            <i class="iconfont my-icon-link" /> 友链
+            <i class="iconfont my-icon-link" /> {{ $t("navBar.friendLink") }}
           </router-link>
         </div>
         <div class="menus-item">
           <router-link :to="rootUri + '/about'">
-            <i class="iconfont my-icon-paper-plane" /> 关于
+            <i class="iconfont my-icon-paper-plane" /> {{ $t("navBar.about") }}
           </router-link>
         </div>
         <div class="menus-item">
           <router-link :to="rootUri + '/messages'">
-            <i class="iconfont my-icon-comment-group" /> 留言
+            <i class="iconfont my-icon-comment-group" />
+            {{ $t("navBar.message") }}
           </router-link>
         </div>
         <div class="user-btn">
           <a v-if="this.$store.state.userId == null" @click="openLogin">
-            <i class="iconfont my-icon-login" /> 登录
+            <i class="iconfont my-icon-login" /> {{ $t("navBar.login") }}
           </a>
           <template v-else>
             <img
@@ -69,22 +72,25 @@
             <ul class="user-submenu">
               <li>
                 <router-link :to="rootUri + '/personal'">
-                  <i class="iconfont my-icon-personal" /> 个人中心
+                  <i class="iconfont my-icon-personal" />
+                  {{ $t("navBar.personal") }}
                 </router-link>
               </li>
               <li>
                 <a @click="openReset">
-                  <i class="iconfont my-icon-success" /> 修改密码
+                  <i class="iconfont my-icon-success" />
+                  {{ $t("navBar.resetPWD") }}
                 </a>
               </li>
               <li>
                 <a @click="openEmailModel">
-                  <i class="iconfont my-icon-success" /> 换绑邮箱
+                  <i class="iconfont my-icon-success" />
+                  {{ $t("navBar.changeEmail") }}
                 </a>
               </li>
               <li>
                 <a @click="logout">
-                  <i class="iconfont my-icon-exit" /> 退出
+                  <i class="iconfont my-icon-exit" /> {{ $t("navBar.logout") }}
                 </a>
               </li>
             </ul>

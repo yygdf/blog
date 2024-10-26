@@ -7,7 +7,7 @@
     <v-card class="search-wrapper" style="border-radius:4px">
       <div class="mb-3">
         <span class="search-title"
-          >{{ status ? "全站搜索" : "本站搜索" }}
+          >{{ status ? $t("search.allSite") : $t("search.theSite") }}
           <v-switch
             v-model="status"
             style="display: inline-block;margin: -2rem 0;padding-left: 1rem"
@@ -22,7 +22,7 @@
         <input
           v-model="keywords"
           ref="inputRef"
-          placeholder="输入文章标题或内容..."
+          :placeholder="$t('search.input')"
           @keyup="keywordsInputChange($event)"
           @keyup.enter="getArticles"
         />
@@ -47,7 +47,7 @@
           v-show="flag && articleList.length === 0"
           style="font-size:0.875rem"
         >
-          找不到您查询的内容：{{ keywords }}
+          {{ $t("search.tip1") + ": " + keywords }}
         </div>
       </div>
     </v-card>
@@ -67,7 +67,9 @@ export default {
   },
   updated() {
     this.$nextTick(() => {
-      this.$refs.inputRef.focus();
+      if (this.$refs.inputRef) {
+        this.$refs.inputRef.focus();
+      }
     });
   },
   computed: {

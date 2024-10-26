@@ -6,6 +6,9 @@
     <div class="setting-container" @click="show">
       <i class="iconfont my-icon-setting setting" />
     </div>
+    <div class="setting-container" @click="change">
+      {{ $i18n.locale === "en_US" ? "zh" : "en" }}
+    </div>
     <i @click="backTop" class="iconfont rightSide-icon my-icon-up" />
   </div>
 </template>
@@ -51,6 +54,15 @@ export default {
       const flag = this.icon === "my-icon-moon";
       this.icon = flag ? "my-icon-sun" : "my-icon-moon";
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+    },
+    change() {
+      if (this.$i18n.locale === "en_US") {
+        localStorage.setItem("lang", "zh_CN");
+        this.$i18n.locale = "zh_CN";
+      } else {
+        localStorage.setItem("lang", "en_US");
+        this.$i18n.locale = "en_US";
+      }
     }
   }
 };

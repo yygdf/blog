@@ -11,6 +11,7 @@ import Message from "../views/message/Messsage.vue";
 import Articles from "../views/article/Articles.vue";
 import Personal from "../views/personal/Personal.vue";
 import QQOauth from "../components/QQOauth.vue";
+import { $t } from "@/i18n/i18n";
 Vue.use(VueRouter);
 
 const routes = [
@@ -18,7 +19,7 @@ const routes = [
     path: "/:userId(\\d+)?",
     component: Home,
     meta: {
-      title: "首页"
+      title: $t("navBar.home")
     }
   },
   {
@@ -32,7 +33,7 @@ const routes = [
     path: "/:userId(\\d+)?/archives",
     component: Archive,
     meta: {
-      title: "归档"
+      title: $t("navBar.archive")
     }
   },
   {

@@ -9,52 +9,57 @@
         mdi-close
       </v-icon>
       <div class="login-wrapper">
-        <v-text-field
-          v-model="passwordForm.oldPassword"
-          :rules="[rules.required]"
-          :type="show ? 'text' : 'password'"
-          :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-          class="mt-7"
-          label="旧密码"
-          maxlength="50"
-          autofocus="autofocus"
-          placeholder="请输入您的旧密码"
-          @keyup.enter="resetPassword"
-          @click:append="show = !show"
-        />
-        <v-text-field
-          v-model="passwordForm.newPassword"
-          :rules="[rules.required]"
-          :type="show1 ? 'text' : 'password'"
-          :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-          class="mt-7"
-          label="新密码"
-          maxlength="50"
-          placeholder="请输入您的新密码"
-          @keyup.enter="resetPassword"
-          @click:append="show1 = !show1"
-        />
-        <v-text-field
-          v-model="passwordForm.confirmPassword"
-          :rules="[rules.required]"
-          :type="show2 ? 'text' : 'password'"
-          :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
-          class="mt-7"
-          label="确认密码"
-          maxlength="50"
-          placeholder="请再次输入您的新密码"
-          @keyup.enter="resetPassword"
-          @click:append="show2 = !show2"
-        />
-        <v-btn
-          class="mt-7"
-          block
-          color="red"
-          style="color:#fff"
-          @click="resetPassword"
-        >
-          修改
-        </v-btn>
+        <v-form ref="validForm">
+          <v-text-field
+            v-model="passwordForm.oldPassword"
+            :rules="[rules.required]"
+            :type="show ? 'text' : 'password'"
+            :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+            class="mt-7"
+            :label="$t('reset.oldPassword')"
+            maxlength="50"
+            autofocus="autofocus"
+            :placeholder="$t('reset.inputOldPwd')"
+            @keyup.enter="resetPassword"
+            @click:append="show = !show"
+            ref="validForm1"
+          />
+          <v-text-field
+            v-model="passwordForm.newPassword"
+            :rules="[rules.required]"
+            :type="show1 ? 'text' : 'password'"
+            :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+            class="mt-7"
+            :label="$t('reset.newPassword')"
+            maxlength="50"
+            :placeholder="$t('reset.inputNewPwd')"
+            @keyup.enter="resetPassword"
+            @click:append="show1 = !show1"
+            ref="validForm2"
+          />
+          <v-text-field
+            v-model="passwordForm.confirmPassword"
+            :rules="[rules.required]"
+            :type="show2 ? 'text' : 'password'"
+            :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
+            class="mt-7"
+            :label="$t('reset.newPassword2')"
+            maxlength="50"
+            :placeholder="$t('reset.inputNewPwd2')"
+            @keyup.enter="resetPassword"
+            @click:append="show2 = !show2"
+            ref="validForm3"
+          />
+          <v-btn
+            class="mt-7"
+            block
+            color="red"
+            style="color:#fff"
+            @click="resetPassword"
+          >
+            {{ $t("button.edit") }}
+          </v-btn>
+        </v-form>
       </div>
     </v-card>
   </v-dialog>
@@ -74,7 +79,8 @@ export default {
       show1: false,
       show2: false,
       rules: {
-        required: value => value.length >= 6 || "至少6个字符!"
+        required: value =>
+          !value || value.length >= 6 || this.$t("reset.passwordRule1")
       }
     };
   },
@@ -86,23 +92,33 @@ export default {
       get() {
         return this.$store.state.resetFlag;
       }
+    },
+    isEn() {
+      return this.$i18n.locale === "en_US";
+    }
+  },
+  watch: {
+    isEn() {
+      if (this.$refs.validForm) {
+        this.$refs.validForm.reset();
+      }
     }
   },
   methods: {
     resetPassword() {
       if (this.passwordForm.oldPassword.trim().length < 6) {
-        this.$toast({ type: "error", message: "旧密码不能少于6位" });
+        this.$toast({ type: "error", message: this.$t("reset.oldPwdRule1") });
         return false;
       }
       if (this.passwordForm.newPassword.trim().length < 6) {
-        this.$toast({ type: "error", message: "新密码不能少于6位" });
+        this.$toast({ type: "error", message: this.$t("reset.newPwdRule1") });
         return false;
       }
       if (
         this.passwordForm.newPassword.trim() !==
         this.passwordForm.confirmPassword.trim()
       ) {
-        this.$toast({ type: "error", message: "两次密码输入不一致" });
+        this.$toast({ type: "error", message: this.$t("reset.newPwdRule2") });
         return false;
       }
       let param = {

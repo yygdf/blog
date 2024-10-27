@@ -60,6 +60,8 @@ spring:
     multipart:
       max-file-size: -1
       max-request-size: -1
+  messages:
+    basename: i18n.language
 
 # ES
 elasticsearch:

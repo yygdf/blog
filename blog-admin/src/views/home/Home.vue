@@ -24,7 +24,14 @@
               style="width: 40px;height: 40px;border-radius: 20px;"
             />
             <a
-              :href="homeURL + '/' + userId + '/article/' + item.articleId + loginInfo"
+              :href="
+                homeURL +
+                  '/' +
+                  userId +
+                  '/article/' +
+                  item.articleId +
+                  loginInfo
+              "
               target="_blank"
             >
               <el-tooltip
@@ -57,7 +64,14 @@
                   {{ item.nickname }}
                 </a>
                 <a
-                  :href="homeURL + '/' + userId + '/article/' + item.articleId + loginInfo"
+                  :href="
+                    homeURL +
+                      '/' +
+                      userId +
+                      '/article/' +
+                      item.articleId +
+                      loginInfo
+                  "
                   style="text-decoration: none;color: inherit;"
                   target="_blank"
                 >
@@ -72,7 +86,14 @@
                 </a>
               </div>
               <a
-                :href="homeURL + '/' + userId + '/article/' + item.articleId + loginInfo"
+                :href="
+                  homeURL +
+                    '/' +
+                    userId +
+                    '/article/' +
+                    item.articleId +
+                    loginInfo
+                "
                 style="text-decoration: none;color: inherit;"
                 target="_blank"
               >
@@ -127,7 +148,14 @@
               style="width: 40px;height: 40px;border-radius: 20px;"
             />
             <a
-              :href="homeURL + '/' + userId + '/article/' + item.articleId + loginInfo"
+              :href="
+                homeURL +
+                  '/' +
+                  userId +
+                  '/article/' +
+                  item.articleId +
+                  loginInfo
+              "
               target="_blank"
             >
               <el-tooltip
@@ -160,7 +188,14 @@
                   {{ item.nickname }}
                 </a>
                 <a
-                  :href="homeURL + '/' + userId + '/article/' + item.articleId + loginInfo"
+                  :href="
+                    homeURL +
+                      '/' +
+                      userId +
+                      '/article/' +
+                      item.articleId +
+                      loginInfo
+                  "
                   style="text-decoration: none;color: inherit;"
                   target="_blank"
                 >
@@ -175,7 +210,14 @@
                 </a>
               </div>
               <a
-                :href="homeURL + '/' + userId + '/article/' + item.articleId + loginInfo"
+                :href="
+                  homeURL +
+                    '/' +
+                    userId +
+                    '/article/' +
+                    item.articleId +
+                    loginInfo
+                "
                 style="text-decoration: none;color: inherit;"
                 target="_blank"
               >
@@ -235,7 +277,8 @@
                   '/' +
                   (item.noticeTypeSub === 2
                     ? 'friendLinks'
-                    : item.articleUserId + '/article/' + item.articleId) + loginInfo
+                    : item.articleUserId + '/article/' + item.articleId) +
+                  loginInfo
               "
               target="_blank"
             >
@@ -275,7 +318,8 @@
                       '/' +
                       (item.noticeTypeSub === 2
                         ? 'friendLinks'
-                        : item.articleUserId + '/article/' + item.articleId) + loginInfo
+                        : item.articleUserId + '/article/' + item.articleId) +
+                      loginInfo
                   "
                   style="text-decoration: none;color: inherit;"
                   target="_blank"
@@ -298,7 +342,8 @@
                     '/' +
                     (item.noticeTypeSub === 2
                       ? 'friendLinks'
-                      : item.articleUserId + '/article/' + item.articleId) + loginInfo
+                      : item.articleUserId + '/article/' + item.articleId) +
+                    loginInfo
                 "
                 style="text-decoration: none;color: inherit;"
                 target="_blank"

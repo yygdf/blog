@@ -49,7 +49,7 @@
       <el-table-column
         prop="resourceRequestMethod"
         :label="$t('resource.requestMethod')"
-        width="160"
+        width="120"
       >
         <template slot-scope="scope" v-if="scope.row.resourceRequestMethod">
           <el-tag :type="tagType(scope.row.resourceRequestMethod)">

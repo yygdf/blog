@@ -350,7 +350,7 @@ export default {
       count: 0,
       wordNum: "",
       readTime: "",
-      articleHref: location.href,
+      articleHref: location.origin + location.pathname,
       bloggerHref: this.$store.state.rootUrl + this.$store.state.rootUri,
       clipboard: null,
       defaultArticleCover: this.$store.state.blogConfig.article_default_cover,

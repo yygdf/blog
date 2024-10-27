@@ -24,7 +24,7 @@
               style="width: 40px;height: 40px;border-radius: 20px;"
             />
             <a
-              :href="homeURL + '/' + userId + '/article/' + item.articleId"
+              :href="homeURL + '/' + userId + '/article/' + item.articleId + loginInfo"
               target="_blank"
             >
               <el-tooltip
@@ -57,7 +57,7 @@
                   {{ item.nickname }}
                 </a>
                 <a
-                  :href="homeURL + '/' + userId + '/article/' + item.articleId"
+                  :href="homeURL + '/' + userId + '/article/' + item.articleId + loginInfo"
                   style="text-decoration: none;color: inherit;"
                   target="_blank"
                 >
@@ -72,7 +72,7 @@
                 </a>
               </div>
               <a
-                :href="homeURL + '/' + userId + '/article/' + item.articleId"
+                :href="homeURL + '/' + userId + '/article/' + item.articleId + loginInfo"
                 style="text-decoration: none;color: inherit;"
                 target="_blank"
               >
@@ -127,7 +127,7 @@
               style="width: 40px;height: 40px;border-radius: 20px;"
             />
             <a
-              :href="homeURL + '/' + userId + '/article/' + item.articleId"
+              :href="homeURL + '/' + userId + '/article/' + item.articleId + loginInfo"
               target="_blank"
             >
               <el-tooltip
@@ -160,7 +160,7 @@
                   {{ item.nickname }}
                 </a>
                 <a
-                  :href="homeURL + '/' + userId + '/article/' + item.articleId"
+                  :href="homeURL + '/' + userId + '/article/' + item.articleId + loginInfo"
                   style="text-decoration: none;color: inherit;"
                   target="_blank"
                 >
@@ -175,7 +175,7 @@
                 </a>
               </div>
               <a
-                :href="homeURL + '/' + userId + '/article/' + item.articleId"
+                :href="homeURL + '/' + userId + '/article/' + item.articleId + loginInfo"
                 style="text-decoration: none;color: inherit;"
                 target="_blank"
               >
@@ -235,7 +235,7 @@
                   '/' +
                   (item.noticeTypeSub === 2
                     ? 'friendLinks'
-                    : item.articleUserId + '/article/' + item.articleId)
+                    : item.articleUserId + '/article/' + item.articleId) + loginInfo
               "
               target="_blank"
             >
@@ -275,7 +275,7 @@
                       '/' +
                       (item.noticeTypeSub === 2
                         ? 'friendLinks'
-                        : item.articleUserId + '/article/' + item.articleId)
+                        : item.articleUserId + '/article/' + item.articleId) + loginInfo
                   "
                   style="text-decoration: none;color: inherit;"
                   target="_blank"
@@ -298,7 +298,7 @@
                     '/' +
                     (item.noticeTypeSub === 2
                       ? 'friendLinks'
-                      : item.articleUserId + '/article/' + item.articleId)
+                      : item.articleUserId + '/article/' + item.articleId) + loginInfo
                 "
                 style="text-decoration: none;color: inherit;"
                 target="_blank"
@@ -1000,6 +1000,26 @@ export default {
       return id => {
         return this.myMessageIdUnReadSet.has(id);
       };
+    },
+    loginInfo() {
+      return (
+        "?token=" +
+        this.$store.state.token +
+        "&loginUserDTO=" +
+        JSON.stringify({
+          userId: this.$store.state.userId,
+          intro: this.$store.state.intro,
+          email: this.$store.state.email,
+          avatar: this.$store.state.avatar,
+          gender: this.$store.state.gender,
+          weight: this.$store.state.weight,
+          website: this.$store.state.website,
+          nickname: this.$store.state.nickname,
+          modifiedFlag: this.$store.state.modifiedFlag,
+          articleLikeSet: this.$store.state.articleLikeSet,
+          commentLikeSet: this.$store.state.commentLikeSet
+        })
+      );
     }
   }
 };

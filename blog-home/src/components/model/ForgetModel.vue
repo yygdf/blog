@@ -9,51 +9,60 @@
         mdi-close
       </v-icon>
       <div class="login-wrapper">
-        <v-text-field
-          v-model="email"
-          :rules="[rules.email]"
-          label="邮箱"
-          autofocus="autofocus"
-          maxlength="50"
-          placeholder="请输入您的邮箱"
-          @keyup.enter="forget"
-          clearable
-        />
-        <v-text-field
-          v-model="password"
-          :rules="[rules.required]"
-          :type="show ? 'text' : 'password'"
-          :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-          class="mt-7"
-          label="新密码"
-          maxlength="50"
-          placeholder="请输入您的新密码"
-          @keyup.enter="forget"
-          @click:append="show = !show"
-        />
-        <div class="mt-7 send-wrapper">
+        <v-form ref="validForm">
           <v-text-field
-            v-model="code"
-            label="验证码"
-            maxlength="6"
-            placeholder="请输入6位验证码"
+            v-model="email"
+            :rules="[rules.email]"
+            :label="$t('email.email')"
+            autofocus="autofocus"
+            maxlength="50"
+            :placeholder="$t('email.inputEmail')"
             @keyup.enter="forget"
+            clearable
           />
-          <v-btn :disabled="flag || status" text small @click="sendEmailCode">
-            {{ codeMsg }}
+          <v-text-field
+            v-model="password"
+            :rules="[rules.required]"
+            :type="show ? 'text' : 'password'"
+            :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+            class="mt-7"
+            :label="$t('reset.newPassword')"
+            maxlength="50"
+            :placeholder="$t('reset.inputNewPwd')"
+            @keyup.enter="forget"
+            @click:append="show = !show"
+          />
+          <div class="mt-7 send-wrapper">
+            <v-text-field
+              v-model="code"
+              maxlength="6"
+              :label="$t('email.captcha')"
+              :placeholder="$t('email.inputCaptcha')"
+              @keyup.enter="forget"
+            />
+            <v-btn
+              :disabled="flag || status"
+              outlined
+              color="primary"
+              small
+              @click="sendEmailCode"
+            >
+              {{ codeMsg }}
+            </v-btn>
+          </div>
+          <v-btn
+            class="mt-7"
+            block
+            color="green"
+            style="color:#fff"
+            @click="forget"
+          >
+            {{ $t("button.submit") }}
           </v-btn>
-        </div>
-        <v-btn
-          class="mt-7"
-          block
-          color="green"
-          style="color:#fff"
-          @click="forget"
-        >
-          确定
-        </v-btn>
+        </v-form>
         <div class="mt-10 login-tip">
-          已有账号？<span @click="openLogin">登录</span>
+          {{ $t("register.already") }}?
+          <span @click="openLogin">{{ $t("navBar.login") }}</span>
         </div>
       </div>
     </v-card>
@@ -71,10 +80,11 @@ export default {
       flag: true,
       show: false,
       status: false,
-      codeMsg: "发送",
+      codeMsg: this.$t("button.get"),
       time: 60,
       rules: {
-        required: value => value.length >= 6 || "至少6个字符!",
+        required: value =>
+          !value || value.length >= 6 || this.$t("reset.passwordRule1"),
         email: value => {
           const pattern = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
           if (pattern.test(value)) {
@@ -82,7 +92,7 @@ export default {
             return true;
           }
           this.flag = true;
-          return "邮箱格式不正确!";
+          return this.$t("email.emailRule1");
         }
       }
     };
@@ -94,6 +104,14 @@ export default {
       },
       get() {
         return this.$store.state.forgetFlag;
+      }
+    }
+  },
+  watch: {
+    "$i18n.locale"() {
+      if (this.$refs.validForm) {
+        this.$refs.validForm.reset();
+        this.codeMsg = this.$t("button.get");
       }
     }
   },
@@ -138,7 +156,7 @@ export default {
         this.codeMsg = this.time + "s";
         if (this.time <= 0) {
           clearInterval(this.timer);
-          this.codeMsg = "发送";
+          this.codeMsg = this.$t("button.get");
           this.time = 60;
           this.status = false;
         }
@@ -147,15 +165,15 @@ export default {
     forget() {
       const pattern = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
       if (!pattern.test(this.email)) {
-        this.$toast({ type: "error", message: "邮箱格式不正确" });
+        this.$toast({ type: "error", message: this.$t("email.emailRule2") });
         return false;
       }
       if (this.password.trim().length < 6) {
-        this.$toast({ type: "error", message: "密码不能少于6位" });
+        this.$toast({ type: "error", message: this.$t("email.passwordRule1") });
         return false;
       }
       if (this.code.trim().length !== 6) {
-        this.$toast({ type: "error", message: "请输入6位验证码" });
+        this.$toast({ type: "error", message: this.$t("email.captchaRule1") });
         return false;
       }
       const user = {

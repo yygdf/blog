@@ -92,13 +92,10 @@ export default {
       get() {
         return this.$store.state.resetFlag;
       }
-    },
-    isEn() {
-      return this.$i18n.locale === "en_US";
     }
   },
   watch: {
-    isEn() {
+    "$i18n.locale"() {
       if (this.$refs.validForm) {
         this.$refs.validForm.reset();
       }

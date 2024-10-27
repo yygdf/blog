@@ -112,13 +112,13 @@
           <div class="article-reward">
             <a :class="isLike" @click="like">
               <v-icon size="14" color="#fff">mdi-thumb-up</v-icon>
-              {{ $t("article.like") }}
+              {{ $t("button.like") }}
               <span v-show="article.likeCount > 0">{{
                 article.likeCount
               }}</span>
             </a>
             <a class="reward-btn">
-              <i class="iconfont my-icon-QR-code" /> {{ $t("article.reward") }}
+              <i class="iconfont my-icon-QR-code" /> {{ $t("button.reward") }}
               <div class="animated fadeIn reward-main">
                 <ul class="reward-all">
                   <li class="reward-item">
@@ -146,7 +146,7 @@
               @click="openUnlockModel"
             >
               <v-icon size="16" color="#fff">mdi-archive-lock-open</v-icon>
-              {{ $t("article.unlock") }}
+              {{ $t("button.unlock") }}
             </a>
           </div>
           <div class="pagination-post">
@@ -308,9 +308,10 @@
             color="red"
             style="color:#fff"
             @click="unlockArticle"
+            :disabled="token == null || !token.trim()"
             block
           >
-            {{ $t("article.unlock") }}
+            {{ $t("button.unlock") }}
           </v-btn>
         </div>
       </v-card>
@@ -332,7 +333,9 @@ export default {
     this.getArticlesNewest();
   },
   destroyed() {
-    this.clipboard.destroy();
+    if (this.clipboard) {
+      this.clipboard.destroy();
+    }
     tocbot.destroy();
   },
   data: function() {

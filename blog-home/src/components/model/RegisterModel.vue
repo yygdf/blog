@@ -9,65 +9,68 @@
         mdi-close
       </v-icon>
       <div class="login-wrapper">
-        <v-text-field
-          v-model="username"
-          :rules="[rules.required]"
-          label="用户名"
-          autofocus="autofocus"
-          maxlength="50"
-          placeholder="请输入您的用户名"
-          @keyup.enter="register"
-          clearable
-        />
-        <v-text-field
-          v-model="email"
-          :rules="[rules.email]"
-          label="邮箱"
-          maxlength="50"
-          placeholder="请输入您的邮箱"
-          @keyup.enter="register"
-          clearable
-        />
-        <v-text-field
-          v-model="password"
-          :rules="[rules.required]"
-          :type="show ? 'text' : 'password'"
-          :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-          class="mt-7"
-          label="密码"
-          placeholder="请输入您的密码"
-          @keyup.enter="register"
-          @click:append="show = !show"
-        />
-        <div class="mt-7 send-wrapper">
+        <v-form ref="validForm">
           <v-text-field
-            v-model="code"
-            label="验证码"
-            maxlength="6"
-            placeholder="请输入6位验证码"
+            v-model="username"
+            :rules="[rules.username]"
+            :label="$t('email.username')"
+            autofocus="autofocus"
+            maxlength="50"
+            :placeholder="$t('register.inputUsername')"
             @keyup.enter="register"
+            clearable
           />
+          <v-text-field
+            v-model="email"
+            :rules="[rules.email]"
+            :label="$t('email.email')"
+            maxlength="50"
+            :placeholder="$t('email.inputEmail')"
+            @keyup.enter="register"
+            clearable
+          />
+          <v-text-field
+            v-model="password"
+            :rules="[rules.required]"
+            :type="show ? 'text' : 'password'"
+            :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+            class="mt-7"
+            :label="$t('email.password')"
+            :placeholder="$t('email.inputPwd')"
+            @keyup.enter="register"
+            @click:append="show = !show"
+          />
+          <div class="mt-7 send-wrapper">
+            <v-text-field
+              v-model="code"
+              maxlength="6"
+              :label="$t('email.captcha')"
+              :placeholder="$t('email.inputCaptcha')"
+              @keyup.enter="register"
+            />
+            <v-btn
+              outlined
+              color="primary"
+              small
+              :disabled="flag || status"
+              @click="sendEmailCode"
+            >
+              {{ codeMsg }}
+            </v-btn>
+          </div>
           <v-btn
-            text
-            small
-            rounded
-            :disabled="flag || status"
-            @click="sendEmailCode"
+            class="mt-7"
+            color="red"
+            style="color:#fff"
+            @click="register"
+            block
           >
-            {{ codeMsg }}
+            {{ $t("button.register") }}
           </v-btn>
-        </div>
-        <v-btn
-          class="mt-7"
-          color="red"
-          style="color:#fff"
-          @click="register"
-          block
-        >
-          注册
-        </v-btn>
+        </v-form>
         <div class="mt-10 login-tip">
-          已有账号？<span @click="openLogin">登录</span>
+          {{ $t("register.already") }}?
+          <span @click="openLogin">{{ $t("navBar.login") }}</span>
         </div>
       </div>
     </v-card>
@@ -87,9 +90,12 @@ export default {
       show: false,
       status: false,
       time: 60,
-      codeMsg: "发送",
+      codeMsg: this.$t("button.get"),
       rules: {
-        required: value => value.length >= 6 || "至少6个字符!",
+        required: value =>
+          !value || value.length >= 6 || this.$t("reset.passwordRule1"),
+        username: value =>
+          !value || value.length >= 6 || this.$t("register.usernameRule1"),
         email: value => {
           const pattern = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
           if (pattern.test(value)) {
@@ -97,7 +103,7 @@ export default {
             return true;
           }
           this.flag = true;
-          return "邮箱格式不正确!";
+          return this.$t("email.emailRule1");
         }
       }
     };
@@ -109,6 +115,14 @@ export default {
       },
       get() {
         return this.$store.state.registerFlag;
+      }
+    }
+  },
+  watch: {
+    "$i18n.locale"() {
+      if (this.$refs.validForm) {
+        this.$refs.validForm.reset();
+        this.codeMsg = this.$t("button.get");
       }
     }
   },
@@ -152,7 +166,7 @@ export default {
         this.codeMsg = this.time + "s";
         if (this.time <= 0) {
           clearInterval(this.timer);
-          this.codeMsg = "发送";
+          this.codeMsg = this.$t("button.get");
           this.time = 60;
           this.status = false;
         }
@@ -160,20 +174,23 @@ export default {
     },
     register() {
       if (this.username.trim().length < 6) {
-        this.$toast({ type: "error", message: "用户名不能少于6位" });
+        this.$toast({
+          type: "error",
+          message: this.$t("register.usernameRule1")
+        });
         return false;
       }
       const pattern = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
       if (!pattern.test(this.email)) {
-        this.$toast({ type: "error", message: "邮箱格式不正确" });
+        this.$toast({ type: "error", message: this.$t("email.emailRule2") });
         return false;
       }
       if (this.password.trim().length < 6) {
-        this.$toast({ type: "error", message: "密码不能少于6位" });
+        this.$toast({ type: "error", message: this.$t("email.passwordRule1") });
         return false;
       }
       if (this.code.trim().length !== 6) {
-        this.$toast({ type: "error", message: "请输入6位验证码" });
+        this.$toast({ type: "error", message: this.$t("email.captchaRule1") });
         return false;
       }
       let user = {

@@ -11,93 +11,56 @@ import Message from "../views/message/Messsage.vue";
 import Articles from "../views/article/Articles.vue";
 import Personal from "../views/personal/Personal.vue";
 import QQOauth from "../components/QQOauth.vue";
-import { $t } from "@/i18n/i18n";
 Vue.use(VueRouter);
 
 const routes = [
   {
     path: "/:userId(\\d+)?",
-    component: Home,
-    meta: {
-      title: $t("navBar.home")
-    }
+    component: Home
   },
   {
     path: "/:userId(\\d+)?/article/:articleId(\\d+)",
-    component: Article,
-    meta: {
-      title: "文章"
-    }
+    component: Article
   },
   {
     path: "/:userId(\\d+)?/archives",
-    component: Archive,
-    meta: {
-      title: $t("navBar.archive")
-    }
+    component: Archive
   },
   {
     path: "/:userId(\\d+)?/tags",
-    component: Tag,
-    meta: {
-      title: "标签"
-    }
+    component: Tag
   },
   {
     path: "/:userId(\\d+)?/categories",
-    component: Category,
-    meta: {
-      title: "分类"
-    }
+    component: Category
   },
   {
     path: "/:userId(\\d+)?/category/:categoryId(\\d+)",
-    component: Articles,
-    meta: {
-      title: "文章"
-    }
+    component: Articles
   },
   {
     path: "/:userId(\\d+)?/friendLinks",
-    component: FriendLink,
-    meta: {
-      title: "友链"
-    }
+    component: FriendLink
   },
   {
     path: "/:userId(\\d+)?/about",
-    component: About,
-    meta: {
-      title: "关于"
-    }
+    component: About
   },
   {
     path: "/:userId(\\d+)?/messages",
-    component: Message,
-    meta: {
-      title: "留言"
-    }
+    component: Message
   },
   {
     path: "/:userId(\\d+)?/tag/:tagId(\\d+)",
-    component: Articles,
-    meta: {
-      title: "文章"
-    }
+    component: Articles
   },
   {
     path: "/:userId(\\d+)?/personal",
-    component: Personal,
-    meta: {
-      title: "个人中心"
-    }
+    component: Personal
   },
   {
     path: "/oauth/qq",
-    component: QQOauth,
-    meta: {
-      title: "QQ登录"
-    }
+    component: QQOauth
   }
 ];
 

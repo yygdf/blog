@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="comment-title">
-      <i class="iconfont my-icon-comment-group" />评论
+      <i class="iconfont my-icon-comment-group" />{{ $t("comment.comment") }}
     </div>
     <div class="comment-input-wrapper">
       <div style="display:flex">
@@ -20,7 +20,7 @@
             <textarea
               class="comment-textarea"
               v-model="commentContent"
-              placeholder="留下点什么吧..."
+              :placeholder="$t('comment.say')"
             />
           </div>
           <div class="emoji-container">
@@ -35,7 +35,7 @@
               class="upload-btn v-comment-btn"
               style="margin-left:auto"
             >
-              提交
+              {{ $t("button.submit") }}
             </button>
           </div>
           <emoji @addEmoji="addEmoji" :chooseEmoji="chooseEmoji" />
@@ -43,7 +43,7 @@
       </div>
     </div>
     <div v-if="count > 0 && reFresh">
-      <div class="count">{{ count }} 评论</div>
+      <div class="count">{{ count + " " + $t("comment.comments") }}</div>
       <div
         style="display:flex"
         class="pt-5"
@@ -59,12 +59,14 @@
             <a v-else :href="item.website" target="_blank">
               {{ item.nickname }}
             </a>
-            <span class="blogger-tag" v-if="item.userId === bloggerId"
-              >博主</span
-            >
+            <span class="blogger-tag" v-if="item.userId === bloggerId">{{
+              $t("comment.blogger")
+            }}</span>
           </div>
           <div class="comment-info">
-            <span style="margin-right:10px">{{ count - index }}楼</span>
+            <span style="margin-right:10px">{{
+              count - index + $t("comment.floor")
+            }}</span>
             <span style="margin-right:10px">{{ item.createTime | date }}</span>
             <span
               :class="isLike(item.id) + ' iconfont my-icon-like'"
@@ -76,7 +78,7 @@
               class="reply-btn"
               @click="replyComment(index, item)"
             >
-              回复
+              {{ $t("comment.reply") }}
             </span>
           </div>
           <p
@@ -97,12 +99,12 @@
                 <a v-else :href="reply.website" target="_blank">
                   {{ reply.nickname }}
                 </a>
-                <span class="blogger-tag" v-if="reply.userId === bloggerId"
-                  >博主</span
-                >
+                <span class="blogger-tag" v-if="reply.userId === bloggerId">{{
+                  $t("comment.blogger")
+                }}</span>
                 <template v-if="reply.replyId !== -1">
                   <span v-if="!reply.replyWebsite" class="ml-1">
-                    回复 @{{ reply.replyNickname }}
+                    {{ $t("comment.reply") + " @" + reply.replyNickname }}
                   </span>
                   <a
                     v-else
@@ -110,7 +112,7 @@
                     target="_blank"
                     class="comment-nickname ml-1"
                   >
-                    回复 @{{ reply.replyNickname }}
+                    {{ $t("comment.reply") + " @" + reply.replyNickname }}
                   </a>
                   :
                 </template>
@@ -129,7 +131,7 @@
                   class="reply-btn"
                   @click="replyComment(index, reply)"
                 >
-                  回复
+                  {{ $t("comment.reply") }}
                 </span>
               </div>
               <p
@@ -144,14 +146,14 @@
             v-show="item.replyCount > 3"
             ref="check"
           >
-            共
+            {{ $t("comment.total") }}
             <b>{{ item.replyCount }}</b>
-            条回复，
+            {{ $t("comment.replies") }},
             <span
               style="color:#00a1d6;cursor:pointer"
               @click="getCommentsReply(index, item)"
             >
-              点击查看
+              {{ $t("comment.view") }}
             </span>
           </div>
           <div
@@ -160,7 +162,13 @@
             ref="paging"
           >
             <span style="padding-right:10px">
-              共{{ Math.ceil(item.replyCount / 5) }}页
+              {{
+                $t("comment.total") +
+                  " " +
+                  Math.ceil(item.replyCount / 5) +
+                  " " +
+                  $t("comment.page")
+              }}
             </span>
             <paging
               ref="page"
@@ -175,12 +183,12 @@
       </div>
       <div class="load-wrapper">
         <v-btn outlined v-if="count > commentList.length" @click="getComments">
-          加载更多...
+          {{ $t("comment.load") }}
         </v-btn>
       </div>
     </div>
     <div v-else style="padding:1.25rem;text-align:center">
-      来发评论吧~
+      {{ $t("comment.say") }}
     </div>
   </div>
 </template>
@@ -267,7 +275,7 @@ export default {
       const arr = path.split("/");
       this.axios
         .get("/api/comments", {
-          params: { current: this.current, categoryId: arr[2] }
+          params: { current: this.current, categoryId: arr[arr.length - 1] }
         })
         .then(({ data }) => {
           this.commentList.push(...data.data.pageList);
@@ -279,7 +287,7 @@ export default {
         return false;
       }
       if (this.commentContent.trim() === "") {
-        this.$toast({ type: "error", message: "评论不能为空" });
+        this.$toast({ type: "error", message: this.$t("comment.tip1") });
         return false;
       }
       const reg = /#\[.+?]/g;
@@ -305,7 +313,7 @@ export default {
         if (data.flag) {
           this.$emit("reloadComment");
           this.commentContent = "";
-          this.$toast({ type: "success", message: "评论成功" });
+          this.$toast({ type: "success", message: data.message });
         }
       });
     },

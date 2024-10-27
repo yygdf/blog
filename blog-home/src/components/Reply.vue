@@ -2,7 +2,7 @@
   <div class="reply-input-wrapper" style="display: none" ref="reply">
     <textarea
       class="comment-textarea"
-      :placeholder="'回复 @' + nickname + '：'"
+      :placeholder="$t('comment.reply') + ' @' + nickname + '：'"
       v-model="commentContent"
     />
     <div class="emoji-container">
@@ -14,10 +14,10 @@
       </span>
       <div style="margin-left:auto">
         <button @click="cancelReply" class="cancel-btn v-comment-btn">
-          取消
+          {{ $t("button.no") }}
         </button>
         <button @click="addReply" class="upload-btn v-comment-btn">
-          提交
+          {{ $t("button.submit") }}
         </button>
       </div>
     </div>
@@ -54,7 +54,7 @@ export default {
         return false;
       }
       if (this.commentContent.trim() === "") {
-        this.$toast({ type: "error", message: "回复不能为空" });
+        this.$toast({ type: "error", message: this.$t("comment.tip1") });
         return false;
       }
       const reg = /#\[.+?]/g;
@@ -82,7 +82,7 @@ export default {
       this.axios.post("/api/comment", comment).then(({ data }) => {
         if (data.flag) {
           this.$emit("reloadCommentsReply", this.index);
-          this.$toast({ type: "success", message: "回复成功" });
+          this.$toast({ type: "success", message: data.message });
         }
       });
     },

@@ -14,6 +14,7 @@
 /* eslint-disable no-undef */
 export default {
   created() {
+    document.title = this.$t("qq.title");
     this.$store.state.loginFlag = false;
     const that = this;
     if (this.$route.path === "/oauth/qq") {
@@ -31,7 +32,7 @@ export default {
               if (data.data.loginUserDTO.email === "") {
                 that.$toast({
                   type: "warning",
-                  message: "请绑定邮箱以便及时收到回复!"
+                  message: this.$t("qq.tip1")
                 });
               } else {
                 that.$toast({ type: "success", message: data.message });
@@ -40,7 +41,7 @@ export default {
           });
         });
       } else {
-        this.$toast({ type: "error", message: "登录失败" });
+        this.$toast({ type: "error", message: this.$t("qq.failure") });
       }
     }
     this.$router.push({ path: this.$store.state.loginUrl });

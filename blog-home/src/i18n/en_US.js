@@ -1,6 +1,17 @@
 export default {
   button: {
-    edit: "edit"
+    edit: "Edit",
+    send: "Send",
+    bind: "Bind",
+    like: "like",
+    reward: "reward",
+    unlock: "unlock",
+    submit: "Submit",
+    yes: "yes",
+    no: "cancel",
+    get: "get",
+    register: "Register",
+    change: "Change"
   },
   navBar: {
     search: "Search",
@@ -25,16 +36,41 @@ export default {
     tip1: "not found"
   },
   reset: {
-    oldPassword: "old password",
-    newPassword: "new password",
+    oldPassword: "Old password",
+    newPassword: "New password",
     inputOldPwd: "please enter old password",
     inputNewPwd: "please enter new password",
-    newPassword2: "confirm password",
+    newPassword2: "Confirm password",
     inputNewPwd2: "please enter new password again",
     oldPwdRule1: "Old password must be at least 6 characters.",
     newPwdRule1: "new password must be at least 6 characters.",
     newPwdRule2: "The password is inconsistent.",
     passwordRule1: "password at least 6 characters"
+  },
+  email: {
+    username: "Username",
+    email: "Email",
+    password: "Password",
+    captcha: "Captcha",
+    inputEmail: "please enter email",
+    inputPwd: "please enter password",
+    inputCaptcha: "please enter captcha",
+    emailRule1: "incorrect email format",
+    emailRule2: "Incorrect email format!",
+    captchaRule1: "Please enter 6-digit captcha!",
+    passwordRule1: "Password at least 6 characters!"
+  },
+  register: {
+    inputUsername: "please enter username",
+    already: "Already registered",
+    usernameRule1: "Username at least 6 characters!"
+  },
+  login: {
+    register: "Register now",
+    forgot: "Forgot password",
+    social: "social account login",
+    usernameRule: "Username cannot be empty!",
+    passwordRule: "Password cannot be empty!"
   },
   home: {
     top: "top",
@@ -67,7 +103,6 @@ export default {
   message: {
     board: "Message board",
     say: "say something",
-    send: "send",
     inputRule1: "Message content cannot be empty!",
     guest: "guest"
   },
@@ -83,14 +118,11 @@ export default {
     copyright: "copyright",
     text1: "",
     text2: "",
-    like: "like",
-    reward: "reward",
-    unlock: "unlock",
     wx: "WeChat",
     pay: "AliPay",
     prev: "Prev",
     next: "Next",
-    recommendation: "recommendation",
+    recommendation: "Recommendation",
     contents: "Contents",
     latest: "Latest",
     key: "key",
@@ -99,5 +131,90 @@ export default {
     copy: "Copy success!",
     text3: "Your browser does not support automatic copying!",
     text4: "Unlock success!"
+  },
+  chat: {
+    room: "ChatRoom",
+    currently: "currently",
+    people: "people online",
+    withdraw: "withdraw",
+    input: "please enter content",
+    hold: "hold to talk",
+    tip1: "please send voice after login~",
+    tip2: "Content cannot be empty!",
+    tip3: "Time is too short!"
+  },
+  comment: {
+    comment: "Comment",
+    say: "say something...",
+    comments: "comments",
+    blogger: "Blogger",
+    floor: "floor",
+    reply: "reply",
+    total: "total",
+    replies: "replies",
+    view: "click to view",
+    page: "pages",
+    load: "load more",
+    tip1: "Comment content cannot be empty!"
+  },
+  confirm: {
+    input: "please enter key"
+  },
+  page: {
+    prev: "Prev",
+    next: "Next",
+    no: "No",
+    page: "page"
+  },
+  qq: {
+    failure: "Login failure!",
+    tip1: "Please bing your email to receive a timely reply!",
+    title: "QQ Login"
+  },
+  personal: {
+    profile: "Profile",
+    email: "Email",
+    intro: "Intro",
+    website: "Website",
+    nickname: "Nickname",
+    inputNickname: "please enter nickname",
+    inputIntro: "please enter intro",
+    bindEmail: "please bind email",
+    tip1: "Only accept jpg, png, gif!",
+    tip2: "The size of image cannot exceed 5MB!"
+  },
+  music: {
+    list: "Music List",
+    search: "search music",
+    author: "author",
+    music: "music",
+    album: "album",
+    play: "play",
+    play2: "",
+    pause: "pause",
+    added: "added",
+    addLocal: "add to local",
+    remove: "remove",
+    collect: "collect",
+    collected: "collected",
+    addSuccess: "Add Success!",
+    tip1: "Please login to do this!",
+    collectSuccess: "Collect success!",
+    collectFailure: "Collect failure!",
+    removeSuccess: "Remove success!",
+    removeFailure: "Remove failure!",
+    none: "no lyrics available",
+    tip2: "This list is not open~",
+    tip3: "No songs available~",
+    mode1: "switch to single loop mode",
+    mode2: "switch to random mode",
+    mode3: "switch to list loop mode",
+    list1: "Hot",
+    list2: "New",
+    list3: "Surge",
+    list4: "HipHop",
+    list5: "Site",
+    list6: "Collection",
+    list7: "Local"
   }
 };

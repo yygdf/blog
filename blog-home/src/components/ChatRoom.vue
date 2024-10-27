@@ -15,8 +15,10 @@
           alt=""
         />
         <div style="margin-left:12px">
-          <div>聊天室</div>
-          <div style="font-size:12px">当前{{ count }}人在线</div>
+          <div>{{ $t("chat.room") }}</div>
+          <div style="font-size:12px">
+            {{ $t("chat.currently") + " " + count + " " + $t("chat.people") }}
+          </div>
         </div>
         <v-icon class="close" @click="isShow = false">
           mdi-close
@@ -43,7 +45,7 @@
           />
           <div>
             <div class="nickname" v-if="!isSelf(item)">
-              {{ item.nickname ? item.nickname : "游客" }}
+              {{ item.nickname ? item.nickname : $t("message.guest") }}
               <span v-if="item.ipSource" style="margin-left: 12px">{{
                 ipCity(item.ipSource)
               }}</span>
@@ -83,7 +85,7 @@
                 <span ref="voiceTimes" />
               </div>
               <div class="back-menu" ref="backBtn" @click="back(item)">
-                撤回
+                {{ $t("chat.withdraw") }}
               </div>
             </div>
           </div>
@@ -94,9 +96,21 @@
           <Emoji :chooseEmoji="true" @addEmoji="addEmoji" />
         </div>
         <div class="emoji-border" v-show="isEmoji" />
-        <v-icon v-show="!isVoice" @click="openVoice" style="margin-right: 8px">
-          mdi-microphone
-        </v-icon>
+        <v-tooltip top :disabled="userId != null">
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+              v-show="!isVoice"
+              v-bind="attrs"
+              v-on="on"
+              @click="openVoice"
+              style="margin-right: 8px"
+            >
+              mdi-microphone
+            </v-icon>
+          </template>
+          <span>{{ $t("chat.tip1") }}</span>
+        </v-tooltip>
+
         <v-icon
           v-show="isVoice"
           @click="isVoice = !isVoice"
@@ -110,7 +124,7 @@
           ref="chatInput"
           v-model="chatContent"
           @keydown.enter="saveChatRecord($event)"
-          placeholder="请输入内容"
+          :placeholder="$t('chat.input')"
         />
         <button
           class="voice-btn"
@@ -121,7 +135,7 @@
           @touchend.prevent.stop="translationEnd($event)"
           @touchmove.prevent.stop="translationMove($event)"
         >
-          按住说话
+          {{ $t("chat.hold") }}
         </button>
         <i
           class="iconfont my-icon-expression emoji"
@@ -193,7 +207,6 @@ export default {
     },
     openVoice() {
       if (this.userId == null) {
-        this.$toast({ type: "error", message: "登陆后才能发送语音哦~" });
         return false;
       }
       this.isVoice = !this.isVoice;
@@ -267,7 +280,7 @@ export default {
     saveChatRecord(e) {
       e.preventDefault();
       if (this.chatContent.trim() === "") {
-        this.$toast({ type: "error", message: "内容不能为空" });
+        this.$toast({ type: "error", message: this.$t("chat.tip2") });
         return false;
       }
       const reg = /#\[.+?]/g;
@@ -330,7 +343,7 @@ export default {
       this.voiceActive = false;
       this.rc.pause();
       if (new Date() - this.startVoiceTime < 1000) {
-        this.$toast({ type: "error", message: "按键时间太短!" });
+        this.$toast({ type: "error", message: this.$t("chat.tip3") });
         return false;
       }
       let wav = this.rc.getRecord({
@@ -586,6 +599,9 @@ export default {
 }
 .submit-btn {
   color: rgb(31, 147, 255);
+}
+.submit-btn:hover {
+  cursor: pointer;
 }
 .emoji {
   cursor: pointer;

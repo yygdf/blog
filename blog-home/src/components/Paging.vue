@@ -1,6 +1,8 @@
 <template>
   <div class="paging">
-    <a @click="prePage" v-show="current !== 1" class="ml-1 mr-1">上一页</a>
+    <a @click="prePage" v-show="current !== 1" class="ml-1 mr-1">{{
+      $t("page.prev")
+    }}</a>
     <template v-if="totalPage < 6">
       <a
         v-for="i of totalPage"
@@ -89,7 +91,7 @@
       }}</a>
     </template>
     <a @click="nextPage" v-show="current !== totalPage" class="ml-1 mr-1">
-      下一页
+      {{ $t("page.next") }}
     </a>
   </div>
 </template>

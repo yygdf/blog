@@ -57,7 +57,7 @@ public class CommentController {
     @PostMapping("/comment")
     public Result saveComment(@Valid @RequestBody CommentVO commentVO) {
         commentService.saveCommentVO(commentVO);
-        return Result.success().message(LocaleUtil.getMessage("C0001"));
+        return Result.success().message(LocaleUtil.getMessage("C0009"));
     }
 
     @OptLog(optType = SAVE)

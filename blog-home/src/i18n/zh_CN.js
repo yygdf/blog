@@ -1,6 +1,17 @@
 export default {
   button: {
-    edit: "修改"
+    edit: "修改",
+    send: "发送",
+    bind: "绑定",
+    like: "点赞",
+    reward: "打赏",
+    unlock: "解锁",
+    submit: "提交",
+    yes: "确认",
+    no: "取消",
+    get: "获取",
+    register: "注册",
+    change: "换绑"
   },
   navBar: {
     search: "搜索",
@@ -36,6 +47,31 @@ export default {
     newPwdRule2: "两次密码不一致!",
     passwordRule1: "密码至少6位"
   },
+  email: {
+    username: "用户名",
+    email: "邮箱",
+    password: "密码",
+    captcha: "验证码",
+    inputEmail: "请输入邮箱",
+    inputPwd: "请输入密码",
+    inputCaptcha: "请输入验证码",
+    emailRule1: "邮箱格式不正确",
+    emailRule2: "邮箱格式不正确!",
+    captchaRule1: "请输入6位验证码!",
+    passwordRule1: "密码至少6位!"
+  },
+  register: {
+    inputUsername: "请输入用户名",
+    already: "已有账号",
+    usernameRule1: "用户名至少6位!"
+  },
+  login: {
+    register: "立即注册",
+    forgot: "忘记密码",
+    social: "社交帐号登录",
+    usernameRule: "用户名不能为空!",
+    passwordRule: "密码不能为空!"
+  },
   home: {
     top: "置顶",
     hidden: "已隐藏",
@@ -67,7 +103,6 @@ export default {
   message: {
     board: "留言板",
     say: "说点什么吧",
-    send: "发送",
     inputRule1: "留言不能为空!",
     guest: "游客"
   },
@@ -83,9 +118,6 @@ export default {
     copyright: "版权声明",
     text1: "本博客所有文章除特别声明外，均采用",
     text2: "许可协议。转载请注明文章出处。",
-    like: "点赞",
-    reward: "打赏",
-    unlock: "解锁",
     wx: "微信",
     pay: "支付宝",
     prev: "上一篇",
@@ -99,5 +131,90 @@ export default {
     copy: "复制成功!",
     text3: "该浏览器不支持自动复制!",
     text4: "解锁成功!"
+  },
+  chat: {
+    room: "聊天室",
+    currently: "当前",
+    people: "人在线",
+    withdraw: "撤回",
+    input: "请输入内容",
+    hold: "按住说话",
+    tip1: "登录后才能发送语音哦~",
+    tip2: "内容不能为空!",
+    tip3: "按键时间太短!"
+  },
+  comment: {
+    comment: "评论",
+    say: "留下点什么吧...",
+    comments: "评论",
+    blogger: "博主",
+    floor: "层",
+    reply: "回复",
+    total: "共",
+    replies: "条回复",
+    view: "点击查看",
+    page: "页",
+    load: "加载更多",
+    tip1: "评论不能为空!"
+  },
+  confirm: {
+    input: "请输入密令"
+  },
+  page: {
+    prev: "上一页",
+    next: "下一页",
+    no: "第",
+    page: "页"
+  },
+  qq: {
+    failure: "登录失败!",
+    tip1: "请绑定邮箱以便及时收到回复!",
+    title: "QQ登录"
+  },
+  personal: {
+    profile: "基本信息",
+    email: "邮箱",
+    intro: "简介",
+    website: "网站",
+    nickname: "昵称",
+    inputNickname: "请输入昵称",
+    inputIntro: "介绍下自己吧",
+    bindEmail: "请绑定邮箱",
+    tip1: "上传的图片只能是jpg, png, gif格式!",
+    tip2: "上传图片的大小不能超过5MB!"
+  },
+  music: {
+    list: "歌曲列表",
+    search: "搜索歌曲",
+    author: "歌手",
+    music: "歌曲",
+    album: "专辑",
+    play: "播放这首歌",
+    play2: "继续播放",
+    pause: "暂停播放",
+    added: "已添加",
+    addLocal: "添加到本地歌曲",
+    remove: "移除",
+    collect: "收藏",
+    collected: "已收藏",
+    addSuccess: "添加成功!",
+    tip1: "该功能需要登录才能够使用哦!",
+    collectSuccess: "收藏成功!",
+    collectFailure: "收藏失败!",
+    removeSuccess: "移除成功!",
+    removeFailure: "移除失败!",
+    none: "暂无歌词",
+    tip2: "该榜单暂未开放哦~",
+    tip3: "暂无歌曲提供~",
+    mode1: "已切换为单曲循环模式",
+    mode2: "已切换为随机播放模式",
+    mode3: "已切换为列表循环模式",
+    list1: "热歌榜",
+    list2: "新歌榜",
+    list3: "飙升榜",
+    list4: "嘻哈榜",
+    list5: "站点歌曲",
+    list6: "我的收藏",
+    list7: "本地歌曲"
   }
 };

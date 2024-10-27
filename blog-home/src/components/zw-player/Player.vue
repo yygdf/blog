@@ -21,7 +21,7 @@
               </li>
             </ul>
             <div class="list_title">
-              <span style="font-size: 14px;">歌曲列表</span>
+              <span style="font-size: 14px;">{{ $t("music.list") }}</span>
               <img
                 :src="playModeButton"
                 alt=""
@@ -33,7 +33,7 @@
                   type="text"
                   class="music_search"
                   v-model="musicSearchVal"
-                  placeholder="搜索歌曲"
+                  :placeholder="$t('music.search')"
                 />
                 <transition name="music_search">
                   <ul class="search_list" v-if="musicSearchVal !== ''">
@@ -54,7 +54,9 @@
               </div>
             </div>
             <div class="music_ul_title">
-              <span>歌曲</span><span>歌手</span><span>专辑</span>
+              <span>{{ $t("music.music") }}</span
+              ><span>{{ $t("music.author") }}</span
+              ><span>{{ $t("music.album") }}</span>
             </div>
             <ul class="list">
               <li
@@ -84,7 +86,7 @@
                           currentMusicIndex
                       "
                       class="list_play"
-                      title="播放这首歌"
+                      :title="$t('music.play')"
                       :style="{ backgroundImage: 'url(' + listPlay + ')' }"
                       @click="
                         listPlayMusic((currentListPage - 1) * pageSize + index)
@@ -93,35 +95,43 @@
                     <div
                       v-else
                       class="list_play"
-                      :title="playState ? '暂停播放' : '继续播放'"
+                      :title="playState ? $t('music.pause') : $t('music.play2')"
                       :style="{ backgroundImage: 'url(' + listPlay + ')' }"
                       @click="controlButtonClick"
                     ></div>
                     <div
                       v-if="currentMusicType !== 0"
                       class="list_play"
-                      :title="musicAddStatus ? '已添加' : '添加到本地歌曲'"
+                      :title="
+                        musicAddStatus
+                          ? $t('music.added')
+                          : $t('music.addLocal')
+                      "
                       :style="{ backgroundImage: 'url(' + add + ')' }"
                       @click="musicAddStatus ? '' : listAddMusic(item)"
                     ></div>
                     <div
                       v-else
                       class="list_play"
-                      title="移除"
+                      :title="$t('music.remove')"
                       :style="{ backgroundImage: 'url(' + add + ')' }"
                       @click="listRemoveMusic(item.id, false)"
                     ></div>
                     <div
                       v-if="currentMusicType !== 2"
                       class="list_play"
-                      :title="musicCollectStatus ? '已收藏' : '收藏'"
+                      :title="
+                        musicCollectStatus
+                          ? $t('music.collected')
+                          : $t('music.collect')
+                      "
                       :style="{ backgroundImage: 'url(' + add + ')' }"
                       @click="musicCollectStatus ? '' : listCollectMusic(item)"
                     ></div>
                     <div
                       v-else
                       class="list_play"
-                      title="移除"
+                      :title="$t('music.remove')"
                       :style="{ backgroundImage: 'url(' + add + ')' }"
                       @click="listRemoveMusic(item.id, true)"
                     ></div>
@@ -135,9 +145,13 @@
                 v-if="currentListPage !== 1"
                 @click="pageChange(true)"
               >
-                上一页&lt;
+                {{ $t("page.prev") }}&lt;
               </div>
-              <div class="page_middle">第 {{ currentListPage }} 页</div>
+              <div class="page_middle">
+                {{
+                  $t("page.no") + " " + currentListPage + " " + $t("page.page")
+                }}
+              </div>
               <div
                 class="page_next"
                 v-if="
@@ -146,7 +160,7 @@
                 "
                 @click="pageChange(false)"
               >
-                >下一页
+                >{{ $t("page.next") }}
               </div>
             </div>
           </div>
@@ -290,15 +304,7 @@ export default {
       activeMusicIndex: -1,
       currentListPage: -1,
       currentMusicType: -1,
-      musicTypeList: [
-        { name: "热歌榜", type: 3778678 },
-        { name: "新歌榜", type: 3779629 },
-        { name: "飙升榜", type: 19723756 },
-        { name: "嘻哈榜", type: 991319590 },
-        { name: "站点歌曲", type: 1 },
-        { name: "我的收藏", type: 2 },
-        { name: "本地歌曲", type: 0 }
-      ],
+      musicTypeList: [],
       playMode: 0,
       playModeButton: state0,
       musicSearchVal: "",
@@ -341,21 +347,21 @@ export default {
         "localMusicList",
         JSON.stringify(this.localMusicList)
       );
-      this.musicAlert("添加成功!");
+      this.musicAlert(this.$t("music.addSuccess"));
       this.musicAddStatus = true;
     },
     listCollectMusic(item) {
       if (this.userId == null) {
-        this.musicAlert("该功能需要登录才能够使用哦!");
+        this.musicAlert(this.$t("music.tip1"));
         return;
       }
       collectMusic(item.id).then(({ data }) => {
         if (data.flag) {
-          this.musicAlert("收藏成功!");
+          this.musicAlert(this.$t("music.collectSuccess"));
           this.musicCollectStatus = true;
           this.collectionMusicList.push(item);
         } else {
-          this.musicAlert("收藏失败!");
+          this.musicAlert(this.$t("music.collectFailure"));
         }
       });
     },
@@ -363,13 +369,13 @@ export default {
       if (flag) {
         collectMusic(id).then(({ data }) => {
           if (data.flag) {
-            this.musicAlert("移除成功!");
+            this.musicAlert(this.$t("music.removeSuccess"));
             let index = this.collectionMusicList.findIndex(
               item => item.id === id
             );
             this.collectionMusicList.splice(index, 1);
           } else {
-            this.musicAlert("移除失败!");
+            this.musicAlert(this.$t("music.removeFailure"));
           }
         });
       } else {
@@ -379,22 +385,22 @@ export default {
           "localMusicList",
           JSON.stringify(this.localMusicList)
         );
-        this.musicAlert("移除成功!");
+        this.musicAlert(this.$t("music.removeSuccess"));
       }
     },
     switchPlayMode() {
       if (this.playMode === 0) {
         this.playMode = 1;
         this.playModeButton = this.state1;
-        this.musicAlert("已切换为单曲循环模式");
+        this.musicAlert(this.$t("music.mode1"));
       } else if (this.playMode === 1) {
         this.playMode = 2;
         this.playModeButton = this.state2;
-        this.musicAlert("已切换为随机播放模式");
+        this.musicAlert(this.$t("music.mode2"));
       } else {
         this.playMode = 0;
         this.playModeButton = this.state0;
-        this.musicAlert("已切换为列表循环模式");
+        this.musicAlert(this.$t("music.mode3"));
       }
     },
     switchMusicListState() {
@@ -468,7 +474,7 @@ export default {
             await getSiteMusic().then(({ data }) => {
               this.siteMusicList = data.data;
               if (data.data.length === 0) {
-                this.musicAlert("暂无歌曲提供~");
+                this.musicAlert(this.$t("music.tip3"));
               }
             });
           }
@@ -476,7 +482,7 @@ export default {
           this.currentMusicType = 1;
         } else if (type === 2) {
           if (this.userId == null) {
-            this.musicAlert("该功能需要登录才能够使用哦!");
+            this.musicAlert(this.$t("music.tip1"));
             return;
           }
           if (this.collectionMusicList.length === 0) {
@@ -487,7 +493,7 @@ export default {
           this.currentMusicList = this.collectionMusicList;
           this.currentMusicType = 2;
         } else {
-          this.musicAlert("该榜单暂未开放哦~");
+          this.musicAlert(this.$t("music.tip2"));
           return;
         }
         this.currentListPage = 1;
@@ -509,7 +515,7 @@ export default {
         this.musicWords = info.wordArr;
         this.wordsTime = info.timeArr;
       } else {
-        this.musicWords = ["暂无歌词"];
+        this.musicWords = [this.$t("music.none")];
         this.wordsTime = [0];
       }
     },
@@ -1532,6 +1538,20 @@ export default {
           });
         }
       }
+    },
+    "$i18n.locale": {
+      handler() {
+        this.musicTypeList = [
+          { name: this.$t("music.list1"), type: 3778678 },
+          { name: this.$t("music.list2"), type: 3779629 },
+          { name: this.$t("music.list3"), type: 19723756 },
+          { name: this.$t("music.list4"), type: 991319590 },
+          { name: this.$t("music.list5"), type: 1 },
+          { name: this.$t("music.list6"), type: 2 },
+          { name: this.$t("music.list7"), type: 0 }
+        ];
+      },
+      immediate: true
     }
   }
 };

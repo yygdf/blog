@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="user-banner banner" :style="cover">
-      <h1 class="banner-title">个人中心</h1>
+      <h1 class="banner-title">{{ $t("navBar.personal") }}</h1>
     </div>
     <v-card class="blog-container">
       <div>
-        <span class="info-title">基本信息</span>
+        <span class="info-title">{{ $t("personal.profile") }}</span>
       </div>
       <v-row class="info-wrapper">
         <v-col md="3" cols="12">
@@ -22,45 +22,63 @@
           />
         </v-col>
         <v-col md="7" cols="12">
-          <v-text-field v-model="username" label="用户名" disabled />
+          <v-text-field
+            v-model="username"
+            :label="$t('email.username')"
+            disabled
+          />
           <v-text-field
             v-model="userForm.nickname"
-            label="昵称"
+            :label="$t('personal.nickname')"
             maxlength="50"
-            placeholder="请输入您的昵称"
+            :placeholder="$t('personal.inputNickname')"
             clearable
           />
           <v-text-field
             v-model="userForm.intro"
             class="mt-7"
-            label="简介"
+            :label="$t('personal.intro')"
             maxlength="50"
-            placeholder="介绍下自己吧"
+            :placeholder="$t('personal.inputIntro')"
             clearable
           />
           <v-text-field
             v-model="userForm.website"
             class="mt-7"
-            label="个人网站"
+            :label="$t('personal.website')"
             maxlength="255"
-            placeholder="https://你的网址"
+            placeholder="https://"
             clearable
           />
           <div class="mt-7 binding">
             <v-text-field
               v-model="email"
-              label="邮箱号"
-              placeholder="请绑定邮箱"
+              :label="$t('personal.email')"
+              :placeholder="$t('personal.bindEmail')"
               disabled
             />
-            <v-btn v-if="email" text small @click="openEmailModel">
-              修改绑定
+            <v-btn
+              v-if="email"
+              outlined
+              color="primary"
+              small
+              @click="openEmailModel"
+            >
+              {{ $t("button.change") }}
             </v-btn>
-            <v-btn v-else text small @click="openEmailModel">
-              绑定邮箱
+            <v-btn
+              v-else
+              outlined
+              color="primary"
+              small
+              @click="openEmailModel"
+            >
+              {{ $t("button.bind") }}
             </v-btn>
           </div>
-          <v-btn @click="updateInfo" outlined class="mt-5">修改</v-btn>
+          <v-btn @click="updateInfo" style="left: 45%" outlined class="mt-5">{{
+            $t("button.edit")
+          }}</v-btn>
         </v-col>
       </v-row>
     </v-card>
@@ -128,13 +146,13 @@ export default {
       ) {
         this.$toast({
           type: "error",
-          message: "上传的图片只能是jpg, png, gif格式"
+          message: this.$t("personal.tip1")
         });
         return false;
       }
       if (file.size >>> 20 > 5) {
         file.status = false;
-        this.$toast({ type: "error", message: "上传图片的大小不能超过5MB" });
+        this.$toast({ type: "error", message: this.$t("personal.tip2") });
         return false;
       }
       return true;

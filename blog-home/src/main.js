@@ -79,6 +79,7 @@ axios.interceptors.request.use(
     if (store.state.token != null) {
       request.headers["Token"] = store.state.token;
     }
+    request.headers["Lang"] = i18n.locale;
     return request;
   },
   function(error) {

@@ -491,7 +491,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
                 articleDTO.setPermitFlag(false);
             else if (flag) {
                 HashSet<Integer> articleTokenSet = RedisUtil.getMapValue(ARTICLE_TOKEN, loginUserId.toString());
-                if (!articleTokenSet.contains(id)) {
+                if (articleTokenSet == null || !articleTokenSet.contains(id)) {
                     articleDTO.setPermitFlag(false);
                     articleDTO.setArticleContent("");
                 }

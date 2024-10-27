@@ -9,41 +9,45 @@
         mdi-close
       </v-icon>
       <div class="login-wrapper">
-        <v-text-field
-          v-model="username"
-          :autofocus="username == null"
-          label="用户名"
-          maxlength="50"
-          placeholder="请输入您的用户名"
-          @keyup.enter="validLogin"
-          clearable
-        />
-        <v-text-field
-          v-model="password"
-          :type="show ? 'text' : 'password'"
-          :autofocus="username != null"
-          :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-          class="mt-7"
-          label="密码"
-          maxlength="50"
-          placeholder="请输入您的密码"
-          @keyup.enter="validLogin"
-          @click:append="show = !show"
-        />
-        <v-btn
-          class="mt-7"
-          block
-          color="blue"
-          style="color:#fff"
-          @click="validLogin"
-        >
-          登录
-        </v-btn>
+        <v-form ref="validForm">
+          <v-text-field
+            v-model="username"
+            :autofocus="username == null"
+            :label="$t('email.username')"
+            maxlength="50"
+            :placeholder="$t('register.inputUsername')"
+            @keyup.enter="validLogin"
+            clearable
+          />
+          <v-text-field
+            v-model="password"
+            :type="show ? 'text' : 'password'"
+            :autofocus="username != null"
+            :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+            class="mt-7"
+            :label="$t('email.password')"
+            maxlength="50"
+            :placeholder="$t('email.inputPwd')"
+            @keyup.enter="validLogin"
+            @click:append="show = !show"
+          />
+          <v-btn
+            class="mt-7"
+            block
+            color="blue"
+            style="color:#fff"
+            @click="validLogin"
+          >
+            {{ $t("navBar.login") }}
+          </v-btn>
+        </v-form>
         <div class="mt-10 login-tip">
-          <span @click="openRegister">立即注册</span>
-          <span @click="openForget" class="float-right">忘记密码?</span>
+          <span @click="openRegister">{{ $t("login.register") }}</span>
+          <span @click="openForget" class="float-right"
+            >{{ $t("login.forgot") }}?</span
+          >
         </div>
-        <div class="social-login-title">社交账号登录</div>
+        <div class="social-login-title">{{ $t("login.social") }}</div>
         <div class="social-login-wrapper">
           <a
             class="iconfont my-icon-qq"
@@ -77,6 +81,16 @@ export default {
       }
     }
   },
+  watch: {
+    "$i18n.locale"() {
+      if (this.$refs.validForm) {
+        this.$refs.validForm.reset();
+        this.$nextTick(() => {
+          this.username = localStorage.getItem("username");
+        });
+      }
+    }
+  },
   methods: {
     openRegister() {
       this.$store.commit("updateLoginFlag", false);
@@ -88,11 +102,11 @@ export default {
     },
     validLogin() {
       if (this.username.trim().length === 0) {
-        this.$toast({ type: "error", message: "用户名不能为空" });
+        this.$toast({ type: "error", message: this.$t("login.usernameRule") });
         return false;
       }
       if (this.password.trim().length === 0) {
-        this.$toast({ type: "error", message: "密码不能为空" });
+        this.$toast({ type: "error", message: this.$t("login.passwordRule") });
         return false;
       }
       const that = this;

@@ -9,54 +9,60 @@
         mdi-close
       </v-icon>
       <div class="login-wrapper">
-        <v-text-field v-model="username" label="用户名" disabled />
-        <v-text-field
-          v-model="email"
-          :rules="[rules.email]"
-          label="邮箱"
-          maxlength="50"
-          placeholder="请输入您的新邮箱"
-          @keyup.enter="modifyUserEmail"
-          clearable
-        />
-        <v-text-field
-          v-model="password"
-          :rules="[rules.required]"
-          :type="show ? 'text' : 'password'"
-          :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-          class="mt-7"
-          label="密码"
-          placeholder="请输入您的密码"
-          @keyup.enter="modifyUserEmail"
-          @click:append="show = !show"
-        />
-        <div class="mt-7 send-wrapper">
+        <v-form ref="validForm">
           <v-text-field
-            v-model="code"
-            label="验证码"
-            maxlength="6"
-            placeholder="请输入6位验证码"
-            @keyup.enter="modifyUserEmail"
+            v-model="username"
+            :label="$t('email.username')"
+            disabled
           />
+          <v-text-field
+            v-model="email"
+            :rules="[rules.email]"
+            :label="$t('email.email')"
+            maxlength="50"
+            :placeholder="$t('email.inputEmail')"
+            @keyup.enter="modifyUserEmail"
+            clearable
+          />
+          <v-text-field
+            v-model="password"
+            :rules="[rules.required]"
+            :type="show ? 'text' : 'password'"
+            :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+            class="mt-7"
+            :label="$t('email.password')"
+            :placeholder="$t('email.inputPwd')"
+            @keyup.enter="modifyUserEmail"
+            @click:append="show = !show"
+          />
+          <div class="mt-7 send-wrapper">
+            <v-text-field
+              v-model="code"
+              maxlength="6"
+              :label="$t('email.captcha')"
+              :placeholder="$t('email.inputCaptcha')"
+              @keyup.enter="modifyUserEmail"
+            />
+            <v-btn
+              outlined
+              color="primary"
+              small
+              :disabled="flag || status"
+              @click="sendEmailCode"
+            >
+              {{ codeMsg }}
+            </v-btn>
+          </div>
           <v-btn
-            text
-            small
-            rounded
-            :disabled="flag || status"
-            @click="sendEmailCode"
+            class="mt-7"
+            color="blue"
+            style="color:#fff"
+            @click="modifyUserEmail"
+            block
           >
-            {{ codeMsg }}
+            {{ $t("button.bind") }}
           </v-btn>
-        </div>
-        <v-btn
-          class="mt-7"
-          color="blue"
-          style="color:#fff"
-          @click="modifyUserEmail"
-          block
-        >
-          绑定
-        </v-btn>
+        </v-form>
       </div>
     </v-card>
   </v-dialog>
@@ -75,9 +81,10 @@ export default {
       show: false,
       status: false,
       time: 60,
-      codeMsg: "发送",
+      codeMsg: this.$t("button.get"),
       rules: {
-        required: value => value.length >= 6 || "至少6个字符!",
+        required: value =>
+          !value || value.length >= 6 || this.$t("reset.passwordRule1"),
         email: value => {
           const pattern = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
           if (pattern.test(value)) {
@@ -85,7 +92,7 @@ export default {
             return true;
           }
           this.flag = true;
-          return "邮箱格式不正确!";
+          return this.$t("email.emailRule1");
         }
       }
     };
@@ -97,6 +104,14 @@ export default {
       },
       get() {
         return this.$store.state.emailFlag;
+      }
+    }
+  },
+  watch: {
+    "$i18n.locale"() {
+      if (this.$refs.validForm) {
+        this.$refs.validForm.reset();
+        this.codeMsg = this.$t("button.get");
       }
     }
   },
@@ -137,7 +152,7 @@ export default {
         this.codeMsg = this.time + "s";
         if (this.time <= 0) {
           clearInterval(this.timer);
-          this.codeMsg = "发送";
+          this.codeMsg = this.$t("button.get");
           this.time = 60;
           this.status = false;
         }
@@ -146,15 +161,15 @@ export default {
     modifyUserEmail() {
       const pattern = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
       if (!pattern.test(this.email)) {
-        this.$toast({ type: "error", message: "邮箱格式不正确" });
+        this.$toast({ type: "error", message: this.$t("email.emailRule2") });
         return false;
       }
       if (this.password.trim().length < 6) {
-        this.$toast({ type: "error", message: "密码不能少于6位" });
+        this.$toast({ type: "error", message: this.$t("email.passwordRule1") });
         return false;
       }
       if (this.code.trim().length !== 6) {
-        this.$toast({ type: "error", message: "请输入6位验证码" });
+        this.$toast({ type: "error", message: this.$t("email.captchaRule1") });
         return false;
       }
       let user = {

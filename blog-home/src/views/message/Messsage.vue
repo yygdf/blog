@@ -12,7 +12,7 @@
             :placeholder="$t('message.say')"
           />
           <button @click="addToList" v-show="show">
-            {{ $t("message.send") }}
+            {{ $t("button.send") }}
           </button>
         </div>
       </div>

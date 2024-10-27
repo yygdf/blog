@@ -5,14 +5,16 @@
       <label class="token-input">
         <input
           v-model="token"
-          placeholder="请输入密令"
+          :placeholder="$t('confirm.input')"
           ref="tokenInput"
           @keyup.enter="ok"
         />
       </label>
       <v-card-actions style="justify-content: center;">
-        <v-btn @click="ok" style="margin-right: 1rem;">确定</v-btn>
-        <v-btn @click="cancel">取消</v-btn>
+        <v-btn @click="ok" style="margin-right: 1rem;">{{
+          $t("button.yes")
+        }}</v-btn>
+        <v-btn @click="cancel">{{ $t("button.no") }}</v-btn>
       </v-card-actions>
     </v-card>
   </div>

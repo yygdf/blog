@@ -58,7 +58,7 @@
         <el-form-item :label="$t('article.category')">
           <el-select
             v-model="article.categoryId"
-            :placeholder="$t('article.selectCategory')"
+            :placeholder="$t('input.selectCategory')"
             class="form-input-width2"
           >
             <el-option
@@ -73,7 +73,7 @@
         <el-form-item :label="$t('article.tag')">
           <el-select
             v-model="article.tagIdList"
-            :placeholder="$t('article.selectTag')"
+            :placeholder="$t('input.selectTag')"
             class="form-input-width2"
             multiple
             clearable

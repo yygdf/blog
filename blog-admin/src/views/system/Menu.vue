@@ -209,7 +209,6 @@
         <el-form-item :label="$t('menu.nameEn')">
           <el-input
             v-model="menu.nameEn"
-            ref="input"
             class="word-limit-input form-input-width"
             maxlength="50"
             :placeholder="$t('menu.inputNameEn')"

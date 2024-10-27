@@ -188,7 +188,6 @@
         <el-form-item :label="$t('resource.nameEn')">
           <el-input
             v-model="resource.resourceNameEn"
-            ref="input"
             class="word-limit-input form-input-width"
             maxlength="50"
             :placeholder="$t('resource.inputNameEn')"

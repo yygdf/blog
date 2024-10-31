@@ -26,6 +26,16 @@ export async function generateMenu() {
           route.meta = { nameEn: route.nameEn };
         });
       });
+      userMenuList[userMenuList.length - 1].children.push({
+        path: "/*",
+        name: "NotFound",
+        hideFlag: true,
+        meta: {
+          nameEn: "NotFound"
+        },
+        component: () => import("../../views/unknown/Unknown"),
+        children: null
+      });
       store.commit("saveUserMenuList", userMenuList);
       router.addRoutes(userMenuList);
     }

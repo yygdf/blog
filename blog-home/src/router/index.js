@@ -10,6 +10,7 @@ import About from "../views/about/About.vue";
 import Message from "../views/message/Messsage.vue";
 import Articles from "../views/article/Articles.vue";
 import Personal from "../views/personal/Personal.vue";
+import Unknown from "../views/unknown/unknown.vue";
 import QQOauth from "../components/QQOauth.vue";
 Vue.use(VueRouter);
 
@@ -61,6 +62,10 @@ const routes = [
   {
     path: "/oauth/qq",
     component: QQOauth
+  },
+  {
+    path: "*",
+    component: Unknown
   }
 ];
 

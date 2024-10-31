@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { resetRouter } from "../../router";
+import { resetRouter } from "../router";
 export default {
   created() {
     this.tab = {

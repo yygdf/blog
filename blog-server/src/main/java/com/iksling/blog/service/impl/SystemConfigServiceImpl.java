@@ -59,6 +59,7 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
         ENABLE_USER_CONFIG = Boolean.parseBoolean(hashMap.get("enable_user_config"));
         ENABLE_FILE_TYPE_STRICT = Boolean.parseBoolean(hashMap.get("enable_file_type_strict"));
         PERMISSION_MODIFY_OFFLINE_USER = Boolean.parseBoolean(hashMap.get("permission_modify_offline_user"));
+        DISABLE_MOD_PASS_USER_ID_LIST = Arrays.stream(hashMap.get("disable_mod_pass_user_id_list").split(",")).map(Integer::parseInt).collect(Collectors.toList());
     }
 
     @Override

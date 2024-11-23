@@ -1230,7 +1230,7 @@ CREATE TABLE `tb_system_config`  (
   `update_user` int(11) NULL DEFAULT NULL COMMENT '更新人, 默认null',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间, 默认null',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tb_system_config
@@ -1250,6 +1250,7 @@ INSERT INTO `tb_system_config` VALUES (12, 2, '默认角色同步标志(true/fal
 INSERT INTO `tb_system_config` VALUES (13, 2, '前台首页博主id', 'home_blogger_id', '2', 0, 2, '2024-01-08 10:00:38', NULL, NULL);
 INSERT INTO `tb_system_config` VALUES (14, 2, '检查文件类型是否启用严格模式(true/false)', 'enable_file_type_strict', 'false', 0, 2, '2024-01-08 10:00:38', NULL, NULL);
 INSERT INTO `tb_system_config` VALUES (15, 2, '角色权限变更是否强制下线该角色对应的用户(true/false)', 'permission_modify_offline_user', 'true', 0, 2, '2024-01-08 10:00:38', NULL, NULL);
+INSERT INTO `tb_system_config` VALUES (16, 2, '不允许自己修改密码的用户id组', 'disable_mod_pass_user_id_list', '5,6', 0, 2, '2024-01-08 10:00:38', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for tb_tag

@@ -284,6 +284,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Transactional
     public void updateUserPasswordVO(PasswordVO passwordVO) {
         Integer loginUserId = UserUtil.getLoginUser().getUserId();
+        if (DISABLE_MOD_PASS_USER_ID_LIST.contains(loginUserId))
+            return;
         UserAuth userAuth = userAuthMapper.selectOne(new LambdaQueryWrapper<UserAuth>()
                 .select(UserAuth::getPassword, UserAuth::getDisabledFlag)
                 .eq(UserAuth::getUserId, loginUserId));
@@ -334,6 +336,9 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Override
     @Transactional
     public void updateUserForgetPasswordVO(PasswordForgetVO passwordForgetVO) {
+        Integer loginUserId = UserUtil.getLoginUser().getUserId();
+        if (DISABLE_MOD_PASS_USER_ID_LIST.contains(loginUserId))
+            return;
         String email = passwordForgetVO.getEmail();
         if (!RegexUtil.checkEmail(email))
             throw new OperationStatusException();

@@ -90,4 +90,9 @@ public class CommonConst {
      * 角色权限变更是否强制下线该角色对应的用户
      */
     public static Boolean PERMISSION_MODIFY_OFFLINE_USER = true;
+
+    /**
+     * 不允许自己修改密码的用户id组
+     */
+    public static List<Integer> DISABLE_MOD_PASS_USER_ID_LIST = Arrays.asList(5, 6);
 }

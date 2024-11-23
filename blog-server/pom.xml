@@ -11,7 +11,7 @@
 
     <groupId>com.iksling</groupId>
     <artifactId>blog</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
 
     <name>blog-server</name>
     <packaging>jar</packaging>
@@ -21,17 +21,17 @@
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <mysql-connector-java-version>5.1.42</mysql-connector-java-version>
-        <springfox-swagger2-version>2.9.2</springfox-swagger2-version>
-        <springfox-swagger-ui-version>2.9.2</springfox-swagger-ui-version>
-        <swagger-annotations-version>1.5.21</swagger-annotations-version>
-        <swagger-models-version>1.5.21</swagger-models-version>
-        <fastjson-version>1.2.62</fastjson-version>
-        <mybatis-plus-boot-starter-version>3.3.0</mybatis-plus-boot-starter-version>
-        <UserAgentUtils-version>1.20</UserAgentUtils-version>
-        <commons-net-version>3.3</commons-net-version>
-        <hibernate-validator-version>6.2.0.Final</hibernate-validator-version>
-        <jjwt-version>0.9.1</jjwt-version>
+        <mysql-connector-java.version>5.1.42</mysql-connector-java.version>
+        <springfox-swagger2.version>2.9.2</springfox-swagger2.version>
+        <springfox-swagger-ui.version>2.9.2</springfox-swagger-ui.version>
+        <swagger-annotations.version>1.5.21</swagger-annotations.version>
+        <swagger-models.version>1.5.21</swagger-models.version>
+        <fastjson.version>1.2.62</fastjson.version>
+        <mybatis-plus-boot-starter.version>3.3.0</mybatis-plus-boot-starter.version>
+        <UserAgentUtils.version>1.20</UserAgentUtils.version>
+        <commons-net.version>3.3</commons-net.version>
+        <hibernate-validator.version>6.2.0.Final</hibernate-validator.version>
+        <jjwt.version>0.9.1</jjwt.version>
     </properties>
 
     <dependencies>
@@ -85,7 +85,7 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <version>${springfox-swagger2-version}</version>
+            <version>${springfox-swagger2.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.swagger</groupId>
@@ -100,60 +100,60 @@
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>${swagger-annotations-version}</version>
+            <version>${swagger-annotations.version}</version>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-models</artifactId>
-            <version>${swagger-models-version}</version>
+            <version>${swagger-models.version}</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
-            <version>${springfox-swagger-ui-version}</version>
+            <version>${springfox-swagger-ui.version}</version>
         </dependency>
         <!-- mysql -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql-connector-java-version}</version>
+            <version>${mysql-connector-java.version}</version>
             <scope>runtime</scope>
         </dependency>
         <!-- fastjson -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>${fastjson-version}</version>
+            <version>${fastjson.version}</version>
         </dependency>
         <!-- mybatisplus -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>${mybatis-plus-boot-starter-version}</version>
+            <version>${mybatis-plus-boot-starter.version}</version>
         </dependency>
         <!-- user-agent -->
         <dependency>
             <groupId>eu.bitwalker</groupId>
             <artifactId>UserAgentUtils</artifactId>
-            <version>${UserAgentUtils-version}</version>
+            <version>${UserAgentUtils.version}</version>
         </dependency>
         <!-- ftp -->
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
-            <version>${commons-net-version}</version>
+            <version>${commons-net.version}</version>
         </dependency>
         <!-- valid -->
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>${hibernate-validator-version}</version>
+            <version>${hibernate-validator.version}</version>
         </dependency>
         <!-- jwt -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
-            <version>${jjwt-version}</version>
+            <version>${jjwt.version}</version>
         </dependency>
 
         <dependency>

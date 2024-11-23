@@ -53,9 +53,6 @@ Vue.filter("num", function(value) {
 
 router.beforeEach((to, from, next) => {
   NProgress.start();
-  if (to.meta.title) {
-    document.title = to.meta.title;
-  }
   if (to.query.token != null) {
     store.commit("saveToken", to.query.token);
     store.commit("login", JSON.parse(to.query.loginUserDTO.toString()));

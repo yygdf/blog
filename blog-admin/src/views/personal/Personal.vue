@@ -182,6 +182,14 @@
               @uploaded="uploadedAvatar"
               trigger="#pick-avatar"
               upload-url="/api/user/avatar"
+              :labels="{
+                submit: $t('button.save'),
+                cancel: $t('button.cancel')
+              }"
+              :upload-headers="{
+                Lang: this.$i18n.locale,
+                Token: this.$store.state.token
+              }"
             />
           </el-form-item>
         </el-form>

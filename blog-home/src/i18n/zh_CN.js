@@ -11,7 +11,8 @@ export default {
     no: "取消",
     get: "获取",
     register: "注册",
-    change: "换绑"
+    change: "换绑",
+    save: "保存"
   },
   navBar: {
     search: "搜索",

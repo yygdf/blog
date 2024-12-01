@@ -11,7 +11,8 @@ export default {
     no: "cancel",
     get: "get",
     register: "Register",
-    change: "Change"
+    change: "Change",
+    save: "save"
   },
   navBar: {
     search: "Search",

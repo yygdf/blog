@@ -19,6 +19,14 @@
             @uploaded="uploadedAvatar"
             trigger="#pick-avatar"
             upload-url="/api/user/avatar"
+            :labels="{
+              submit: $t('button.save'),
+              cancel: $t('button.no')
+            }"
+            :upload-headers="{
+              Lang: this.$i18n.locale,
+              Token: this.$store.state.token
+            }"
           />
         </v-col>
         <v-col md="7" cols="12">

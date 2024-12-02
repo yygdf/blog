@@ -177,6 +177,7 @@ public class FtpUtil {
         ftpClient.connect(hostname, port);
         ftpClient.login(username, password);
         ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+        ftpClient.setBufferSize(1024 * 1024 * 10);
         ftpClient.enterLocalPassiveMode();
         return ftpClient;
     }

@@ -15,6 +15,9 @@ module.exports = {
     },
     disableHostCheck: true
   },
+  chainWebpack: config => {
+    config.resolve.alias.set("@", resolve("src"));
+  },
   pages: {
     index: {
       entry: "./src/main.js",
@@ -23,3 +26,8 @@ module.exports = {
     }
   }
 };
+
+const path = require("path");
+function resolve(dir) {
+  return path.join(__dirname, dir);
+}

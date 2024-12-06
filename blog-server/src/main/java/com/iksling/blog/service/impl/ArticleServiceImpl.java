@@ -622,16 +622,23 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         long fileNameNew = IdWorker.getId();
         String[] pathArr = fileFullPath.split("[_.]");
         String fileFullPathOld = pathArr[0];
+        long fileNameOld;
+        try {
+            fileNameOld = Long.parseLong(getSplitStringByIndex(fileFullPathOld, "/", -1));
+        } catch (NumberFormatException e) {
+            return;
+        }
         String fileFullPathNew = fileFullPathOld + "_" + fileNameNew + "_" + DELETED + "." + pathArr[pathArr.length - 1];
-        multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
+        int count = multiFileMapper.update(null, new LambdaUpdateWrapper<MultiFile>()
                 .set(MultiFile::getFileNameNew, fileNameNew)
                 .set(MultiFile::getFileFullPath, fileFullPathNew)
                 .set(MultiFile::getDeletedCount, 1)
                 .set(MultiFile::getUpdateUser, loginUserId)
                 .set(MultiFile::getUpdateTime, updateTime)
-                .eq(MultiFile::getFileName, getSplitStringByIndex(fileFullPathOld, "/", -1))
+                .eq(MultiFile::getFileName, fileNameOld)
                 .inSql(MultiFile::getParentId, "select mf.id from (select id from tb_multi_file where file_name="+articleId+") mf"));
-        MultiFileUtil.rename(fileFullPathOld, fileFullPathNew);
+        if (count == 1)
+            MultiFileUtil.rename(fileFullPathOld, fileFullPathNew);
     }
 
     private void saveArticleDirById(Integer id, Integer loginUserId, Date createTime) {

@@ -1132,13 +1132,13 @@ export default {
     switchFileSize() {
       return function(size) {
         if (size >= 1073741824) {
-          return Math.ceil((size >>> 30) * 100) / 100 + "GB";
+          return Math.ceil((size / 1073741824) * 100) / 100 + "GB";
         }
         if (size >= 1048576) {
-          return Math.ceil((size >>> 20) * 100) / 100 + "MB";
+          return Math.ceil((size / 1048576) * 100) / 100 + "MB";
         }
         if (size >= 1024) {
-          return Math.ceil((size >>> 10) * 100) / 100 + "KB";
+          return Math.ceil((size / 1024) * 100) / 100 + "KB";
         }
         if (size > 0) {
           return size + "B";

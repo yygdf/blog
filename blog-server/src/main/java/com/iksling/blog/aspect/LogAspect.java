@@ -8,7 +8,7 @@ import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.mapper.ExceptionLogMapper;
 import com.iksling.blog.mapper.OperationLogMapper;
 import com.iksling.blog.pojo.LoginUser;
-import com.iksling.blog.util.EmailUtil;
+import com.iksling.blog.util.RabbitUtil;
 import com.iksling.blog.util.IpUtil;
 import com.iksling.blog.util.LocaleUtil;
 import com.iksling.blog.util.UserUtil;
@@ -115,7 +115,7 @@ public class LogAspect {
             exceptionLog.setIllegalFlag(true);
             exceptionLogMapper.insert(exceptionLog);
             exceptionLog.setExceptionStackTrace(null);
-            EmailUtil.sendEmail(ADMIN_CONTACT_EMAIL, LocaleUtil.getMessage("A0003", loginUser.getUsername(), WEBSITE_URL_BACK), JSON.toJSONString(exceptionLog));
+            RabbitUtil.sendEmail(ADMIN_CONTACT_EMAIL, LocaleUtil.getMessage("A0003", loginUser.getUsername(), WEBSITE_URL_BACK), JSON.toJSONString(exceptionLog));
         } else
             exceptionLogMapper.insert(exceptionLog);
     }

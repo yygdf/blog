@@ -184,7 +184,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
                             .noticeContent(LocaleUtil.getMessage("S0034", WEBSITE_URL_BACK, WEBSITE_URL, userId))
                             .createUser(userId)
                             .createTime(createTime).build());
-                    EmailUtil.sendEmail(email, LocaleUtil.getMessage("S0033"), LocaleUtil.getMessage("S0034", WEBSITE_URL_BACK, WEBSITE_URL, userId));
+                    RabbitUtil.sendEmail(email, LocaleUtil.getMessage("S0033"), LocaleUtil.getMessage("S0034", WEBSITE_URL_BACK, WEBSITE_URL, userId));
                 }
             }
             offlineByUserId(userId);

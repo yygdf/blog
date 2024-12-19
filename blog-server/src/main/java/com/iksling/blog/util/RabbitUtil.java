@@ -8,15 +8,18 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+
+import static com.iksling.blog.constant.MQConst.CONFIG_EXCHANGE;
 import static com.iksling.blog.constant.MQConst.EMAIL_EXCHANGE;
 
 @Component
-public class EmailUtil {
+public class RabbitUtil {
     private static RabbitTemplate rabbitTemplate;
 
     @Autowired
     public void setRabbitTemplate(RabbitTemplate rabbitTemplate) {
-        EmailUtil.rabbitTemplate = rabbitTemplate;
+        RabbitUtil.rabbitTemplate = rabbitTemplate;
     }
 
     public static void sendEmail(String to, String subject, String content) {
@@ -25,5 +28,15 @@ public class EmailUtil {
                 .subject(subject)
                 .content(content)
                 .build()), new MessageProperties()));
+    }
+
+    public static void sendConfig(String key, String value) {
+        sendConfig(new HashMap<String, String>() {{
+            put(key, value);
+        }});
+    }
+
+    public static void sendConfig(HashMap<String, String> hashMap) {
+        rabbitTemplate.convertAndSend(CONFIG_EXCHANGE, "*", new Message(JSON.toJSONBytes(hashMap), new MessageProperties()));
     }
 }

@@ -10,6 +10,7 @@ import com.iksling.blog.pojo.Dict;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.BlogService;
 import com.iksling.blog.util.LocaleUtil;
+import com.iksling.blog.util.RabbitUtil;
 import com.iksling.blog.util.RedisUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.StatusBackVO;
@@ -71,8 +72,8 @@ public class BlogServiceImpl implements BlogService {
         String loginUserId = UserUtil.getLoginUser().getUserId().toString();
         HashMap<String, Integer> map = UserUtil.getUserMessageConfig(loginUserId);
         map.put(type.toString(), value);
-        USER_MESSAGE_CONFIG_MAP.put(loginUserId, map);
         RedisUtil.setMapValue(USER_MESSAGE_CONFIG, loginUserId, map);
+        RabbitUtil.sendConfig("FLAG_2", loginUserId);
     }
 
     @Override

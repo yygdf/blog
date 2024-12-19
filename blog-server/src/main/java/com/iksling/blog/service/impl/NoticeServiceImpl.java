@@ -11,7 +11,7 @@ import com.iksling.blog.mapper.UserMapper;
 import com.iksling.blog.pojo.Condition;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.service.NoticeService;
-import com.iksling.blog.util.EmailUtil;
+import com.iksling.blog.util.RabbitUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.NoticeBackVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -61,7 +61,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice>
                     .eq(User::getId, userId));
             String email = objectList.get(0).toString();
             if (!email.equals(""))
-                EmailUtil.sendEmail(email, noticeBackVO.getNoticeTitle(), noticeBackVO.getNoticeContent());
+                RabbitUtil.sendEmail(email, noticeBackVO.getNoticeTitle(), noticeBackVO.getNoticeContent());
         } else {
             noticeMapper.insert(Notice.builder()
                     .userId(userId)

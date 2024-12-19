@@ -415,17 +415,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             if (userMapper.selectBackUserAvatarById(email, null, null) != null)
                 throw new OperationStatusException(LocaleUtil.getMessage("S0026"));
             RedisUtil.setValue(EMAIL_REGISTER_CODE + "_" + email, code, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
-            EmailUtil.sendEmail(email, LocaleUtil.getMessage("S0027"), LocaleUtil.getMessage("S0028", code.toString()));
+            RabbitUtil.sendEmail(email, LocaleUtil.getMessage("S0027"), LocaleUtil.getMessage("S0028", code.toString()));
         } else if (emailCodeVO.getType() == 2) {
             if (userMapper.selectBackUserAvatarById(email, null, null) == null)
                 throw new OperationStatusException(LocaleUtil.getMessage("S0021"));
             RedisUtil.setValue(EMAIL_FORGET_CODE + "_" + email, code, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
-            EmailUtil.sendEmail(email, LocaleUtil.getMessage("S0029"), LocaleUtil.getMessage("S0030", code.toString()));
+            RabbitUtil.sendEmail(email, LocaleUtil.getMessage("S0029"), LocaleUtil.getMessage("S0030", code.toString()));
         } else {
             if (userMapper.selectBackUserAvatarById(email, null, null) != null)
                 throw new OperationStatusException(LocaleUtil.getMessage("S0026"));
             RedisUtil.setValue(EMAIL_MODIFY_CODE + "_" + email, code, CODE_EXPIRE_TIME, TimeUnit.MILLISECONDS);
-            EmailUtil.sendEmail(email, LocaleUtil.getMessage("S0031"), LocaleUtil.getMessage("S0028", code.toString()));
+            RabbitUtil.sendEmail(email, LocaleUtil.getMessage("S0031"), LocaleUtil.getMessage("S0028", code.toString()));
         }
     }
 
@@ -703,7 +703,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                         .noticeContent(LocaleUtil.getMessage("S0034", WEBSITE_URL_BACK, WEBSITE_URL, userId))
                         .createUser(userId)
                         .createTime(createTime).build());
-                EmailUtil.sendEmail(email, LocaleUtil.getMessage("S0033"), LocaleUtil.getMessage("S0034", WEBSITE_URL_BACK, WEBSITE_URL, userId));
+                RabbitUtil.sendEmail(email, LocaleUtil.getMessage("S0033"), LocaleUtil.getMessage("S0034", WEBSITE_URL_BACK, WEBSITE_URL, userId));
             }
         }
     }

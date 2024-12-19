@@ -10,6 +10,7 @@ import com.iksling.blog.mapper.UserConfigMapper;
 import com.iksling.blog.pojo.LoginUser;
 import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.UserConfigService;
+import com.iksling.blog.util.RabbitUtil;
 import com.iksling.blog.util.RegexUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.pojo.Condition;
@@ -78,7 +79,7 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
                     .eq(UserConfig::getId, userConfigBackVO.getId())
                     .eq(UserConfig::getUserId, ROOT_USER_ID));
             if (count == 1)
-                this.loadUserConfigMap();
+                RabbitUtil.sendConfig("FLAG_1", "");
         }
     }
 

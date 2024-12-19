@@ -13,6 +13,7 @@ import com.iksling.blog.pojo.PagePojo;
 import com.iksling.blog.service.SystemConfigService;
 import com.iksling.blog.util.BeanCopyUtil;
 import com.iksling.blog.util.LocaleUtil;
+import com.iksling.blog.util.RabbitUtil;
 import com.iksling.blog.util.UserUtil;
 import com.iksling.blog.vo.SystemConfigBackVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +84,12 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
             systemConfig.setUpdateUser(loginUserId);
             systemConfig.setUpdateTime(new Date());
             systemConfigMapper.updateById(systemConfig);
-            this.loadSystemConfigMap();
+            if (systemConfig.getConfigValue() != null) {
+                SystemConfig systemConfigOrigin = systemConfigMapper.selectOne(new LambdaQueryWrapper<SystemConfig>()
+                        .select(SystemConfig::getConfigName)
+                        .eq(SystemConfig::getId, systemConfig.getId()));
+                RabbitUtil.sendConfig(systemConfigOrigin.getConfigName(), systemConfig.getConfigValue());
+            }
         }
     }
 

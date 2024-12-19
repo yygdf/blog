@@ -12,15 +12,11 @@ import com.iksling.blog.entity.RoleMenu;
 import com.iksling.blog.entity.RoleResource;
 import com.iksling.blog.exception.IllegalRequestException;
 import com.iksling.blog.exception.OperationStatusException;
-import com.iksling.blog.handler.FilterInvocationSecurityMetadataSourceImpl;
 import com.iksling.blog.mapper.RoleMapper;
 import com.iksling.blog.mapper.RoleMenuMapper;
 import com.iksling.blog.mapper.RoleResourceMapper;
 import com.iksling.blog.service.*;
-import com.iksling.blog.util.BeanCopyUtil;
-import com.iksling.blog.util.LocaleUtil;
-import com.iksling.blog.util.RedisUtil;
-import com.iksling.blog.util.UserUtil;
+import com.iksling.blog.util.*;
 import com.iksling.blog.vo.RoleBackVO;
 import com.iksling.blog.vo.RolePermissionBackVO;
 import com.iksling.blog.vo.StatusBackVO;
@@ -68,9 +64,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
 
     @Autowired
     private RedisTemplate redisTemplate;
-
-    @Autowired
-    private FilterInvocationSecurityMetadataSourceImpl filterInvocationSecurityMetadataSource;
 
     @Override
     @Transactional
@@ -161,7 +154,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
                             .resourceId(resourceId)
                             .build())
                     .collect(Collectors.toList()));
-            filterInvocationSecurityMetadataSource.loadResourceRoleList();
+            RabbitUtil.sendConfig("FLAG_0", "");
         }
         if (PERMISSION_MODIFY_OFFLINE_USER)
             offlineByRoleId(rolePermissionBackVO.getId());

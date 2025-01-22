@@ -214,6 +214,7 @@
 
 <script>
 import EasyTyper from "easy-typer-js";
+import english from "../../assets/js/english";
 export default {
   created() {
     this.init();
@@ -242,13 +243,21 @@ export default {
   methods: {
     init() {
       document.title = this.$route.meta.title;
-      fetch("https://v1.hitokoto.cn?c=i")
-        .then(res => {
-          return res.json();
-        })
-        .then(({ hitokoto }) => {
-          this.initTyped(hitokoto);
-        });
+      if (this.$i18n.locale === "en_US") {
+        this.obj.speed = 100;
+        this.initTyped(
+          english.series[Math.floor(Math.random() * english.series.length)]
+        );
+      } else {
+        this.obj.speed = 300;
+        fetch("https://v1.hitokoto.cn?c=i")
+          .then(res => {
+            return res.json();
+          })
+          .then(({ hitokoto }) => {
+            this.initTyped(hitokoto);
+          });
+      }
     },
     initTyped(input, fn, hooks) {
       const obj = this.obj;

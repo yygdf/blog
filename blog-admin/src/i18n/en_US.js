@@ -96,6 +96,7 @@ export default {
     updateDate: "update date",
     operate: "operate",
     showColumn: "show column",
+    refresh: "refresh",
     createDate: "create date",
     avatar: "avatar",
     ipSource: "ip source",

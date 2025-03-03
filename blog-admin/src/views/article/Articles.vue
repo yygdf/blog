@@ -298,12 +298,10 @@
         width="220"
       >
         <template slot="header">
-          <el-popover
-            placement="bottom"
-            :title="$t('table.showColumn')"
-            width="160"
-          >
+          <el-popover placement="bottom" width="160">
             <div>
+              <el-checkbox>{{ $t("table.showColumn") }}</el-checkbox>
+              <el-divider></el-divider>
               <el-checkbox
                 v-if="checkWeight(300)"
                 v-model="showColumnConfig.username"
@@ -355,8 +353,20 @@
                 </el-button>
               </div>
             </div>
+
             <i slot="reference" class="el-icon-setting table-setting-icon"></i>
           </el-popover>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :content="$t('table.refresh')"
+            placement="top"
+          >
+            <i
+              class="el-icon-refresh table-refresh-icon"
+              @click="getArticles"
+            ></i>
+          </el-tooltip>
         </template>
         <template slot-scope="scope">
           <el-button

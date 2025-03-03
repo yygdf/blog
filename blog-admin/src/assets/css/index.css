@@ -107,6 +107,15 @@ body {
   color: dodgerblue;
 }
 
+.table-refresh-icon {
+  font-size: 20px;
+  cursor: pointer;
+  float: right;
+}
+.table-refresh-icon:hover {
+  color: dodgerblue;
+}
+
 .form-input-width {
   width: 320px;
 }
@@ -213,4 +222,8 @@ body {
 }
 .del-btn:hover {
   color: #ff7242;
+}
+
+.el-divider--horizontal {
+  margin: 8px 0;
 }

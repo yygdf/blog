@@ -143,19 +143,16 @@
       </el-table-column>
       <el-table-column :label="$t('table.operate')" align="center" width="160">
         <template slot="header">
-          <el-popover
-            placement="bottom"
-            width="160"
-          >
+          <el-popover placement="bottom" width="160">
             <div>
               <el-checkbox
-                    :indeterminate="
+                :indeterminate="
                   columnCheckedCount > 0 && columnCheckedCount < columnCount
                 "
-                    :value="columnCheckedCount === columnCount"
-                    @change="handleColumnCheckedAllChange"
-            >{{ $t("table.showColumn") }}</el-checkbox
-            >
+                :value="columnCheckedCount === columnCount"
+                @change="handleColumnCheckedAllChange"
+                >{{ $t("table.showColumn") }}</el-checkbox
+              >
               <el-divider></el-divider>
               <el-checkbox
                 v-if="checkWeight(200)"
@@ -163,21 +160,31 @@
                 @change="handleColumnCheckedChange"
                 >{{ $t("table.user") }}</el-checkbox
               >
-              <el-checkbox v-model="showColumnConfig.configName" @change="handleColumnCheckedChange">{{
-                $t("systemConfig.name")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.configValue" @change="handleColumnCheckedChange">{{
-                $t("systemConfig.value")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.configDesc" @change="handleColumnCheckedChange">{{
-                $t("systemConfig.desc")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.createTime" @change="handleColumnCheckedChange">{{
-                $t("table.createDate")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.updateTime" @change="handleColumnCheckedChange">{{
-                $t("table.updateDate")
-              }}</el-checkbox>
+              <el-checkbox
+                v-model="showColumnConfig.configName"
+                @change="handleColumnCheckedChange"
+                >{{ $t("systemConfig.name") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.configValue"
+                @change="handleColumnCheckedChange"
+                >{{ $t("systemConfig.value") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.configDesc"
+                @change="handleColumnCheckedChange"
+                >{{ $t("systemConfig.desc") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.createTime"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.createDate") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.updateTime"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.updateDate") }}</el-checkbox
+              >
               <div>
                 <el-button
                   type="primary"
@@ -193,14 +200,14 @@
             <i slot="reference" class="el-icon-setting table-setting-icon"></i>
           </el-popover>
           <el-tooltip
-                  class="item"
-                  effect="dark"
-                  :content="$t('table.refresh')"
-                  placement="top"
+            class="item"
+            effect="dark"
+            :content="$t('table.refresh')"
+            placement="top"
           >
             <i
-                    class="el-icon-refresh table-refresh-icon"
-                    @click="getUserConfigs(false)"
+              class="el-icon-refresh table-refresh-icon"
+              @click="getUserConfigs(false)"
             ></i>
           </el-tooltip>
         </template>
@@ -443,10 +450,10 @@ export default {
           localStorage.getItem("UserConfigColumnSet")
         );
         this.columnCheckedCount = Object.values(this.showColumnConfig).reduce(
-                (count, value) => {
-                  return value ? ++count : count;
-                },
-                0
+          (count, value) => {
+            return value ? ++count : count;
+          },
+          0
         );
       } else {
         this.initColumnConfig();

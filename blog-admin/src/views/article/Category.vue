@@ -183,36 +183,54 @@
       </el-table-column>
       <el-table-column :label="$t('table.operate')" align="center" width="160">
         <template slot="header">
-          <el-popover
-            placement="bottom"
-            :title="$t('table.showColumn')"
-            width="160"
-          >
+          <el-popover placement="bottom" width="160">
             <div>
+              <el-checkbox
+                :indeterminate="
+                  columnCheckedCount > 0 && columnCheckedCount < columnCount
+                "
+                :value="columnCheckedCount === columnCount"
+                @change="handleColumnCheckedAllChange"
+                >{{ $t("table.showColumn") }}</el-checkbox
+              >
+              <el-divider></el-divider>
               <el-checkbox
                 v-if="checkWeight(200)"
                 v-model="showColumnConfig.username"
+                @change="handleColumnCheckedChange"
                 >{{ $t("table.user") }}</el-checkbox
               >
-              <el-checkbox v-model="showColumnConfig.categoryName">{{
-                $t("category.name")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.articleCount">{{
-                $t("category.articleCount")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.createTime">{{
-                $t("table.createDate")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.updateTime">{{
-                $t("table.updateDate")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.publicFlag">{{
-                $t("switch.public")
-              }}</el-checkbox>
+              <el-checkbox
+                v-model="showColumnConfig.categoryName"
+                @change="handleColumnCheckedChange"
+                >{{ $t("category.name") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.articleCount"
+                @change="handleColumnCheckedChange"
+                >{{ $t("category.articleCount") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.createTime"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.createDate") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.updateTime"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.updateDate") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.publicFlag"
+                @change="handleColumnCheckedChange"
+                >{{ $t("switch.public") }}</el-checkbox
+              >
               <div />
-              <el-checkbox v-model="showColumnConfig.hiddenFlag">{{
-                $t("switch.hidden")
-              }}</el-checkbox>
+              <el-checkbox
+                v-model="showColumnConfig.hiddenFlag"
+                @change="handleColumnCheckedChange"
+                >{{ $t("switch.hidden") }}</el-checkbox
+              >
               <div>
                 <el-button
                   type="primary"
@@ -227,6 +245,17 @@
             </div>
             <i slot="reference" class="el-icon-setting table-setting-icon"></i>
           </el-popover>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :content="$t('table.refresh')"
+            placement="top"
+          >
+            <i
+              class="el-icon-refresh table-refresh-icon"
+              @click="getCategories(false)"
+            ></i>
+          </el-tooltip>
         </template>
         <template slot-scope="scope">
           <el-button
@@ -394,7 +423,9 @@ export default {
       addOrEditStatus: false,
       size: 10,
       count: 0,
-      current: 1
+      current: 1,
+      columnCount: 7,
+      columnCheckedCount: 0
     };
   },
   methods: {
@@ -441,6 +472,29 @@ export default {
         this.categoryIdList.push(item.id);
       });
     },
+    handleColumnCheckedChange(value) {
+      if (value) {
+        this.columnCheckedCount++;
+      } else {
+        this.columnCheckedCount--;
+      }
+    },
+    handleColumnCheckedAllChange(value) {
+      if (value) {
+        this.initColumnConfig();
+      } else {
+        this.showColumnConfig = {
+          username: false,
+          categoryName: false,
+          articleCount: false,
+          createTime: false,
+          updateTime: false,
+          publicFlag: false,
+          hiddenFlag: false
+        };
+        this.columnCheckedCount = 0;
+      }
+    },
     saveColumnConfig() {
       localStorage.setItem(
         "CategoryColumnSet",
@@ -453,17 +507,27 @@ export default {
         this.showColumnConfig = JSON.parse(
           localStorage.getItem("CategoryColumnSet")
         );
+        this.columnCheckedCount = Object.values(this.showColumnConfig).reduce(
+          (count, value) => {
+            return value ? ++count : count;
+          },
+          0
+        );
       } else {
-        this.showColumnConfig = {
-          username: true,
-          categoryName: true,
-          articleCount: true,
-          createTime: true,
-          updateTime: true,
-          publicFlag: true,
-          hiddenFlag: true
-        };
+        this.initColumnConfig();
       }
+    },
+    initColumnConfig() {
+      this.showColumnConfig = {
+        username: true,
+        categoryName: true,
+        articleCount: true,
+        createTime: true,
+        updateTime: true,
+        publicFlag: true,
+        hiddenFlag: true
+      };
+      this.columnCheckedCount = 7;
     },
     getCategories(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

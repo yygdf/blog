@@ -170,36 +170,57 @@
       </el-table-column>
       <el-table-column :label="$t('table.operate')" align="center" width="120">
         <template slot="header">
-          <el-popover
-            placement="bottom"
-            :title="$t('table.showColumn')"
-            width="160"
-          >
+          <el-popover placement="bottom" width="160">
             <div>
-              <el-checkbox v-model="showColumnConfig.username">{{
-                $t("table.user")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.optModule">{{
-                $t("table.optModule")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.optType">{{
-                $t("table.optType")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.optDesc">{{
-                $t("table.optDesc")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.exceptionMessage">{{
-                $t("exception.summary")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.ipAddress">{{
-                $t("table.ipAddress")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.ipSource">{{
-                $t("table.ipSource")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.createTime">{{
-                $t("table.createTime")
-              }}</el-checkbox>
+              <el-checkbox
+                :indeterminate="
+                  columnCheckedCount > 0 && columnCheckedCount < columnCount
+                "
+                :value="columnCheckedCount === columnCount"
+                @change="handleColumnCheckedAllChange"
+                >{{ $t("table.showColumn") }}</el-checkbox
+              >
+              <el-divider></el-divider>
+              <el-checkbox
+                v-model="showColumnConfig.username"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.user") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.optModule"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.optModule") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.optType"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.optType") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.optDesc"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.optDesc") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.exceptionMessage"
+                @change="handleColumnCheckedChange"
+                >{{ $t("exception.summary") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.ipAddress"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.ipAddress") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.ipSource"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.ipSource") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.createTime"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.createTime") }}</el-checkbox
+              >
               <div>
                 <el-button
                   type="primary"
@@ -214,6 +235,17 @@
             </div>
             <i slot="reference" class="el-icon-setting table-setting-icon"></i>
           </el-popover>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :content="$t('table.refresh')"
+            placement="top"
+          >
+            <i
+              class="el-icon-refresh table-refresh-icon"
+              @click="getExceptionLogs(false)"
+            ></i>
+          </el-tooltip>
         </template>
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="check(scope.row)">
@@ -344,7 +376,9 @@ export default {
       illegalFlag: false,
       size: 10,
       count: 0,
-      current: 1
+      current: 1,
+      columnCount: 8,
+      columnCheckedCount: 0
     };
   },
   methods: {
@@ -360,6 +394,30 @@ export default {
       this.current = current;
       this.getExceptionLogs();
     },
+    handleColumnCheckedChange(value) {
+      if (value) {
+        this.columnCheckedCount++;
+      } else {
+        this.columnCheckedCount--;
+      }
+    },
+    handleColumnCheckedAllChange(value) {
+      if (value) {
+        this.initColumnConfig();
+      } else {
+        this.showColumnConfig = {
+          username: false,
+          optModule: false,
+          optType: false,
+          optDesc: false,
+          exceptionMessage: false,
+          ipAddress: false,
+          ipSource: false,
+          createTime: false
+        };
+        this.columnCheckedCount = 0;
+      }
+    },
     saveColumnConfig() {
       localStorage.setItem(
         "ExceptionColumnSet",
@@ -372,18 +430,28 @@ export default {
         this.showColumnConfig = JSON.parse(
           localStorage.getItem("ExceptionColumnSet")
         );
+        this.columnCheckedCount = Object.values(this.showColumnConfig).reduce(
+          (count, value) => {
+            return value ? ++count : count;
+          },
+          0
+        );
       } else {
-        this.showColumnConfig = {
-          username: true,
-          optModule: true,
-          optType: true,
-          optDesc: true,
-          exceptionMessage: true,
-          ipAddress: true,
-          ipSource: true,
-          createTime: true
-        };
+        this.initColumnConfig();
       }
+    },
+    initColumnConfig() {
+      this.showColumnConfig = {
+        username: true,
+        optModule: true,
+        optType: true,
+        optDesc: true,
+        exceptionMessage: true,
+        ipAddress: true,
+        ipSource: true,
+        createTime: true
+      };
+      this.columnCheckedCount = 8;
     },
     getExceptionLogs(resetCurrentPage) {
       if (resetCurrentPage) {

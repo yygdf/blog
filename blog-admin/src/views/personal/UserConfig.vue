@@ -145,28 +145,37 @@
         <template slot="header">
           <el-popover
             placement="bottom"
-            :title="$t('table.showColumn')"
             width="160"
           >
             <div>
               <el-checkbox
+                    :indeterminate="
+                  columnCheckedCount > 0 && columnCheckedCount < columnCount
+                "
+                    :value="columnCheckedCount === columnCount"
+                    @change="handleColumnCheckedAllChange"
+            >{{ $t("table.showColumn") }}</el-checkbox
+            >
+              <el-divider></el-divider>
+              <el-checkbox
                 v-if="checkWeight(200)"
                 v-model="showColumnConfig.username"
+                @change="handleColumnCheckedChange"
                 >{{ $t("table.user") }}</el-checkbox
               >
-              <el-checkbox v-model="showColumnConfig.configName">{{
+              <el-checkbox v-model="showColumnConfig.configName" @change="handleColumnCheckedChange">{{
                 $t("systemConfig.name")
               }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.configValue">{{
+              <el-checkbox v-model="showColumnConfig.configValue" @change="handleColumnCheckedChange">{{
                 $t("systemConfig.value")
               }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.configDesc">{{
+              <el-checkbox v-model="showColumnConfig.configDesc" @change="handleColumnCheckedChange">{{
                 $t("systemConfig.desc")
               }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.createTime">{{
+              <el-checkbox v-model="showColumnConfig.createTime" @change="handleColumnCheckedChange">{{
                 $t("table.createDate")
               }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.updateTime">{{
+              <el-checkbox v-model="showColumnConfig.updateTime" @change="handleColumnCheckedChange">{{
                 $t("table.updateDate")
               }}</el-checkbox>
               <div>
@@ -183,6 +192,17 @@
             </div>
             <i slot="reference" class="el-icon-setting table-setting-icon"></i>
           </el-popover>
+          <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="$t('table.refresh')"
+                  placement="top"
+          >
+            <i
+                    class="el-icon-refresh table-refresh-icon"
+                    @click="getUserConfigs(false)"
+            ></i>
+          </el-tooltip>
         </template>
         <template slot-scope="scope">
           <el-button
@@ -342,7 +362,9 @@ export default {
       assimilateStatus: false,
       size: 10,
       count: 0,
-      current: 1
+      current: 1,
+      columnCount: 6,
+      columnCheckedCount: 0
     };
   },
   methods: {
@@ -386,6 +408,28 @@ export default {
         this.userConfigIdList.push(item.id);
       });
     },
+    handleColumnCheckedChange(value) {
+      if (value) {
+        this.columnCheckedCount++;
+      } else {
+        this.columnCheckedCount--;
+      }
+    },
+    handleColumnCheckedAllChange(value) {
+      if (value) {
+        this.initColumnConfig();
+      } else {
+        this.showColumnConfig = {
+          username: false,
+          configName: false,
+          configValue: false,
+          configDesc: false,
+          createTime: false,
+          updateTime: false
+        };
+        this.columnCheckedCount = 0;
+      }
+    },
     saveColumnConfig() {
       localStorage.setItem(
         "UserConfigColumnSet",
@@ -398,16 +442,26 @@ export default {
         this.showColumnConfig = JSON.parse(
           localStorage.getItem("UserConfigColumnSet")
         );
+        this.columnCheckedCount = Object.values(this.showColumnConfig).reduce(
+                (count, value) => {
+                  return value ? ++count : count;
+                },
+                0
+        );
       } else {
-        this.showColumnConfig = {
-          username: true,
-          configName: true,
-          configValue: true,
-          configDesc: true,
-          createTime: true,
-          updateTime: true
-        };
+        this.initColumnConfig();
       }
+    },
+    initColumnConfig() {
+      this.showColumnConfig = {
+        username: true,
+        configName: true,
+        configValue: true,
+        configDesc: true,
+        createTime: true,
+        updateTime: true
+      };
+      this.columnCheckedCount = 6;
     },
     getUserConfigs(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

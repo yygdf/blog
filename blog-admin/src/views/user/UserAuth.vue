@@ -195,36 +195,57 @@
       </el-table-column>
       <el-table-column :label="$t('table.operate')" align="center" width="80">
         <template slot="header">
-          <el-popover
-            placement="bottom"
-            :title="$t('table.showColumn')"
-            width="160"
-          >
+          <el-popover placement="bottom" width="160">
             <div>
-              <el-checkbox v-model="showColumnConfig.username">{{
-                $t("table.user")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.roleDTOList">{{
-                $t("auth.role")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.disabledFlag">{{
-                $t("switch.disabled")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.lockedFlag">{{
-                $t("switch.locked")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.loginMethod">{{
-                $t("table.loginMethod")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.ipAddress">{{
-                $t("table.ipAddress")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.ipSource">{{
-                $t("table.ipSource")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.loginTime">{{
-                $t("auth.lastLoginTime")
-              }}</el-checkbox>
+              <el-checkbox
+                :indeterminate="
+                  columnCheckedCount > 0 && columnCheckedCount < columnCount
+                "
+                :value="columnCheckedCount === columnCount"
+                @change="handleColumnCheckedAllChange"
+                >{{ $t("table.showColumn") }}</el-checkbox
+              >
+              <el-divider></el-divider>
+              <el-checkbox
+                v-model="showColumnConfig.username"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.user") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.roleDTOList"
+                @change="handleColumnCheckedChange"
+                >{{ $t("auth.role") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.disabledFlag"
+                @change="handleColumnCheckedChange"
+                >{{ $t("switch.disabled") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.lockedFlag"
+                @change="handleColumnCheckedChange"
+                >{{ $t("switch.locked") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.loginMethod"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.loginMethod") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.ipAddress"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.ipAddress") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.ipSource"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.ipSource") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.loginTime"
+                @change="handleColumnCheckedChange"
+                >{{ $t("auth.lastLoginTime") }}</el-checkbox
+              >
               <div>
                 <el-button
                   type="primary"
@@ -239,6 +260,17 @@
             </div>
             <i slot="reference" class="el-icon-setting table-setting-icon"></i>
           </el-popover>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :content="$t('table.refresh')"
+            placement="top"
+          >
+            <i
+              class="el-icon-refresh table-refresh-icon"
+              @click="getUserAuths(false)"
+            ></i>
+          </el-tooltip>
         </template>
         <template slot-scope="scope">
           <el-button
@@ -406,7 +438,9 @@ export default {
       size: 10,
       count: 0,
       current: 1,
+      columnCount: 8,
       passwordStatus: 0,
+      columnCheckedCount: 0,
       confirmPasswordStatus: 0
     };
   },
@@ -485,6 +519,30 @@ export default {
       }
       this.confirmPasswordStatus = 2;
     },
+    handleColumnCheckedChange(value) {
+      if (value) {
+        this.columnCheckedCount++;
+      } else {
+        this.columnCheckedCount--;
+      }
+    },
+    handleColumnCheckedAllChange(value) {
+      if (value) {
+        this.initColumnConfig();
+      } else {
+        this.showColumnConfig = {
+          username: false,
+          roleDTOList: false,
+          disabledFlag: false,
+          lockedFlag: false,
+          loginMethod: false,
+          ipAddress: false,
+          ipSource: false,
+          loginTime: false
+        };
+        this.columnCheckedCount = 0;
+      }
+    },
     saveColumnConfig() {
       localStorage.setItem(
         "UserAuthColumnSet",
@@ -497,18 +555,28 @@ export default {
         this.showColumnConfig = JSON.parse(
           localStorage.getItem("UserAuthColumnSet")
         );
+        this.columnCheckedCount = Object.values(this.showColumnConfig).reduce(
+          (count, value) => {
+            return value ? ++count : count;
+          },
+          0
+        );
       } else {
-        this.showColumnConfig = {
-          username: true,
-          roleDTOList: true,
-          disabledFlag: true,
-          lockedFlag: true,
-          loginMethod: true,
-          ipAddress: true,
-          ipSource: true,
-          loginTime: true
-        };
+        this.initColumnConfig();
       }
+    },
+    initColumnConfig() {
+      this.showColumnConfig = {
+        username: true,
+        roleDTOList: true,
+        disabledFlag: true,
+        lockedFlag: true,
+        loginMethod: true,
+        ipAddress: true,
+        ipSource: true,
+        loginTime: true
+      };
+      this.columnCheckedCount = 8;
     },
     getUserAuths(resetCurrentPage = false) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

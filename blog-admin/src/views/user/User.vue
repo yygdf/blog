@@ -195,40 +195,67 @@
         width="160"
       >
         <template slot="header">
-          <el-popover
-            placement="bottom"
-            :title="$t('table.showColumn')"
-            width="160"
-          >
+          <el-popover placement="bottom" width="160">
             <div>
-              <el-checkbox v-model="showColumnConfig.id">ID&nbsp;</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.username">{{
-                $t("table.user")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.avatar">{{
-                $t("table.avatar")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.nickname">{{
-                $t("table.nickname")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.gender">{{
-                $t("user.gender")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.email">{{
-                $t("user.email")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.intro">{{
-                $t("user.intro")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.website">{{
-                $t("user.website")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.createTime">{{
-                $t("table.createTime")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.updateTime">{{
-                $t("table.updateTime")
-              }}</el-checkbox>
+              <el-checkbox
+                :indeterminate="
+                  columnCheckedCount > 0 && columnCheckedCount < columnCount
+                "
+                :value="columnCheckedCount === columnCount"
+                @change="handleColumnCheckedAllChange"
+                >{{ $t("table.showColumn") }}</el-checkbox
+              >
+              <el-divider></el-divider>
+              <el-checkbox
+                v-model="showColumnConfig.id"
+                @change="handleColumnCheckedChange"
+                >ID&nbsp;</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.username"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.user") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.avatar"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.avatar") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.nickname"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.nickname") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.gender"
+                @change="handleColumnCheckedChange"
+                >{{ $t("user.gender") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.email"
+                @change="handleColumnCheckedChange"
+                >{{ $t("user.email") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.intro"
+                @change="handleColumnCheckedChange"
+                >{{ $t("user.intro") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.website"
+                @change="handleColumnCheckedChange"
+                >{{ $t("user.website") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.createTime"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.createTime") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.updateTime"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.updateTime") }}</el-checkbox
+              >
               <div>
                 <el-button
                   type="primary"
@@ -243,6 +270,17 @@
             </div>
             <i slot="reference" class="el-icon-setting table-setting-icon"></i>
           </el-popover>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :content="$t('table.refresh')"
+            placement="top"
+          >
+            <i
+              class="el-icon-refresh table-refresh-icon"
+              @click="getUsers(false)"
+            ></i>
+          </el-tooltip>
         </template>
         <template slot-scope="scope">
           <el-button
@@ -511,8 +549,10 @@ export default {
       size: 10,
       count: 0,
       current: 1,
+      columnCount: 10,
       lastTimeStamp: 0,
       emailExistStatus: 0,
+      columnCheckedCount: 0,
       usernameExistStatus: 0,
       defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png",
       gender1: process.env.VUE_APP_STATIC_URL + "img/gender1.png",
@@ -660,6 +700,32 @@ export default {
           }
         });
     },
+    handleColumnCheckedChange(value) {
+      if (value) {
+        this.columnCheckedCount++;
+      } else {
+        this.columnCheckedCount--;
+      }
+    },
+    handleColumnCheckedAllChange(value) {
+      if (value) {
+        this.initColumnConfig();
+      } else {
+        this.showColumnConfig = {
+          id: false,
+          username: false,
+          avatar: false,
+          nickname: false,
+          gender: false,
+          email: false,
+          intro: false,
+          website: false,
+          createTime: false,
+          updateTime: false
+        };
+        this.columnCheckedCount = 0;
+      }
+    },
     saveColumnConfig() {
       localStorage.setItem(
         "UserColumnSet",
@@ -672,20 +738,30 @@ export default {
         this.showColumnConfig = JSON.parse(
           localStorage.getItem("UserColumnSet")
         );
+        this.columnCheckedCount = Object.values(this.showColumnConfig).reduce(
+          (count, value) => {
+            return value ? ++count : count;
+          },
+          0
+        );
       } else {
-        this.showColumnConfig = {
-          id: true,
-          username: true,
-          avatar: true,
-          nickname: true,
-          gender: true,
-          email: true,
-          intro: true,
-          website: true,
-          createTime: true,
-          updateTime: true
-        };
+        this.initColumnConfig();
       }
+    },
+    initColumnConfig() {
+      this.showColumnConfig = {
+        id: true,
+        username: true,
+        avatar: true,
+        nickname: true,
+        gender: true,
+        email: true,
+        intro: true,
+        website: true,
+        createTime: true,
+        updateTime: true
+      };
+      this.columnCheckedCount = 10;
     },
     getUsers(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

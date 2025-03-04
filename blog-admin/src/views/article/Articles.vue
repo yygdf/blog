@@ -383,7 +383,6 @@
                 </el-button>
               </div>
             </div>
-
             <i slot="reference" class="el-icon-setting table-setting-icon"></i>
           </el-popover>
           <el-tooltip

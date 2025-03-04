@@ -162,39 +162,62 @@
       </el-table-column>
       <el-table-column :label="$t('table.operate')" align="center" width="80">
         <template slot="header">
-          <el-popover
-            placement="bottom"
-            :title="$t('table.showColumn')"
-            width="160"
-          >
+          <el-popover placement="bottom" width="160">
             <div>
-              <el-checkbox v-model="showColumnConfig.username">{{
-                $t("table.user")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.avatar">{{
-                $t("table.avatar")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.nickname">{{
-                $t("table.nickname")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.loginDevice">{{
-                $t("table.loginDevice")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.loginMethod">{{
-                $t("table.loginMethod")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.loginPlatform">{{
-                $t("table.loginPlatform")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.ipAddress">{{
-                $t("table.ipAddress")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.ipSource">{{
-                $t("table.ipSource")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.loginTime">{{
-                $t("table.loginTime")
-              }}</el-checkbox>
+              <el-checkbox
+                :indeterminate="
+                  columnCheckedCount > 0 && columnCheckedCount < columnCount
+                "
+                :value="columnCheckedCount === columnCount"
+                @change="handleColumnCheckedAllChange"
+                >{{ $t("table.showColumn") }}</el-checkbox
+              >
+              <el-divider></el-divider>
+              <el-checkbox
+                v-model="showColumnConfig.username"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.user") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.avatar"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.avatar") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.nickname"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.nickname") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.loginDevice"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.loginDevice") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.loginMethod"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.loginMethod") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.loginPlatform"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.loginPlatform") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.ipAddress"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.ipAddress") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.ipSource"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.ipSource") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.loginTime"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.loginTime") }}</el-checkbox
+              >
               <div>
                 <el-button
                   type="primary"
@@ -209,6 +232,17 @@
             </div>
             <i slot="reference" class="el-icon-setting table-setting-icon"></i>
           </el-popover>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :content="$t('table.refresh')"
+            placement="top"
+          >
+            <i
+              class="el-icon-refresh table-refresh-icon"
+              @click="getUserOnlines(false)"
+            ></i>
+          </el-tooltip>
         </template>
         <template slot-scope="scope">
           <el-popconfirm
@@ -282,6 +316,8 @@ export default {
       size: 10,
       count: 0,
       current: 1,
+      columnCount: 9,
+      columnCheckedCount: 0,
       defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png"
     };
   },
@@ -303,6 +339,31 @@ export default {
         this.userOnlineIdList.push(item.id);
       });
     },
+    handleColumnCheckedChange(value) {
+      if (value) {
+        this.columnCheckedCount++;
+      } else {
+        this.columnCheckedCount--;
+      }
+    },
+    handleColumnCheckedAllChange(value) {
+      if (value) {
+        this.initColumnConfig();
+      } else {
+        this.showColumnConfig = {
+          username: false,
+          avatar: false,
+          nickname: false,
+          loginDevice: false,
+          loginMethod: false,
+          loginPlatform: false,
+          ipAddress: false,
+          ipSource: false,
+          loginTime: false
+        };
+        this.columnCheckedCount = 0;
+      }
+    },
     saveColumnConfig() {
       localStorage.setItem(
         "UserOnlineColumnSet",
@@ -315,19 +376,29 @@ export default {
         this.showColumnConfig = JSON.parse(
           localStorage.getItem("UserOnlineColumnSet")
         );
+        this.columnCheckedCount = Object.values(this.showColumnConfig).reduce(
+          (count, value) => {
+            return value ? ++count : count;
+          },
+          0
+        );
       } else {
-        this.showColumnConfig = {
-          username: true,
-          avatar: true,
-          nickname: true,
-          loginDevice: true,
-          loginMethod: true,
-          loginPlatform: true,
-          ipAddress: true,
-          ipSource: true,
-          loginTime: true
-        };
+        this.initColumnConfig();
       }
+    },
+    initColumnConfig() {
+      this.showColumnConfig = {
+        username: true,
+        avatar: true,
+        nickname: true,
+        loginDevice: true,
+        loginMethod: true,
+        loginPlatform: true,
+        ipAddress: true,
+        ipSource: true,
+        loginTime: true
+      };
+      this.columnCheckedCount = 9;
     },
     getUserOnlines(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

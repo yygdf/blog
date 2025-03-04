@@ -197,38 +197,58 @@
       </el-table-column>
       <el-table-column :label="$t('table.operate')" align="center" width="160">
         <template slot="header">
-          <el-popover
-            placement="bottom"
-            :title="$t('table.showColumn')"
-            width="160"
-          >
+          <el-popover placement="bottom" width="160">
             <div>
+              <el-checkbox
+                :indeterminate="
+                  columnCheckedCount > 0 && columnCheckedCount < columnCount
+                "
+                :value="columnCheckedCount === columnCount"
+                @change="handleColumnCheckedAllChange"
+                >{{ $t("table.showColumn") }}</el-checkbox
+              >
+              <el-divider></el-divider>
               <el-checkbox
                 v-if="checkWeight(400)"
                 v-model="showColumnConfig.username"
+                @change="handleColumnCheckedChange"
                 >{{ $t("table.user") }}</el-checkbox
               >
-              <el-checkbox v-model="showColumnConfig.avatar">{{
-                $t("table.avatar")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.nickname">{{
-                $t("comment.from")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.replyNickname">{{
-                $t("comment.to")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.articleTitle">{{
-                $t("article.articleTitle")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.commentContent">{{
-                $t("comment.content")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.likeCount">{{
-                $t("article.likeCount")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.createTime">{{
-                $t("comment.createTime")
-              }}</el-checkbox>
+              <el-checkbox
+                v-model="showColumnConfig.avatar"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.avatar") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.nickname"
+                @change="handleColumnCheckedChange"
+                >{{ $t("comment.from") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.replyNickname"
+                @change="handleColumnCheckedChange"
+                >{{ $t("comment.to") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.articleTitle"
+                @change="handleColumnCheckedChange"
+                >{{ $t("article.articleTitle") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.commentContent"
+                @change="handleColumnCheckedChange"
+                >{{ $t("comment.content") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.likeCount"
+                @change="handleColumnCheckedChange"
+                >{{ $t("article.likeCount") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.createTime"
+                @change="handleColumnCheckedChange"
+                >{{ $t("comment.createTime") }}</el-checkbox
+              >
               <div>
                 <el-button
                   type="primary"
@@ -243,6 +263,17 @@
             </div>
             <i slot="reference" class="el-icon-setting table-setting-icon"></i>
           </el-popover>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :content="$t('table.refresh')"
+            placement="top"
+          >
+            <i
+              class="el-icon-refresh table-refresh-icon"
+              @click="getComments(false)"
+            ></i>
+          </el-tooltip>
         </template>
         <template slot-scope="scope">
           <el-popconfirm
@@ -367,6 +398,8 @@ export default {
       size: 10,
       count: 0,
       current: 1,
+      columnCount: 8,
+      columnCheckedCount: 0,
       defaultAvatar: process.env.VUE_APP_STATIC_URL + "img/avatar.png"
     };
   },
@@ -388,6 +421,30 @@ export default {
         this.commentIdList.push(item.id);
       });
     },
+    handleColumnCheckedChange(value) {
+      if (value) {
+        this.columnCheckedCount++;
+      } else {
+        this.columnCheckedCount--;
+      }
+    },
+    handleColumnCheckedAllChange(value) {
+      if (value) {
+        this.initColumnConfig();
+      } else {
+        this.showColumnConfig = {
+          username: false,
+          avatar: false,
+          nickname: false,
+          replyNickname: false,
+          articleTitle: false,
+          commentContent: false,
+          likeCount: false,
+          createTime: false
+        };
+        this.columnCheckedCount = 0;
+      }
+    },
     saveColumnConfig() {
       localStorage.setItem(
         "CommentColumnSet",
@@ -400,18 +457,28 @@ export default {
         this.showColumnConfig = JSON.parse(
           localStorage.getItem("CommentColumnSet")
         );
+        this.columnCheckedCount = Object.values(this.showColumnConfig).reduce(
+          (count, value) => {
+            return value ? ++count : count;
+          },
+          0
+        );
       } else {
-        this.showColumnConfig = {
-          username: true,
-          avatar: true,
-          nickname: true,
-          replyNickname: true,
-          articleTitle: true,
-          commentContent: true,
-          likeCount: true,
-          createTime: true
-        };
+        this.initColumnConfig();
       }
+    },
+    initColumnConfig() {
+      this.showColumnConfig = {
+        username: true,
+        avatar: true,
+        nickname: true,
+        replyNickname: true,
+        articleTitle: true,
+        commentContent: true,
+        likeCount: true,
+        createTime: true
+      };
+      this.columnCheckedCount = 8;
     },
     getComments(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {

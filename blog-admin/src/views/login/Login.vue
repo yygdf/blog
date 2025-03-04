@@ -65,7 +65,7 @@ export default {
   },
   data: function() {
     const checkUsername = (rule, value, callback) => {
-      const val = value.trim();
+      const val = value == null ? "" : value.trim();
       if (!val) {
         callback(new Error(this.$t("login.usernameRule1")));
       }

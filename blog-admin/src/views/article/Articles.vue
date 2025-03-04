@@ -300,47 +300,77 @@
         <template slot="header">
           <el-popover placement="bottom" width="160">
             <div>
-              <el-checkbox>{{ $t("table.showColumn") }}</el-checkbox>
+              <el-checkbox
+                :indeterminate="
+                  columnCheckedCount > 0 && columnCheckedCount < columnCount
+                "
+                :value="columnCheckedCount === columnCount"
+                @change="handleColumnCheckedAllChange"
+                >{{ $t("table.showColumn") }}</el-checkbox
+              >
               <el-divider></el-divider>
               <el-checkbox
                 v-if="checkWeight(300)"
                 v-model="showColumnConfig.username"
+                @change="handleColumnCheckedChange"
                 >{{ $t("table.user") }}</el-checkbox
               >
-              <el-checkbox v-model="showColumnConfig.articleTitle">{{
-                $t("article.title")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.categoryName">{{
-                $t("article.category")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.tagNameList">{{
-                $t("article.tag")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.viewCount">{{
-                $t("article.viewCount")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.likeCount">{{
-                $t("article.likeCount")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.publishTime">{{
-                $t("table.publishDate")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.updateTime">{{
-                $t("table.updateDate")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.topFlag">{{
-                $t("switch.top")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.publicFlag">{{
-                $t("switch.public")
-              }}</el-checkbox>
-              <el-checkbox v-model="showColumnConfig.hiddenFlag">{{
-                $t("switch.hidden")
-              }}</el-checkbox>
+              <el-checkbox
+                v-model="showColumnConfig.articleTitle"
+                @change="handleColumnCheckedChange"
+                >{{ $t("article.title") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.categoryName"
+                @change="handleColumnCheckedChange"
+                >{{ $t("article.category") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.tagNameList"
+                @change="handleColumnCheckedChange"
+                >{{ $t("article.tag") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.viewCount"
+                @change="handleColumnCheckedChange"
+                >{{ $t("article.viewCount") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.likeCount"
+                @change="handleColumnCheckedChange"
+                >{{ $t("article.likeCount") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.publishTime"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.publishDate") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.updateTime"
+                @change="handleColumnCheckedChange"
+                >{{ $t("table.updateDate") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.topFlag"
+                @change="handleColumnCheckedChange"
+                >{{ $t("switch.top") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.publicFlag"
+                @change="handleColumnCheckedChange"
+                >{{ $t("switch.public") }}</el-checkbox
+              >
+              <el-checkbox
+                v-model="showColumnConfig.hiddenFlag"
+                @change="handleColumnCheckedChange"
+                >{{ $t("switch.hidden") }}</el-checkbox
+              >
               <div />
-              <el-checkbox v-model="showColumnConfig.commentableFlag">{{
-                $t("switch.commentable")
-              }}</el-checkbox>
+              <el-checkbox
+                v-model="showColumnConfig.commentableFlag"
+                @change="handleColumnCheckedChange"
+                >{{ $t("switch.commentable") }}</el-checkbox
+              >
               <div>
                 <el-button
                   type="primary"
@@ -364,7 +394,7 @@
           >
             <i
               class="el-icon-refresh table-refresh-icon"
-              @click="getArticles"
+              @click="getArticles(false)"
             ></i>
           </el-tooltip>
         </template>
@@ -586,7 +616,9 @@ export default {
       size: 10,
       count: 0,
       current: 1,
+      columnCount: 12,
       tokenValidStatus: 0,
+      columnCheckedCount: 0,
       tokenMap: new Map()
     };
   },
@@ -661,6 +693,34 @@ export default {
         this.tokenValidStatus = -1;
       }
     },
+    handleColumnCheckedChange(value) {
+      if (value) {
+        this.columnCheckedCount++;
+      } else {
+        this.columnCheckedCount--;
+      }
+    },
+    handleColumnCheckedAllChange(value) {
+      if (value) {
+        this.initColumnConfig();
+      } else {
+        this.showColumnConfig = {
+          username: false,
+          articleTitle: false,
+          categoryName: false,
+          tagNameList: false,
+          viewCount: false,
+          likeCount: false,
+          publishTime: false,
+          updateTime: false,
+          topFlag: false,
+          publicFlag: false,
+          hiddenFlag: false,
+          commentableFlag: false
+        };
+        this.columnCheckedCount = 0;
+      }
+    },
     cancelAddOrEditArticleToken() {
       this.tokenMap.set(this.articleTokenOrigin.id, this.articleTokenOrigin);
     },
@@ -676,22 +736,32 @@ export default {
         this.showColumnConfig = JSON.parse(
           localStorage.getItem("ArticlesColumnSet")
         );
+        this.columnCheckedCount = Object.values(this.showColumnConfig).reduce(
+          (count, value) => {
+            return value ? ++count : count;
+          },
+          0
+        );
       } else {
-        this.showColumnConfig = {
-          username: true,
-          articleTitle: true,
-          categoryName: true,
-          tagNameList: true,
-          viewCount: true,
-          likeCount: true,
-          publishTime: true,
-          updateTime: true,
-          topFlag: true,
-          publicFlag: true,
-          hiddenFlag: true,
-          commentableFlag: true
-        };
+        this.initColumnConfig();
       }
+    },
+    initColumnConfig() {
+      this.showColumnConfig = {
+        username: true,
+        articleTitle: true,
+        categoryName: true,
+        tagNameList: true,
+        viewCount: true,
+        likeCount: true,
+        publishTime: true,
+        updateTime: true,
+        topFlag: true,
+        publicFlag: true,
+        hiddenFlag: true,
+        commentableFlag: true
+      };
+      this.columnCheckedCount = 12;
     },
     getArticles(resetCurrentPage) {
       if (resetCurrentPage || this.keywords !== this.oldKeywords) {
